@@ -2,16 +2,14 @@ const CACHE_NAME = "verve-v1.0.0";
 
 const APP_SHELL = [
   "./",
-  "./index.html",
-  "./manifest.json",
-  "./auth-guard.js",
-
-  "./icons/launchericon-48x48.png",
-  "./icons/launchericon-72x72.png",
-  "./icons/launchericon-96x96.png",
-  "./icons/launchericon-144x144.png",
-  "./icons/launchericon-192x192.png",
-  "./icons/launchericon-512x512.png"
+  "index.html",
+  "manifest.json",
+  "icons/96.png",
+  "icons/180.png",
+  "icons/192.png",
+  "icons/512.png",
+  "icons/launchericon-192x192.png",
+  "icons/launchericon-512x512.png"
 ];
 
 // Install
