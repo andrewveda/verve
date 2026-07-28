@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- ORIGINAL PWA METADATA & MANIFEST PRESERVED -->
-  <link rel="icon" type="image/png" href="icons/icon-96x96.png">
+ <link rel="icon" type="image/png" href="icons/96.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Verve</title>
+  <!-- Main Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="icons/32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/16.png">
+
+<!-- iOS Touch Icon -->
+<link rel="apple-touch-icon" sizes="180x180" href="icons/180.png">
   <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#5A0F17">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1357,66 +1362,19 @@
   })();
 </script>
 
-<!-- Service Worker Registration & Install Handling -->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('service-worker.js').catch(() => {});
-    });
-  }
-
-  // ─── PWA install detection & prompt ───
-  let deferredPrompt = null;
-
-  const isStandalone = () =>
-    window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true; // iOS Safari flag
-
-  const isIOS = () =>
-    /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-  function setInstallUI(visible) {
-    const fab = document.getElementById('installFab');
-    const drawerBtn = document.getElementById('drawerInstallBtn');
-    const display = visible ? 'flex' : 'none';
-    if (fab) fab.style.display = display;
-    if (drawerBtn) drawerBtn.style.display = visible ? 'flex' : 'none';
-  }
-
-  // Show install affordances by default on iOS (no beforeinstallprompt there),
-  // hide immediately if already running standalone.
-  if (isStandalone()) {
-    setInstallUI(false);
-  } else if (isIOS()) {
-    setInstallUI(true);
-  }
-
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    setInstallUI(true);
+  <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then(reg => {
+        console.log("Service Worker registered:", reg.scope);
+      })
+      .catch(err => {
+        console.error("Service Worker registration failed:", err);
+      });
   });
-
-  window.addEventListener('appinstalled', () => {
-    deferredPrompt = null;
-    setInstallUI(false);
-  });
-
-  window.installApp = async function () {
-    if (deferredPrompt) {
-      const promptEvent = deferredPrompt;
-      deferredPrompt = null;
-      promptEvent.prompt();
-      await promptEvent.userChoice;
-      setInstallUI(false);
-      return;
-    }
-    if (isIOS()) {
-      alert('To install: tap the Share icon in Safari, then "Add to Home Screen".');
-      return;
-    }
-    alert('Look for the install icon in your browser\'s address bar, or check the browser menu for "Install App".');
-  };
+}
 </script>
 </body>
 </html>
