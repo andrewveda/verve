@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+  <title>Blossom Hard — Word Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --petal: #c8943a;
+      --petal-hover: #a87828;
+      --petal-light: #faf0dc;
+      --center: #3d2008;
+      --center-hover: #2a1404;
+      --stem: #3a5c28;
+      --stem-light: #527a38;
+      --stem-pale: #eaf2e0;
+      --ink: #1c1710;
+      --ink-soft: #5a4a30;
+      --gold: #9a7020;
+      --gold-light: #faf2dc;
+      --bg: #faf6ef;
+      --bg2: #f2ebe0;
+      --card: #fdfaf4;
+      --card-border: rgba(61,32,8,0.12);
+      --shadow: rgba(28,23,16,0.09);
+      --shadow-md: rgba(28,23,16,0.16);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 90% 55% at 50% -5%,  rgba(200,148,58,0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 40% at 95% 100%, rgba(58,92,40,0.05)  0%, transparent 60%),
+        radial-gradient(ellipse 50% 35% at 0%   55%, rgba(61,32,8,0.04)   0%, transparent 55%);
+      pointer-events: none; z-index: 0;
+    }
+
+    .screen { display: none; flex-direction: column; align-items: center; width: 100%; position: relative; z-index: 1; }
+    .screen.active { display: flex; }
+
+    /* ══ COMPACT STICKY HEADER ══ */
+    #gameScreen header {
+      position: sticky; top: 0; z-index: 100; width: 100%;
+      background: linear-gradient(180deg, var(--bg) 88%, rgba(250,245,240,0));
+      padding: 10px 14px 6px;
+    }
+
+    .header-title-row {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 8px;
+    }
+    .header-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px;
+      color: var(--ink); line-height: 1;
+    }
+    .header-title .ht-flower { color: var(--center); }
+    .header-mode-pill {
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #4a2a0a, var(--center));
+      color: #e8d090; padding: 5px 11px; border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(61,32,8,0.4);
+      animation: pillPulse 3s ease-in-out infinite;
+    }
+    @keyframes pillPulse {
+      0%,100% { box-shadow: 0 2px 10px rgba(61,32,8,0.4); }
+      50%      { box-shadow: 0 2px 18px rgba(61,32,8,0.65); }
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: grid; grid-template-columns: auto 1fr 1fr 1fr;
+      gap: 0; align-items: center;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      box-shadow: 0 2px 14px var(--shadow);
+      overflow: hidden; margin-bottom: 7px;
+    }
+    .strip-timer {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 7px 12px 7px 10px;
+      border-right: 1px solid rgba(61,32,8,0.08); gap: 1px;
+      background: rgba(200,148,58,0.05);
+    }
+    .strip-timer-arc { position: relative; width: 36px; height: 36px; }
+    #timerArc { transform: rotate(-90deg); }
+    .timer-text {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.68rem; font-weight: 700; color: var(--ink);
+      transition: color 0.4s;
+    }
+    .timer-text.amber { color: var(--gold); }
+    .timer-text.danger { color: var(--center); animation: timerPulse 0.6s ease-in-out infinite; }
+    @keyframes timerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.18)} }
+    .strip-timer-lbl { font-size: 0.55rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; }
+    .strip-stat {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 7px 4px; gap: 1px;
+      border-right: 1px solid rgba(61,32,8,0.06);
+    }
+    .strip-stat:last-child { border-right: none; }
+    .strip-stat .s-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem; font-weight: 700; color: var(--stem); line-height: 1;
+    }
+    .strip-stat .s-lbl {
+      font-size: 0.55rem; color: var(--ink-soft);
+      text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; opacity: 0.6;
+    }
+
+    /* Rank strip */
+    .rank-strip {
+      display: flex; align-items: center; gap: 7px; margin-bottom: 2px;
+    }
+    .rank-name {
+      font-family: 'Playfair Display', serif; font-size: 0.8rem;
+      font-weight: 700; color: var(--petal); white-space: nowrap;
+    }
+    .rank-track {
+      flex: 1; height: 4px;
+      background: rgba(200,148,58,0.15); border-radius: 99px; overflow: hidden;
+    }
+    .rank-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--petal), var(--center));
+      border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    }
+    .rank-pts { font-size: 0.58rem; color: var(--ink-soft); white-space: nowrap; opacity: 0.65; }
+
+    /* ══ MAIN LAYOUT ══ */
+    .main-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      width: 100%; max-width: 480px; padding: 0 14px 40px; gap: 10px;
+    }
+
+    /* Input row */
+    .input-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+    .word-display {
+      flex: 1; background: var(--card);
+      border: 2px solid rgba(200,148,58,0.25);
+      border-radius: 14px; padding: 12px 18px;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem; letter-spacing: 0.08em;
+      color: var(--ink); min-height: 56px;
+      display: flex; align-items: center;
+      box-shadow: 0 2px 14px var(--shadow);
+      text-transform: uppercase; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .word-display.error  { border-color: #8a3010; box-shadow: 0 0 0 3px rgba(138,48,16,0.1); animation: shake 0.35s ease; }
+    .word-display.success{ border-color: var(--stem-light); box-shadow: 0 0 0 3px rgba(82,122,56,0.1); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+    .word-display .cursor {
+      display: inline-block; width: 2px; height: 1.2em;
+      background: var(--center); margin-left: 2px;
+      animation: blink 1s step-end infinite; vertical-align: middle; border-radius: 1px;
+    }
+    @keyframes blink { 50%{opacity:0} }
+    .btn-delete {
+      background: var(--card); border: 2px solid rgba(200,148,58,0.22);
+      border-radius: 14px; width: 56px; height: 56px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1.4rem;
+      box-shadow: 0 2px 14px var(--shadow);
+      transition: background 0.12s, transform 0.08s, box-shadow 0.12s;
+      color: var(--ink-soft);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn-delete:hover { background: var(--petal-light); }
+    .btn-delete:active { transform: scale(0.88); box-shadow: 0 1px 6px var(--shadow); background: var(--petal-light); }
+
+    /* ══ FLOWER ══ */
+    .flower-svg {
+      width: 100%; max-width: 340px; height: auto; margin: 2px 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .outer-petal {
+      fill: var(--petal); cursor: pointer;
+      filter: drop-shadow(0 2px 8px rgba(200,148,58,0.3));
+      transition: filter 0.18s ease;
+    }
+    .center-petal {
+      fill: var(--center); cursor: pointer;
+      filter: drop-shadow(0 3px 12px rgba(61,32,8,0.45));
+      transition: filter 0.18s ease;
+    }
+    .flower-letter {
+      font-family: 'Playfair Display', serif; font-weight: 700;
+      text-anchor: middle; dominant-baseline: middle;
+      user-select: none; pointer-events: none;
+    }
+
+    /* Enter button */
+    .btn-enter {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--stem), var(--stem-light));
+      color: #fff; border: none; border-radius: 14px;
+      font-family: 'DM Sans', sans-serif; font-size: 1rem;
+      font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(26,92,53,0.35);
+      transition: transform 0.1s, box-shadow 0.12s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn-enter:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(26,92,53,0.25); }
+    .btn-enter:disabled { background: #d8d0cc; color: #a09090; cursor: default; transform: none; box-shadow: none; }
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* Controls */
+    .controls { display: flex; gap: 8px; width: 100%; }
+    .btn-secondary {
+      flex: 1; padding: 11px 6px; background: var(--card);
+      color: var(--ink-soft); border: 1.5px solid rgba(61,32,8,0.14);
+      border-radius: 12px; font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; cursor: pointer;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: background 0.12s, transform 0.08s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn-secondary:active { transform: scale(0.94); background: var(--petal-light); }
+    .btn-end-game {
+      flex: 1; padding: 11px 6px;
+      background: rgba(200,148,58,0.08);
+      color: var(--petal); border: 1.5px solid rgba(200,148,58,0.3);
+      border-radius: 12px; font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; cursor: pointer;
+      transition: background 0.12s, transform 0.08s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .btn-end-game:active { transform: scale(0.94); background: rgba(200,148,58,0.16); }
+
+    /* ══ TOAST ══ */
+    .toast {
+      position: fixed; top: 24px; left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--ink); color: #fff;
+      padding: 10px 24px; border-radius: 99px;
+      font-size: 0.88rem; font-weight: 600; z-index: 200;
+      pointer-events: none;
+      transition: transform 0.35s cubic-bezier(.2,1.4,.4,1), opacity 0.35s;
+      opacity: 0; white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(26,14,18,0.25);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.good { background: var(--stem); }
+    .toast.bad  { background: var(--center); }
+
+    /* ══ FOUND WORDS ══ */
+    .found-section {
+      width: 100%; background: var(--card);
+      border: 1.5px solid var(--card-border);
+      border-radius: 14px; padding: 14px 18px;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+    .found-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .found-header h3 { font-family: 'Playfair Display', serif; font-size: 0.9rem; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; }
+    .found-count { background: var(--stem); color: #fff; border-radius: 99px; padding: 2px 10px; font-size: 0.75rem; font-weight: 700; }
+    .found-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .found-word {
+      background: var(--petal-light);
+      border: 1.5px solid rgba(200,148,58,0.3);
+      color: var(--center); border-radius: 8px;
+      padding: 4px 10px; font-size: 0.8rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      animation: pop-in 0.3s cubic-bezier(.2,1.5,.4,1);
+    }
+    @keyframes pop-in { from{transform:scale(0.6);opacity:0} to{transform:scale(1);opacity:1} }
+    .found-word.pangram { background: var(--gold-light); border-color: rgba(154,112,32,0.35); color: var(--gold); }
+    .found-word.pangram::before { content: '★ '; }
+
+    footer { position: relative; z-index: 1; padding-bottom: 20px; font-size: 0.7rem; color: rgba(90,74,48,0.45); text-align: center; }
+
+    /* ══ END SCREEN ══ */
+    #endScreen { min-height: 100vh; justify-content: flex-start; padding: 30px 16px 50px; }
+    .end-card {
+      background: var(--card);
+      border: 1.5px solid var(--card-border);
+      border-radius: 24px; padding: 34px 26px;
+      max-width: 480px; width: 100%;
+      box-shadow: 0 0 40px rgba(200,148,58,0.08), 0 20px 50px var(--shadow-md);
+      animation: cardIn 0.6s cubic-bezier(0.34,1.4,0.64,1) forwards;
+    }
+    @keyframes cardIn { from{opacity:0;transform:translateY(32px) scale(0.96)} to{opacity:1;transform:none} }
+    .end-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 900; text-align: center; color: var(--petal); margin-bottom: 4px; }
+    .end-subtitle { text-align: center; font-size: 0.78rem; color: var(--ink-soft); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 20px; opacity: 0.7; }
+    .end-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .stat-box { background: var(--bg2); border-radius: 12px; padding: 14px 8px; text-align: center; border: 1px solid var(--card-border); }
+    .stat-num { font-family: 'Playfair Display', serif; font-size: 1.9rem; font-weight: 700; color: var(--stem); line-height: 1; }
+    .stat-lbl { font-size: 0.65rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; opacity: 0.7; }
+    .identity-section { background: var(--bg2); border-radius: 14px; padding: 14px 16px; border: 1px solid var(--card-border); margin-bottom: 16px; }
+    .identity-section h4 { font-family: 'Playfair Display', serif; font-size: 0.9rem; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+    .identity-known { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--stem); display: flex; align-items: center; gap: 8px; }
+    .identity-known .id-sub { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; color: var(--ink-soft); font-weight: 400; opacity: 0.8; }
+    .identity-fields { display: flex; flex-direction: column; gap: 8px; }
+    .identity-fields input, .identity-fields select { padding: 10px 14px; border-radius: 10px; border: 1.5px solid rgba(200,148,58,0.2); background: var(--card); color: var(--ink); font-size: 0.9rem; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; width: 100%; }
+    .identity-fields input:focus, .identity-fields select:focus { border-color: var(--stem-light); }
+    .id-note { font-size: 0.7rem; color: var(--ink-soft); margin-top: 4px; text-align: center; opacity: 0.6; }
+    .submit-status { font-size: 0.75rem; text-align: center; margin-top: 8px; min-height: 18px; color: var(--stem); }
+    .submit-status.err { color: #8a3010; }
+    .words-section-title { font-size: 0.75rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 700; opacity: 0.7; }
+    .end-words-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .end-word-chip { background: var(--petal-light); border: 1px solid rgba(200,148,58,0.25); color: var(--center); border-radius: 8px; padding: 4px 12px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; animation: pop-in 0.35s cubic-bezier(.2,1.5,.4,1) backwards; }
+    .end-word-chip.pangram { background: var(--gold-light); border-color: rgba(154,112,32,0.3); color: var(--gold); }
+    .end-word-chip.pangram::before { content: '★ '; }
+    .end-word-chip.missed { background: var(--bg2); border-color: rgba(61,32,8,0.15); color: var(--ink-soft); opacity: 0.75; }
+    .end-word-chip.missed.pangram { background: var(--gold-light); border-color: rgba(154,112,32,0.25); color: var(--gold); opacity: 0.8; }
+    .possible-section { background: var(--bg2); border-radius: 14px; padding: 14px 16px; border: 1px solid var(--card-border); margin-bottom: 16px; }
+    .possible-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .possible-title { font-family: 'Playfair Display', serif; font-size: 0.9rem; font-weight: 700; color: var(--ink); }
+    .possible-subtitle { font-size: 0.7rem; color: var(--ink-soft); margin-bottom: 10px; opacity: 0.7; }
+    .progress-bar { height: 4px; background: rgba(181,21,43,0.1); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--stem-light), var(--center)); border-radius: 99px; transition: width 0.3s; }
+    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; font-size: 0.7rem; color: var(--ink-soft); opacity: 0.8; }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+    .end-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+    .btn-end { flex: 1; padding: 13px 10px; border: none; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.86rem; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: transform 0.1s; text-transform: uppercase; min-width: 90px; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+    .btn-end:active { transform: scale(0.96); }
+    .btn-end-primary { background: linear-gradient(135deg, var(--stem), var(--stem-light)); color: white; box-shadow: 0 4px 16px rgba(26,92,53,0.3); }
+    .btn-end-share { background: linear-gradient(135deg, #0a5c4e, #128c7e); color: white; }
+    .btn-end-secondary { background: var(--bg2); color: var(--ink-soft); border: 1.5px solid var(--card-border); }
+
+    @media(max-width:360px) { .flower-svg { max-width: 290px; } }
+  </style>
+</head>
+<body>
+
+<canvas id="statsCanvas" style="display:none;"></canvas>
+<div class="toast" id="toast"></div>
+
+<!-- ══ GAME SCREEN ══ -->
+<div class="screen active" id="gameScreen">
+  <header>
+    <div class="header-title-row">
+      <div class="header-title">Bloss<span class="ht-flower">✿</span>m</div>
+      <div class="header-mode-pill">🔥 Hard Mode</div>
+    </div>
+    <div class="stats-strip">
+      <div class="strip-timer">
+        <div class="strip-timer-arc">
+          <svg id="timerArc" width="36" height="36" viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="3"/>
+            <circle id="arcPath" cx="18" cy="18" r="14" fill="none" stroke="var(--stem-light)" stroke-width="3"
+              stroke-dasharray="87.96" stroke-dashoffset="0" stroke-linecap="round"
+              style="transition:stroke-dashoffset 1s linear,stroke 0.5s ease;"/>
+          </svg>
+          <div class="timer-text" id="timerText">3:00</div>
+        </div>
+        <div class="strip-timer-lbl">Time</div>
+      </div>
+      <div class="strip-stat"><span class="s-val" id="score">0</span><span class="s-lbl">Score</span></div>
+      <div class="strip-stat"><span class="s-val" id="word-count">0</span><span class="s-lbl">Words</span></div>
+      <div class="strip-stat"><span class="s-val" id="best-score">0</span><span class="s-lbl">Best</span></div>
+    </div>
+    <div class="rank-strip">
+      <span class="rank-name" id="rank-name">Ember 🔥</span>
+      <div class="rank-track"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
+      <span class="rank-pts" id="rank-pts">15 pts</span>
+    </div>
+  </header>
+  <div class="main-wrap">
+    <div class="input-row">
+      <div class="word-display" id="word-display"><span id="typed-letters"></span><span class="cursor"></span></div>
+      <button class="btn-delete" id="btn-delete">⌫</button>
+    </div>
+    <svg id="flower" viewBox="0 0 300 300" class="flower-svg"></svg>
+    <button class="btn-enter" id="btn-enter">Enter Word</button>
+    <div class="controls">
+      <button class="btn-secondary" id="btn-shuffle">⇄ Shuffle</button>
+      <button class="btn-secondary" id="btn-new">✿ New Puzzle</button>
+      <button class="btn-end-game" id="btn-end-game">🏁 End</button>
+    </div>
+    <div class="found-section">
+      <div class="found-header">
+        <h3>Found Words</h3>
+        <span class="found-count" id="found-count">0</span>
+      </div>
+      <div class="found-list" id="found-list">
+        <span style="font-size:0.78rem;color:#4a2a1a">5+ letter words will appear here…</span>
+      </div>
+    </div>
+  </div>
+  <footer>Hard Mode · 5+ letters · Center letter required · Pangrams use all 7 ★</footer>
+</div>
+
+<!-- ══ END SCREEN ══ -->
+<div class="screen" id="endScreen">
+  <div class="end-card">
+    <div class="end-title" id="endTitle">🔥 Time's Up!</div>
+    <div class="end-subtitle" id="endSubtitle">Blossom Hard Mode</div>
+    <div class="end-stats">
+      <div class="stat-box"><div class="stat-num" id="endScore">0</div><div class="stat-lbl">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="endWords">0</div><div class="stat-lbl">Words</div></div>
+      <div class="stat-box"><div class="stat-num" id="endPangrams">0</div><div class="stat-lbl">Pangrams ★</div></div>
+    </div>
+
+    <!-- Identity -->
+    <div class="identity-section">
+      <h4>📋 Record Your Score</h4>
+      <div class="identity-known" id="identityKnown" style="display:none;">
+        <span>👤</span>
+        <div><div id="knownName"></div><div class="id-sub" id="knownDept"></div></div>
+      </div>
+      <div class="identity-fields" id="identityFields">
+        <input type="text" id="playerName" placeholder="Your name" maxlength="60"/>
+        <select id="playerDept">
+          <option value="">— Select Department —</option>
+          <option>Cyber Security</option><option>EIE</option>
+          <option>CSE-1</option><option>CSE-2</option><option>CSE-3</option>
+          <option>Mechanical Engineering</option>
+          <option>ECE-1</option><option>ECE-2</option><option>ECE-3</option>
+          <option>AI DS-1</option><option>AI DS-2</option>
+          <option>Agri and Civil</option><option>EEE</option>
+          <option>Medical Electronics</option>
+          <option>IT-1</option><option>IT-2</option>
+        </select>
+        <div class="id-note">Your score will be submitted to the Hard Mode leaderboard.</div>
+      </div>
+      <div class="submit-status" id="submitStatus"></div>
+    </div>
+
+    <div class="end-btn-row">
+      <button class="btn-end btn-end-primary"  id="btnPlayAgain">🔥 Play Again</button>
+      <button class="btn-end btn-end-share"     id="btnShare">📲 Share</button>
+      <button class="btn-end btn-end-secondary" id="btnLeaderboard">🏆 Board</button>
+    </div>
+
+    <div class="words-section-title">✅ Words You Found</div>
+    <div class="end-words-grid" id="endWordsFound"></div>
+
+    <div class="possible-section" id="possibleSection">
+      <div class="possible-header">
+        <div class="possible-title">💀 Missed Words</div>
+        <div id="possibleCount" style="font-size:0.75rem;color:#6a4a38;"></div>
+      </div>
+      <div class="possible-subtitle" id="possibleSubtitle">Finding all valid words…</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(45,107,66,0.4);border:1px solid #4a9660;"></div> Found</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(200,58,34,0.3);border:1px solid var(--petal);"></div> Missed</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(196,122,0,0.3);border:1px solid var(--gold);"></div> Pangram</div>
+      </div>
+      <div class="end-words-grid" id="endWordsAll"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   WORD BANK (5+ letter words only)
+═══════════════════════════════════════════════ */
+const WORD_BANK_RAW = `acorn,acres,acted,adorn,agent,agree,aider,alien,align,alone,along,alter,angel,anger,
+angle,antic,arced,areal,argon,arose,arson,atone,crane,dated,dealt,dance,dares,darts,dates,deals,
+earns,edits,eight,elect,elide,elite,ember,ended,enter,entry,erode,exact,exist,exert,facet,faded,
+faint,faith,false,farce,fared,fatal,fated,feign,feast,felon,fence,feral,finer,first,fixed,flare,
+flint,float,floor,flora,floss,fluid,focal,force,forge,forte,found,franc,frank,freak,freed,fresh,
+front,frost,froth,frown,froze,fruit,gales,gents,ghost,giant,gland,glare,glean,glide,globe,gloss,
+glove,grace,grade,graft,grain,grand,grant,grasp,greet,grind,groan,groom,grope,gross,grout,grove,
+grunt,guard,guile,guise,handy,harsh,haste,haven,heron,hinge,horse,hoist,hotel,human,ideal,inner,
+inset,inter,intro,irate,irked,joint,joust,lance,later,large,laser,latch,lathe,lapse,learn,ledge,
+lemon,liner,lingo,liver,local,lodge,logic,loner,loose,lowly,lunar,mango,maple,march,major,melon,
+metal,micro,mirth,molar,manor,moron,motor,mourn,naive,natal,nerve,night,noble,north,notch,noted,
+novel,oaken,ocean,often,onset,optic,orbit,order,other,outdo,outer,ovoid,ozone,panel,pangs,parch,
+parse,party,patch,pause,peace,penal,perch,pilot,pinch,pitch,place,plaid,plain,plane,plant,plate,
+pleat,plier,point,posed,poise,poker,polar,porch,power,price,pride,prime,print,prior,prize,probe,
+proof,prose,proud,prove,queen,quest,radio,ranch,range,raven,reach,realm,reign,relay,renal,repay,
+rider,river,rivet,robot,rocky,rouge,rough,round,route,royal,ruler,saint,salon,salve,saner,satin,
+scale,scald,scant,scone,score,scout,scram,screw,seize,sense,serum,seven,shade,shaft,shale,shape,
+share,sharp,shear,shelf,shell,shift,shire,shore,short,shout,shove,sight,silky,since,sinew,sixth,
+sixty,skill,slack,slain,slant,slate,slave,sleek,sleep,sleet,snare,sneak,snide,snore,solar,solid,
+solve,sonic,sorry,south,space,spare,spark,spawn,speak,spear,speed,spend,spire,spite,spoke,spool,
+sport,spout,squad,stain,stale,stall,stand,stare,stark,start,state,steak,steal,steel,steep,steer,
+stern,stick,stiff,sting,stink,stone,stood,store,stork,storm,story,stove,straw,stray,strip,strum,
+stuck,stunt,surge,swear,sweat,sweet,swept,swore,sworn,swung,table,talon,tango,tangy,taste,thorn,
+those,three,threw,throw,tiger,tinge,title,tonic,torch,total,totem,touch,tower,toxic,trace,track,
+trade,trail,train,trait,tread,treat,trend,trial,tribe,trick,tried,troop,trope,truck,trust,truth,
+tuner,tutor,twirl,twist,ultra,under,undue,unfit,unlit,until,upper,risen,ripen,resin,repaid,rents,
+reads,raids,snore,ingrained,tangled,granted,ranted,garnet,antler,tangle,rental,alerts,alters,angels,
+angles,angers,giants,grants,ranges,grates,danger,garden,lantern,strangled,grandest,entangle,internal,
+integral,triangles,regal,legal,eagle,algebra,stale,tread,trade,reads,lanes,leans,leads,renal,solar,
+snore,stone,tones,notes,hones,drones,bones,cones,prods,lords,cords,fords,wards,hordes,stored,thorn,
+short,sport,terns,ferns,stern,stead,steal,steals,deals,heals,seals,tears,gears,bears,pears,fears,
+years,wears,shears,clears,smears,spears,board,bored,cored,soared,roared,poured,toured,soured,stored,
+adored,scored,snared,stared,flared,shared,spared,glared,blends,spends,bends,tends,fends,lends,rends,
+trend,trends,sends,amend,amends,blend,blends,spend,spends,trend,trends,lends,mends,sends,stoned,
+tones,stones,drones,zones,alert,alters,rated,rates,trade,trades,stared,daters,stander,lander,landers,
+strand,strands,garden,gardens,granted,ranted,ranter,ranters,antler,antlers,tangle,tangles,rental,
+rentals,entangle,strained,trained,trainer,trainers,retain,retains,integer,integers,integral,integrals,
+certain,certains,contain,contains,ordinal,ordinals,mineral,minerals,seminal,seminals,nominal,nominals,
+journal,journals,lantern,lanterns,eastern,western,pastern,pattern,patterns,flatten,flattens,sharpen,
+sharpens,darken,darkens,fasten,fastens,listen,listens,glisten,glistens,frighten,frightens,enlighten,
+brighten,lightens,tighten,tightens,strengthen,lengthen,lengthens,garden,pardon,pardons,harden,hardens,
+warden,wardens,burden,burdens,modern,moderns,golden,olden,frozen,chosen,broken,spoken,stolen,woken,
+rotten,gotten,beaten,eaten,bitten,written,kitten,mitten,button,cotton,bottom,blossom,blossom,custom,
+random,seldom,wisdom,kingdom,freedom,boredom,tandem,problem,system,rhythm,victim,pilgrim,phantom`;
+
+const ALL_WORDS = [...new Set(
+  WORD_BANK_RAW.replace(/\n/g,'').split(',')
+    .map(w => w.trim().toLowerCase())
+    .filter(w => /^[a-z]{5,}$/.test(w))
+)];
+
+/* ═══════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════ */
+const EDGE_URL   = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/submit-quest";
+const NAME_KEY   = 'blossomPlayerName';
+const DEPT_KEY   = 'blossomPlayerDept';
+const BEST_KEY   = 'blossomHardBest';
+const GAME_SECS  = 180;
+const ARC_CIRC   = 87.96;
+const MIN_LEN    = 5;
+
+const PUZZLES = [
+  ['A','R','N','T','E','G','L'], ['E','S','T','R','A','N','D'],
+  ['I','N','G','H','T','S','L'], ['O','R','P','W','E','D','S'],
+  ['A','M','P','L','E','S','T'], ['E','C','R','A','T','S','N'],
+  ['I','L','P','E','S','C','A'], ['A','T','R','I','N','G','S'],
+  ['E','B','L','A','S','T','R'], ['O','F','L','W','E','R','S'],
+  ['A','H','N','D','S','T','R'], ['E','G','R','A','S','N','D'],
+  ['A','C','L','E','S','P','I'], ['I','N','T','E','R','S','A'],
+  ['O','S','T','A','R','E','D'], ['A','L','E','R','T','S','D'],
+  ['S','T','O','N','E','R','A'], ['R','E','L','A','T','I','O'],
+  ['P','L','A','N','E','T','S'], ['A','N','G','L','E','R','S'],
+  ['C','R','E','A','T','O','R'], ['T','R','I','A','N','G','L'],
+  ['S','I','L','E','N','T','R'], ['A','R','T','I','S','E','N'],
+  ['G','R','A','N','D','E','S'], ['S','T','R','A','I','N','E'],
+  ['T','R','E','A','S','O','N'], ['P','A','R','T','I','N','G'],
+  ['R','E','A','D','I','N','G'], ['D','R','E','A','M','S','T'],
+  ['A','N','T','L','E','R','S'], ['A','R','C','H','E','S','T'],
+  ['C','A','R','P','E','T','S'], ['S','H','E','L','T','E','R'],
+  ['S','T','R','O','N','G','E'], ['S','C','A','R','L','E','T'],
+  ['G','A','R','D','E','N','S'], ['S','T','R','A','N','D','E'],
+  ['T','R','A','I','N','E','D'], ['R','A','T','I','N','G','S'],
+  ['S','T','A','R','I','N','G'], ['L','A','T','E','R','N','S'],
+];
+
+const RANKS = [
+  {name:'Ember 🔥',min:0},    {name:'Blaze 🌋',min:15},
+  {name:'Inferno 💥',min:35}, {name:'Crimson 🌹',min:65},
+  {name:'Scarlet ⚔️',min:100},{name:'Dark Master 💀',min:150},
+];
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+let letters=[], outerLetters=[];
+let currentWord='', foundWords=new Set(), pangrams=[];
+let score=0, bestScore=parseInt(localStorage.getItem(BEST_KEY)||'0');
+let validating=false;
+let timeLeft=GAME_SECS, timerInterval=null, gameActive=false;
+let allPossibleWords=[];
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+newPuzzle();
+
+function newPuzzle() {
+  clearInterval(timerInterval);
+  const pick = PUZZLES[Math.floor(Math.random()*PUZZLES.length)];
+  letters      = [...pick];
+  outerLetters = letters.slice(1);
+  foundWords   = new Set();
+  pangrams     = [];
+  score        = 0;
+  currentWord  = '';
+  gameActive   = true;
+  timeLeft     = GAME_SECS;
+  allPossibleWords = [];
+  updateScoreDisplay();
+  updateFoundList();
+  renderFlower();
+  renderInput();
+  updateTimerDisplay();
+  updateArc();
+  startTimer();
+}
+
+/* ═══════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════ */
+function startTimer() {
+  timerInterval = setInterval(() => {
+    if (!gameActive) return;
+    timeLeft--;
+    updateTimerDisplay();
+    updateArc();
+    if (timeLeft <= 0) endGame();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft/60), s = timeLeft%60;
+  document.getElementById('timerText').textContent = m+':'+(s<10?'0':'')+s;
+  const el = document.getElementById('timerText');
+  el.classList.remove('amber','danger');
+  if (timeLeft <= 30) el.classList.add('danger');
+  else if (timeLeft <= 60) el.classList.add('amber');
+}
+
+function updateArc() {
+  const frac = Math.max(0, timeLeft/GAME_SECS);
+  document.getElementById('arcPath').style.strokeDashoffset = ARC_CIRC*(1-frac);
+  document.getElementById('arcPath').style.stroke =
+    timeLeft<=30 ? 'var(--center)' : timeLeft<=60 ? 'var(--gold)' : 'var(--stem-light)';
+}
+
+/* ═══════════════════════════════════════════════
+   FLOWER
+═══════════════════════════════════════════════ */
+function renderFlower() {
+  const svg = document.getElementById('flower');
+  svg.innerHTML = '';
+  const cx=155, cy=155, r=96, or=47, cr=54;
+  svg.setAttribute('viewBox','0 0 310 310');
+
+  function addRipple(x, y, parentEl) {
+    const rip = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    const maxR = (parentEl === 'center') ? cr * 0.7 : or * 0.7;
+    rip.setAttribute("cx", x); rip.setAttribute("cy", y);
+    rip.setAttribute("r", maxR * 0.3);
+    rip.setAttribute("fill","rgba(255,255,255,0.18)");
+    rip.setAttribute("pointer-events","none");
+    svg.appendChild(rip);
+    let op = 0.18;
+    const fade = () => {
+      op -= 0.04;
+      rip.setAttribute("opacity", Math.max(0, op));
+      if (op > 0) requestAnimationFrame(fade);
+      else if (svg.contains(rip)) svg.removeChild(rip);
+    };
+    requestAnimationFrame(fade);
+  }
+
+  function makePetal(el, label, x, y, isCenter) {
+    function onDown(e) {
+      e.preventDefault();
+      el.style.filter = 'brightness(0.93)';
+      addRipple(isCenter ? cx : x, isCenter ? cy : y, isCenter ? 'center' : 'outer');
+    }
+    function onUp(e) {
+      e.preventDefault();
+      el.style.filter = '';
+      addLetter(label);
+    }
+    function onLeave() { el.style.filter = ''; }
+    el.addEventListener('touchstart', onDown, { passive: false });
+    el.addEventListener('touchend',   onUp,   { passive: false });
+    el.addEventListener('touchcancel',onLeave,{ passive: false });
+    el.addEventListener('mousedown',  onDown);
+    el.addEventListener('mouseup',    onUp);
+    el.addEventListener('mouseleave', onLeave);
+  }
+
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI/3)*i - Math.PI/2;
+    const x = cx + r*Math.cos(angle);
+    const y = cy + r*Math.sin(angle);
+
+    const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+    g.style.cursor = 'pointer';
+    g.style.willChange = 'filter';
+
+    const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    circle.setAttribute("cx", x); circle.setAttribute("cy", y);
+    circle.setAttribute("r", or); circle.setAttribute("class","outer-petal");
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg","text");
+    text.setAttribute("x", x); text.setAttribute("y", y + 2);
+    text.setAttribute("class","flower-letter"); text.setAttribute("font-size","30");
+    text.setAttribute("fill","#fff"); text.textContent = outerLetters[i];
+    text.style.pointerEvents = 'none';
+
+    g.appendChild(circle); g.appendChild(text);
+    makePetal(g, outerLetters[i], x, y, false);
+    svg.appendChild(g);
+  }
+
+  const gc = document.createElementNS("http://www.w3.org/2000/svg","g");
+  gc.style.cursor = 'pointer';
+  gc.style.willChange = 'filter';
+
+  const cc = document.createElementNS("http://www.w3.org/2000/svg","circle");
+  cc.setAttribute("cx", cx); cc.setAttribute("cy", cy);
+  cc.setAttribute("r", cr); cc.setAttribute("class","center-petal");
+
+  const ct = document.createElementNS("http://www.w3.org/2000/svg","text");
+  ct.setAttribute("x", cx); ct.setAttribute("y", cy + 3);
+  ct.setAttribute("class","flower-letter"); ct.setAttribute("font-size","34");
+  ct.setAttribute("fill","#fff"); ct.textContent = letters[0];
+  ct.style.pointerEvents = 'none';
+
+  gc.appendChild(cc); gc.appendChild(ct);
+  makePetal(gc, letters[0], cx, cy, true);
+  svg.appendChild(gc);
+}
+
+/* ═══════════════════════════════════════════════
+   INPUT
+═══════════════════════════════════════════════ */
+function addLetter(l) { if(!gameActive||currentWord.length>=20)return; currentWord+=l.toUpperCase(); renderInput(); }
+function deleteLetter() { if(!currentWord.length)return; currentWord=currentWord.slice(0,-1); renderInput(); }
+function renderInput() { document.getElementById('typed-letters').textContent=currentWord; document.getElementById('word-display').classList.remove('error','success'); }
+function shakeDisplay() { const d=document.getElementById('word-display'); d.classList.add('error'); setTimeout(()=>d.classList.remove('error'),500); }
+
+/* ═══════════════════════════════════════════════
+   SCORING
+═══════════════════════════════════════════════ */
+function isPangram(word) { const u=new Set(word.split('')); return letters.every(l=>u.has(l.toUpperCase())); }
+function wordScore(word) { return word.length + (isPangram(word) ? 9 : 0); }
+
+/* ═══════════════════════════════════════════════
+   VALIDATION
+═══════════════════════════════════════════════ */
+async function submitWord() {
+  if (validating||!gameActive) return;
+  const word = currentWord.toUpperCase();
+  if (word.length < MIN_LEN)                                             { showToast(`Hard Mode: ${MIN_LEN}+ letters required!`,'bad'); shakeDisplay(); return; }
+  if (!word.includes(letters[0].toUpperCase()))                          { showToast(`Must use "${letters[0].toUpperCase()}"`, 'bad'); shakeDisplay(); return; }
+  if (![...word].every(c=>letters.map(l=>l.toUpperCase()).includes(c))) { showToast('Use only the flower letters!','bad'); shakeDisplay(); return; }
+  if (foundWords.has(word))                                              { showToast('Already found!','bad'); shakeDisplay(); return; }
+
+  validating = true;
+  document.getElementById('btn-enter').innerHTML = '<span class="spinner"></span>';
+  document.getElementById('btn-enter').disabled  = true;
+  const valid = await checkDictionary(word.toLowerCase());
+  validating = false;
+  document.getElementById('btn-enter').textContent = 'Enter Word';
+  document.getElementById('btn-enter').disabled    = false;
+
+  if (!valid) { showToast('Not a valid word','bad'); shakeDisplay(); return; }
+
+  const pts = wordScore(word);
+  score += pts; foundWords.add(word);
+  if (isPangram(word)) pangrams.push(word);
+  currentWord = ''; renderInput();
+  updateScoreDisplay(); updateFoundList();
+
+  let msg = `+${pts} pts`;
+  if (isPangram(word)) msg = '★ Pangram! ' + msg;
+  showToast(msg, 'good');
+  document.getElementById('word-display').classList.add('success');
+  setTimeout(()=>document.getElementById('word-display').classList.remove('success'),700);
+}
+
+async function checkDictionary(word) {
+  try { const r=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`); return r.ok; }
+  catch { return true; }
+}
+
+/* ═══════════════════════════════════════════════
+   POSSIBLE WORDS
+═══════════════════════════════════════════════ */
+function getCandidateWords() {
+  const center  = letters[0].toUpperCase();
+  const allowed = new Set(letters.map(l=>l.toUpperCase()));
+  return ALL_WORDS.filter(w => {
+    const up = w.toUpperCase();
+    return up.length >= MIN_LEN && up.includes(center) && [...up].every(c=>allowed.has(c));
+  });
+}
+
+async function findAllPossibleWords(onProgress) {
+  const candidates = getCandidateWords();
+  const validated  = [];
+  const BATCH = 6;
+  let done = 0;
+  for (let i=0; i<candidates.length; i+=BATCH) {
+    const batch   = candidates.slice(i, i+BATCH);
+    const results = await Promise.all(batch.map(async w => {
+      try { const r=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${w}`); return r.ok?w:null; }
+      catch { return w; }
+    }));
+    results.forEach(w=>{ if(w) validated.push(w); });
+    done += batch.length;
+    onProgress(Math.min(100, Math.round((done/candidates.length)*100)));
+    await new Promise(r=>setTimeout(r,50));
+  }
+  return validated.sort((a,b)=>{
+    const pa=isPangram(a.toUpperCase()),pb=isPangram(b.toUpperCase());
+    if(pa&&!pb) return -1; if(!pa&&pb) return 1;
+    return b.length-a.length||a.localeCompare(b);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   SCORE / RANK DISPLAY
+═══════════════════════════════════════════════ */
+function updateScoreDisplay() {
+  document.getElementById('score').textContent      = score;
+  document.getElementById('word-count').textContent = foundWords.size;
+  if (score > bestScore) { bestScore = score; localStorage.setItem(BEST_KEY, bestScore); }
+  document.getElementById('best-score').textContent = bestScore;
+  let ri = 0;
+  for (let i=RANKS.length-1; i>=0; i--) { if(score>=RANKS[i].min){ri=i;break;} }
+  const rank=RANKS[ri], next=RANKS[ri+1];
+  document.getElementById('rank-name').textContent = rank.name;
+  if (next) {
+    document.getElementById('rank-fill').style.width = Math.min(100,((score-rank.min)/(next.min-rank.min))*100)+'%';
+    document.getElementById('rank-pts').textContent  = `→ ${next.min} pts`;
+  } else {
+    document.getElementById('rank-fill').style.width = '100%';
+    document.getElementById('rank-pts').textContent  = 'Max!';
+  }
+}
+
+function updateFoundList() {
+  document.getElementById('found-count').textContent = foundWords.size;
+  const list = document.getElementById('found-list');
+  if (!foundWords.size) {
+    list.innerHTML = '<span style="font-size:0.78rem;color:#4a2a1a">5+ letter words will appear here…</span>';
+    return;
+  }
+  list.innerHTML = '';
+  [...foundWords].sort((a,b)=>b.length-a.length||a.localeCompare(b)).forEach(w=>{
+    const span = document.createElement('span');
+    span.className = 'found-word'+(isPangram(w)?' pangram':'');
+    span.textContent = w; list.appendChild(span);
+  });
+}
+
+function getRankName(pts) {
+  let ri=0; for(let i=RANKS.length-1;i>=0;i--){if(pts>=RANKS[i].min){ri=i;break;}} return RANKS[ri].name;
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg, type='') {
+  const t=document.getElementById('toast'); t.textContent=msg; t.className='toast show '+type;
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+function shuffle() {
+  for(let i=outerLetters.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [outerLetters[i],outerLetters[j]]=[outerLetters[j],outerLetters[i]];
+  }
+  renderFlower();
+}
+
+/* ═══════════════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.metaKey||e.ctrlKey||e.altKey) return;
+  if (!document.getElementById('gameScreen').classList.contains('active')) return;
+  const key = e.key.toUpperCase();
+  if (key.length===1&&/[A-Z]/.test(key)) {
+    if (letters.map(l=>l.toUpperCase()).includes(key)) addLetter(key);
+    else { shakeDisplay(); showToast('Not in the flower!','bad'); }
+  } else if (e.key==='Backspace') deleteLetter();
+  else if (e.key==='Enter') submitWord();
+});
+
+/* ═══════════════════════════════════════════════
+   CONTROLS
+═══════════════════════════════════════════════ */
+document.getElementById('btn-delete').addEventListener('click', deleteLetter);
+document.getElementById('btn-enter').addEventListener('click',  submitWord);
+document.getElementById('btn-shuffle').addEventListener('click', shuffle);
+document.getElementById('btn-new').addEventListener('click', () => {
+  if (confirm('Start a new Hard Mode puzzle? Current progress will be lost.')) newPuzzle();
+});
+document.getElementById('btn-end-game').addEventListener('click', () => {
+  if (confirm('End game and see results?')) endGame();
+});
+
+/* ═══════════════════════════════════════════════
+   END GAME
+═══════════════════════════════════════════════ */
+function endGame() {
+  gameActive = false;
+  clearInterval(timerInterval);
+  setTimeout(showEndScreen, 300);
+}
+
+/* ═══════════════════════════════════════════════
+   END SCREEN
+═══════════════════════════════════════════════ */
+function showEndScreen() {
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('endScreen').classList.add('active');
+
+  const tm = [[150,'💀 Dark Mastery!'],[100,'⚔️ Scarlet Blade!'],[65,'🌹 Crimson Peak!'],[35,'💥 Inferno!'],[0,'🔥 Keep Grinding!']];
+  document.getElementById('endTitle').textContent    = (tm.find(([m])=>score>=m)||tm[4])[1];
+  document.getElementById('endSubtitle').textContent = `Hard Mode · ${foundWords.size} word${foundWords.size!==1?'s':''} · ${getRankName(score)}`;
+  document.getElementById('endScore').textContent    = score;
+  document.getElementById('endWords').textContent    = foundWords.size;
+  document.getElementById('endPangrams').textContent = pangrams.length;
+
+  // Words found
+  const foundGrid = document.getElementById('endWordsFound');
+  foundGrid.innerHTML = '';
+  if (!foundWords.size) {
+    foundGrid.innerHTML = '<span style="font-size:0.8rem;color:#4a2a1a">None found this round.</span>';
+  } else {
+    [...foundWords].sort((a,b)=>b.length-a.length||a.localeCompare(b)).forEach((w,i)=>{
+      const chip = document.createElement('span');
+      chip.className = 'end-word-chip'+(isPangram(w)?' pangram':'');
+      chip.textContent = w; chip.style.animationDelay = (i*0.04)+'s';
+      foundGrid.appendChild(chip);
+    });
+  }
+
+  // Identity
+  const storedName = localStorage.getItem(NAME_KEY);
+  const storedDept = localStorage.getItem(DEPT_KEY);
+  document.getElementById('submitStatus').textContent = '';
+  document.getElementById('submitStatus').className   = 'submit-status';
+
+  if (storedName && storedDept) {
+    showKnownIdentity(storedName, storedDept);
+    submitScore(storedName, storedDept);
+  } else {
+    document.getElementById('identityKnown').style.display = 'none';
+    document.getElementById('identityFields').style.display = 'flex';
+    document.getElementById('playerName').value = '';
+    document.getElementById('playerDept').value = '';
+    const trySubmit = () => {
+      const n = document.getElementById('playerName').value.trim();
+      const d = document.getElementById('playerDept').value;
+      if (!n||!d) return;
+      localStorage.setItem(NAME_KEY,n); localStorage.setItem(DEPT_KEY,d);
+      showKnownIdentity(n,d); submitScore(n,d);
+    };
+    document.getElementById('playerName').onblur   = trySubmit;
+    document.getElementById('playerDept').onchange = trySubmit;
+  }
+
+  document.getElementById('btnPlayAgain').onclick  = () => {
+    document.getElementById('endScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    newPuzzle();
+  };
+  document.getElementById('btnShare').onclick      = () => shareResult(storedName, storedDept);
+  document.getElementById('btnLeaderboard').onclick= () => window.open('https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/blossom_leaderboard','_blank');
+
+  loadPossibleWords();
+}
+
+/* ═══════════════════════════════════════════════
+   POSSIBLE WORDS LOADER
+═══════════════════════════════════════════════ */
+async function loadPossibleWords() {
+  const progressFill = document.getElementById('progressFill');
+  const subtitle     = document.getElementById('possibleSubtitle');
+  const allGrid      = document.getElementById('endWordsAll');
+  const countEl      = document.getElementById('possibleCount');
+  subtitle.textContent = 'Checking dictionary…';
+  allGrid.innerHTML    = '';
+
+  allPossibleWords = await findAllPossibleWords(pct => {
+    progressFill.style.width  = pct+'%';
+    subtitle.textContent = `Checking dictionary… ${pct}%`;
+  });
+  progressFill.style.width = '100%';
+  subtitle.textContent     = '';
+
+  const missed = allPossibleWords.filter(w=>!foundWords.has(w.toUpperCase()));
+  const found  = allPossibleWords.filter(w=> foundWords.has(w.toUpperCase()));
+  countEl.textContent = `${allPossibleWords.length} words · ${found.length} found · ${missed.length} missed`;
+
+  const sorted = [
+    ...found.map(w=>({w,found:true})),
+    ...missed.map(w=>({w,found:false}))
+  ].sort((a,b)=>{
+    const pa=isPangram(a.w.toUpperCase()), pb=isPangram(b.w.toUpperCase());
+    if(a.found!==b.found) return a.found?-1:1;
+    if(pa&&!pb) return -1; if(!pa&&pb) return 1;
+    return b.w.length-a.w.length||a.w.localeCompare(b.w);
+  });
+
+  sorted.forEach((item,i)=>{
+    const chip = document.createElement('span');
+    const pg   = isPangram(item.w.toUpperCase());
+    chip.className = 'end-word-chip'+(item.found?'':' missed')+(pg?' pangram':'');
+    chip.textContent = item.w.toUpperCase();
+    chip.style.animationDelay = (i*0.02)+'s';
+    allGrid.appendChild(chip);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   IDENTITY
+═══════════════════════════════════════════════ */
+function showKnownIdentity(name, dept) {
+  document.getElementById('identityFields').style.display = 'none';
+  document.getElementById('identityKnown').style.display  = 'flex';
+  document.getElementById('knownName').textContent = '👤 '+name;
+  document.getElementById('knownDept').textContent = dept;
+}
+
+/* ═══════════════════════════════════════════════
+   SCORE SUBMISSION
+═══════════════════════════════════════════════ */
+function submitScore(name, dept) {
+  const status = document.getElementById('submitStatus');
+  status.className = 'submit-status'; status.textContent = '⏳ Submitting…';
+  const payload = {
+    student_name: name, department: dept,
+    score: Number(bestScore), correct: Number(foundWords.size), wrong: 0,
+    time_spent: String(GAME_SECS-timeLeft), total_attempts: Number(foundWords.size),
+    perfect_solves: Number(pangrams.length), fastest_solve_sec: 0,
+    total_time_bonus: 0, longest_streak: 0, quest_id: 'Blossom_Hard'
+  };
+  fetch(EDGE_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
+    .then(r=>r.json())
+    .then(d=>{ status.textContent = `✅ Score recorded — Hard Mode`; })
+    .catch(err=>{ status.className='submit-status err'; status.textContent='⚠️ Could not submit.'; });
+}
+
+/* ═══════════════════════════════════════════════
+   SHARE
+═══════════════════════════════════════════════ */
+async function shareResult(name, dept) {
+  const wordSample = [...foundWords].sort((a,b)=>b.length-a.length).slice(0,4).join(', ');
+  const pgLine     = pangrams.length ? `\n★ Pangrams: ${pangrams.join(', ')}` : '';
+  const id         = (name&&dept) ? `\n👤 ${name} · ${dept}` : '';
+  const msg = `🔥 Blossom HARD MODE${id}\nScore: ${score} pts · ${foundWords.size} words · ${getRankName(score)}\n${wordSample?`Words: ${wordSample}${pgLine}`:''}\n\n🌺 Play: https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/blossom_hard`;
+  if (navigator.share) {
+    try { await navigator.share({title:'Blossom Hard Mode',text:msg}); return; } catch(e){}
+  }
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+</script>
+</body>
+</html>
