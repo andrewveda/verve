@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Wordle Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(ellipse at 25% 30%, #1a0a2e 0%, #090910 55%, #0d1117 100%);
+    color: white;
+    overflow: hidden;
+    font-family: 'Crimson Text', serif;
+    cursor: crosshair;
+}
+
+/* ── STAR WARP CANVAS ── */
+#warpCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ── STREAMING SYMBOLS ── */
+.stream-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.sym {
+    position: absolute;
+    bottom: -60px;
+    white-space: nowrap;
+    user-select: none;
+    animation: floatUp linear forwards;
+}
+
+@keyframes floatUp {
+    0%   { transform: translateY(0);      opacity: 0;   }
+    8%   { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-105vh); opacity: 0;   }
+}
+
+
+
+/* ── PANEL ── */
+.panel {
+    position: relative;
+    z-index: 100;
+    text-align: center;
+    padding: 50px 44px 42px;
+    width: min(440px, 92vw);
+    background: rgba(10, 6, 20, 0.92);
+    border: 1px solid rgba(212,175,55,0.22);
+    border-radius: 6px;
+    box-shadow:
+        0 0 60px rgba(212,175,55,0.07),
+        0 0 120px rgba(156,39,176,0.05),
+        inset 0 1px 0 rgba(212,175,55,0.18),
+        inset 0 -1px 0 rgba(0,229,255,0.08);
+    animation: appear 1s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes appear {
+    from { opacity: 0; transform: scale(0.93) translateY(16px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+.corner-tl { content: '✦'; position: absolute; top: 10px;    left: 14px;  color: #d4af37; font-size: 0.85rem; opacity: 0.45; pointer-events: none; }
+.corner-br { content: '✦'; position: absolute; bottom: 10px; right: 14px; color: #d4af37; font-size: 0.85rem; opacity: 0.45; pointer-events: none; }
+
+/* ── HEADER ── */
+.sigil {
+    font-size: 1.9rem;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    animation: sigilglow 3s ease-in-out infinite alternate;
+}
+@keyframes sigilglow {
+    from { filter: drop-shadow(0 0 4px rgba(212,175,55,0.4)); }
+    to   { filter: drop-shadow(0 0 16px rgba(212,175,55,0.85)); }
+}
+
+h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    background: linear-gradient(135deg, #f5d76e 0%, #d4af37 40%, #ff9900 70%, #f5d76e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    font-style: italic;
+    font-size: 0.88rem;
+    color: rgba(245,230,200,0.4);
+    letter-spacing: 0.06em;
+    margin-bottom: 36px;
+}
+
+/* ── DIVIDER ── */
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    opacity: 0.28;
+}
+.divider::before { content: ''; flex: 1; height: 1px; background: linear-gradient(to right, transparent, #d4af37); }
+.divider::after  { content: ''; flex: 1; height: 1px; background: linear-gradient(to left,  transparent, #d4af37); }
+.divider span { color: #d4af37; font-size: 0.55rem; }
+
+/* ── BUTTONS ── */
+.button-group { display: flex; flex-direction: column; gap: 14px; }
+
+.tile-button {
+    position: relative;
+    border: 1px solid rgba(212,175,55,0.16);
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 18px 20px;
+    background: rgba(255,255,255,0.025);
+    color: white;
+    transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.tile-button:hover { transform: translateX(5px); background: rgba(255,255,255,0.045); }
+.btn-daily:hover   { border-color: rgba(212,175,55,0.5);  box-shadow: -4px 0 18px rgba(212,175,55,0.18); }
+.btn-blitz:hover   { border-color: rgba(0,229,255,0.45);  box-shadow: -4px 0 18px rgba(0,229,255,0.15); }
+
+.btn-icon {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: transform 0.28s;
+}
+.tile-button:hover .btn-icon { transform: scale(1.12) rotate(-6deg); }
+
+.btn-text { flex: 1; }
+.btn-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #f5e6c8;
+    margin-bottom: 3px;
+    display: block;
+}
+.btn-desc {
+    font-style: italic;
+    font-size: 0.8rem;
+    color: rgba(245,230,200,0.38);
+    display: block;
+}
+
+.btn-badge {
+    font-family: 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    padding: 3px 7px;
+    border-radius: 2px;
+    border: 1px solid;
+    flex-shrink: 0;
+}
+.badge-gold { color: #d4af37; border-color: rgba(212,175,55,0.38); background: rgba(212,175,55,0.07); }
+.badge-cyan { color: #00e5ff; border-color: rgba(0,229,255,0.38);  background: rgba(0,229,255,0.07); }
+
+/* ── UNIVERSE TAGS ── */
+.universe-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(212,175,55,0.1);
+}
+.utag { font-style: italic; font-size: 0.72rem; color: rgba(245,230,200,0.28); }
+.utag + .utag::before { content: '·'; margin-right: 6px; opacity: 0.35; }
+
+.footer {
+    margin-top: 12px;
+    font-style: italic;
+    font-size: 0.73rem;
+    color: rgba(245,230,200,0.2);
+    letter-spacing: 0.04em;
+}
+    .corner-tl,
+.corner-br {
+    position: absolute;
+    z-index: 200;
+    pointer-events: auto;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="warpCanvas"></canvas>
+<div class="stream-layer" id="streamLayer"></div>
+
+<div class="panel">
+    <span class="corner-tl">✦</span>
+  <span class="corner-br"
+      onclick="location.href='https://andrewveda.github.io/verve/buttons/wordleleaderboard'"
+      style="cursor:pointer; z-index: 999;">
+🏆
+</span>
+        <div class="sigil">⚡ 🔍 ✦</div>
+    <h1>WORDLE HUB</h1>
+    <div class="subtitle">The game is afoot. The stars await.</div>
+
+    <div class="divider"><span>✦</span></div>
+
+    <div class="button-group">
+        <button class="tile-button btn-daily"
+            onclick="location.href='https://andrewveda.github.io/verve/buttons/wordledaily'">
+            <div class="btn-icon">📜</div>
+            <div class="btn-text">
+                <span class="btn-name">Daily Wordle</span>
+                <span class="btn-desc">"One voice, one hope, one real decision!" - Queen ✨</span>
+            </div>
+            <span class="btn-badge badge-gold">DAILY</span>
+        </button>
+
+        <button class="tile-button btn-blitz"
+            onclick="location.href='https://andrewveda.github.io/verve/wordleblitz'">
+            <div class="btn-icon">⚡</div>
+            <div class="btn-text">
+                <span class="btn-name">Wordle Blitz</span>
+                <span class="btn-desc">Five minutes. Maximum words. Expelliarmus!</span>
+            </div>
+            <span class="btn-badge badge-cyan">BLITZ</span>
+        </button>
+    </div>
+
+    <div class="universe-row">
+        <span class="utag">42 Wallaby Way </span>
+        <span class="utag"> 221b Baker Street</span>
+        <span class="utag"> 12 Grimmauld Place </span>
+    </div>
+    <div class="footer">Elementary, my dear Lady Bracknell! Live long and prosper.</div>
+</div>
+
+<script>
+/* ── WARP STARS ── */
+const warp = document.getElementById('warpCanvas');
+const wctx = warp.getContext('2d');
+
+function resizeWarp() {
+    warp.width  = window.innerWidth;
+    warp.height = window.innerHeight;
+}
+resizeWarp();
+window.addEventListener('resize', resizeWarp);
+
+const NUM_STARS = 320;
+const stars = Array.from({ length: NUM_STARS }, () => resetStar({}));
+
+function resetStar(s) {
+    // Start clustered near centre with a tiny random offset
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = Math.random() * 2;
+    s.x     = warp.width  / 2 + Math.cos(angle) * dist;
+    s.y     = warp.height / 2 + Math.sin(angle) * dist;
+    s.ox    = s.x;
+    s.oy    = s.y;
+    s.speed = 0.4 + Math.random() * 2.2;
+    s.size  = 0;
+    s.trail = 0;
+    s.age   = 0;
+    return s;
+}
+
+function drawWarp() {
+    // Fade trail
+    wctx.fillStyle = 'rgba(0,0,0,0.18)';
+    wctx.fillRect(0, 0, warp.width, warp.height);
+
+    const cx = warp.width  / 2;
+    const cy = warp.height / 2;
+
+    for (const s of stars) {
+        // Direction vector from centre
+        const dx = s.x - cx;
+        const dy = s.y - cy;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        const nx = dx / dist;
+        const ny = dy / dist;
+
+        // Accelerate outward
+        s.speed  *= 1.012;
+        s.x      += nx * s.speed;
+        s.y      += ny * s.speed;
+        s.age    += 1;
+        s.size    = Math.min(1.6, s.age * 0.015);
+
+        // Stretch trail from old position
+        const trailLen = s.speed * 2.5;
+        const tx = s.x - nx * trailLen;
+        const ty = s.y - ny * trailLen;
+
+        const alpha = Math.min(1, s.age * 0.04);
+
+        wctx.beginPath();
+        wctx.moveTo(tx, ty);
+        wctx.lineTo(s.x, s.y);
+        wctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.85})`;
+        wctx.lineWidth   = s.size;
+        wctx.stroke();
+
+        // Reset if off screen
+        const margin = 20;
+        if (
+            s.x < -margin || s.x > warp.width  + margin ||
+            s.y < -margin || s.y > warp.height + margin
+        ) {
+            resetStar(s);
+        }
+    }
+
+    requestAnimationFrame(drawWarp);
+}
+drawWarp();
+
+const layer = document.getElementById('streamLayer');
+
+const HP  = ['Lumos','Nox','Accio','Expecto','Riddikulus','Alohomora','Petrificus',
+             'Stupefy','Obliviate','Wingardium','Leviosa','Aguamenti','Diffindo',
+             'Incendio','Protego','Reparo','Silencio','Impedimenta','Episkey','Glacius'];
+
+const SH  = ['deduction','elementary','221B','Watson','Moriarty','Lestrade',
+             'observation','Baskerville','Reichenbach','three-pipe','violin',
+             'tobacco','disguise','inference','magnifying','Irene','baritsu'];
+
+const SF  = ['warp','quantum','tachyon','photon','parsec','nebula','stardate',
+             'antimatter','singularity','android','replicant','neutrino','uplink',
+             'Federation','hyperdrive','Spock','HAL','lightyear','cortex','nexus'];
+
+const RUNES = ['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ','ᛁ','ᛇ','ᛈ','ᛉ','ᛊ',
+               '∞','∆','Ω','Σ','Ψ','Φ','⚗','⚙','⚛'];
+
+const GREEK = ['α','β','γ','δ','ε','ζ','η','θ','ι','κ','λ','μ','ν','ξ','π','ρ','σ','τ','φ','χ','ψ','ω'];
+
+const themes = [
+    { pool: HP,    color: '#d4af37', glow: '#d4af3766', italic: true,  minSize: 11, maxSize: 16 },
+    { pool: SH,    color: '#c8bfa8', glow: '#9c27b055', italic: true,  minSize: 10, maxSize: 14 },
+    { pool: SF,    color: '#00e5ff', glow: '#00e5ff55', italic: false, minSize: 10, maxSize: 15 },
+    { pool: RUNES, color: '#a78bfa', glow: '#7c3aed66', italic: false, minSize: 15, maxSize: 24 },
+    { pool: GREEK, color: '#6ee7b7', glow: '#05966955', italic: false, minSize: 13, maxSize: 20 },
+];
+
+function spawn(withDelay) {
+    const t    = themes[Math.floor(Math.random() * themes.length)];
+    const word = t.pool[Math.floor(Math.random() * t.pool.length)];
+    const size = t.minSize + Math.random() * (t.maxSize - t.minSize);
+    const dur  = 8 + Math.random() * 18;
+    const x    = 1 + Math.random() * 97;
+    const bottom = withDelay ? (Math.random() * 110) + 'vh' : '-60px';
+
+    const el = document.createElement('span');
+    el.className = 'sym';
+    el.textContent = word;
+    el.style.cssText = `
+        left: ${x}vw;
+        bottom: ${bottom};
+        font-size: ${size}px;
+        font-style: ${t.italic ? 'italic' : 'normal'};
+        font-family: 'Crimson Text', serif;
+        color: ${t.color};
+        text-shadow: 0 0 10px ${t.glow};
+        animation-duration: ${dur}s;
+    `;
+
+    layer.appendChild(el);
+
+    el.addEventListener('animationend', () => {
+        el.remove();
+        spawn(false);
+    });
+}
+
+// Stagger 55 initial symbols across the screen
+for (let i = 0; i < 55; i++) {
+    setTimeout(() => spawn(true), i * 80);
+}
+
+/* ── CURSOR SPARKS ── */
+document.addEventListener('mousemove', e => {
+    if (Math.random() > 0.28) return;
+    const s = document.createElement('div');
+    const c = ['#d4af37','#00e5ff','#9c27b0','#ffffff'][Math.floor(Math.random()*4)];
+    s.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;
+        width:3px;height:3px;border-radius:50%;background:${c};
+        pointer-events:none;z-index:9999;
+        box-shadow:0 0 5px ${c};transition:all 0.55s ease-out;`;
+    document.body.appendChild(s);
+    requestAnimationFrame(() => {
+        s.style.transform = `translate(${(Math.random()-.5)*36}px,${(Math.random()-.5)*36}px) scale(0)`;
+        s.style.opacity = '0';
+    });
+    setTimeout(() => s.remove(), 600);
+});
+</script>
+
+</body>
+</html>
