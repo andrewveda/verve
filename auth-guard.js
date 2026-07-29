@@ -38,7 +38,7 @@
 
     // Redirect to login
     window.location.replace(
-      `/SRM-VEC-English-PWA/auth.html?return=${returnTo}`
+      `/verve/auth.html?return=${returnTo}`
     );
 
     return;
