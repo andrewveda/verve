@@ -118,6 +118,119 @@
     body.theme-games,
     body.theme-all       { --gold-glow: #ffd76a; }
 
+    /* ===== Dictionary Splash Screen ===== */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #ffffff 0%, #f8f2e8 100%);
+      padding: 24px;
+      cursor: pointer;
+      transition: opacity 0.65s ease, visibility 0.65s ease;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .splash-card {
+      max-width: 430px;
+      width: 100%;
+      text-align: center;
+      animation: splashRise 1.1s cubic-bezier(0.16,1,0.3,1);
+    }
+    @keyframes splashRise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .splash-word {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 3.4rem;
+      letter-spacing: 1px;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold) 55%, #b3923b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .splash-phonetic {
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+      font-size: 0.92rem;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+    .splash-pos {
+      display: inline-block;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1rem;
+      color: var(--gold);
+      margin-top: 6px;
+    }
+    .splash-divider {
+      width: 64px;
+      height: 1px;
+      background: var(--border);
+      margin: 20px auto;
+    }
+    .splash-defs {
+      list-style: none;
+      counter-reset: def;
+      text-align: left;
+      padding: 0;
+      margin: 0 auto;
+      max-width: 380px;
+    }
+    .splash-defs li {
+      counter-increment: def;
+      font-family: 'Crimson Pro', serif;
+      font-weight: 300;
+      font-size: 1.08rem;
+      line-height: 1.55;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding-left: 28px;
+      position: relative;
+    }
+    .splash-defs li::before {
+      content: counter(def) '.';
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .splash-etym {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-top: 22px;
+      line-height: 1.5;
+    }
+    .splash-tap {
+      margin-top: 34px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      animation: pulseTap 1.8s ease-in-out infinite;
+    }
+    @keyframes pulseTap {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
+    }
+
     /* ===== App shell ===== */
     .app {
       position: relative;
@@ -807,6 +920,22 @@
 </head>
 <body class="theme-all">
 
+<!-- Dictionary-style Splash Screen — shown first, above everything else -->
+<div class="splash-screen" id="screenSplash">
+  <div class="splash-card">
+    <div class="splash-word">Verve</div>
+    <div class="splash-phonetic">/vɜːrv/</div>
+    <div class="splash-pos">noun</div>
+    <div class="splash-divider"></div>
+    <ol class="splash-defs">
+      <li>Vigour and spirit; enthusiasm, especially as expressed in art, speech, or performance.</li>
+      <li>Energy and liveliness of style or manner.</li>
+    </ol>
+    <div class="splash-etym">French, from Old French <em>verve</em> — "caprice, style" — ultimately from Latin <em>verba</em>, "words."</div>
+    <div class="splash-tap">Tap anywhere to continue</div>
+  </div>
+</div>
+
 <div class="ambient"></div>
 
 <!-- Login / Auth Selection Overlay -->
@@ -1112,6 +1241,24 @@
 <button class="install-fab" id="installFab" onclick="installApp()">
   📲 Install App
 </button>
+
+<script>
+  // ─── Dictionary Splash Screen dismissal ───
+  (function () {
+    const splash = document.getElementById('screenSplash');
+    if (!splash) return;
+    let dismissed = false;
+    function dismissSplash() {
+      if (dismissed) return;
+      dismissed = true;
+      splash.classList.add('hidden');
+      setTimeout(() => splash.remove(), 700);
+    }
+    splash.addEventListener('click', dismissSplash);
+    // Auto-dismiss after a few seconds even if nobody taps
+    setTimeout(dismissSplash, 3200);
+  })();
+</script>
 
 <script type="module">
   import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm";
