@@ -7,7 +7,7 @@ const APP_SHELL = [
   "icons/96.png",
   "icons/180.png",
   "icons/192.png",
-  "icons/512.png",
+  "icons/512.png", 
   "icons/launchericon-192x192.png",
   "icons/launchericon-512x512.png"
 ];
