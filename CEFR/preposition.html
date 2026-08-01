@@ -1,261 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Zen Farmer - Preposition Cloze Narrative</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+  <title>Herbarium — Preposition Press</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --primary: #2e7d32;
-      --primary-light: #e8f5e9;
-      --purple: #7b1fa2;
-      --purple-light: #f3e5f5;
-      --danger: #c62828;
-      --bg: #f4f6f8;
-      --card-bg: #ffffff;
-      --text: #2c3e50;
-      --border: #dcdfe6;
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --paper:#f3ead4; --card:#fffbf2; --card-line:#e3d5b0;
+      --ink:#2d2620; --ink-muted:#8c7c62;
+      --forest:#2f5233; --forest-dark:#20391f; --moss:#6f8f5a;
+      --clay:#b5651d; --gold:#c9a227; --rust:#a4392c;
+      --prep:#2f6b3f; --wrong:#a4392c;
+      --a1:#4f8f5f; --a2:#4f8f5f; --b1:#c9932a; --b2:#c9932a; --c1:#a4392c;
+      --shadow-sm:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);
+      --shadow-md:0 2px 6px rgba(45,38,32,.10),0 10px 26px rgba(45,38,32,.12);
+      --ease:cubic-bezier(.16,1,.3,1);
+    }
+    html,body{min-height:100%;overscroll-behavior-x:none;}
+    body{
+      font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink);
+      min-height:100dvh; display:flex; flex-direction:column; align-items:center;
+      background-image:
+        radial-gradient(ellipse 70% 50% at 12% 8%, rgba(111,143,90,.14) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 45% at 92% 88%, rgba(181,101,29,.10) 0%, transparent 60%);
+    }
+    .screen{display:none;flex-direction:column;align-items:center;width:100%;min-height:100dvh;}
+    .screen.active{display:flex;}
+    #gameScreen{align-items:stretch;}
+    .col{
+      display:flex;flex-direction:column;width:100%;min-height:100%;max-width:520px;margin:0 auto;
+      padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
+      gap:clamp(10px,1.4dvh,14px);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Name / Dept Gate */
+    #nameForm{align-items:center;justify-content:center;padding:24px;gap:0;}
+    .gate-card{
+      width:100%;max-width:400px;background:var(--card);border:1.5px solid var(--card-line);
+      border-radius:20px;padding:34px 26px 28px;box-shadow:0 20px 60px rgba(45,38,32,.14);
+      display:flex;flex-direction:column;align-items:stretch;gap:14px;
+      animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;
     }
+    .hero-quote{text-align:center;margin-bottom:8px;}
+    .hero-text{font-family:'Fraunces',serif;font-weight:900;font-size:2.1rem;color:var(--forest);letter-spacing:-.5px;}
+    .hero-author{font-size:1.3rem;margin-top:4px;}
+    .gate-label{font-family:'Space Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);margin:6px 0 -6px;}
+    #nameInput, #departmentSelect{
+      width:100%;padding:14px 15px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:#fffdf7;font-family:'Inter',sans-serif;font-size:1rem;color:var(--ink);
+      appearance:none;-webkit-appearance:none;
+    }
+    #departmentSelect{
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238c7c62' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+      background-repeat:no-repeat;background-position:right 14px center;background-size:18px;
+    }
+    #nameInput:focus, #departmentSelect:focus{outline:none;border-color:var(--moss);}
+    #gateError{color:var(--rust);font-size:.78rem;font-family:'Space Mono',monospace;text-align:center;min-height:1em;}
+    .btn-start{
+      margin-top:6px;padding:15px;border:none;border-radius:12px;
+      background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;
+      font-family:'Inter',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(47,82,51,.25);
+      transition:transform .15s;
+    }
+    .btn-start:active{transform:scale(.97);}
+    .btn-study-link{
+      background:none;border:none;margin-top:2px;padding:8px;color:var(--ink-muted);
+      font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.03em;cursor:pointer;
+      text-decoration:underline;text-underline-offset:3px;transition:color .15s;
+    }
+    .btn-study-link:hover{color:var(--forest);}
 
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
+    /* Top Bar */
+    .top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .top-actions{display:flex;gap:6px;}
+    .icon-btn{
+      width:40px;height:40px;border-radius:9px;border:1.5px solid var(--card-line);background:var(--card);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-muted);
+      box-shadow:var(--shadow-sm);transition:all .18s var(--ease);
     }
+    .icon-btn svg{width:46%;height:46%;}
+    .icon-btn:hover{background:#f7ede0;color:var(--rust);}
+    .icon-btn:active{transform:scale(.9);}
+    .brand{text-align:center;}
+    .brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.15rem,3.6dvh,1.55rem);letter-spacing:-.3px;color:var(--forest);}
+    .brand span{color:var(--rust);}
+    .brand .sub{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-top:1px;}
 
-    .app-container {
-      width: 100%;
-      max-width: 680px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      overflow: hidden;
-      padding: 28px;
-    }
+    .timer-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--card-line);border-radius:99px;padding:6px 14px;box-shadow:var(--shadow-sm);}
+    .timer-text{font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;color:var(--forest);white-space:nowrap;}
 
-    /* GATE SCREEN */
-    #gateScreen {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    /* Stats Strip */
+    .stat-strip{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:9px 14px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;}
+    .stat-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+    .rank-name{font-family:'Fraunces',serif;font-weight:700;font-size:.86rem;color:var(--forest);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .stat-nums{font-family:'Space Mono',monospace;font-size:.66rem;color:var(--ink-muted);white-space:nowrap;}
+    .stat-nums b{color:var(--clay);font-weight:700;font-size:1.05em;margin:0 2px;}
+    .rank-track{height:5px;background:#e9dcbb;border-radius:99px;overflow:hidden;}
+    .rank-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--forest));border-radius:99px;transition:width .6s var(--ease);}
 
-    .gate-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      text-align: center;
-      color: var(--primary);
-      margin-bottom: 8px;
-    }
+    /* Rule Card */
+    .rule-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;}
+    .rule-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+    .rule-name{font-family:'Fraunces',serif;font-weight:700;font-size:.98rem;color:var(--forest);}
+    .cefr-pill{font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:3px 9px;border-radius:99px;color:#fff;white-space:nowrap;}
+    .cefr-pill.a1,.cefr-pill.a2{background:var(--a1);}
+    .cefr-pill.b1,.cefr-pill.b2{background:var(--b1);}
+    .cefr-pill.c1{background:var(--c1);}
+    .rule-explain{font-family:'Inter',sans-serif;font-size:.78rem;line-height:1.45;color:var(--ink-muted);}
 
-    .gate-label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: #555;
+    /* Contrast Pair Interactive Component */
+    .contrast-card{
+      background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:10px 14px;
+      display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 1px 3px rgba(45,38,32,.04);
     }
+    .contrast-header{display:flex;justify-content:space-between;align-items:center;}
+    .contrast-title{font-family:'Space Mono',monospace;font-size:.6rem;text-transform:uppercase;color:var(--clay);font-weight:700;letter-spacing:.05em;}
+    .toggle-wrap{display:flex;background:#e2d4b0;border-radius:99px;padding:2px;gap:2px;}
+    .toggle-btn{
+      padding:4px 12px;border:none;border-radius:99px;background:transparent;
+      font-family:'Space Mono',monospace;font-size:.68rem;font-weight:700;color:var(--ink-muted);
+      cursor:pointer;transition:all .2s var(--ease);
+    }
+    .toggle-btn.active{background:var(--forest);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+    .contrast-sentence{font-family:'Fraunces',serif;font-size:.92rem;color:var(--ink);line-height:1.4;text-align:center;}
+    .contrast-sentence b{color:var(--prep);text-decoration:underline;text-underline-offset:3px;}
+    .contrast-meaning{
+      font-size:.75rem;line-height:1.4;color:var(--ink);background:var(--card);
+      padding:8px 10px;border-radius:8px;border:1px solid var(--card-line);
+      display:flex;align-items:flex-start;gap:6px;
+    }
+    .contrast-icon{font-size:1.1rem;line-height:1;flex-shrink:0;}
 
-    input[type="text"], select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
+    /* Specimen Mount */
+    .mount{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:20px 18px 14px;box-shadow:var(--shadow-md);position:relative;}
+    .mount::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px dashed #d8c69a;border-radius:8px;pointer-events:none;}
+    .mount.error{animation:shake .35s ease;}
+    .mount.success{animation:pop .4s var(--ease);}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+    @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.02)}100%{transform:scale(1)}}
 
-    input[type="text"]:focus, select:focus {
-      border-color: var(--primary);
+    .sentence-line{font-family:'Fraunces',serif;font-size:1.15rem;line-height:1.7;text-align:center;position:relative;z-index:1;}
+    .blank-slot{
+      display:inline-block;min-width:70px;padding:1px 8px;border-bottom:2.5px dashed #c9b98d;
+      font-weight:700;color:var(--ink-muted);text-align:center;
     }
+    .blank-slot.filled{border-bottom-style:solid;border-bottom-color:var(--prep);color:var(--prep);animation:tileIn .25s cubic-bezier(.2,1.5,.4,1);}
+    @keyframes tileIn{from{transform:translateY(6px) scale(.85);opacity:0}to{transform:none;opacity:1}}
+    .mount-caption{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--ink-muted);margin-top:10px;letter-spacing:.03em;position:relative;z-index:1;}
 
-    #gateError {
-      color: var(--danger);
-      font-size: 0.85rem;
-      min-height: 18px;
+    /* Choice Tray */
+    .tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:52px;align-content:flex-start;}
+    .tile{
+      display:inline-flex;flex-direction:column;align-items:center;gap:1px;padding:10px 22px;border-radius:12px;
+      background:#fffdf7;border:1.5px solid #bfe0c8;cursor:pointer;user-select:none;
+      box-shadow:var(--shadow-sm);transition:transform .15s var(--ease),box-shadow .15s,opacity .15s;
+      animation:tileSpawn .22s cubic-bezier(.2,1.5,.4,1);
     }
+    .tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .tile:active{transform:scale(.94);}
+    .tile.wrong{animation:tileShake .4s ease;}
+    .tile.solved{opacity:0;pointer-events:none;}
+    @keyframes tileShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+    @keyframes tileSpawn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+    .tile .word{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--prep);text-transform:lowercase;}
 
-    .btn-start {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 14px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 8px;
+    /* Paradigm Panel */
+    .paradigm-panel{
+      background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:10px 14px 12px;
+      box-shadow:var(--shadow-sm);margin-top:auto;display:flex;flex-direction:column;gap:6px;
     }
+    .paradigm-title{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;}
+    .paradigm-title b{color:var(--forest);}
+    .paradigm-rows{display:flex;flex-direction:column;gap:4px;}
+    .paradigm-row{display:flex;align-items:baseline;gap:8px;padding:4px 2px;border-radius:6px;}
+    .paradigm-row.active{background:#eef3e9;}
+    .paradigm-num{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);min-width:16px;flex-shrink:0;}
+    .paradigm-row.done .paradigm-num{color:var(--forest);}
+    .paradigm-sentence{font-family:'Fraunces',serif;font-size:.86rem;color:var(--ink);flex:1;}
+    .paradigm-sentence.pending{color:#c9bfa5;font-style:italic;}
+    .paradigm-sentence b{color:var(--prep);}
+    .paradigm-check{font-size:.75rem;color:var(--moss);flex-shrink:0;}
 
-    .btn-start:hover {
-      background-color: #256628;
-    }
+    .archive-title{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:8px;}
+    .archive-list{display:flex;flex-direction:column;gap:6px;max-height:130px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .archive-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;padding:7px 10px;}
+    .archive-card .arc-rule{font-family:'Space Mono',monospace;font-size:.56rem;color:var(--forest);text-transform:uppercase;font-weight:700;margin-bottom:3px;}
+    .archive-card .arc-line{font-family:'Fraunces',serif;font-size:.78rem;color:var(--ink);line-height:1.5;}
+    .archive-card .arc-line b{color:var(--prep);}
 
-    /* GAME SCREEN */
-    #gameScreen {
-      display: none;
-      flex-direction: column;
-      gap: 20px;
+    .toast{
+      position:fixed;bottom:calc(env(safe-area-inset-bottom) + 24px);left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;
+      padding:10px 20px;border-radius:16px;font-size:.82rem;font-weight:500;z-index:200;pointer-events:none;
+      transition:transform .35s var(--ease),opacity .35s;opacity:0;max-width:90vw;text-align:center;line-height:1.4;box-shadow:0 10px 30px rgba(0,0,0,.25);
     }
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+    .toast.good{background:linear-gradient(135deg,var(--forest),var(--moss));}
+    .toast.bad{background:linear-gradient(135deg,var(--rust),#c0503f);}
+    .toast b{display:block;font-family:'Fraunces',serif;font-size:.95rem;margin-bottom:2px;}
 
-    .game-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #f0f0f0;
-      font-size: 0.9rem;
-      color: #666;
+    /* End Screen */
+    #endScreen{justify-content:flex-start;padding:30px 16px 50px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .end-card{
+      background:var(--card);border:1.5px solid var(--card-line);border-radius:20px;padding:32px 26px;max-width:520px;
+      width:100%;box-shadow:0 20px 60px rgba(45,38,32,.14);animation:cardIn .55s cubic-bezier(.34,1.4,.64,1) forwards;
     }
+    @keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+    .end-title{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;text-align:center;color:var(--forest);margin-bottom:4px;}
+    .end-subtitle{text-align:center;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px;}
+    .end-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px;}
+    .stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;text-align:center;border:1.5px solid var(--card-line);}
+    .stat-num{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:700;color:var(--forest);line-height:1;}
+    .stat-lbl{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+    .end-sentences-title{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;}
+    .end-specimen-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:10px;padding:10px 12px;margin-bottom:8px;animation:pop-in .35s cubic-bezier(.2,1.5,.4,1) backwards;}
+    .end-specimen-card .arc-rule{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--forest);text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+    .end-specimen-card .arc-line{font-family:'Fraunces',serif;font-size:.85rem;color:var(--ink);line-height:1.6;}
+    .end-specimen-card .arc-line b{color:var(--prep);}
+    @keyframes pop-in{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+    .end-btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+    .btn-end{
+      flex:1;padding:13px 10px;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:.86rem;font-weight:700;
+      letter-spacing:.03em;cursor:pointer;transition:transform .15s;text-transform:uppercase;min-width:90px;
+    }
+    .btn-end:hover{transform:scale(1.03);}
+    .btn-end-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;box-shadow:0 4px 16px rgba(47,82,51,.25);}
+    .btn-end-share{background:linear-gradient(135deg,#128c7e,#25d366);color:#fff;}
 
-    .story-container {
-      font-size: 1.15rem;
-      line-height: 1.8;
-      min-height: 120px;
-      background: #fafafa;
-      padding: 20px;
-      border-radius: 8px;
-      border-left: 4px solid var(--primary);
-      position: relative;
+    /* Study Glossary Overlay */
+    .study-overlay{
+      display:none;position:fixed;inset:0;background:var(--paper);z-index:250;overflow-y:auto;
+      -webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 32px);
     }
-
-    /* SIDE QUEST BADGE & STYLING */
-    .side-quest-badge {
-      display: inline-block;
-      background-color: var(--purple-light);
-      color: var(--purple);
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 4px;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .study-overlay.show{display:block;}
+    .study-inner{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+    .study-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1.5px solid var(--card-line);}
+    .study-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;color:var(--forest);}
+    .study-subtitle{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.05em;color:var(--ink-muted);text-transform:uppercase;margin-top:3px;}
+    .study-search{
+      width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:var(--card);font-family:'Inter',sans-serif;font-size:.9rem;color:var(--ink);outline:none;
     }
-
-    .story-container.side-quest-active {
-      border-left-color: var(--purple);
-      background: #fdf8ff;
+    .study-search:focus{border-color:var(--moss);}
+    .study-filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+    .study-chip{
+      padding:5px 12px;border-radius:99px;border:1.5px solid var(--card-line);background:var(--card);
+      color:var(--ink-muted);font-family:'Space Mono',monospace;font-size:.64rem;letter-spacing:.04em;
+      text-transform:uppercase;cursor:pointer;transition:all .15s var(--ease);
     }
-
-    .slot-placeholder {
-      display: inline-block;
-      min-width: 80px;
-      padding: 2px 10px;
-      border-bottom: 2px dashed var(--primary);
-      font-weight: bold;
-      text-align: center;
-      color: var(--primary);
-      background: var(--primary-light);
-      border-radius: 4px;
-      margin: 0 4px;
+    .study-chip.active{border-color:var(--forest);background:var(--forest);color:#fff;}
+    .study-grid{display:flex;flex-direction:column;gap:10px;}
+    .study-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);}
+    .study-card.practiced{border-color:rgba(111,143,90,.5);background:linear-gradient(180deg,#fbf9ee,var(--card));}
+    .study-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+    .study-card-name{font-family:'Fraunces',serif;font-weight:700;font-size:.98rem;color:var(--forest);}
+    .study-card-explain{font-family:'Inter',sans-serif;font-size:.78rem;line-height:1.45;color:var(--ink-muted);margin-bottom:10px;}
+    .study-card-sentences{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;padding:9px 11px;background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;}
+    .study-line{font-family:'Fraunces',serif;font-size:.84rem;color:var(--ink);line-height:1.55;}
+    .study-line b{color:var(--prep);}
+    .study-card-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .study-practice-btn{
+      padding:8px 16px;border:none;border-radius:99px;background:linear-gradient(135deg,var(--forest),var(--moss));
+      color:#fff;font-family:'Inter',sans-serif;font-size:.76rem;font-weight:700;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;transition:transform .15s;
     }
-
-    .slot-placeholder.side-quest {
-      border-bottom-color: var(--purple);
-      color: var(--purple);
-      background: var(--purple-light);
-    }
-
-    .slot-placeholder.error {
-      border-bottom-color: var(--danger);
-      color: var(--danger);
-      animation: shake 0.3s ease-in-out;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-4px); }
-      40%, 80% { transform: translateX(4px); }
-    }
-
-    .options-tray {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 10px;
-    }
-
-    .option-btn {
-      background: #ffffff;
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 18px;
-      font-size: 1rem;
-      text-align: left;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .option-btn:hover {
-      border-color: var(--primary);
-      background-color: var(--primary-light);
-    }
-
-    .option-btn.side-quest-btn:hover {
-      border-color: var(--purple);
-      background-color: var(--purple-light);
-    }
-
-    .feedback-hint {
-      font-size: 0.85rem;
-      color: var(--danger);
-      min-height: 20px;
-    }
-
-    /* END SCREEN */
-    #endScreen {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 16px;
-      padding: 20px 0;
-    }
-
-    .end-title {
-      font-size: 1.8rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    .score-card {
-      background: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      width: 100%;
-      margin: 12px 0;
-    }
-
-    .score-card p {
-      margin: 8px 0;
-      font-size: 1.05rem;
-    }
+    .study-practice-btn:active{transform:scale(.95);}
+    .study-practiced-badge{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--moss);letter-spacing:.03em;}
+    .study-empty{text-align:center;padding:32px 0;font-family:'Fraunces',serif;font-style:italic;font-size:.95rem;color:var(--ink-muted);}
   </style>
 </head>
 <body>
+<div class="toast" id="toast"></div>
 
-<div class="app-container">
-  <!-- GATE SCREEN -->
-  <div id="gateScreen">
-    <div class="gate-title">The Zen Farmer</div>
+<!-- Name / Department Gate -->
+<div class="screen active" id="nameForm">
+  <div class="gate-card">
+    <div class="hero-quote">
+      <div class="hero-text">Preposition Press</div>
+      <div class="hero-author">📍🗺️✨</div>
+    </div>
     <div class="gate-label">Your Name</div>
     <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off"/>
-    
     <div class="gate-label">Department</div>
     <select id="departmentSelect">
       <option value="">-- Select Department --</option>
@@ -276,439 +303,1106 @@
       <option value="IT-1">IT-1</option>
       <option value="IT-2">IT-2</option>
     </select>
-    
     <div id="gateError"></div>
-    <button class="btn-start" onclick="beginQuiz()">✿ Start Workshop</button>
+    <button class="btn-start" onclick="beginQuiz()">✿ Start Quiz</button>
+    <button class="btn-study-link" onclick="openStudy()">📖 Study the rules first</button>
   </div>
+</div>
 
-  <!-- GAME SCREEN -->
-  <div id="gameScreen">
-    <div class="game-header">
-      <span id="playerInfo"></span>
-      <span id="progressTracker">Scene 1 of 15</span>
+<div class="screen" id="gameScreen">
+  <div class="col">
+    <div class="top-bar">
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-end-game" aria-label="End round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 3.5L16 11H5"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-study" aria-label="Study glossary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5v-15Z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg>
+        </button>
+      </div>
+      <div class="brand"><h1>Herbari<span>✿</span>m</h1><div class="sub">Preposition Press</div></div>
+      <div class="timer-pill">
+        <div class="timer-text" id="timerText">00:00</div>
+      </div>
     </div>
 
-    <div id="sideQuestBadgeContainer"></div>
-
-    <div class="story-container" id="storyBox">
-      <!-- Story content dynamically rendered -->
+    <div class="stat-strip">
+      <div class="stat-top">
+        <span class="rank-name" id="rank-name">Seed 🌰</span>
+        <span class="stat-nums"><b id="score">0</b>pts · <b id="streak">0</b> streak · best <b id="best-score">0</b></span>
+      </div>
+      <div class="rank-track"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
     </div>
 
-    <div class="feedback-hint" id="feedbackHint"></div>
+    <!-- Rule Card -->
+    <div class="rule-card">
+      <div class="rule-card-top">
+        <span class="rule-name" id="rule-name">Rule name</span>
+        <span class="cefr-pill" id="cefr-pill">A1</span>
+      </div>
+      <div class="rule-explain" id="rule-explain">Explanation goes here.</div>
+    </div>
 
-    <div class="options-tray" id="optionsTray">
-      <!-- Options dynamically rendered -->
+    <!-- Interactive Contrast Pair Component -->
+    <div class="contrast-card" id="contrast-card">
+      <div class="contrast-header">
+        <span class="contrast-title">Contrast Pair Mechanic</span>
+        <div class="toggle-wrap" id="toggle-wrap"></div>
+      </div>
+      <div class="contrast-sentence" id="contrast-sentence"></div>
+      <div class="contrast-meaning" id="contrast-meaning">
+        <span class="contrast-icon" id="contrast-icon">💡</span>
+        <span id="contrast-text">Select a option to view semantic shift.</span>
+      </div>
+    </div>
+
+    <div class="mount" id="mount">
+      <div class="sentence-line" id="sentence-line"></div>
+      <div class="mount-caption" id="mount-caption">tap the correct preposition</div>
+    </div>
+
+    <div class="tray" id="tray"></div>
+
+    <!-- Paradigm panel: 4 items per rule -->
+    <div class="paradigm-panel">
+      <div class="paradigm-title">Rule <b id="specimen-num">1</b>/24 · <b id="paradigm-count">0</b>/4 sentences</div>
+      <div class="paradigm-rows" id="paradigm-rows"></div>
+      <div class="archive-title" id="archive-title" style="display:none;">Earlier rules</div>
+      <div class="archive-list" id="archive-list"></div>
     </div>
   </div>
+</div>
 
-  <!-- END SCREEN -->
-  <div id="endScreen">
-    <div class="end-title">Story Completed ✿</div>
-    <p>You have navigated through the story of the Chinese Farmer and mastered core prepositions.</p>
-    <div class="score-card">
-      <p><strong>Accuracy Taps:</strong> <span id="correctTapsCount">0</span> Correct / <span id="wrongTapsCount">0</span> Missteps</p>
-      <p><strong>Time Spent:</strong> <span id="timeSpentText">0</span> seconds</p>
-      <p><strong>Overall Band Score:</strong> <span id="bandScoreText">9.0</span></p>
+<div class="screen" id="endScreen">
+  <div class="end-card">
+    <div class="end-title" id="endTitle">🌿 Collection Closed</div>
+    <div class="end-subtitle" id="endSubtitle">Herbarium · Preposition Press</div>
+    <div class="end-stats">
+      <div class="stat-box"><div class="stat-num" id="endScore">0</div><div class="stat-lbl">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="endSentences">0</div><div class="stat-lbl">Pressed</div></div>
+      <div class="stat-box"><div class="stat-num" id="endAccuracy">0%</div><div class="stat-lbl">Accuracy</div></div>
     </div>
-    <p style="font-size: 0.9rem; color: #666;">Your results have been logged successfully.</p>
+    <div class="end-sentences-title">Your Specimens</div>
+    <div id="endSentencesList"></div>
+    <div class="end-btn-row">
+      <button class="btn-end btn-end-primary" id="btnPlayAgain">✿ Play Again</button>
+      <button class="btn-end btn-end-share" id="btnShare">📲 Share</button>
+    </div>
+  </div>
+</div>
+
+<!-- Study Glossary Overlay -->
+<div class="study-overlay" id="studyOverlay">
+  <div class="study-inner">
+    <div class="study-header">
+      <div>
+        <div class="study-title">📖 Study — Preposition Rules</div>
+        <div class="study-subtitle">Browse all 24 preposition groups & semantic contrasts</div>
+      </div>
+      <button class="icon-btn" id="btn-study-close" aria-label="Close study">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <input class="study-search" id="studySearch" type="text" placeholder="Search a preposition, rule or contrast…" oninput="handleStudySearch()"/>
+    <div class="study-filter-row" id="studyCefrRow">
+      <div class="study-chip active" onclick="setStudyCefrFilter('all',this)">All Levels</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a1',this)">A1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a2',this)">A2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b1',this)">B1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b2',this)">B2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('c1',this)">C1</div>
+    </div>
+    <div class="study-filter-row" id="studyPracticedRow">
+      <div class="study-chip active" onclick="setStudyPracticedFilter('all',this)">All</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('practiced',this)">✓ Practiced</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('unpracticed',this)">Not Yet</div>
+    </div>
+    <div class="study-grid" id="studyGrid"></div>
   </div>
 </div>
 
 <script>
-  // CONFIG & CONSTANTS
-  const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
-  const QUEST_ID = "zen_farmer_prepositions";
-
-  // GAME DATA MATRIX
-  const STORY_NODES = [
-    {
-      id: 1,
-      level: "A1",
-      isSideQuest: false,
-      textBefore: "An old farmer lived ",
-      textAfter: " a small village with his son and his only horse.",
+/* ═══════════════════════════════════════════════════════════════
+   PREPOSITION RULE DATA — 24 CEFR-aligned groups.
+   Includes a Contrast Pair object for dynamic interactive exploration.
+   ═══════════════════════════════════════════════════════════════ */
+const RULE_GROUPS = [
+  {
+    id: 701, name: "Basic Place: In vs On vs At", cefr: "a1",
+    explain: "Use 'in' for enclosed spaces or areas, 'on' for surfaces, and 'at' for specific points or locations.",
+    contrast: {
+      template: "She is sitting {P} the table.",
       options: [
-        { text: "in", correct: true, hint: "" },
-        { text: "at", correct: false, hint: "Villages and larger areas take 'in'." }
+        { prep: "at", icon: "🪑", text: "Positioned near the table ready to eat, write, or work." },
+        { prep: "on", icon: "🐈", text: "Physically on top of the table surface (e.g., standing or climbing)." }
       ]
     },
-    {
-      id: 2,
-      level: "A1",
-      isSideQuest: false,
-      textBefore: "One morning, the farmer woke up ",
-      textAfter: " sunrise and went to the stable.",
+    items: [
+      { before: "There is a cup", after: "the table.", answer: "on", choices: ["on", "in"] },
+      { before: "She lives", after: "a small apartment.", answer: "in", choices: ["in", "at"] },
+      { before: "Meet me", after: "the bus stop.", answer: "at", choices: ["at", "on"] },
+      { before: "He put the money", after: "his wallet.", answer: "in", choices: ["in", "on"] }
+    ]
+  },
+  {
+    id: 702, name: "Time Expressions: In / On / At", cefr: "a1",
+    explain: "Use 'at' for exact clock times, 'on' for days and dates, and 'in' for months, years, and long periods.",
+    contrast: {
+      template: "The meeting is {P} Sunday morning.",
       options: [
-        { text: "at", correct: true, hint: "" },
-        { text: "on", correct: false, hint: "Specific clock times or precise events take 'at'." }
+        { prep: "on", icon: "📅", text: "Refers specifically to the day (Sunday morning as a calendar date)." },
+        { prep: "in", icon: "🌅", text: "Refers broadly to the period ('in the morning' - without specifying Sunday)." }
       ]
     },
-    {
-      id: 3,
-      level: "A2",
-      isSideQuest: true,
-      badgeText: "Side Quest: Perspective Choice",
-      textBefore: "The stable door was broken, and the horse had run ",
-      textAfter: " the nearby forest!",
+    items: [
+      { before: "The exam starts", after: "9:00 AM.", answer: "at", choices: ["at", "on"] },
+      { before: "My birthday is", after: "October.", answer: "in", choices: ["in", "on"] },
+      { before: "We go to church", after: "Sundays.", answer: "on", choices: ["on", "at"] },
+      { before: "The castle was built", after: "1452.", answer: "in", choices: ["in", "at"] }
+    ]
+  },
+  {
+    id: 703, name: "High-Contrast Surface vs Container", cefr: "a2",
+    explain: "Switching between 'in' and 'on' changes whether an object is submerged/contained or resting on top.",
+    contrast: {
+      template: "The dog is playing {P} the water.",
       options: [
-        { 
-          text: "into", 
-          correct: true, 
-          sideText: "(Focuses on entering deep inside the woods)",
-          branchOutcome: "The villagers tracked the hoofprints deep into the dark forest..." 
-        },
-        { 
-          text: "towards", 
-          correct: true, 
-          sideText: "(Focuses on direction without confirming entry)",
-          branchOutcome: "The villagers ran towards the tree line, searching along the borders..." 
-        }
+        { prep: "in", icon: "🏊", text: "Submerged inside the water (swimming, wading, or fully wet)." },
+        { prep: "on", icon: "⛵", text: "Floating on top of the surface (e.g. resting on a raft or boat)." }
       ]
     },
-    {
-      id: 4,
-      level: "A2",
-      isSideQuest: false,
-      textBefore: "Hearing the news, the villagers gathered ",
-      textAfter: " front of the farmer's modest house.",
+    items: [
+      { before: "The boat is floating", after: "the water.", answer: "on", choices: ["on", "in"] },
+      { before: "The fish is swimming", after: "the water.", answer: "in", choices: ["in", "on"] },
+      { before: "Leave the keys resting", after: "the desk.", answer: "on", choices: ["on", "in"] },
+      { before: "Store the documents inside", after: "the drawer.", answer: "in", choices: ["in", "on"] }
+    ]
+  },
+  {
+    id: 704, name: "Movement towards vs Position inside", cefr: "a2",
+    explain: "'Into' implies movement crossing a boundary to enter; 'in' describes stationary position inside.",
+    contrast: {
+      template: "He ran {P} the room.",
       options: [
-        { text: "in", correct: true, hint: "" },
-        { text: "on", correct: false, hint: "The fixed spatial phrase is 'in front of'." }
+        { prep: "into", icon: "🏃‍♂️💨", text: "Entered from outside into the room (crosses threshold)." },
+        { prep: "in", icon: "🏃‍♂️🔄", text: "Ran around inside the boundaries of the room." }
       ]
     },
-    {
-      id: 5,
-      level: "B1",
-      isSideQuest: false,
-      textBefore: '"What terrible luck!" they cried. "Your farm depended ',
-      textAfter: ' that horse for survival!"',
+    items: [
+      { before: "She walked", after: "the room and sat down.", answer: "into", choices: ["into", "in"] },
+      { before: "The kids were playing", after: "the garden.", answer: "in", choices: ["in", "into"] },
+      { before: "He dove headfirst", after: "the swimming pool.", answer: "into", choices: ["into", "in"] },
+      { before: "They stayed safe", after: "the shelter.", answer: "in", choices: ["in", "into"] }
+    ]
+  },
+  {
+    id: 705, name: "Nuanced Intent: Shouted To vs At", cefr: "b1",
+    explain: "'Shout to' communicates distance without hostility; 'shout at' implies anger or aggressive reprimand.",
+    contrast: {
+      template: "The supervisor shouted {P} the worker.",
       options: [
-        { text: "on", correct: true, hint: "" },
-        { text: "of", correct: false, hint: "The verb 'depend' always pairs with 'on'." }
+        { prep: "to", icon: "📢", text: "Raised voice across a noisy room so the worker could hear." },
+        { prep: "at", icon: "😡", text: "Expressed anger or yelled reprimands directly in hostility." }
       ]
     },
-    {
-      id: 6,
-      level: "B1",
-      isSideQuest: false,
-      textBefore: "The old man looked at them calmly and replied, ",
-      textAfter: ' his usual quiet manner, "Maybe."',
+    items: [
+      { before: "She called out and shouted", after: "him to get his attention across the street.", answer: "to", choices: ["to", "at"] },
+      { before: "Don't shout", after: "me just because you lost your temper!", answer: "at", choices: ["at", "to"] },
+      { before: "He threw the keys", after: "me so I could catch them.", answer: "to", choices: ["to", "at"] },
+      { before: "He threw the ball angrily", after: "me to hurt me.", answer: "at", choices: ["at", "to"] }
+    ]
+  },
+  {
+    id: 706, name: "Arrival Destinations: Arrive At vs In", cefr: "b1",
+    explain: "Arrive 'in' for cities, countries, and regions; arrive 'at' for specific buildings, venues, or points.",
+    contrast: {
+      template: "They arrived {P} the station.",
       options: [
-        { text: "in", correct: true, hint: "" },
-        { text: "with", correct: false, hint: "Expressions describing style or manner use 'in' (e.g., in a quiet manner)." }
+        { prep: "at", icon: "🚉", text: "Refers to a specific building, stop, or point of interest." },
+        { prep: "in", icon: "🏙️", text: "Would apply if referring to a vast area or major urban destination." }
       ]
     },
-    {
-      id: 7,
-      level: "A2",
-      isSideQuest: true,
-      badgeText: "Side Quest: Spatial Alignment",
-      textBefore: "A week later, the missing horse returned, bringing three wild horses ",
-      textAfter: " it.",
+    items: [
+      { before: "We arrived", after: "Tokyo late last night.", answer: "in", choices: ["in", "at"] },
+      { before: "We arrived", after: "the hotel just before midnight.", answer: "at", choices: ["at", "in"] },
+      { before: "When did you arrive", after: "France?", answer: "in", choices: ["in", "at"] },
+      { before: "She arrived", after: "the airport gate early.", answer: "at", choices: ["at", "in"] }
+    ]
+  },
+  {
+    id: 707, name: "Made Of vs Made From vs Made With", cefr: "b2",
+    explain: "'Made of' retains original material properties; 'made from' involves chemical transformation; 'made with' lists ingredients.",
+    contrast: {
+      template: "This vintage chair is made {P} wood.",
       options: [
-        { 
-          text: "with", 
-          correct: true, 
-          sideText: "(Group arrival / accompaniment)",
-          branchOutcome: "The animals arrived together as a group..." 
-        },
-        { 
-          text: "behind", 
-          correct: true, 
-          sideText: "(Following in a single-file line)",
-          branchOutcome: "The wild horses followed closely behind in a line..." 
-        }
+        { prep: "of", icon: "🪑", text: "Material remains wood physically unchanged in form." },
+        { prep: "from", icon: "📄", text: "Material transformed fundamentally (e.g. paper made from trees)." }
       ]
     },
-    {
-      id: 8,
-      level: "B1",
-      isSideQuest: false,
-      textBefore: "The villagers arrived ",
-      textAfter: " time to see four beautiful horses grazing in the meadow.",
+    items: [
+      { before: "The table is constructed entirely", after: "oak wood.", answer: "of", choices: ["of", "from"] },
+      { before: "Paper is manufactured", after: "wood pulp and trees.", answer: "from", choices: ["from", "of"] },
+      { before: "This delicious soup is made", after: "fresh herbs and garlic.", answer: "with", choices: ["with", "of"] },
+      { before: "Wine is fermented and made", after: "grapes.", answer: "from", choices: ["from", "of"] }
+    ]
+  },
+  {
+    id: 708, name: "At the end vs In the end", cefr: "b2",
+    explain: "'At the end of' refers to the physical or temporal termination point; 'in the end' means 'finally' or 'eventually'.",
+    contrast: {
+      template: "{P} the story, they made peace.",
       options: [
-        { text: "in", correct: true, hint: "" },
-        { text: "at", correct: false, hint: "'In time' means early enough to see it. 'At time' is incorrect." }
+        { prep: "In", icon: "🕊️", text: "Eventually/finally (after all events concluded)." },
+        { prep: "At", icon: "📖", text: "At the literal final page or closing section of the book." }
       ]
     },
-    {
-      id: 9,
-      level: "A2",
-      isSideQuest: false,
-      textBefore: "The farmer's son tried to tame one of the wild beasts, but he fell ",
-      textAfter: " the horse's back.",
+    items: [
+      { before: "Turn right", after: "the end of this street.", answer: "at", choices: ["at", "in"] },
+      { before: "We argued for hours, but", after: "the end we agreed.", answer: "in", choices: ["in", "at"] },
+      { before: "Put a full stop", after: "the end of every sentence.", answer: "at", choices: ["at", "in"] },
+      { before: "He worked hard and", after: "the end succeeded.", answer: "in", choices: ["in", "at"] }
+    ]
+  },
+  {
+    id: 709, name: "Dependent Prepositions: Good At vs For", cefr: "a2",
+    explain: "Be 'good at' an activity (ability); be 'good for' health, wellbeing, or suitability.",
+    contrast: {
+      template: "Running is good {P} you.",
       options: [
-        { text: "off", correct: true, hint: "" },
-        { text: "out", correct: false, hint: "Movement away from a surface takes 'off'." }
+        { prep: "for", icon: "🥗", text: "Beneficial to your health, stamina, and physical fitness." },
+        { prep: "at", icon: "🏃", text: "Refers to having high skill level in running competitions." }
       ]
     },
-    {
-      id: 10,
-      level: "B1",
-      isSideQuest: false,
-      textBefore: "",
-      textAfter: " the afternoon, the doctor arrived to examine the young man's broken leg.",
+    items: [
+      { before: "She is extremely good", after: "solving complex math equations.", answer: "at", choices: ["at", "for"] },
+      { before: "Eating fresh vegetables is good", after: "your overall health.", answer: "for", choices: ["for", "at"] },
+      { before: "Are you good", after: "playing chess?", answer: "at", choices: ["at", "for"] },
+      { before: "A quiet walk is very good", after: "reducing stress.", answer: "for", choices: ["for", "at"] }
+    ]
+  },
+  {
+    id: 710, name: "Die Of vs Die From", cefr: "c1",
+    explain: "Die 'of' an internal cause (disease, illness, hunger); die 'from' an external cause (wounds, accidents).",
+    contrast: {
+      template: "The patient died {P} a sudden heart attack.",
       options: [
-        { text: "In", correct: true, hint: "" },
-        { text: "At", correct: false, hint: "Parts of the day (morning, afternoon) take 'In'." }
+        { prep: "of", icon: "💔", text: "Direct internal medical condition or disease." },
+        { prep: "from", icon: "🩹", text: "Indirect result of external injuries or environmental trauma." }
       ]
     },
-    {
-      id: 11,
-      level: "B1",
-      isSideQuest: false,
-      textBefore: 'The villagers said, "How tragic! You must be deeply worried ',
-      textAfter: ' your family\'s future." The old farmer simply said, "Maybe."',
+    items: [
+      { before: "Many soldiers died", after: "their severe battle wounds.", answer: "from", choices: ["from", "of"] },
+      { before: "The elderly patient died", after: "natural causes.", answer: "of", choices: ["of", "from"] },
+      { before: "Thousands died", after: "starvation during the drought.", answer: "of", choices: ["of", "from"] },
+      { before: "He suffered and died", after: "exposure to toxic gas.", answer: "from", choices: ["from", "of"] }
+    ]
+  },
+  {
+    id: 711, name: "On time vs In time", cefr: "b1",
+    explain: "'On time' means punctual/according to schedule; 'in time' means early enough before a deadline or event.",
+    contrast: {
+      template: "We arrived {P} time for the concert.",
       options: [
-        { text: "about", correct: true, hint: "" },
-        { text: "for", correct: false, hint: "The adjective 'worried' collocates with 'about'." }
+        { prep: "in", icon: "🎟️", text: "Early enough to find seats before it actually started." },
+        { prep: "on", icon: "⏰", text: "At the exact scheduled moment (e.g. precisely at 8:00 PM)." }
       ]
     },
-    {
-      id: 12,
-      level: "B2",
-      isSideQuest: false,
-      textBefore: "",
-      textAfter: " account of a sudden war breaking out, army officers arrived in the village to conscript all healthy young men.",
+    items: [
+      { before: "The 7:30 train left precisely", after: "time.", answer: "on", choices: ["on", "in"] },
+      { before: "If we hurry, we will be", after: "time to catch the opening show.", answer: "in", choices: ["in", "on"] },
+      { before: "She is always punctual and arrives right", after: "time.", answer: "on", choices: ["on", "in"] },
+      { before: "The doctor arrived just", after: "time to save the patient.", answer: "in", choices: ["in", "on"] }
+    ]
+  },
+  {
+    id: 712, name: "Beside vs Besides", cefr: "b1",
+    explain: "'Beside' means next to (physical proximity); 'besides' means in addition to / apart from.",
+    contrast: {
+      template: "Who was sitting {P} you at the table?",
       options: [
-        { text: "On", correct: true, hint: "" },
-        { text: "By", correct: false, hint: "The multi-word preposition for cause is 'On account of'." }
+        { prep: "beside", icon: "🪑", text: "Seated in physical proximity next to your side." },
+        { prep: "besides", icon: "👥", text: "In addition to / besides you (who else was in the group)." }
       ]
     },
-    {
-      id: 13,
-      level: "B2",
-      isSideQuest: false,
-      textBefore: "",
-      textAfter: " accordance with military rules, the officers inspected every home, searching for recruits.",
+    items: [
+      { before: "Come and sit", after: "me by the fireplace.", answer: "beside", choices: ["beside", "besides"] },
+      { before: "What languages do you speak", after: "English and Tamil?", answer: "besides", choices: ["besides", "beside"] },
+      { before: "The notebook was placed", after: "the computer.", answer: "beside", choices: ["beside", "besides"] },
+      { before: "Nobody attended the meeting", after: "the team leads.", answer: "besides", choices: ["besides", "beside"] }
+    ]
+  },
+  {
+    id: 713, name: "Between vs Among", cefr: "a2",
+    explain: "Use 'between' for distinct individual items (often two); use 'among' for groups or unseparated masses.",
+    contrast: {
+      template: "The money was divided {P} the partners.",
       options: [
-        { text: "In", correct: true, hint: "" },
-        { text: "At", correct: false, hint: "Formal rule compliance uses 'In accordance with'." }
+        { prep: "between", icon: "🤝", text: "Split specifically between two distinct named individuals." },
+        { prep: "among", icon: "👥", text: "Distributed broadly within a collective group of three or more." }
       ]
     },
-    {
-      id: 14,
-      level: "B2",
-      isSideQuest: true,
-      badgeText: "Side Quest: Formal Register",
-      textBefore: "They saw the farmer's son resting on the bed. ",
-      textAfter: " his broken leg, they spared him from the draft.",
+    items: [
+      { before: "Choose", after: "the red pill and the blue pill.", answer: "between", choices: ["between", "among"] },
+      { before: "The cottage is hidden", after: "the tall pine trees.", answer: "among", choices: ["among", "between"] },
+      { before: "Negotiations", after: "the two countries were successful.", answer: "between", choices: ["between", "among"] },
+      { before: "A feeling of discontent spread", after: "the workers.", answer: "among", choices: ["among", "between"] }
+    ]
+  },
+  {
+    id: 714, name: "By vs With (Agency vs Instrument)", cefr: "b1",
+    explain: "'By' indicates the agent/doer performing the action; 'with' indicates the instrument or tool used.",
+    contrast: {
+      template: "The lock was opened {P} a master key.",
       options: [
-        { 
-          text: "Due to", 
-          correct: true, 
-          sideText: "(Direct cause focus)",
-          branchOutcome: "Recognizing the direct cause of his disability..." 
-        },
-        { 
-          text: "Owing to", 
-          correct: true, 
-          sideText: "(Formal circumstantial reason)",
-          branchOutcome: "Owing to his severe injury, the officers marked him exempt..." 
-        },
-        { 
-          text: "In view of", 
-          correct: true, 
-          sideText: "(Observational consideration)",
-          branchOutcome: "In view of his visible condition, they left him behind..." 
-        }
+        { prep: "with", icon: "🗝️", text: "Using a master key as the mechanical tool or instrument." },
+        { prep: "by", icon: "🕵️", text: "Action executed by an agent (e.g. by a locksmith)." }
       ]
     },
-    {
-      id: 15,
-      level: "B2",
-      isSideQuest: false,
-      textBefore: "The villagers cheered for the farmer's good fortune. The old man smiled, looked ",
-      textAfter: ' the horizon, and said once more, "Maybe."',
+    items: [
+      { before: "The portrait was painted", after: "a famous Italian master.", answer: "by", choices: ["by", "with"] },
+      { before: "He cut the wooden board", after: "an electric hand saw.", answer: "with", choices: ["with", "by"] },
+      { before: "The article was authored", after: "two research scholars.", answer: "by", choices: ["by", "with"] },
+      { before: "She signed the official document", after: "a fountain pen.", answer: "with", choices: ["with", "by"] }
+    ]
+  },
+  {
+    id: 715, name: "For vs Since (Duration vs Starting Point)", cefr: "a2",
+    explain: "'For' specifies a total length/duration of time; 'since' marks the specific starting point in the past.",
+    contrast: {
+      template: "I have lived in Chennai {P} 2018.",
       options: [
-        { text: "toward", correct: true, hint: "" },
-        { text: "into", correct: false, hint: "Gazing towards a distant directional line takes 'toward'." }
+        { prep: "since", icon: "📌", text: "Continuous residence starting from the year 2018." },
+        { prep: "for", icon: "⏳", text: "Total duration (would require 'for eight years')." }
       ]
-    }
-  ];
-
-  // STATE VARIABLES
-  let playerName = "";
-  let playerDept = "";
-  let currentStep = 0;
-  let correctTaps = 0;
-  let wrongTaps = 0;
-  let startTime = null;
-
-  // LOGGING FUNCTIONS
-  async function sendViaEdgeFunction(payload) {
-    try {
-      const response = await fetch(EDGE_FUNCTION_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) { 
-        console.error("❌ Edge Function Error:", await response.text()); 
-        return; 
-      }
-      console.log("✅ Saved to Supabase");
-    } catch (err) { 
-      console.error("⚠️ Edge Function Error:", err); 
-    }
+    },
+    items: [
+      { before: "They have been studying together", after: "three hours straight.", answer: "for", choices: ["for", "since"] },
+      { before: "She has been working at SRM", after: "last September.", answer: "since", choices: ["since", "for"] },
+      { before: "We haven't seen each other", after: "a very long time.", answer: "for", choices: ["for", "since"] },
+      { before: "He has been practicing chess", after: "he was seven years old.", answer: "since", choices: ["since", "for"] }
+    ]
+  },
+  {
+    id: 716, name: "Prepositions of Transport: In / On / By", cefr: "a2",
+    explain: "Use 'by' for general modes of transport (by car, by train). Use 'on' for public/large transport (on the bus, on the plane) and 'in' for private cars/taxis.",
+    contrast: {
+      template: "She traveled across town {P} a taxi.",
+      options: [
+        { prep: "in", icon: "🚕", text: "Inside a private vehicle/car where you sit enclosed." },
+        { prep: "on", icon: "🚌", text: "Used for public vehicles where you can walk in (bus, train, ship)." }
+      ]
+    },
+    items: [
+      { before: "He prefers to travel to work", after: "train.", answer: "by", choices: ["by", "on"] },
+      { before: "We were sitting", after: "the morning bus when it broke down.", answer: "on", choices: ["on", "in"] },
+      { before: "She arrived late because she was stuck", after: "a yellow taxi.", answer: "in", choices: ["in", "on"] },
+      { before: "They journeyed across Europe", after: "foot.", answer: "on", choices: ["on", "by"] }
+    ]
+  },
+  {
+    id: 717, name: "Agree With vs Agree To vs Agree On", cefr: "b2",
+    explain: "Agree 'with' a person or opinion; agree 'to' a proposal/terms; agree 'on' a plan or topic after discussion.",
+    contrast: {
+      template: "The board agreed {P} the new contract terms.",
+      options: [
+        { prep: "to", icon: "📝", text: "Consented/accepted the proposed terms officially." },
+        { prep: "on", icon: "🤝", text: "Reached a joint consensus together after discussion." }
+      ]
+    },
+    items: [
+      { before: "I completely agree", after: "your assessment of the situation.", answer: "with", choices: ["with", "to"] },
+      { before: "After hours of debating, they finally agreed", after: "a fair price.", answer: "on", choices: ["on", "to"] },
+      { before: "Management refused to agree", after: "the union's demands.", answer: "to", choices: ["to", "with"] },
+      { before: "Do you agree", after: "me on this decision?", answer: "with", choices: ["with", "on"] }
+    ]
+  },
+  {
+    id: 718, name: "Angry With/At vs Angry About", cefr: "b1",
+    explain: "Be angry 'with' or 'at' a person; be angry 'about' or 'at' a situation, event, or condition.",
+    contrast: {
+      template: "He was furious and angry {P} the delay.",
+      options: [
+        { prep: "about", icon: "⌛", text: "Directed at the frustrating circumstance/situation." },
+        { prep: "with", icon: "🙎‍♂️", text: "Directed personally at an individual responsible." }
+      ]
+    },
+    items: [
+      { before: "She was really angry", after: "her brother for breaking her laptop.", answer: "with", choices: ["with", "about"] },
+      { before: "Citizens are angry", after: "the unexpected tax increase.", answer: "about", choices: ["about", "with"] },
+      { before: "Don't be angry", after: "him; it was an honest mistake.", answer: "at", choices: ["at", "about"] },
+      { before: "What are you so upset and angry", after: "today?", answer: "about", choices: ["about", "with"] }
+    ]
+  },
+  {
+    id: 719, name: "Blame On vs Blame For", cefr: "b2",
+    explain: "Blame a mistake 'on' someone (attributing responsibility); blame someone 'for' a mistake.",
+    contrast: {
+      template: "Don't blame the failure {P} your teammates.",
+      options: [
+        { prep: "on", icon: "👉", text: "Placing the responsibility onto your teammates." },
+        { prep: "for", icon: "📌", text: "Would require structure: 'Don't blame your teammates for the failure'." }
+      ]
+    },
+    items: [
+      { before: "They blamed the accident", after: "the slippery road conditions.", answer: "on", choices: ["on", "for"] },
+      { before: "He blamed his manager", after: "the missed project deadline.", answer: "for", choices: ["for", "on"] },
+      { before: "You cannot blame all your problems", after: "bad luck.", answer: "on", choices: ["on", "for"] },
+      { before: "She was unjustly blamed", after: "the lost file.", answer: "for", choices: ["for", "on"] }
+    ]
+  },
+  {
+    id: 720, name: "Care About vs Care For", cefr: "b2",
+    explain: "Care 'about' means feeling interest or affection; care 'for' means taking health/physical care of, or liking (formal).",
+    contrast: {
+      template: "The nurse stayed overnight to care {P} the patient.",
+      options: [
+        { prep: "for", icon: "🩺", text: "Provide medical and physical care/nursing." },
+        { prep: "about", icon: "❤️", text: "Feel emotional concern or empathy for the person." }
+      ]
+    },
+    items: [
+      { before: "He doesn't seem to care", after: "what anyone else thinks.", answer: "about", choices: ["about", "for"] },
+      { before: "She spent years caring", after: "her ailing grandparents.", answer: "for", choices: ["for", "about"] },
+      { before: "Would you care", after: "a cup of herbal green tea?", answer: "for", choices: ["for", "about"] },
+      { before: "A true leader cares deeply", after: "the welfare of the team.", answer: "about", choices: ["about", "for"] }
+    ]
+  },
+  {
+    id: 721, name: "Consist Of vs Consist In", cefr: "c1",
+    explain: "'Consist of' lists components or ingredients; 'consist in' defines the core essence or main feature of something.",
+    contrast: {
+      template: "True happiness consists {P} enjoying simple moments.",
+      options: [
+        { prep: "in", icon: "✨", text: "Defines the fundamental essence or intrinsic nature of happiness." },
+        { prep: "of", icon: "🧩", text: "Lists physical composite parts (e.g. 'The team consists of five members')." }
+      ]
+    },
+    items: [
+      { before: "The breakfast dish consists", after: "eggs, toast, and fresh fruit.", answer: "of", choices: ["of", "in"] },
+      { before: "The beauty of the plan consists", after: "its total simplicity.", answer: "in", choices: ["in", "of"] },
+      { before: "The jury consists", after: "twelve selected citizens.", answer: "of", choices: ["of", "in"] },
+      { before: "Greatness consists not in power, but", after: "serving others.", answer: "in", choices: ["in", "of"] }
+    ]
+  },
+  {
+    id: 722, name: "Prepositions after Nouns: Reason for vs Cause of", cefr: "b2",
+    explain: "Use 'reason for' (explanation/motive); use 'cause of' (the origin of an event, medical issue, or catastrophe).",
+    contrast: {
+      template: "Scientists investigated the cause {P} the power outage.",
+      options: [
+        { prep: "of", icon: "⚡", text: "The physical origin or triggering factor of the blackout." },
+        { prep: "for", icon: "💬", text: "Refers to justification or motive (e.g. 'the reason for his decision')." }
+      ]
+    },
+    items: [
+      { before: "What was the main reason", after: "your absence yesterday?", answer: "for", choices: ["for", "of"] },
+      { before: "Heavy rainfall was the primary cause", after: "the severe flash flooding.", answer: "of", choices: ["of", "for"] },
+      { before: "There is no valid reason", after: "such rude behavior.", answer: "for", choices: ["for", "of"] },
+      { before: "Smoking is a major cause", after: "lung disease.", answer: "of", choices: ["of", "for"] }
+    ]
+  },
+  {
+    id: 723, name: "Prepositions of Adjectives: Familiar With vs To", cefr: "c1",
+    explain: "A person is 'familiar with' a subject (knows it well); a topic/face is 'familiar to' a person.",
+    contrast: {
+      template: "That song sounds very familiar {P} me.",
+      options: [
+        { prep: "to", icon: "🎵", text: "The song triggers recognition in my mind (it sounds familiar to me)." },
+        { prep: "with", icon: "👤", text: "Applies when a person knows the material ('I am familiar with that song')." }
+      ]
+    },
+    items: [
+      { before: "Are you familiar", after: "the rules of tournament chess?", answer: "with", choices: ["with", "to"] },
+      { before: "His face looked faintly familiar", after: "everyone in the room.", answer: "to", choices: ["to", "with"] },
+      { before: "The software engineer is thoroughly familiar", after: "JavaScript frameworks.", answer: "with", choices: ["with", "to"] },
+      { before: "The local customs were completely new and not familiar", after: "the tourists.", answer: "to", choices: ["to", "with"] }
+    ]
+  },
+  {
+    id: 724, name: "Preposition Mastery Review", cefr: "c1",
+    explain: "Comprehensive challenge blending high-contrast spatial, temporal, and dependent prepositions.",
+    contrast: {
+      template: "He threw the lifebuoy {P} the drowning swimmer.",
+      options: [
+        { prep: "to", icon: "🛟", text: "Helpful action: aimed so the swimmer could catch and hold it." },
+        { prep: "at", icon: "🎯", text: "Aggressive or careless action: throwing directly at their body." }
+      ]
+    },
+    items: [
+      { before: "She has been working here", after: "more than ten years.", answer: "for", choices: ["for", "since"] },
+      { before: "We finally arrived", after: "the conference hall.", answer: "at", choices: ["at", "in"] },
+      { before: "Paper is manufactured", after: "wood pulp.", answer: "from", choices: ["from", "of"] },
+      { before: "Everyone was sitting quietly", after: "the room when the professor arrived.", answer: "in", choices: ["in", "into"] }
+    ]
   }
+];
 
-  function submitScoreToSupabase(finalScore, totalSeconds, totalCompleted, bandScore) {
-    const payload = {
-      student_name: playerName,
-      department: playerDept,
-      correct: correctTaps,
-      wrong: wrongTaps,
-      time_spent: totalSeconds,
-      quest_id: QUEST_ID,
-      score: finalScore,
-      sentences_pressed: totalCompleted,
-      ielts_band: bandScore
-    };
-    sendViaEdgeFunction(payload);
+const CEFR_LABEL = {a1:"A1",a2:"A2",b1:"B1",b2:"B2",c1:"C1"};
+const CEFR_POINTS = {a1:8,a2:9,b1:10,b2:13,c1:16};
+
+const TOTAL_RULES = RULE_GROUPS.length;
+
+const RANKS = [
+  {name:'Seed 🌰',min:0},{name:'Sprout 🌱',min:60},{name:'Bud 🌿',min:160},
+  {name:'Bloom 🌸',min:320},{name:'Specimen 🗒️',min:520},{name:'Botanist ✿',min:760}
+];
+
+const BEST_KEY = 'herbariumPrepositionBest';
+
+/* ═══════ Supabase logging (edge function) ═══════ */
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+let playerName = '';
+let playerDept = '';
+
+let deck = [];
+let currentGroup = null;
+let currentItemIndex = 0;
+let current = null;           // active item {before, after, answer, choices}
+let currentTiles = [];        // shuffled choice tiles
+
+let placedCount = 0;          // 0 or 1
+let currentMistakes = 0;
+
+let score = 0, streak = 0, completedCount = 0, correctTaps = 0, wrongTaps = 0;
+let sentenceStart = 0;
+let completedList = [];       // flat log for share/end screen
+let ruleArchive = [];         // completed rule groups
+let currentForms = [];        // sentences completed so far in current group
+let bestScore = parseInt(localStorage.getItem(BEST_KEY) || '0');
+
+let elapsedSeconds = 0;
+let timerInterval = null;
+let gameActive = true;
+
+/* Study Glossary state */
+let practicedIndices = new Set();
+let currentGroupIdx = null;
+let studyOpen = false;
+let studyFilterCefr = 'all';
+let studyFilterPracticed = 'all';
+let studySearchTerm = '';
+
+/* Per-rule logging state */
+let ruleStartTime = 0;
+let ruleScore = 0;
+let ruleCorrectTaps = 0;
+let ruleWrongTaps = 0;
+
+/* ═══════════════ NAME GATE ═══════════════ */
+function beginQuiz(){
+  const nameEl = document.getElementById('nameInput');
+  const deptEl = document.getElementById('departmentSelect');
+  const errEl = document.getElementById('gateError');
+  const name = nameEl.value.trim();
+  const dept = deptEl.value;
+
+  if(!name){ errEl.textContent = 'Please enter your name.'; nameEl.focus(); return; }
+  if(!dept){ errEl.textContent = 'Please select your department.'; deptEl.focus(); return; }
+
+  errEl.textContent = '';
+  playerName = name;
+  playerDept = dept;
+
+  document.getElementById('nameForm').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame();
+}
+
+function shuffledDeck(){
+  const idx = RULE_GROUPS.map((_,i)=>i);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
   }
+  return idx;
+}
 
-  // GAME ENGINE LOGIC
-  function beginQuiz() {
-    const nameInput = document.getElementById("nameInput").value.trim();
-    const deptInput = document.getElementById("departmentSelect").value;
-    const errorDiv = document.getElementById("gateError");
-
-    if (!nameInput) {
-      errorDiv.innerText = "Please enter your name.";
-      return;
-    }
-    if (!deptInput) {
-      errorDiv.innerText = "Please select your department.";
-      return;
-    }
-
-    errorDiv.innerText = "";
-    playerName = nameInput;
-    playerDept = deptInput;
-
-    document.getElementById("gateScreen").style.display = "none";
-    document.getElementById("gameScreen").style.display = "flex";
-
-    document.getElementById("playerInfo").innerText = `${playerName} (${playerDept})`;
-    startTime = new Date();
-    
-    renderCurrentScene();
+function newGame(focusRuleIdx){
+  clearInterval(timerInterval);
+  deck = shuffledDeck();
+  if(typeof focusRuleIdx === 'number'){
+    deck = deck.filter(i=>i!==focusRuleIdx);
+    deck.push(focusRuleIdx);
   }
+  score=0; streak=0; completedCount=0; correctTaps=0; wrongTaps=0;
+  completedList=[]; ruleArchive=[]; practicedIndices=new Set(); elapsedSeconds=0; gameActive=true;
+  updateStats(); renderArchive();
+  loadNextRuleGroup();
+  updateTimerDisplay();
+  startStopwatch();
+}
 
-  function renderCurrentScene() {
-    const node = STORY_NODES[currentStep];
-    const storyBox = document.getElementById("storyBox");
-    const optionsTray = document.getElementById("optionsTray");
-    const badgeContainer = document.getElementById("sideQuestBadgeContainer");
-    const feedbackHint = document.getElementById("feedbackHint");
+function loadNextRuleGroup(){
+  if(!deck.length) return;
+  const i = deck.pop();
+  currentGroupIdx = i;
+  currentGroup = RULE_GROUPS[i];
+  currentItemIndex = 0;
+  currentForms = [];
+  ruleStartTime = Date.now(); ruleScore = 0; ruleCorrectTaps = 0; ruleWrongTaps = 0;
+  renderRuleCard();
+  renderContrastCard();
+  applyItemData();
+  renderParadigm();
+}
 
-    feedbackHint.innerText = "";
-    optionsTray.innerHTML = "";
-    badgeContainer.innerHTML = "";
+function renderRuleCard(){
+  document.getElementById('rule-name').textContent = currentGroup.name;
+  const pill = document.getElementById('cefr-pill');
+  pill.textContent = CEFR_LABEL[currentGroup.cefr];
+  pill.className = 'cefr-pill ' + currentGroup.cefr;
+  document.getElementById('rule-explain').textContent = currentGroup.explain;
+}
 
-    document.getElementById("progressTracker").innerText = `Scene ${currentStep + 1} of ${STORY_NODES.length}`;
+/* ═══════════════ CONTRAST PAIR MECHANIC ═══════════════ */
+function renderContrastCard(){
+  const wrap = document.getElementById('toggle-wrap');
+  wrap.innerHTML = '';
+  const c = currentGroup.contrast;
+  
+  if(!c){
+    document.getElementById('contrast-card').style.display = 'none';
+    return;
+  }
+  document.getElementById('contrast-card').style.display = 'flex';
 
-    // Apply Side Quest styling
-    if (node.isSideQuest) {
-      storyBox.classList.add("side-quest-active");
-      badgeContainer.innerHTML = `<div class="side-quest-badge">${node.badgeText || "Side Quest"}</div>`;
+  c.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (idx === 0 ? ' active' : '');
+    btn.textContent = opt.prep;
+    btn.onclick = () => selectContrastOption(idx);
+    wrap.appendChild(btn);
+  });
+
+  selectContrastOption(0);
+}
+
+function selectContrastOption(index){
+  const c = currentGroup.contrast;
+  const opt = c.options[index];
+  
+  const btns = document.querySelectorAll('#toggle-wrap .toggle-btn');
+  btns.forEach((b, i) => b.classList.toggle('active', i === index));
+
+  const sentEl = document.getElementById('contrast-sentence');
+  sentEl.innerHTML = c.template.replace('{P}', `<b>${opt.prep}</b>`);
+
+  document.getElementById('contrast-icon').textContent = opt.icon;
+  document.getElementById('contrast-text').textContent = opt.text;
+}
+
+/* ═══════════════ ITEM (single blank) LOGIC ═══════════════ */
+function applyItemData(){
+  current = currentGroup.items[currentItemIndex];
+  placedCount = 0; currentMistakes = 0;
+  sentenceStart = Date.now();
+
+  currentTiles = current.choices.map((c,i)=>({id:i+'-'+Date.now(), text:c, correct:c===current.answer, solved:false}));
+  shuffleArray(currentTiles);
+
+  renderSentence(); renderTray();
+  document.getElementById('mount-caption').textContent = 'tap the correct preposition';
+}
+
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+
+/* ═══════════════ STOPWATCH ═══════════════ */
+function startStopwatch(){
+  timerInterval = setInterval(()=>{
+    if(!gameActive || studyOpen) return;
+    elapsedSeconds++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function updateTimerDisplay(){
+  const m = Math.floor(elapsedSeconds / 60);
+  const s = elapsedSeconds % 60;
+  document.getElementById('timerText').textContent = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+}
+
+/* ═══════════════ RENDER ═══════════════ */
+function renderSentence(){
+  const el = document.getElementById('sentence-line');
+  const blankHTML = placedCount
+    ? `<span class="blank-slot filled">${current.answer}</span>`
+    : `<span class="blank-slot">____</span>`;
+  el.innerHTML = `${current.before} ${blankHTML} ${current.after}`;
+}
+
+function renderTray(){
+  const wrap=document.getElementById('tray'); wrap.innerHTML='';
+  currentTiles.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='tile'+(t.solved?' solved':'');
+    el.innerHTML = `<span class="word">${t.text}</span>`;
+    el.onclick = ()=>tapTile(t.id, el);
+    wrap.appendChild(el);
+  });
+}
+
+/* ═══════════════ GAMEPLAY ═══════════════ */
+function tapTile(id, el){
+  if(!gameActive || placedCount || studyOpen) return;
+  const tile = currentTiles.find(t=>t.id===id);
+  if(!tile) return;
+
+  if(tile.correct){
+    tile.solved = true;
+    placedCount = 1;
+    correctTaps++; ruleCorrectTaps++;
+    renderSentence();
+    currentTiles.forEach(t=>{ if(!t.solved) t.solved = true; });
+    renderTray();
+    document.getElementById('mount').classList.remove('error');
+    completeItem();
+  } else {
+    wrongTaps++; ruleWrongTaps++; currentMistakes++; streak = 0;
+    el.classList.add('wrong');
+    setTimeout(()=>el.classList.remove('wrong'),400);
+    document.getElementById('mount').classList.add('error');
+    setTimeout(()=>document.getElementById('mount').classList.remove('error'),350);
+    updateStats();
+    if(navigator.vibrate) navigator.vibrate(15);
+  }
+}
+
+function completeItem(){
+  const elapsedSec = (Date.now()-sentenceStart)/1000;
+  const base = CEFR_POINTS[currentGroup.cefr];
+  const speedBonus = Math.max(0, Math.round(8 - elapsedSec));
+  const penalty = currentMistakes*3;
+  const pts = Math.max(4, base+speedBonus-penalty);
+
+  score += pts; ruleScore += pts; completedCount++;
+  if(currentMistakes===0) streak++; else streak=0;
+
+  const text = current.before+' '+current.answer+' '+current.after;
+  completedList.push({text, pts, rule: currentGroup.name});
+  currentForms.push({text, answer: current.answer});
+
+  updateStats(); renderParadigm();
+
+  document.getElementById('mount').classList.add('success');
+  setTimeout(()=>document.getElementById('mount').classList.remove('success'),650);
+
+  let msg = `<b>+${pts} pts</b>${currentGroup.name}`;
+  if(streak>=3) msg = `<b>🔥 ${streak} streak! +${pts} pts</b>${currentGroup.name}`;
+  showToast(msg,'good',true);
+
+  if(navigator.vibrate) navigator.vibrate(streak>=3?[20,40,20]:18);
+
+  setTimeout(()=>{
+    if(!gameActive) return;
+    if(currentItemIndex < currentGroup.items.length - 1){
+      currentItemIndex++;
+      applyItemData();
+      renderParadigm();
     } else {
-      storyBox.classList.remove("side-quest-active");
-    }
+      ruleArchive.push({ name: currentGroup.name, forms: currentForms.slice() });
+      practicedIndices.add(currentGroupIdx);
+      renderArchive();
+      submitRuleToSupabase(currentGroup, ruleScore, ruleCorrectTaps, ruleWrongTaps,
+        Math.round((Date.now()-ruleStartTime)/1000), currentForms.length);
 
-    const slotClass = node.isSideQuest ? "slot-placeholder side-quest" : "slot-placeholder";
-    storyBox.innerHTML = `${node.textBefore}<span class="${slotClass}" id="activeSlot">[ ___ ]</span>${node.textAfter}`;
-
-    // Render Options
-    node.options.forEach(opt => {
-      const btn = document.createElement("button");
-      btn.className = node.isSideQuest ? "option-btn side-quest-btn" : "option-btn";
-      
-      let label = `<span><strong>${opt.text}</strong></span>`;
-      if (opt.sideText) {
-        label += `<span style="font-size:0.85rem; color:#666;">${opt.sideText}</span>`;
+      if (practicedIndices.size >= TOTAL_RULES) {
+        showToast('🌿 Collection Complete! 24/24 rules pressed', 'good');
+        setTimeout(endGame, 1400);
+      } else {
+        showToast('🌿 Rule Mastered!', 'good');
+        loadNextRuleGroup();
       }
-      btn.innerHTML = label;
+    }
+  }, 700);
+}
 
-      btn.onclick = () => handleOptionClick(opt, node);
-      optionsTray.appendChild(btn);
+/* ═══════════════ PARADIGM PANEL ═══════════════ */
+function renderParadigm(){
+  const rows = document.getElementById('paradigm-rows');
+  rows.innerHTML = '';
+  currentGroup.items.forEach((item, idx) => {
+    const found = currentForms[idx];
+    const row = document.createElement('div');
+    row.className = 'paradigm-row' + (found ? ' done' : (idx === currentItemIndex ? ' active' : ''));
+    const num = `<span class="paradigm-num">${idx+1}</span>`;
+    const sentence = found
+      ? `<span class="paradigm-sentence">${item.before} <b>${found.answer}</b> ${item.after}</span><span class="paradigm-check">✓</span>`
+      : `<span class="paradigm-sentence pending">— not pressed yet —</span>`;
+    row.innerHTML = num + sentence;
+    rows.appendChild(row);
+  });
+  document.getElementById('paradigm-count').textContent = currentForms.length;
+  document.getElementById('specimen-num').textContent = ruleArchive.length + 1;
+}
+
+function renderArchive(){
+  const title = document.getElementById('archive-title');
+  const list = document.getElementById('archive-list');
+  list.innerHTML = '';
+  if(!ruleArchive.length){ title.style.display='none'; return; }
+  title.style.display='block';
+  ruleArchive.slice().reverse().forEach(rule=>{
+    const card = document.createElement('div');
+    card.className = 'archive-card';
+    card.innerHTML = `<div class="arc-rule">${rule.name}</div>` +
+      rule.forms.map(f=>`<div class="arc-line">${f.text}</div>`).join('');
+    list.appendChild(card);
+  });
+}
+
+/* ═══════════════ STATS / RANK ═══════════════ */
+function getRank(pts){
+  let r=RANKS[0];
+  for(const rk of RANKS) if(pts>=rk.min) r=rk;
+  return r;
+}
+
+function updateStats(){
+  document.getElementById('score').textContent=score;
+  document.getElementById('streak').textContent=streak;
+  if(score>bestScore){ bestScore=score; localStorage.setItem(BEST_KEY,bestScore); }
+  document.getElementById('best-score').textContent=bestScore;
+
+  const rank=getRank(score);
+  const idx=RANKS.indexOf(rank), next=RANKS[idx+1];
+  document.getElementById('rank-name').textContent=rank.name;
+
+  const fill=document.getElementById('rank-fill');
+  fill.style.width = next ? Math.min(100,((score-rank.min)/(next.min-rank.min))*100)+'%' : '100%';
+}
+
+/* ═══════════════ TOAST ═══════════════ */
+let toastTimer;
+function showToast(msg,type='',isHTML=false){
+  const t=document.getElementById('toast');
+  if(isHTML){ t.innerHTML=msg; } else { t.textContent=msg; }
+  t.className='toast show '+type;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ═══════════════ CONTROLS ═══════════════ */
+document.getElementById('btn-end-game').addEventListener('click',()=>{
+  if(confirm('End the round and see results?')) endGame();
+});
+document.getElementById('btn-study').addEventListener('click', openStudy);
+document.getElementById('btn-study-close').addEventListener('click', closeStudy);
+document.getElementById('studyOverlay').addEventListener('click', function(e){
+  if(e.target === this) closeStudy();
+});
+
+/* ═══════════════ STUDY GLOSSARY ═══════════════ */
+function openStudy(){
+  studyOpen = true;
+  document.getElementById('studyOverlay').classList.add('show');
+  renderStudyGrid();
+}
+function closeStudy(){
+  studyOpen = false;
+  document.getElementById('studyOverlay').classList.remove('show');
+}
+
+function handleStudySearch(){
+  studySearchTerm = document.getElementById('studySearch').value;
+  renderStudyGrid();
+}
+function setStudyCefrFilter(val, el){
+  studyFilterCefr = val;
+  document.querySelectorAll('#studyCefrRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+function setStudyPracticedFilter(val, el){
+  studyFilterPracticed = val;
+  document.querySelectorAll('#studyPracticedRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+
+function renderStudyGrid(){
+  const grid = document.getElementById('studyGrid');
+  const term = studySearchTerm.trim().toLowerCase();
+
+  const filtered = RULE_GROUPS
+    .map((g,i)=>({g,i}))
+    .filter(({g,i})=>{
+      if(studyFilterCefr !== 'all' && g.cefr !== studyFilterCefr) return false;
+      if(studyFilterPracticed === 'practiced' && !practicedIndices.has(i)) return false;
+      if(studyFilterPracticed === 'unpracticed' && practicedIndices.has(i)) return false;
+      if(term){
+        const cHay = g.contrast ? g.contrast.options.map(o=>o.prep+' '+o.text).join(' ') : '';
+        const hay = (g.name+' '+g.explain+' '+cHay+' '+g.items.map(it=>it.before+' '+it.answer+' '+it.after).join(' ')).toLowerCase();
+        if(!hay.includes(term)) return false;
+      }
+      return true;
+    });
+
+  if(!filtered.length){
+    grid.innerHTML = '<div class="study-empty">No preposition rules match your search.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(({g,i})=>buildStudyCard(g,i)).join('');
+}
+
+function buildStudyCard(g,i){
+  const practiced = practicedIndices.has(i);
+  const sentences = g.items.map(it=>`<div class="study-line">${it.before} <b>${it.answer}</b> ${it.after}</div>`).join('');
+  
+  let contrastHTML = '';
+  if(g.contrast){
+    const opts = g.contrast.options.map(o=>`<b>${o.prep}</b> (${o.icon} ${o.text})`).join(' vs ');
+    contrastHTML = `<div style="font-size:0.72rem; color:var(--clay); margin-bottom:8px; font-family:'Space Mono',monospace;">Contrast: ${opts}</div>`;
+  }
+
+  return `<div class="study-card${practiced?' practiced':''}">
+    <div class="study-card-top">
+      <span class="study-card-name">${g.name}</span>
+      <span class="cefr-pill ${g.cefr}">${CEFR_LABEL[g.cefr]}</span>
+    </div>
+    <div class="study-card-explain">${g.explain}</div>
+    ${contrastHTML}
+    <div class="study-card-sentences">${sentences}</div>
+    <div class="study-card-actions">
+      <button class="study-practice-btn" onclick="practiceRuleFromStudy(${i})">▶ Practice this rule</button>
+      ${practiced ? '<span class="study-practiced-badge">✓ Practiced</span>' : ''}
+    </div>
+  </div>`;
+}
+
+function practiceRuleFromStudy(idx){
+  const midGame = document.getElementById('gameScreen').classList.contains('active');
+  if(midGame){
+    jumpToRule(idx);
+  } else {
+    startFocusedGame(idx);
+  }
+}
+
+function jumpToRule(idx){
+  deck = deck.filter(i=>i!==idx);
+  currentGroupIdx = idx;
+  currentGroup = RULE_GROUPS[idx];
+  currentItemIndex = 0;
+  currentForms = [];
+  ruleStartTime = Date.now(); ruleScore = 0; ruleCorrectTaps = 0; ruleWrongTaps = 0;
+  renderRuleCard();
+  renderContrastCard();
+  applyItemData();
+  renderParadigm();
+  closeStudy();
+  showToast(`Jumping to: ${RULE_GROUPS[idx].name}`, 'good');
+}
+
+function startFocusedGame(idx){
+  const nameEl = document.getElementById('nameInput');
+  const deptEl = document.getElementById('departmentSelect');
+  const errEl = document.getElementById('gateError');
+  const name = nameEl.value.trim();
+  const dept = deptEl.value;
+
+  if(!name){ closeStudy(); errEl.textContent = 'Please enter your name.'; nameEl.focus(); return; }
+  if(!dept){ closeStudy(); errEl.textContent = 'Please select your department.'; deptEl.focus(); return; }
+
+  errEl.textContent = '';
+  playerName = name;
+  playerDept = dept;
+
+  closeStudy();
+  document.getElementById('nameForm').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame(idx);
+}
+
+/* ═══════════════ SUPABASE LOGGING ═══════════════ */
+async function sendViaEdgeFunction(payload) {
+  try {
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) { console.error("❌ Edge Function Error:", await response.text()); return; }
+    console.log("✅ Saved to Supabase");
+  } catch (err) { console.error("⚠️ Edge Function Error:", err); }
+}
+
+function submitRuleToSupabase(group, ruleScore, correct, wrong, timeSpent, sentencesPressed){
+  const payload = {
+    student_name: playerName,
+    department: playerDept,
+    correct,
+    wrong,
+    time_spent: timeSpent,
+    quest_id: 'Preposition ' + group.id,
+    score: ruleScore,
+    sentences_pressed: sentencesPressed
+  };
+  sendViaEdgeFunction(payload);
+}
+
+/* ═══════════════ END GAME ═══════════════ */
+function endGame(){
+  gameActive=false;
+  clearInterval(timerInterval);
+  setTimeout(showEndScreen,250);
+}
+
+function showEndScreen(){
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('endScreen').classList.add('active');
+
+  const tm=[[520,'✿ Botanist!'],[320,'🗒️ Specimen Master'],[160,'🌸 In Full Bloom'],[60,'🌿 Budding Talent'],[0,'🌱 Nice Sprout']];
+  document.getElementById('endTitle').textContent=(tm.find(([m])=>score>=m)||tm[tm.length-1])[1];
+  document.getElementById('endSubtitle').textContent=`${playerName} · ${playerDept} · ${getRank(score).name}`;
+  document.getElementById('endScore').textContent=score;
+  document.getElementById('endSentences').textContent=completedCount;
+
+  const totalTaps = correctTaps+wrongTaps;
+  document.getElementById('endAccuracy').textContent = totalTaps ? Math.round(correctTaps/totalTaps*100)+'%' : '100%';
+
+  const list=document.getElementById('endSentencesList');
+  list.innerHTML='';
+  const rulesToShow = ruleArchive.slice();
+  if(currentForms.length){
+    rulesToShow.push({ name: currentGroup.name, forms: currentForms.slice() });
+  }
+
+  if(!rulesToShow.length){
+    list.innerHTML='<span style="color:var(--ink-muted);font-size:.9rem;">No specimens pressed this round.</span>';
+  } else {
+    rulesToShow.slice().reverse().forEach((rule,i)=>{
+      const div=document.createElement('div');
+      div.className='end-specimen-card';
+      div.style.animationDelay=(i*0.06)+'s';
+      div.innerHTML = `<div class="arc-rule">${rule.name}</div>` +
+        rule.forms.map(f=>`<div class="arc-line">${f.text}</div>`).join('');
+      list.appendChild(div);
     });
   }
 
-  function handleOptionClick(selectedOption, node) {
-    const activeSlot = document.getElementById("activeSlot");
-    const feedbackHint = document.getElementById("feedbackHint");
+  document.getElementById('btnPlayAgain').onclick=()=>{
+    document.getElementById('endScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    newGame();
+  };
+  document.getElementById('btnShare').onclick=shareResult;
+}
 
-    if (node.isSideQuest) {
-      // Side quest: All presented choices are valid paths
-      correctTaps++;
-      activeSlot.innerText = selectedOption.text;
-      
-      // Temporarily display branch outcome
-      feedbackHint.style.color = "var(--purple)";
-      feedbackHint.innerText = selectedOption.branchOutcome || "";
-
-      setTimeout(() => {
-        advanceStory();
-      }, 1200);
-
-    } else {
-      // Main quest: Standard validation
-      if (selectedOption.correct) {
-        correctTaps++;
-        activeSlot.classList.remove("error");
-        activeSlot.innerText = selectedOption.text;
-        feedbackHint.innerText = "";
-        
-        setTimeout(() => {
-          advanceStory();
-        }, 600);
-      } else {
-        wrongTaps++;
-        activeSlot.classList.add("error");
-        feedbackHint.style.color = "var(--danger)";
-        feedbackHint.innerText = selectedOption.hint || "Incorrect preposition choice.";
-      }
-    }
+function shareResult(){
+  const top = completedList.slice().sort((a,b)=>b.pts-a.pts).slice(0,3).map(s=>`"${s.text}" (+${s.pts}) [${s.rule}]`).join('\n');
+  const msg=`🌿 Herbarium — Preposition Press\n${playerName} (${playerDept})\nScore: ${score} pts · Time: ${document.getElementById('timerText').textContent} · ${completedCount} sentences · ${getRank(score).name}\n${top?'\nTop specimens:\n'+top+'\n':''}\nPress your own sentences!`;
+  if(navigator.share){
+    navigator.share({title:'Herbarium — Preposition Press',text:msg}).catch(()=>{});
+  } else {
+    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
   }
-
-  function advanceStory() {
-    currentStep++;
-    if (currentStep < STORY_NODES.length) {
-      renderCurrentScene();
-    } else {
-      finishGame();
-    }
-  }
-
-  function finishGame() {
-    const endTime = new Date();
-    const totalSeconds = Math.round((endTime - startTime) / 1000);
-    const totalCompleted = STORY_NODES.length;
-    
-    // Score Calculation
-    const accuracyRatio = correctTaps / (correctTaps + wrongTaps || 1);
-    const finalScore = Math.round(accuracyRatio * 100);
-    
-    // Simple IELTS Band conversion scale based on performance
-    let bandScore = 9.0;
-    if (accuracyRatio < 0.6) bandScore = 5.5;
-    else if (accuracyRatio < 0.75) bandScore = 6.5;
-    else if (accuracyRatio < 0.88) bandScore = 7.5;
-    else if (accuracyRatio < 0.95) bandScore = 8.5;
-
-    document.getElementById("gameScreen").style.display = "none";
-    document.getElementById("endScreen").style.display = "flex";
-
-    document.getElementById("correctTapsCount").innerText = correctTaps;
-    document.getElementById("wrongTapsCount").innerText = wrongTaps;
-    document.getElementById("timeSpentText").innerText = totalSeconds;
-    document.getElementById("bandScoreText").innerText = bandScore.toFixed(1);
-
-    // Send payload to Supabase
-    submitScoreToSupabase(finalScore, totalSeconds, totalCompleted, bandScore.toFixed(1));
-  }
+}
 </script>
 </body>
 </html>
