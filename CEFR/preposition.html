@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Zen Farmer - Preposition Cloze Narrative</title>
+  <style>
+    :root {
+      --primary: #2e7d32;
+      --primary-light: #e8f5e9;
+      --purple: #7b1fa2;
+      --purple-light: #f3e5f5;
+      --danger: #c62828;
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #2c3e50;
+      --border: #dcdfe6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 680px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+      padding: 28px;
+    }
+
+    /* GATE SCREEN */
+    #gateScreen {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .gate-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .gate-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    #gateError {
+      color: var(--danger);
+      font-size: 0.85rem;
+      min-height: 18px;
+    }
+
+    .btn-start {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+
+    .btn-start:hover {
+      background-color: #256628;
+    }
+
+    /* GAME SCREEN */
+    #gameScreen {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .story-container {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      min-height: 120px;
+      background: #fafafa;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+      position: relative;
+    }
+
+    /* SIDE QUEST BADGE & STYLING */
+    .side-quest-badge {
+      display: inline-block;
+      background-color: var(--purple-light);
+      color: var(--purple);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .story-container.side-quest-active {
+      border-left-color: var(--purple);
+      background: #fdf8ff;
+    }
+
+    .slot-placeholder {
+      display: inline-block;
+      min-width: 80px;
+      padding: 2px 10px;
+      border-bottom: 2px dashed var(--primary);
+      font-weight: bold;
+      text-align: center;
+      color: var(--primary);
+      background: var(--primary-light);
+      border-radius: 4px;
+      margin: 0 4px;
+    }
+
+    .slot-placeholder.side-quest {
+      border-bottom-color: var(--purple);
+      color: var(--purple);
+      background: var(--purple-light);
+    }
+
+    .slot-placeholder.error {
+      border-bottom-color: var(--danger);
+      color: var(--danger);
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+
+    .options-tray {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .option-btn {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .option-btn:hover {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+    }
+
+    .option-btn.side-quest-btn:hover {
+      border-color: var(--purple);
+      background-color: var(--purple-light);
+    }
+
+    .feedback-hint {
+      font-size: 0.85rem;
+      color: var(--danger);
+      min-height: 20px;
+    }
+
+    /* END SCREEN */
+    #endScreen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      padding: 20px 0;
+    }
+
+    .end-title {
+      font-size: 1.8rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .score-card {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      width: 100%;
+      margin: 12px 0;
+    }
+
+    .score-card p {
+      margin: 8px 0;
+      font-size: 1.05rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- GATE SCREEN -->
+  <div id="gateScreen">
+    <div class="gate-title">The Zen Farmer</div>
+    <div class="gate-label">Your Name</div>
+    <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off"/>
+    
+    <div class="gate-label">Department</div>
+    <select id="departmentSelect">
+      <option value="">-- Select Department --</option>
+      <option value="Cyber Security">Cyber Security</option>
+      <option value="EIE">EIE</option>
+      <option value="CSE-1">CSE-1</option>
+      <option value="CSE-2">CSE-2</option>
+      <option value="CSE-3">CSE-3</option>
+      <option value="Mechanical Engineering">Mechanical Engineering</option>
+      <option value="ECE-1">ECE-1</option>
+      <option value="ECE-2">ECE-2</option>
+      <option value="ECE-3">ECE-3</option>
+      <option value="AI DS-1">AI DS-1</option>
+      <option value="AI DS-2">AI DS-2</option>
+      <option value="Agri and Civil">Agri and Civil</option>
+      <option value="EEE">EEE</option>
+      <option value="Medical Electronics">Medical Electronics</option>
+      <option value="IT-1">IT-1</option>
+      <option value="IT-2">IT-2</option>
+    </select>
+    
+    <div id="gateError"></div>
+    <button class="btn-start" onclick="beginQuiz()">✿ Start Workshop</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen">
+    <div class="game-header">
+      <span id="playerInfo"></span>
+      <span id="progressTracker">Scene 1 of 15</span>
+    </div>
+
+    <div id="sideQuestBadgeContainer"></div>
+
+    <div class="story-container" id="storyBox">
+      <!-- Story content dynamically rendered -->
+    </div>
+
+    <div class="feedback-hint" id="feedbackHint"></div>
+
+    <div class="options-tray" id="optionsTray">
+      <!-- Options dynamically rendered -->
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="endScreen">
+    <div class="end-title">Story Completed ✿</div>
+    <p>You have navigated through the story of the Chinese Farmer and mastered core prepositions.</p>
+    <div class="score-card">
+      <p><strong>Accuracy Taps:</strong> <span id="correctTapsCount">0</span> Correct / <span id="wrongTapsCount">0</span> Missteps</p>
+      <p><strong>Time Spent:</strong> <span id="timeSpentText">0</span> seconds</p>
+      <p><strong>Overall Band Score:</strong> <span id="bandScoreText">9.0</span></p>
+    </div>
+    <p style="font-size: 0.9rem; color: #666;">Your results have been logged successfully.</p>
+  </div>
+</div>
+
+<script>
+  // CONFIG & CONSTANTS
+  const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+  const QUEST_ID = "zen_farmer_prepositions";
+
+  // GAME DATA MATRIX
+  const STORY_NODES = [
+    {
+      id: 1,
+      level: "A1",
+      isSideQuest: false,
+      textBefore: "An old farmer lived ",
+      textAfter: " a small village with his son and his only horse.",
+      options: [
+        { text: "in", correct: true, hint: "" },
+        { text: "at", correct: false, hint: "Villages and larger areas take 'in'." }
+      ]
+    },
+    {
+      id: 2,
+      level: "A1",
+      isSideQuest: false,
+      textBefore: "One morning, the farmer woke up ",
+      textAfter: " sunrise and went to the stable.",
+      options: [
+        { text: "at", correct: true, hint: "" },
+        { text: "on", correct: false, hint: "Specific clock times or precise events take 'at'." }
+      ]
+    },
+    {
+      id: 3,
+      level: "A2",
+      isSideQuest: true,
+      badgeText: "Side Quest: Perspective Choice",
+      textBefore: "The stable door was broken, and the horse had run ",
+      textAfter: " the nearby forest!",
+      options: [
+        { 
+          text: "into", 
+          correct: true, 
+          sideText: "(Focuses on entering deep inside the woods)",
+          branchOutcome: "The villagers tracked the hoofprints deep into the dark forest..." 
+        },
+        { 
+          text: "towards", 
+          correct: true, 
+          sideText: "(Focuses on direction without confirming entry)",
+          branchOutcome: "The villagers ran towards the tree line, searching along the borders..." 
+        }
+      ]
+    },
+    {
+      id: 4,
+      level: "A2",
+      isSideQuest: false,
+      textBefore: "Hearing the news, the villagers gathered ",
+      textAfter: " front of the farmer's modest house.",
+      options: [
+        { text: "in", correct: true, hint: "" },
+        { text: "on", correct: false, hint: "The fixed spatial phrase is 'in front of'." }
+      ]
+    },
+    {
+      id: 5,
+      level: "B1",
+      isSideQuest: false,
+      textBefore: '"What terrible luck!" they cried. "Your farm depended ',
+      textAfter: ' that horse for survival!"',
+      options: [
+        { text: "on", correct: true, hint: "" },
+        { text: "of", correct: false, hint: "The verb 'depend' always pairs with 'on'." }
+      ]
+    },
+    {
+      id: 6,
+      level: "B1",
+      isSideQuest: false,
+      textBefore: "The old man looked at them calmly and replied, ",
+      textAfter: ' his usual quiet manner, "Maybe."',
+      options: [
+        { text: "in", correct: true, hint: "" },
+        { text: "with", correct: false, hint: "Expressions describing style or manner use 'in' (e.g., in a quiet manner)." }
+      ]
+    },
+    {
+      id: 7,
+      level: "A2",
+      isSideQuest: true,
+      badgeText: "Side Quest: Spatial Alignment",
+      textBefore: "A week later, the missing horse returned, bringing three wild horses ",
+      textAfter: " it.",
+      options: [
+        { 
+          text: "with", 
+          correct: true, 
+          sideText: "(Group arrival / accompaniment)",
+          branchOutcome: "The animals arrived together as a group..." 
+        },
+        { 
+          text: "behind", 
+          correct: true, 
+          sideText: "(Following in a single-file line)",
+          branchOutcome: "The wild horses followed closely behind in a line..." 
+        }
+      ]
+    },
+    {
+      id: 8,
+      level: "B1",
+      isSideQuest: false,
+      textBefore: "The villagers arrived ",
+      textAfter: " time to see four beautiful horses grazing in the meadow.",
+      options: [
+        { text: "in", correct: true, hint: "" },
+        { text: "at", correct: false, hint: "'In time' means early enough to see it. 'At time' is incorrect." }
+      ]
+    },
+    {
+      id: 9,
+      level: "A2",
+      isSideQuest: false,
+      textBefore: "The farmer's son tried to tame one of the wild beasts, but he fell ",
+      textAfter: " the horse's back.",
+      options: [
+        { text: "off", correct: true, hint: "" },
+        { text: "out", correct: false, hint: "Movement away from a surface takes 'off'." }
+      ]
+    },
+    {
+      id: 10,
+      level: "B1",
+      isSideQuest: false,
+      textBefore: "",
+      textAfter: " the afternoon, the doctor arrived to examine the young man's broken leg.",
+      options: [
+        { text: "In", correct: true, hint: "" },
+        { text: "At", correct: false, hint: "Parts of the day (morning, afternoon) take 'In'." }
+      ]
+    },
+    {
+      id: 11,
+      level: "B1",
+      isSideQuest: false,
+      textBefore: 'The villagers said, "How tragic! You must be deeply worried ',
+      textAfter: ' your family\'s future." The old farmer simply said, "Maybe."',
+      options: [
+        { text: "about", correct: true, hint: "" },
+        { text: "for", correct: false, hint: "The adjective 'worried' collocates with 'about'." }
+      ]
+    },
+    {
+      id: 12,
+      level: "B2",
+      isSideQuest: false,
+      textBefore: "",
+      textAfter: " account of a sudden war breaking out, army officers arrived in the village to conscript all healthy young men.",
+      options: [
+        { text: "On", correct: true, hint: "" },
+        { text: "By", correct: false, hint: "The multi-word preposition for cause is 'On account of'." }
+      ]
+    },
+    {
+      id: 13,
+      level: "B2",
+      isSideQuest: false,
+      textBefore: "",
+      textAfter: " accordance with military rules, the officers inspected every home, searching for recruits.",
+      options: [
+        { text: "In", correct: true, hint: "" },
+        { text: "At", correct: false, hint: "Formal rule compliance uses 'In accordance with'." }
+      ]
+    },
+    {
+      id: 14,
+      level: "B2",
+      isSideQuest: true,
+      badgeText: "Side Quest: Formal Register",
+      textBefore: "They saw the farmer's son resting on the bed. ",
+      textAfter: " his broken leg, they spared him from the draft.",
+      options: [
+        { 
+          text: "Due to", 
+          correct: true, 
+          sideText: "(Direct cause focus)",
+          branchOutcome: "Recognizing the direct cause of his disability..." 
+        },
+        { 
+          text: "Owing to", 
+          correct: true, 
+          sideText: "(Formal circumstantial reason)",
+          branchOutcome: "Owing to his severe injury, the officers marked him exempt..." 
+        },
+        { 
+          text: "In view of", 
+          correct: true, 
+          sideText: "(Observational consideration)",
+          branchOutcome: "In view of his visible condition, they left him behind..." 
+        }
+      ]
+    },
+    {
+      id: 15,
+      level: "B2",
+      isSideQuest: false,
+      textBefore: "The villagers cheered for the farmer's good fortune. The old man smiled, looked ",
+      textAfter: ' the horizon, and said once more, "Maybe."',
+      options: [
+        { text: "toward", correct: true, hint: "" },
+        { text: "into", correct: false, hint: "Gazing towards a distant directional line takes 'toward'." }
+      ]
+    }
+  ];
+
+  // STATE VARIABLES
+  let playerName = "";
+  let playerDept = "";
+  let currentStep = 0;
+  let correctTaps = 0;
+  let wrongTaps = 0;
+  let startTime = null;
+
+  // LOGGING FUNCTIONS
+  async function sendViaEdgeFunction(payload) {
+    try {
+      const response = await fetch(EDGE_FUNCTION_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) { 
+        console.error("❌ Edge Function Error:", await response.text()); 
+        return; 
+      }
+      console.log("✅ Saved to Supabase");
+    } catch (err) { 
+      console.error("⚠️ Edge Function Error:", err); 
+    }
+  }
+
+  function submitScoreToSupabase(finalScore, totalSeconds, totalCompleted, bandScore) {
+    const payload = {
+      student_name: playerName,
+      department: playerDept,
+      correct: correctTaps,
+      wrong: wrongTaps,
+      time_spent: totalSeconds,
+      quest_id: QUEST_ID,
+      score: finalScore,
+      sentences_pressed: totalCompleted,
+      ielts_band: bandScore
+    };
+    sendViaEdgeFunction(payload);
+  }
+
+  // GAME ENGINE LOGIC
+  function beginQuiz() {
+    const nameInput = document.getElementById("nameInput").value.trim();
+    const deptInput = document.getElementById("departmentSelect").value;
+    const errorDiv = document.getElementById("gateError");
+
+    if (!nameInput) {
+      errorDiv.innerText = "Please enter your name.";
+      return;
+    }
+    if (!deptInput) {
+      errorDiv.innerText = "Please select your department.";
+      return;
+    }
+
+    errorDiv.innerText = "";
+    playerName = nameInput;
+    playerDept = deptInput;
+
+    document.getElementById("gateScreen").style.display = "none";
+    document.getElementById("gameScreen").style.display = "flex";
+
+    document.getElementById("playerInfo").innerText = `${playerName} (${playerDept})`;
+    startTime = new Date();
+    
+    renderCurrentScene();
+  }
+
+  function renderCurrentScene() {
+    const node = STORY_NODES[currentStep];
+    const storyBox = document.getElementById("storyBox");
+    const optionsTray = document.getElementById("optionsTray");
+    const badgeContainer = document.getElementById("sideQuestBadgeContainer");
+    const feedbackHint = document.getElementById("feedbackHint");
+
+    feedbackHint.innerText = "";
+    optionsTray.innerHTML = "";
+    badgeContainer.innerHTML = "";
+
+    document.getElementById("progressTracker").innerText = `Scene ${currentStep + 1} of ${STORY_NODES.length}`;
+
+    // Apply Side Quest styling
+    if (node.isSideQuest) {
+      storyBox.classList.add("side-quest-active");
+      badgeContainer.innerHTML = `<div class="side-quest-badge">${node.badgeText || "Side Quest"}</div>`;
+    } else {
+      storyBox.classList.remove("side-quest-active");
+    }
+
+    const slotClass = node.isSideQuest ? "slot-placeholder side-quest" : "slot-placeholder";
+    storyBox.innerHTML = `${node.textBefore}<span class="${slotClass}" id="activeSlot">[ ___ ]</span>${node.textAfter}`;
+
+    // Render Options
+    node.options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = node.isSideQuest ? "option-btn side-quest-btn" : "option-btn";
+      
+      let label = `<span><strong>${opt.text}</strong></span>`;
+      if (opt.sideText) {
+        label += `<span style="font-size:0.85rem; color:#666;">${opt.sideText}</span>`;
+      }
+      btn.innerHTML = label;
+
+      btn.onclick = () => handleOptionClick(opt, node);
+      optionsTray.appendChild(btn);
+    });
+  }
+
+  function handleOptionClick(selectedOption, node) {
+    const activeSlot = document.getElementById("activeSlot");
+    const feedbackHint = document.getElementById("feedbackHint");
+
+    if (node.isSideQuest) {
+      // Side quest: All presented choices are valid paths
+      correctTaps++;
+      activeSlot.innerText = selectedOption.text;
+      
+      // Temporarily display branch outcome
+      feedbackHint.style.color = "var(--purple)";
+      feedbackHint.innerText = selectedOption.branchOutcome || "";
+
+      setTimeout(() => {
+        advanceStory();
+      }, 1200);
+
+    } else {
+      // Main quest: Standard validation
+      if (selectedOption.correct) {
+        correctTaps++;
+        activeSlot.classList.remove("error");
+        activeSlot.innerText = selectedOption.text;
+        feedbackHint.innerText = "";
+        
+        setTimeout(() => {
+          advanceStory();
+        }, 600);
+      } else {
+        wrongTaps++;
+        activeSlot.classList.add("error");
+        feedbackHint.style.color = "var(--danger)";
+        feedbackHint.innerText = selectedOption.hint || "Incorrect preposition choice.";
+      }
+    }
+  }
+
+  function advanceStory() {
+    currentStep++;
+    if (currentStep < STORY_NODES.length) {
+      renderCurrentScene();
+    } else {
+      finishGame();
+    }
+  }
+
+  function finishGame() {
+    const endTime = new Date();
+    const totalSeconds = Math.round((endTime - startTime) / 1000);
+    const totalCompleted = STORY_NODES.length;
+    
+    // Score Calculation
+    const accuracyRatio = correctTaps / (correctTaps + wrongTaps || 1);
+    const finalScore = Math.round(accuracyRatio * 100);
+    
+    // Simple IELTS Band conversion scale based on performance
+    let bandScore = 9.0;
+    if (accuracyRatio < 0.6) bandScore = 5.5;
+    else if (accuracyRatio < 0.75) bandScore = 6.5;
+    else if (accuracyRatio < 0.88) bandScore = 7.5;
+    else if (accuracyRatio < 0.95) bandScore = 8.5;
+
+    document.getElementById("gameScreen").style.display = "none";
+    document.getElementById("endScreen").style.display = "flex";
+
+    document.getElementById("correctTapsCount").innerText = correctTaps;
+    document.getElementById("wrongTapsCount").innerText = wrongTaps;
+    document.getElementById("timeSpentText").innerText = totalSeconds;
+    document.getElementById("bandScoreText").innerText = bandScore.toFixed(1);
+
+    // Send payload to Supabase
+    submitScoreToSupabase(finalScore, totalSeconds, totalCompleted, bandScore.toFixed(1));
+  }
+</script>
+</body>
+</html>
