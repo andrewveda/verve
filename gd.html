@@ -141,22 +141,40 @@
 
     /* ---- Finish screen: full takeover, evaluator UI is hidden underneath ---- */
     .finish-screen {
-      display: none; flex-direction: column; align-items: center; justify-content: center;
+      display: none; flex-direction: column;
       height: 100dvh; width: 100%; max-width: 520px; margin: 0 auto;
-      padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
-      gap: 10px; text-align: center;
+      padding: 14px 16px calc(12px + env(safe-area-inset-bottom));
+      gap: 8px; overflow: hidden;
     }
     .finish-screen.show { display: flex; }
-    .finish-icon { font-size: 2.6rem; }
-    .finish-title { font-family: 'Source Serif 4', serif; font-size: 1.3rem; margin: 0; color: var(--pine-dark); }
-    .finish-summary { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; width: 100%; max-width: 340px; font-size: 0.82rem; color: var(--ink-soft); text-align: left; line-height: 1.8; }
+    .finish-header { flex: 0 0 auto; text-align: center; }
+    .finish-icon { font-size: 1.9rem; line-height: 1; }
+    .finish-title { font-family: 'Source Serif 4', serif; font-size: 1.15rem; margin: 4px 0 0; color: var(--pine-dark); }
+
+    .finish-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 12px; padding-bottom: 4px; }
+    .finish-summary { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 0.8rem; color: var(--ink-soft); text-align: left; line-height: 1.75; }
     .finish-summary b { color: var(--ink); display: inline-block; min-width: 78px; }
-    .finish-actions { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-    .pr-btn { background: var(--pine); color: #fff; border: none; border-radius: 10px; padding: 15px; font-weight: 700; font-size: 0.92rem; }
+
+    .analysis-block h3 { margin: 0 0 6px; font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
+    .analysis-overall { background: var(--paper-dim); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; text-align: left; }
+    .analysis-overall p { margin: 4px 0; font-size: 0.8rem; line-height: 1.55; color: var(--ink); }
+
+    .p-analysis-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; text-align: left; }
+    .p-analysis-card .pah { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+    .p-analysis-card .pa-name { font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 0.9rem; }
+    .p-analysis-card .pa-score { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: var(--pine-dark); font-size: 0.8rem; white-space: nowrap; }
+    .p-analysis-card .pa-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 5px; }
+    .pa-tag { font-size: 0.6rem; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: var(--amber-soft); color: var(--ink); }
+    .pa-tag.mvp { background: var(--gold); color: #fff; }
+    .pa-tag.warn { background: var(--danger-soft); color: var(--danger); }
+    .p-analysis-card .pa-text { font-size: 0.76rem; color: var(--ink-soft); line-height: 1.55; }
+
+    .finish-actions { flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; padding-top: 6px; border-top: 1px solid var(--line); }
+    .pr-btn { background: var(--pine); color: #fff; border: none; border-radius: 10px; padding: 14px; font-weight: 700; font-size: 0.9rem; }
     .pr-btn:active { background: var(--pine-dark); }
-    .pr-status { font-size: 0.72rem; color: var(--ink-soft); min-height: 16px; line-height: 1.5; }
+    .pr-status { font-size: 0.7rem; color: var(--ink-soft); min-height: 14px; line-height: 1.5; text-align: center; }
     .pr-status a { color: var(--pine); font-weight: 700; }
-    .new-gd-btn { background: transparent; border: 1.5px solid var(--line); color: var(--ink); border-radius: 10px; padding: 12px; font-weight: 700; font-size: 0.85rem; }
+    .new-gd-btn { background: transparent; border: 1.5px solid var(--line); color: var(--ink); border-radius: 10px; padding: 11px; font-weight: 700; font-size: 0.82rem; }
   </style>
 </head>
 <body>
@@ -215,9 +233,21 @@
 
 <!-- Shown after Finish & Download — replaces the evaluator entirely so it's unmistakable the session is over -->
 <div class="finish-screen" id="finishScreen">
-  <div class="finish-icon">✅</div>
-  <h2 class="finish-title">Discussion complete</h2>
-  <div class="finish-summary" id="finishSummary"></div>
+  <div class="finish-header">
+    <div class="finish-icon">✅</div>
+    <h2 class="finish-title">Discussion complete</h2>
+  </div>
+  <div class="finish-scroll" id="finishScroll">
+    <div class="finish-summary" id="finishSummary"></div>
+    <div class="analysis-block">
+      <h3>Session Analysis</h3>
+      <div class="analysis-overall" id="analysisOverall"></div>
+    </div>
+    <div class="analysis-block">
+      <h3>Participant Breakdown</h3>
+      <div id="analysisList"></div>
+    </div>
+  </div>
   <div class="finish-actions">
     <button type="button" class="pr-btn" id="prBtn">Give Pull Request to GitHub</button>
     <div class="pr-status" id="prStatus"></div>
@@ -324,6 +354,8 @@
   const appEl = document.querySelector('.app');
   const finishScreen = document.getElementById('finishScreen');
   const finishSummary = document.getElementById('finishSummary');
+  const analysisOverallEl = document.getElementById('analysisOverall');
+  const analysisListEl = document.getElementById('analysisList');
   const prBtn = document.getElementById('prBtn');
   const prStatus = document.getElementById('prStatus');
   const newGdBtn = document.getElementById('newGdBtn');
@@ -593,6 +625,117 @@
     if (state.globalStartTs) requestWakeLock();
   }
 
+  // ---------------- Analysis engine (rule-based, deterministic — no AI involved) ----------------
+  function computeAnalysis() {
+    const participants = state.participants;
+    const totalSpeakMs = participants.reduce((s, p) => s + p.speakMs, 0);
+    const totalTraits = participants.reduce((s, p) => s + p.traits.length, 0);
+    const spoke = participants.filter(p => p.speakMs > 0);
+
+    const enriched = participants.map(p => {
+      const pos = p.traits.filter(t => t.pts > 0);
+      const neg = p.traits.filter(t => t.pts < 0);
+      const posCounts = {}; pos.forEach(t => { posCounts[t.trait] = (posCounts[t.trait] || 0) + 1; });
+      const negCounts = {}; neg.forEach(t => { negCounts[t.trait] = (negCounts[t.trait] || 0) + 1; });
+      return {
+        ...p, pos, neg, posCounts, negCounts,
+        distinctPos: Object.keys(posCounts).length,
+        speakShare: totalSpeakMs > 0 ? p.speakMs / totalSpeakMs : 0
+      };
+    });
+
+    const ranked = [...enriched].sort((a, b) => b.score - a.score);
+    const mvp = ranked.length && ranked[0].traits.length > 0 ? ranked[0] : null;
+    const wellRounded = [...enriched].filter(p => p.score > 0 && p.distinctPos >= 2).sort((a, b) => b.distinctPos - a.distinctPos)[0] || null;
+    const quiet = enriched.filter(p => p.speakMs === 0);
+    const idealShare = spoke.length > 0 ? 1 / spoke.length : 0;
+    const dominators = spoke.filter(p => p.speakShare > idealShare * 1.75 && spoke.length >= 2);
+    const netNegative = enriched.filter(p => p.score < 0);
+
+    let balanceLabel;
+    if (spoke.length === 0) balanceLabel = 'No one was given the floor — the timer was never started for any participant.';
+    else if (dominators.length > 0) balanceLabel = `Floor time was uneven — ${dominators.map(p => p.name).join(', ')} held a disproportionate share of speaking time.`;
+    else if (spoke.length < participants.length) balanceLabel = `Only ${spoke.length} of ${participants.length} participants were given the floor at all.`;
+    else balanceLabel = 'Speaking time was reasonably well distributed across the group.';
+
+    let engagementLabel;
+    if (totalTraits === 0) engagementLabel = 'No behaviors were tagged this session — there is nothing to score yet.';
+    else if (totalTraits < participants.length) engagementLabel = 'Engagement was light — fewer trait taps than participants, so most contributions went unscored.';
+    else engagementLabel = `${totalTraits} behavior${totalTraits === 1 ? '' : 's'} tagged across the group.`;
+
+    return { enriched, ranked, mvp, wellRounded, quiet, dominators, netNegative, balanceLabel, engagementLabel, totalSpeakMs, totalTraits };
+  }
+
+  function participantWriteup(p, analysis, rankIndex) {
+    const parts = [`Ranked #${rankIndex + 1} of ${analysis.enriched.length} with ${p.score} point${p.score === 1 ? '' : 's'}.`];
+    if (p.speakMs === 0) {
+      parts.push('Never got the floor this session.');
+    } else {
+      const pct = analysis.totalSpeakMs > 0 ? Math.round(p.speakShare * 100) : 0;
+      parts.push(`Spoke for ${formatTime(p.speakMs)}${analysis.totalSpeakMs > 0 ? ` (${pct}% of total floor time).` : '.'}`);
+    }
+    if (p.traits.length === 0) {
+      parts.push('No behaviors were tagged.');
+    } else {
+      const posStr = Object.entries(p.posCounts).map(([k, v]) => `${k} ×${v}`).join(', ');
+      const negStr = Object.entries(p.negCounts).map(([k, v]) => `${k} ×${v}`).join(', ');
+      if (posStr) parts.push(`Positive: ${posStr}.`);
+      if (negStr) parts.push(`Negative: ${negStr}.`);
+    }
+    const tags = [];
+    if (analysis.mvp && analysis.mvp.id === p.id) tags.push('MVP of the discussion');
+    if (analysis.wellRounded && analysis.wellRounded.id === p.id) tags.push('Most well-rounded');
+    if (analysis.dominators.some(d => d.id === p.id)) tags.push('Dominated floor time');
+    if (analysis.quiet.some(q => q.id === p.id)) tags.push('Did not speak');
+    if (p.score < 0) tags.push('Net negative score');
+    return { text: parts.join(' '), tags };
+  }
+
+  function renderAnalysisForApp(analysis) {
+    const overallHtml = `
+      <p>${analysis.balanceLabel}</p>
+      <p>${analysis.engagementLabel}</p>
+      ${analysis.netNegative.length ? `<p>${analysis.netNegative.map(p => p.name).join(', ')} finished with a net negative score.</p>` : ''}
+    `;
+    const listHtml = analysis.ranked.map((p, i) => {
+      const w = participantWriteup(p, analysis, i);
+      const tagsHtml = w.tags.map(t => `<span class="pa-tag ${t === 'MVP of the discussion' ? 'mvp' : ''} ${(t === 'Net negative score' || t === 'Dominated floor time') ? 'warn' : ''}">${t}</span>`).join('');
+      return `<div class="p-analysis-card">
+        <div class="pah"><span class="pa-name">#${i + 1} ${p.name}</span><span class="pa-score">${p.score} pts</span></div>
+        ${tagsHtml ? `<div class="pa-tags">${tagsHtml}</div>` : ''}
+        <div class="pa-text">${w.text}</div>
+      </div>`;
+    }).join('');
+    return { overallHtml, listHtml };
+  }
+
+  function renderAnalysisForReport(analysis) {
+    const overall = `
+      <p>${analysis.balanceLabel}</p>
+      <p>${analysis.engagementLabel}</p>
+      ${analysis.netNegative.length ? `<p>${analysis.netNegative.map(p => p.name).join(', ')} finished with a net negative score.</p>` : ''}
+    `;
+    const cards = analysis.ranked.map((p, i) => {
+      const w = participantWriteup(p, analysis, i);
+      const tagsHtml = w.tags.map(t => {
+        const style = t === 'MVP of the discussion' ? 'background:#A9822F;color:#fff;'
+          : (t === 'Net negative score' || t === 'Dominated floor time') ? 'background:#FBE9E7;color:#B0473E;'
+          : 'background:#F3E3CB;color:#23292E;';
+        return `<span style="display:inline-block;${style}padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin:0 4px 4px 0;">${t}</span>`;
+      }).join('');
+      return `
+        <div style="background:#fff;border:1px solid #D8D2C0;border-radius:8px;padding:12px 14px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <strong>#${i + 1} ${p.name}</strong>
+            <span style="font-family:monospace;font-weight:700;color:#1F5E52;">${p.score} pts</span>
+          </div>
+          <div>${tagsHtml}</div>
+          <div style="font-size:13px;color:#5B6570;margin-top:4px;">${w.text}</div>
+        </div>`;
+    }).join('');
+    return `<h2>Session Analysis</h2><div style="margin-bottom:12px;">${overall}</div>${cards}`;
+  }
+
   // ---------------- Confirm-before-finish ----------------
   function reportMeta() {
     return {
@@ -605,9 +748,9 @@
     };
   }
 
-  function generateHTMLReport() {
+  function generateHTMLReport(analysis) {
     const meta = reportMeta();
-    const ranked = [...state.participants].sort((a, b) => b.score - a.score);
+    const ranked = analysis.ranked;
     const rows = ranked.map((p, i) => `
       <tr>
         <td style="padding:10px;border:1px solid #ddd;">${i + 1}</td>
@@ -619,7 +762,7 @@
         </td>
       </tr>`).join('');
     return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>GD Session Report - ${meta.sessionId}</title>
-<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;color:#23292E;max-width:900px;margin:30px auto;padding:20px;}h1{color:#1F5E52;border-bottom:2px solid #1F5E52;padding-bottom:8px;}.meta{background:#FBF8F2;padding:12px 16px;border-radius:8px;margin-bottom:20px;border:1px solid #D8D2C0;}.meta p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:10px;}th{background:#1F5E52;color:white;padding:10px;border:1px solid #1F5E52;text-align:left;}@media print{body{margin:0;}}</style>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;color:#23292E;max-width:900px;margin:30px auto;padding:20px;}h1{color:#1F5E52;border-bottom:2px solid #1F5E52;padding-bottom:8px;}h2{color:#1F5E52;margin-top:28px;}.meta{background:#FBF8F2;padding:12px 16px;border-radius:8px;margin-bottom:20px;border:1px solid #D8D2C0;}.meta p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:10px;}th{background:#1F5E52;color:white;padding:10px;border:1px solid #1F5E52;text-align:left;}@media print{body{margin:0;}}</style>
 </head><body>
 <h1>GD Evaluation Session Data</h1>
 <div class="meta">
@@ -632,6 +775,7 @@
 </div>
 <h2>Participant Performance Breakdown (ranked)</h2>
 <table><thead><tr><th>Rank</th><th>Participant</th><th>Total Score</th><th>Speaking Time</th><th>Recorded Trait Behaviors</th></tr></thead><tbody>${rows}</tbody></table>
+${renderAnalysisForReport(analysis)}
 </body></html>`;
   }
 
@@ -683,17 +827,18 @@
     document.getElementById('finishCancel').onclick = closeModal;
     document.getElementById('finishConfirm').onclick = () => {
       pauseAll();
-      const reportHTML = generateHTMLReport();
+      const analysis = computeAnalysis();
+      const reportHTML = generateHTMLReport(analysis);
       const filename = `${state.sessionId}.html`;
       downloadBlob(reportHTML, 'text/html', filename);
       state.finished = true;
       clearDraft();
       closeModal();
-      showFinishScreen(reportHTML, filename);
+      showFinishScreen(reportHTML, filename, analysis);
     };
   };
 
-  function showFinishScreen(reportHTML, filename) {
+  function showFinishScreen(reportHTML, filename, analysis) {
     const meta = reportMeta();
     const scoredCount = state.participants.filter(p => p.traits.length > 0).length;
     finishSummary.innerHTML = `
@@ -704,6 +849,9 @@
       <div><b>Scored</b> ${scoredCount} of ${state.participants.length} participants</div>
       <div><b>File</b> ${filename}</div>
     `;
+    const { overallHtml, listHtml } = renderAnalysisForApp(analysis);
+    analysisOverallEl.innerHTML = overallHtml;
+    analysisListEl.innerHTML = listHtml;
     prStatus.textContent = '';
     prBtn.onclick = () => openGithubPR(reportHTML, filename);
     appEl.style.display = 'none';
