@@ -272,7 +272,7 @@
 
   // ---------------- State ----------------
   const DRAFT_KEY = 'gd_draft_v1';
-  const DEPARTMENTS = ['Cyber Security','CSE','EIE','Marketing','Sales','Human Resources','Finance','Operations','Customer Success','Other'];
+  const DEPARTMENTS = ['Engineering','Product','Design','Marketing','Sales','Human Resources','Finance','Operations','Customer Success','Other'];
 
   let state = null; // built below, either fresh or restored
 
@@ -345,6 +345,21 @@
     return p.speakMs + extra;
   }
 
+  // ---------------- Screen wake lock (keep display on while the timer runs) ----------------
+  let wakeLock = null;
+  async function requestWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch (err) {
+      wakeLock = null; // e.g. low battery mode or permission denied — fail quietly, timer logic is unaffected either way
+    }
+  }
+  function releaseWakeLock() {
+    if (wakeLock) { wakeLock.release(); wakeLock = null; }
+  }
+
   let renderLoop = null;
   function tick() {
     globalTimerEl.textContent = formatTime(currentGlobalMs());
@@ -361,7 +376,10 @@
     renderLoop = setInterval(tick, 500);
   }
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') tick(); // resync instantly after throttling
+    if (document.visibilityState === 'visible') {
+      tick(); // resync instantly after throttling
+      if (state && state.globalStartTs) requestWakeLock(); // wake lock is dropped whenever the tab is backgrounded
+    }
   });
 
   // ---------------- Rendering ----------------
@@ -422,7 +440,7 @@
   }
 
   function startGlobal() {
-    if (!state.globalStartTs) { state.globalStartTs = Date.now(); startRenderLoop(); }
+    if (!state.globalStartTs) { state.globalStartTs = Date.now(); startRenderLoop(); requestWakeLock(); }
   }
   function pauseAll() {
     if (state.globalStartTs) { state.globalElapsedMs += Date.now() - state.globalStartTs; state.globalStartTs = null; }
@@ -431,6 +449,7 @@
       state.floorStartTs = null;
     }
     state.speakingIndex = null;
+    releaseWakeLock();
     renderAll();
     saveDraft();
   }
@@ -571,6 +590,7 @@
     renderAll();
     if (!state.dept) openSetupModal();
     startRenderLoop();
+    if (state.globalStartTs) requestWakeLock();
   }
 
   // ---------------- Confirm-before-finish ----------------
