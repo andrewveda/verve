@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
-  <title>Herbarium — Agreement Press</title>
+  <title>Agreement with Verve</title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -32,7 +32,7 @@
     .col{
       display:flex;flex-direction:column;width:100%;min-height:100%;max-width:520px;margin:0 auto;
       padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
-      gap:clamp(10px,1.6dvh,16px);
+      gap:clamp(9px,1.4dvh,14px);
     }
 
     /* ═══════ Name / Department Gate ═══════ */
@@ -44,7 +44,7 @@
       animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;
     }
     .hero-quote{text-align:center;margin-bottom:8px;}
-    .hero-text{font-family:'Fraunces',serif;font-weight:900;font-size:2.1rem;color:var(--forest);letter-spacing:-.5px;}
+    .hero-text{font-family:'Fraunces',serif;font-weight:900;font-size:1.9rem;color:var(--forest);letter-spacing:-.5px;}
     .hero-author{font-size:1.3rem;margin-top:4px;}
     .gate-label{font-family:'Space Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);margin:6px 0 -6px;}
     #nameInput, #departmentSelect{
@@ -66,12 +66,18 @@
       transition:transform .15s;
     }
     .btn-start:active{transform:scale(.97);}
+    .btn-study-link{
+      background:none;border:none;margin-top:2px;padding:8px;color:var(--ink-muted);
+      font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.03em;cursor:pointer;
+      text-decoration:underline;text-underline-offset:3px;transition:color .15s;
+    }
+    .btn-study-link:hover{color:var(--forest);}
 
     /* Top Bar */
     .top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;}
     .top-actions{display:flex;gap:6px;}
     .icon-btn{
-      width:40px;height:40px;border-radius:9px;border:1.5px solid var(--card-line);background:var(--card);
+      width:38px;height:38px;border-radius:9px;border:1.5px solid var(--card-line);background:var(--card);
       display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-muted);
       box-shadow:var(--shadow-sm);transition:all .18s var(--ease);
     }
@@ -79,53 +85,76 @@
     .icon-btn:hover{background:#f7ede0;color:var(--rust);}
     .icon-btn:active{transform:scale(.9);}
     .brand{text-align:center;}
-    .brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.15rem,3.6dvh,1.55rem);letter-spacing:-.3px;color:var(--forest);}
+    .brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.05rem,3.2dvh,1.4rem);letter-spacing:-.3px;color:var(--forest);}
     .brand span{color:var(--rust);}
-    .brand .sub{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-top:1px;}
+    .brand .sub{font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-top:1px;}
 
-    .timer-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--card-line);border-radius:99px;padding:6px 14px;box-shadow:var(--shadow-sm);}
-    .timer-text{font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;color:var(--forest);white-space:nowrap;}
+    .timer-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--card-line);border-radius:99px;padding:6px 13px;box-shadow:var(--shadow-sm);}
+    .timer-text{font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;color:var(--forest);white-space:nowrap;}
 
     /* Stats Strip */
-    .stat-strip{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:9px 14px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;}
+    .stat-strip{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:8px 13px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:5px;}
     .stat-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
-    .rank-name{font-family:'Fraunces',serif;font-weight:700;font-size:.86rem;color:var(--forest);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .stat-nums{font-family:'Space Mono',monospace;font-size:.66rem;color:var(--ink-muted);white-space:nowrap;}
+    .rank-name{font-family:'Fraunces',serif;font-weight:700;font-size:.82rem;color:var(--forest);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .stat-nums{font-family:'Space Mono',monospace;font-size:.63rem;color:var(--ink-muted);white-space:nowrap;}
     .stat-nums b{color:var(--clay);font-weight:700;font-size:1.05em;margin:0 2px;}
     .rank-track{height:5px;background:#e9dcbb;border-radius:99px;overflow:hidden;}
     .rank-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--forest));border-radius:99px;transition:width .6s var(--ease);}
 
-    /* ═══════ Rule Card (replaces the tense timeline) ═══════ */
-    .rule-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:12px 16px 13px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;}
+    /* Rule Card */
+    .rule-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:11px 15px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:5px;}
     .rule-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
-    .rule-name{font-family:'Fraunces',serif;font-weight:700;font-size:.98rem;color:var(--forest);}
+    .rule-name{font-family:'Fraunces',serif;font-weight:700;font-size:.94rem;color:var(--forest);}
     .cefr-pill{font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:3px 9px;border-radius:99px;color:#fff;white-space:nowrap;}
     .cefr-pill.a1,.cefr-pill.a2{background:var(--a1);}
     .cefr-pill.b1,.cefr-pill.b2{background:var(--b1);}
     .cefr-pill.c1{background:var(--c1);}
-    .rule-explain{font-family:'Inter',sans-serif;font-size:.78rem;line-height:1.45;color:var(--ink-muted);}
+    .rule-explain{font-family:'Inter',sans-serif;font-size:.76rem;line-height:1.42;color:var(--ink-muted);}
+
+    /* Singular / Plural toggle card */
+    .contrast-card{
+      background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:10px 14px;
+      display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 1px 3px rgba(45,38,32,.04);
+    }
+    .contrast-header{display:flex;justify-content:space-between;align-items:center;}
+    .contrast-title{font-family:'Space Mono',monospace;font-size:.58rem;text-transform:uppercase;color:var(--clay);font-weight:700;letter-spacing:.05em;}
+    .toggle-wrap{display:flex;background:#e2d4b0;border-radius:99px;padding:2px;gap:2px;}
+    .toggle-btn{
+      padding:4px 12px;border:none;border-radius:99px;background:transparent;
+      font-family:'Space Mono',monospace;font-size:.64rem;font-weight:700;color:var(--ink-muted);
+      cursor:pointer;transition:all .2s var(--ease);
+    }
+    .toggle-btn.active{background:var(--forest);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+    .contrast-sentence{font-family:'Fraunces',serif;font-size:.9rem;color:var(--ink);line-height:1.4;text-align:center;}
+    .contrast-sentence b{color:var(--verb);text-decoration:underline;text-underline-offset:3px;}
+    .contrast-meaning{
+      font-size:.73rem;line-height:1.4;color:var(--ink);background:var(--card);
+      padding:8px 10px;border-radius:8px;border:1px solid var(--card-line);
+      display:flex;align-items:flex-start;gap:6px;
+    }
+    .contrast-icon{font-size:1.05rem;line-height:1;flex-shrink:0;}
 
     /* Specimen Mount */
-    .mount{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:22px 18px 16px;box-shadow:var(--shadow-md);position:relative;}
+    .mount{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:20px 18px 14px;box-shadow:var(--shadow-md);position:relative;}
     .mount::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px dashed #d8c69a;border-radius:8px;pointer-events:none;}
     .mount.error{animation:shake .35s ease;}
     .mount.success{animation:pop .4s var(--ease);}
     @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
     @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.02)}100%{transform:scale(1)}}
 
-    .sentence-line{font-family:'Fraunces',serif;font-size:1.18rem;line-height:1.7;text-align:center;position:relative;z-index:1;}
+    .sentence-line{font-family:'Fraunces',serif;font-size:1.15rem;line-height:1.7;text-align:center;position:relative;z-index:1;}
     .blank-slot{
       display:inline-block;min-width:70px;padding:1px 8px;border-bottom:2.5px dashed #c9b98d;
       font-weight:700;color:var(--ink-muted);text-align:center;
     }
     .blank-slot.filled{border-bottom-style:solid;border-bottom-color:var(--verb);color:var(--verb);animation:tileIn .25s cubic-bezier(.2,1.5,.4,1);}
     @keyframes tileIn{from{transform:translateY(6px) scale(.85);opacity:0}to{transform:none;opacity:1}}
-    .mount-caption{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--ink-muted);margin-top:12px;letter-spacing:.03em;position:relative;z-index:1;}
+    .mount-caption{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--ink-muted);margin-top:10px;letter-spacing:.03em;position:relative;z-index:1;}
 
     /* Choice Tray */
-    .tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:56px;align-content:flex-start;}
+    .tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:52px;align-content:flex-start;}
     .tile{
-      display:inline-flex;flex-direction:column;align-items:center;gap:1px;padding:11px 22px;border-radius:12px;
+      display:inline-flex;flex-direction:column;align-items:center;gap:1px;padding:10px 22px;border-radius:12px;
       background:#fffdf7;border:1.5px solid #bfe0c8;cursor:pointer;user-select:none;
       box-shadow:var(--shadow-sm);transition:transform .15s var(--ease),box-shadow .15s,opacity .15s;
       animation:tileSpawn .22s cubic-bezier(.2,1.5,.4,1);
@@ -156,7 +185,7 @@
     .paradigm-check{font-size:.75rem;color:var(--moss);flex-shrink:0;}
 
     .archive-title{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:8px;}
-    .archive-list{display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .archive-list{display:flex;flex-direction:column;gap:6px;max-height:130px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
     .archive-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;padding:7px 10px;}
     .archive-card .arc-rule{font-family:'Space Mono',monospace;font-size:.56rem;color:var(--forest);text-transform:uppercase;font-weight:700;margin-bottom:3px;}
     .archive-card .arc-line{font-family:'Fraunces',serif;font-size:.78rem;color:var(--ink);line-height:1.5;}
@@ -183,13 +212,12 @@
     .end-subtitle{text-align:center;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px;}
     .end-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px;}
     .stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;text-align:center;border:1.5px solid var(--card-line);}
-    .stat-num{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:700;color:var(--forest);line-height:1;}
-    .stat-lbl{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+    .stat-num{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:var(--forest);line-height:1;}
+    .stat-lbl{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
     .end-sentences-title{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;}
     .end-specimen-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:10px;padding:10px 12px;margin-bottom:8px;animation:pop-in .35s cubic-bezier(.2,1.5,.4,1) backwards;}
     .end-specimen-card .arc-rule{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--forest);text-transform:uppercase;font-weight:700;margin-bottom:4px;}
     .end-specimen-card .arc-line{font-family:'Fraunces',serif;font-size:.85rem;color:var(--ink);line-height:1.6;}
-    .end-specimen-card .arc-line b{color:var(--verb);}
     @keyframes pop-in{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
     .end-btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
     .btn-end{
@@ -199,6 +227,49 @@
     .btn-end:hover{transform:scale(1.03);}
     .btn-end-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;box-shadow:0 4px 16px rgba(47,82,51,.25);}
     .btn-end-share{background:linear-gradient(135deg,#128c7e,#25d366);color:#fff;}
+
+    /* Study Glossary Overlay */
+    .study-overlay{
+      display:none;position:fixed;inset:0;background:var(--paper);z-index:250;overflow-y:auto;
+      -webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 32px);
+    }
+    .study-overlay.show{display:block;}
+    .study-inner{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+    .study-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1.5px solid var(--card-line);}
+    .study-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;color:var(--forest);}
+    .study-subtitle{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.05em;color:var(--ink-muted);text-transform:uppercase;margin-top:3px;}
+    .study-search{
+      width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:var(--card);font-family:'Inter',sans-serif;font-size:.9rem;color:var(--ink);outline:none;
+    }
+    .study-search:focus{border-color:var(--moss);}
+    .study-filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+    .study-chip{
+      padding:5px 12px;border-radius:99px;border:1.5px solid var(--card-line);background:var(--card);
+      color:var(--ink-muted);font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.04em;
+      text-transform:uppercase;cursor:pointer;transition:all .15s var(--ease);
+    }
+    .study-chip.active{border-color:var(--forest);background:var(--forest);color:#fff;}
+    .study-grid{display:flex;flex-direction:column;gap:10px;}
+    .study-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);}
+    .study-card.attempted{border-color:rgba(201,147,42,.55);background:linear-gradient(180deg,#fdf6e6,var(--card));}
+    .study-card.mastered{border-color:rgba(47,82,51,.6);background:linear-gradient(180deg,#eef3e9,var(--card));}
+    .study-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+    .study-card-name{font-family:'Fraunces',serif;font-weight:700;font-size:.96rem;color:var(--forest);}
+    .study-card-explain{font-family:'Inter',sans-serif;font-size:.77rem;line-height:1.44;color:var(--ink-muted);margin-bottom:10px;}
+    .study-card-sentences{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;padding:9px 11px;background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;}
+    .study-line{font-family:'Fraunces',serif;font-size:.82rem;color:var(--ink);line-height:1.5;}
+    .study-line b{color:var(--verb);}
+    .study-card-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .study-practice-btn{
+      padding:8px 16px;border:none;border-radius:99px;background:linear-gradient(135deg,var(--forest),var(--moss));
+      color:#fff;font-family:'Inter',sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;transition:transform .15s;
+    }
+    .study-practice-btn:active{transform:scale(.95);}
+    .study-practiced-badge{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--clay);letter-spacing:.03em;}
+    .study-mastered-badge{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--moss);letter-spacing:.03em;}
+    .study-empty{text-align:center;padding:32px 0;font-family:'Fraunces',serif;font-style:italic;font-size:.95rem;color:var(--ink-muted);}
   </style>
 </head>
 <body>
@@ -208,8 +279,8 @@
 <div class="screen active" id="nameForm">
   <div class="gate-card">
     <div class="hero-quote">
-      <div class="hero-text">Win-Win</div>
-      <div class="hero-author">🤗♥️✨</div>
+      <div class="hero-text">Agreement Press</div>
+      <div class="hero-author">🤝📐✨</div>
     </div>
     <div class="gate-label">Your Name</div>
     <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off"/>
@@ -235,6 +306,7 @@
     </select>
     <div id="gateError"></div>
     <button class="btn-start" onclick="beginQuiz()">✿ Start Quiz</button>
+    <button class="btn-study-link" onclick="openStudy()">📖 Study the rules first</button>
   </div>
 </div>
 
@@ -244,6 +316,9 @@
       <div class="top-actions">
         <button class="icon-btn" id="btn-end-game" aria-label="End round">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 3.5L16 11H5"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-study" aria-label="Study glossary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5v-15Z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg>
         </button>
         <button class="icon-btn" id="btn-new" aria-label="New round">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
@@ -263,13 +338,26 @@
       <div class="rank-track"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
     </div>
 
-    <!-- Rule Card — replaces the tense timeline; teaches the rule before drilling it -->
+    <!-- Rule Card -->
     <div class="rule-card">
       <div class="rule-card-top">
         <span class="rule-name" id="rule-name">Rule name</span>
         <span class="cefr-pill" id="cefr-pill">A1</span>
       </div>
       <div class="rule-explain" id="rule-explain">Explanation goes here.</div>
+    </div>
+
+    <!-- Singular / Plural toggle -->
+    <div class="contrast-card" id="contrast-card">
+      <div class="contrast-header">
+        <span class="contrast-title">Singular vs Plural</span>
+        <div class="toggle-wrap" id="toggle-wrap"></div>
+      </div>
+      <div class="contrast-sentence" id="contrast-sentence"></div>
+      <div class="contrast-meaning">
+        <span class="contrast-icon" id="contrast-icon">💡</span>
+        <span id="contrast-text">Select a subject to see how the verb changes.</span>
+      </div>
     </div>
 
     <div class="mount" id="mount">
@@ -307,17 +395,52 @@
   </div>
 </div>
 
+<!-- Study Glossary Overlay -->
+<div class="study-overlay" id="studyOverlay">
+  <div class="study-inner">
+    <div class="study-header">
+      <div>
+        <div class="study-title">📖 Study — Agreement Rules</div>
+        <div class="study-subtitle">Browse all 24 rule groups & CEFR levels</div>
+      </div>
+      <button class="icon-btn" id="btn-study-close" aria-label="Close study">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <input class="study-search" id="studySearch" type="text" placeholder="Search a rule or example…" oninput="handleStudySearch()"/>
+    <div class="study-filter-row" id="studyCefrRow">
+      <div class="study-chip active" onclick="setStudyCefrFilter('all',this)">All Levels</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a1',this)">A1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a2',this)">A2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b1',this)">B1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b2',this)">B2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('c1',this)">C1</div>
+    </div>
+    <div class="study-filter-row" id="studyPracticedRow">
+      <div class="study-chip active" onclick="setStudyPracticedFilter('all',this)">All</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('mastered',this)">✓ Mastered</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('practiced',this)">◐ Practiced</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('unattempted',this)">Not Yet</div>
+    </div>
+    <div class="study-grid" id="studyGrid"></div>
+  </div>
+</div>
+
 <script>
 /* ═══════════════════════════════════════════════════════════════
    RULE DATA — 24 subject-verb-agreement rule groups, CEFR-tagged,
-   each with a one-line "why" explanation and 4 practice sentences.
-   Every sentence has exactly one blank and exactly 2 verb choices:
-   the correct form + the classic ESL error for that rule.
+   each with a one-line "why" explanation, 4 practice sentences, and
+   a hand-curated Singular vs Plural toggle pair illustrating the
+   same rule pattern with a singular subject vs a plural subject.
    ═══════════════════════════════════════════════════════════════ */
 const RULE_GROUPS = [
   {
     name: "3rd-Person Singular -s", cefr: "a1",
     explain: "Singular subjects (he/she/it, and singular names) take the -s verb form in the present simple. Plural subjects, and 'I'/'you', take the base form.",
+    toggle: {
+      singular: { text: "Minerva <b>goes</b> to the market.", note: "Singular subject → add -s to the verb." },
+      plural:   { text: "Albus and Severus <b>go</b> to the market.", note: "Plural subject → use the base form, no -s." }
+    },
     items: [
       { before:"Minerva", after:"to the market every morning.", answer:"goes", choices:["goes","go"] },
       { before:"Albus and Severus", after:"to the market every morning.", answer:"go", choices:["go","goes"] },
@@ -328,6 +451,10 @@ const RULE_GROUPS = [
   {
     name: "Collective Nouns as a Unit", cefr: "b1",
     explain: "Collective nouns (team, committee, family) take a singular verb when acting as one group. Words for the individual members (players, people) take a plural verb.",
+    toggle: {
+      singular: { text: "The team <b>is</b> practising today.", note: "Collective noun acting as one unit → singular verb." },
+      plural:   { text: "The players <b>are</b> practising today.", note: "Naming the individual members → plural verb." }
+    },
     items: [
       { before:"The team", after:"practising every day this week.", answer:"is", choices:["is","are"] },
       { before:"The committee", after:"practising every day this week.", answer:"is", choices:["is","are"] },
@@ -338,6 +465,10 @@ const RULE_GROUPS = [
   {
     name: "Indefinite Pronouns", cefr: "a2",
     explain: "Pronouns ending in -one, -body, or -thing (everyone, nobody, something) are always singular. Few, many, several, and both are always plural.",
+    toggle: {
+      singular: { text: "Everyone <b>is</b> invited.", note: "-one/-body/-thing pronouns are always singular." },
+      plural:   { text: "Few <b>are</b> invited.", note: "Few, many, several, and both are always plural." }
+    },
     items: [
       { before:"Everyone", after:"invited to the party tonight.", answer:"is", choices:["is","are"] },
       { before:"Nobody", after:"invited to the party tonight.", answer:"is", choices:["is","are"] },
@@ -348,6 +479,10 @@ const RULE_GROUPS = [
   {
     name: "Compound Subjects with 'And'", cefr: "b1",
     explain: "Two subjects joined by 'and' are usually plural. But a few fixed pairs (bread and butter, fish and chips) name one single thing, so they stay singular.",
+    toggle: {
+      singular: { text: "Bread and butter <b>is</b> served.", note: "A single, fixed combination → singular verb." },
+      plural:   { text: "Gollum and Gandalf <b>are</b> ready.", note: "Two separate subjects joined by 'and' → plural verb." }
+    },
     items: [
       { before:"Gollum and Gandalf", after:"ready for the show.", answer:"are", choices:["are","is"] },
       { before:"The doctor and the nurse", after:"ready for the show.", answer:"are", choices:["are","is"] },
@@ -358,6 +493,10 @@ const RULE_GROUPS = [
   {
     name: "Either/Or, Neither/Nor — Proximity Rule", cefr: "b2",
     explain: "With either...or and neither...nor, the verb agrees with whichever subject is closest to it — not with the first one.",
+    toggle: {
+      singular: { text: "Either the employees or the manager <b>is</b> responsible.", note: "Verb agrees with the closer subject — here, singular 'manager'." },
+      plural:   { text: "Either the manager or the employees <b>are</b> responsible.", note: "Verb agrees with the closer subject — here, plural 'employees'." }
+    },
     items: [
       { before:"Either the manager or the employees", after:"responsible for this.", answer:"are", choices:["are","is"] },
       { before:"Either the employees or the manager", after:"responsible for this.", answer:"is", choices:["is","are"] },
@@ -368,6 +507,10 @@ const RULE_GROUPS = [
   {
     name: "Interrupting Phrases (along with)", cefr: "b2",
     explain: "'Along with', 'as well as', and 'together with' don't change the number of the subject. The verb still agrees with the original subject, before the interrupting phrase.",
+    toggle: {
+      singular: { text: "The captain, along with the players, <b>is</b> celebrating.", note: "'Along with...' doesn't change the subject — still singular 'captain'." },
+      plural:   { text: "The players, along with the captain, <b>are</b> celebrating.", note: "Now the true subject is plural 'players'." }
+    },
     items: [
       { before:"The captain", after:"celebrating the victory.", answer:"is", choices:["is","are"] },
       { before:"The captain, along with the players,", after:"celebrating the victory.", answer:"is", choices:["is","are"] },
@@ -378,6 +521,10 @@ const RULE_GROUPS = [
   {
     name: "There is / There are", cefr: "a1",
     explain: "In 'there is/are' sentences, the verb agrees with the noun that follows it — not with the word 'there' itself.",
+    toggle: {
+      singular: { text: "There <b>is</b> a book on the desk.", note: "Singular noun follows → 'is'." },
+      plural:   { text: "There <b>are</b> many books on the desk.", note: "Plural noun follows → 'are'." }
+    },
     items: [
       { before:"There", after:"a book on the desk.", answer:"is", choices:["is","are"] },
       { before:"There", after:"many books on the desk.", answer:"are", choices:["are","is"] },
@@ -388,6 +535,10 @@ const RULE_GROUPS = [
   {
     name: "Here is / Here are", cefr: "a1",
     explain: "Just like 'there is/are', the verb after 'here' agrees with the noun that follows it.",
+    toggle: {
+      singular: { text: "Here <b>is</b> the key you wanted.", note: "Singular noun follows → 'is'." },
+      plural:   { text: "Here <b>are</b> the keys you wanted.", note: "Plural noun follows → 'are'." }
+    },
     items: [
       { before:"Here", after:"the key you were looking for.", answer:"is", choices:["is","are"] },
       { before:"Here", after:"the keys you were looking for.", answer:"are", choices:["are","is"] },
@@ -398,6 +549,10 @@ const RULE_GROUPS = [
   {
     name: "Quantities & Titles as Single Units", cefr: "b2",
     explain: "Distance, money, and time describe one total amount, so they take a singular verb even though they look plural. The title of one book, film, or show works the same way.",
+    toggle: {
+      singular: { text: "Ten miles <b>is</b> a long distance.", note: "A quantity treated as one total amount → singular, despite looking plural." },
+      plural:   { text: "Ten students <b>are</b> waiting outside.", note: "A genuine plural count of separate people → plural verb." }
+    },
     items: [
       { before:"Ten miles", after:"a long distance to walk.", answer:"is", choices:["is","are"] },
       { before:"Fifty dollars", after:"a lot of money to spend.", answer:"is", choices:["is","are"] },
@@ -408,6 +563,10 @@ const RULE_GROUPS = [
   {
     name: "'One of the... who' vs 'The only one'", cefr: "c1",
     explain: "In 'one of the [plural] who', the relative clause verb agrees with the plural noun. But 'the only one of the [plural] who' means just one person, so the verb turns singular.",
+    toggle: {
+      singular: { text: "She is the only one of the students who <b>is</b> always on time.", note: "'The only one' narrows it to just one person → singular verb." },
+      plural:   { text: "She is one of the students who <b>are</b> always on time.", note: "'One of the [plural] who' — the clause verb agrees with the plural group." }
+    },
     items: [
       { before:"She is one of the students who", after:"always on time.", answer:"are", choices:["are","is"] },
       { before:"He is one of the players who", after:"hard every day.", answer:"work", choices:["work","works"] },
@@ -418,6 +577,10 @@ const RULE_GROUPS = [
   {
     name: "Interrupting Phrases (as well as)", cefr: "b2",
     explain: "Same rule as 'along with': 'as well as' and 'together with' are interruptions, not a second subject. The verb still agrees with the subject named first.",
+    toggle: {
+      singular: { text: "The teacher, as well as the students, <b>is</b> excited.", note: "'As well as...' is an aside — the true subject 'teacher' stays singular." },
+      plural:   { text: "The students, as well as the teacher, <b>are</b> excited.", note: "Now the true subject 'students' is plural." }
+    },
     items: [
       { before:"The teacher, as well as the students,", after:"excited about the trip.", answer:"is", choices:["is","are"] },
       { before:"Matt, together with his friends,", after:"excited about the trip.", answer:"is", choices:["is","are"] },
@@ -428,6 +591,10 @@ const RULE_GROUPS = [
   {
     name: "None / No + Countable vs Uncountable", cefr: "b2",
     explain: "'None of' and 'no' agree with the noun that follows: an uncountable or singular noun takes a singular verb; a plural countable noun takes a plural verb.",
+    toggle: {
+      singular: { text: "None of the cake <b>was</b> eaten.", note: "Uncountable noun after 'none of' → singular verb." },
+      plural:   { text: "None of the cakes <b>were</b> eaten.", note: "Plural countable noun after 'none of' → plural verb." }
+    },
     items: [
       { before:"None of the cake", after:"eaten.", answer:"was", choices:["was","were"] },
       { before:"None of the cakes", after:"eaten.", answer:"were", choices:["were","was"] },
@@ -438,6 +605,10 @@ const RULE_GROUPS = [
   {
     name: "'A Number Of' vs 'The Number Of'", cefr: "c1",
     explain: "'A number of' means 'many' and takes a plural verb. 'The number of' refers to the total count itself, which is a single figure — singular.",
+    toggle: {
+      singular: { text: "The number of students <b>is</b> thirty.", note: "'The number of' refers to one total figure → singular." },
+      plural:   { text: "A number of students <b>are</b> present.", note: "'A number of' means 'many' → plural." }
+    },
     items: [
       { before:"A number of students", after:"present today.", answer:"are", choices:["are","is"] },
       { before:"A number of dancers", after:"performing tonight.", answer:"are", choices:["are","is"] },
@@ -448,6 +619,10 @@ const RULE_GROUPS = [
   {
     name: "Nouns That Look Plural But Are Singular", cefr: "b2",
     explain: "Some nouns end in -s but are always singular: academic subjects (mathematics, physics, economics) and words like 'news'.",
+    toggle: {
+      singular: { text: "Mathematics <b>is</b> my favourite subject.", note: "Ends in -s, but names one subject → always singular." },
+      plural:   { text: "The subjects <b>are</b> difficult this term.", note: "A genuine plural noun → plural verb." }
+    },
     items: [
       { before:"Mathematics", after:"my favourite subject at school.", answer:"is", choices:["is","are"] },
       { before:"Physics", after:"my favourite subject at school.", answer:"is", choices:["is","are"] },
@@ -458,6 +633,10 @@ const RULE_GROUPS = [
   {
     name: "Two-Part Items vs 'A Pair Of'", cefr: "b2",
     explain: "Nouns like trousers and scissors are always plural on their own. But 'a pair of' makes the subject 'a pair' — singular — so the verb becomes singular too.",
+    toggle: {
+      singular: { text: "A pair of trousers <b>is</b> in the drawer.", note: "'A pair of...' makes the subject one pair → singular." },
+      plural:   { text: "My trousers <b>are</b> in the drawer.", note: "On its own, 'trousers' is always plural." }
+    },
     items: [
       { before:"My trousers", after:"in the drawer.", answer:"are", choices:["are","is"] },
       { before:"These scissors", after:"sharp enough.", answer:"are", choices:["are","is"] },
@@ -468,6 +647,10 @@ const RULE_GROUPS = [
   {
     name: "Gerunds & Infinitives as Subjects", cefr: "b2",
     explain: "When an -ing form (gerund) or a 'to + verb' (infinitive) is the subject of a sentence, it is always treated as singular.",
+    toggle: {
+      singular: { text: "Walking <b>is</b> a great way to stay healthy.", note: "A gerund or infinitive as subject is always singular — even if the activity involves many steps." },
+      plural:   { text: "Long walks <b>are</b> good for your health.", note: "A genuine plural noun subject → plural verb." }
+    },
     items: [
       { before:"Walking", after:"a great way to stay healthy.", answer:"is", choices:["is","are"] },
       { before:"Swimming", after:"a great way to stay healthy.", answer:"is", choices:["is","are"] },
@@ -478,6 +661,10 @@ const RULE_GROUPS = [
   {
     name: "'The' + Adjective = Group of People", cefr: "b2",
     explain: "'The' plus an adjective (the poor, the elderly, the young) refers to a whole group of people in general, and is always plural.",
+    toggle: {
+      singular: { text: "The elderly person <b>needs</b> support.", note: "One specific person → singular verb." },
+      plural:   { text: "The elderly <b>need</b> support.", note: "'The' + adjective names a whole group of people → always plural." }
+    },
     items: [
       { before:"The poor", after:"extra support from the council.", answer:"need", choices:["need","needs"] },
       { before:"The elderly", after:"extra support from the council.", answer:"need", choices:["need","needs"] },
@@ -488,6 +675,10 @@ const RULE_GROUPS = [
   {
     name: "Subjunctive 'Were' (Wishes & Hypotheticals)", cefr: "c1",
     explain: "In wishes and unreal conditions ('I wish...', 'If I were...'), use 'were' for every subject, even I/he/she/it — this overrides normal agreement.",
+    toggle: {
+      singular: { text: "I wish I <b>were</b> on a beach.", note: "Subjunctive 'were' is used for singular subjects in wishes and hypotheticals." },
+      plural:   { text: "I wish they <b>were</b> on a beach.", note: "The same 'were' is used for plural subjects too — it never changes." }
+    },
     items: [
       { before:"I wish I", after:"on a sunny beach right now.", answer:"were", choices:["were","was"] },
       { before:"I wish she", after:"on a sunny beach right now.", answer:"were", choices:["were","was"] },
@@ -498,6 +689,10 @@ const RULE_GROUPS = [
   {
     name: "Percentages & Fractions Of", cefr: "c1",
     explain: "With percentages and fractions (fifty percent of, one-third of), the verb agrees with the noun after 'of' — singular/uncountable takes singular, plural takes plural.",
+    toggle: {
+      singular: { text: "Fifty per cent of the cake <b>is</b> gone.", note: "Singular/uncountable noun after 'of' → singular verb." },
+      plural:   { text: "Fifty per cent of the cakes <b>are</b> gone.", note: "Plural noun after 'of' → plural verb." }
+    },
     items: [
       { before:"Fifty per cent of the cake", after:"gone.", answer:"is", choices:["is","are"] },
       { before:"Fifty per cent of the cakes", after:"gone.", answer:"are", choices:["are","is"] },
@@ -508,6 +703,10 @@ const RULE_GROUPS = [
   {
     name: "Every / Each + Singular", cefr: "b1",
     explain: "'Every' and 'each' always take a singular verb, even when they're followed by two nouns joined by 'and'.",
+    toggle: {
+      singular: { text: "Every student <b>gets</b> a book.", note: "'Every' and 'each' always take a singular verb." },
+      plural:   { text: "All students <b>get</b> a book.", note: "'All' (unlike every/each) takes a plural verb." }
+    },
     items: [
       { before:"Every boy and girl", after:"a gift today.", answer:"gets", choices:["gets","get"] },
       { before:"Each boy and girl", after:"a gift today.", answer:"gets", choices:["gets","get"] },
@@ -518,6 +717,10 @@ const RULE_GROUPS = [
   {
     name: "'A Lot Of' / 'Some Of' + Noun", cefr: "b1",
     explain: "Like percentages, 'a lot of' and 'some of' agree with the noun after 'of' — singular/uncountable takes singular, plural takes plural.",
+    toggle: {
+      singular: { text: "A lot of the milk <b>is</b> spilled.", note: "Singular/uncountable noun after 'of' → singular verb." },
+      plural:   { text: "A lot of the bottles <b>are</b> spilled.", note: "Plural noun after 'of' → plural verb." }
+    },
     items: [
       { before:"A lot of the milk", after:"spilled.", answer:"is", choices:["is","are"] },
       { before:"A lot of the bottles", after:"spilled.", answer:"are", choices:["are","is"] },
@@ -528,6 +731,10 @@ const RULE_GROUPS = [
   {
     name: "Uncountable Nouns", cefr: "a2",
     explain: "Nouns like information, advice, furniture, and equipment have no plural form in English and always take a singular verb.",
+    toggle: {
+      singular: { text: "The information <b>is</b> helpful.", note: "Uncountable nouns have no plural form → always singular." },
+      plural:   { text: "The facts <b>are</b> helpful.", note: "A genuine countable plural noun → plural verb." }
+    },
     items: [
       { before:"The information", after:"helpful for the exam.", answer:"is", choices:["is","are"] },
       { before:"The advice", after:"helpful for the exam.", answer:"is", choices:["is","are"] },
@@ -538,6 +745,10 @@ const RULE_GROUPS = [
   {
     name: "Inverted Sentences", cefr: "b2",
     explain: "When a sentence starts with a place phrase instead of the subject, the verb still agrees with the subject that comes after it, not with the phrase.",
+    toggle: {
+      singular: { text: "In the garden <b>is</b> a small cat.", note: "Verb agrees with the singular subject 'a cat', which comes after it." },
+      plural:   { text: "In the garden <b>are</b> two small cats.", note: "Verb agrees with the plural subject 'two cats'." }
+    },
     items: [
       { before:"In the garden", after:"a small cat.", answer:"is", choices:["is","are"] },
       { before:"In the garden", after:"two small cats.", answer:"are", choices:["are","is"] },
@@ -548,6 +759,10 @@ const RULE_GROUPS = [
   {
     name: "Mixed Review", cefr: "c1",
     explain: "The final round combines everything: collective nouns, indefinite pronouns, neither/nor proximity, and there is/are.",
+    toggle: {
+      singular: { text: "The staff <b>is</b> working overtime.", note: "Collective noun as one unit → singular." },
+      plural:   { text: "There <b>are</b> two managers working overtime.", note: "Plural noun follows 'there' → plural verb." }
+    },
     items: [
       { before:"The staff", after:"working overtime today.", answer:"is", choices:["is","are"] },
       { before:"Everyone", after:"working overtime today.", answer:"is", choices:["is","are"] },
@@ -569,15 +784,19 @@ const RANKS = [
 
 const BEST_KEY = 'herbariumAgreementBest';
 
-// ═══════ Supabase logging (edge function) ═══════
+/* ═══════ Supabase logging (edge function) ═══════ */
 const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
-const QUEST_ID = "Herbarium Agreement Press";
+// quest_id is built per rule group at send time, using its fixed position in
+// RULE_GROUPS (1-24, stable regardless of shuffle order):
+// "Rule N"  = mastered — all 4 sentences in the group solved on the first tap
+// "Rules N" = practiced — at least one sentence needed a retry after a wrong tap
 
 let playerName = '';
 let playerDept = '';
 
 let deck = [];
-let currentGroup = null;
+let currentGroupIdx = null;
+let currentGroup = null;      // active {name, cefr, explain, toggle, items}
 let currentItemIndex = 0;
 let current = null;           // active item {before, after, answer, choices}
 let currentTiles = [];        // shuffled choice tiles for this item
@@ -595,6 +814,17 @@ let bestScore = parseInt(localStorage.getItem(BEST_KEY) || '0');
 let elapsedSeconds = 0;
 let timerInterval = null;
 let gameActive = true;
+
+// per-rule-group tracking for Supabase (mastered vs practiced)
+let ruleStartTime = 0, ruleScore = 0, ruleCorrectTaps = 0, ruleWrongTaps = 0, ruleHadMistake = false;
+
+// Study Glossary state
+// ruleIdx -> 'mastered' (all 4 items solved with zero mistakes at least once) | 'practiced' (solved, but only ever with a retry)
+let ruleStatus = new Map();
+let studyOpen = false;
+let studyFilterCefr = 'all';
+let studyFilterPracticed = 'all';
+let studySearchTerm = '';
 
 /* ═══════════════ NAME GATE ═══════════════ */
 function beginQuiz(){
@@ -625,11 +855,15 @@ function shuffledDeck(){
   return idx;
 }
 
-function newGame(){
+function newGame(focusRuleIdx){
   clearInterval(timerInterval);
   deck = shuffledDeck();
+  if(typeof focusRuleIdx === 'number'){
+    deck = deck.filter(i=>i!==focusRuleIdx);
+    deck.push(focusRuleIdx);
+  }
   score=0; streak=0; completedCount=0; correctTaps=0; wrongTaps=0;
-  completedList=[]; ruleArchive=[]; elapsedSeconds=0; gameActive=true;
+  completedList=[]; ruleArchive=[]; ruleStatus=new Map(); elapsedSeconds=0; gameActive=true;
   updateStats(); renderArchive();
   loadNextRuleGroup();
   updateTimerDisplay();
@@ -639,10 +873,13 @@ function newGame(){
 function loadNextRuleGroup(){
   if(!deck.length) return;
   const i = deck.pop();
+  currentGroupIdx = i;
   currentGroup = RULE_GROUPS[i];
   currentItemIndex = 0;
   currentForms = [];
+  ruleStartTime = Date.now(); ruleScore = 0; ruleCorrectTaps = 0; ruleWrongTaps = 0; ruleHadMistake = false;
   renderRuleCard();
+  renderContrastCard(currentGroup);
   applyItemData();
   renderParadigm();
 }
@@ -653,6 +890,31 @@ function renderRuleCard(){
   pill.textContent = CEFR_LABEL[currentGroup.cefr];
   pill.className = 'cefr-pill ' + currentGroup.cefr;
   document.getElementById('rule-explain').textContent = currentGroup.explain;
+}
+
+/* ═══════════════ SINGULAR / PLURAL TOGGLE ═══════════════ */
+function renderContrastCard(group){
+  const wrap = document.getElementById('toggle-wrap');
+  wrap.innerHTML = '';
+  ['singular','plural'].forEach((key,idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (idx===0 ? ' active' : '');
+    btn.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+    btn.dataset.key = key;
+    btn.onclick = () => selectContrastOption(key, group);
+    wrap.appendChild(btn);
+  });
+  selectContrastOption('singular', group);
+}
+
+function selectContrastOption(key, group){
+  document.querySelectorAll('#toggle-wrap .toggle-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.key === key);
+  });
+  const data = group.toggle[key];
+  document.getElementById('contrast-sentence').innerHTML = data.text;
+  document.getElementById('contrast-icon').textContent = key === 'singular' ? '👤' : '👥';
+  document.getElementById('contrast-text').textContent = data.note;
 }
 
 /* ═══════════════ ITEM (single blank) LOGIC ═══════════════ */
@@ -678,7 +940,7 @@ function shuffleArray(arr){
 /* ═══════════════ STOPWATCH ═══════════════ */
 function startStopwatch(){
   timerInterval = setInterval(()=>{
-    if(!gameActive) return;
+    if(!gameActive || studyOpen) return;
     elapsedSeconds++;
     updateTimerDisplay();
   }, 1000);
@@ -712,21 +974,21 @@ function renderTray(){
 
 /* ═══════════════ GAMEPLAY ═══════════════ */
 function tapTile(id, el){
-  if(!gameActive || placedCount) return;
+  if(!gameActive || placedCount || studyOpen) return;
   const tile = currentTiles.find(t=>t.id===id);
   if(!tile) return;
 
   if(tile.correct){
     tile.solved = true;
     placedCount = 1;
-    correctTaps++;
+    correctTaps++; ruleCorrectTaps++;
     renderSentence();
     currentTiles.forEach(t=>{ if(!t.solved) t.solved = true; });
     renderTray();
     document.getElementById('mount').classList.remove('error');
     completeItem();
   } else {
-    wrongTaps++; currentMistakes++; streak = 0;
+    wrongTaps++; ruleWrongTaps++; currentMistakes++; ruleHadMistake = true; streak = 0;
     el.classList.add('wrong');
     setTimeout(()=>el.classList.remove('wrong'),400);
     document.getElementById('mount').classList.add('error');
@@ -743,7 +1005,7 @@ function completeItem(){
   const penalty = currentMistakes*3;
   const pts = Math.max(4, base+speedBonus-penalty);
 
-  score += pts; completedCount++;
+  score += pts; ruleScore += pts; completedCount++;
   if(currentMistakes===0) streak++; else streak=0;
 
   const text = current.before+' '+current.answer+' '+current.after;
@@ -769,7 +1031,13 @@ function completeItem(){
       renderParadigm();
     } else {
       ruleArchive.push({ name: currentGroup.name, forms: currentForms.slice() });
+      if(ruleHadMistake){
+        if(ruleStatus.get(currentGroupIdx) !== 'mastered') ruleStatus.set(currentGroupIdx, 'practiced');
+      } else {
+        ruleStatus.set(currentGroupIdx, 'mastered');
+      }
       renderArchive();
+      submitRuleToSupabase();
 
       if (ruleArchive.length >= TOTAL_RULES) {
         showToast('🌿 Collection Complete! 24/24 rules pressed', 'good');
@@ -854,8 +1122,135 @@ document.getElementById('btn-new').addEventListener('click',()=>{
 document.getElementById('btn-end-game').addEventListener('click',()=>{
   if(confirm('End the round and see results?')) endGame();
 });
+document.getElementById('btn-study').addEventListener('click', openStudy);
+document.getElementById('btn-study-close').addEventListener('click', closeStudy);
+document.getElementById('studyOverlay').addEventListener('click', function(e){
+  if(e.target === this) closeStudy();
+});
 
-/* ═══════════════ SUPABASE LOGGING ═══════════════ */
+/* ═══════════════ STUDY GLOSSARY ═══════════════ */
+function openStudy(){
+  studyOpen = true;
+  document.getElementById('studyOverlay').classList.add('show');
+  renderStudyGrid();
+}
+function closeStudy(){
+  studyOpen = false;
+  document.getElementById('studyOverlay').classList.remove('show');
+}
+
+function handleStudySearch(){
+  studySearchTerm = document.getElementById('studySearch').value;
+  renderStudyGrid();
+}
+function setStudyCefrFilter(val, el){
+  studyFilterCefr = val;
+  document.querySelectorAll('#studyCefrRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+function setStudyPracticedFilter(val, el){
+  studyFilterPracticed = val;
+  document.querySelectorAll('#studyPracticedRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+
+function renderStudyGrid(){
+  const grid = document.getElementById('studyGrid');
+  const term = studySearchTerm.trim().toLowerCase();
+
+  const filtered = RULE_GROUPS
+    .map((g,i)=>({g,i}))
+    .filter(({g,i})=>{
+      if(studyFilterCefr !== 'all' && g.cefr !== studyFilterCefr) return false;
+      const status = ruleStatus.get(i);
+      if(studyFilterPracticed === 'mastered' && status !== 'mastered') return false;
+      if(studyFilterPracticed === 'practiced' && status !== 'practiced') return false;
+      if(studyFilterPracticed === 'unattempted' && status) return false;
+      if(term){
+        const hay = (g.name+' '+g.explain+' '+g.items.map(it=>it.before+' '+it.answer+' '+it.after).join(' ')).toLowerCase();
+        if(!hay.includes(term)) return false;
+      }
+      return true;
+    });
+
+  if(!filtered.length){
+    grid.innerHTML = '<div class="study-empty">No agreement rules match your search.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(({g,i})=>buildStudyCard(g,i)).join('');
+}
+
+function buildStudyCard(g,i){
+  const status = ruleStatus.get(i); // undefined | 'practiced' | 'mastered'
+  const cardClass = status === 'mastered' ? ' mastered' : (status === 'practiced' ? ' attempted' : '');
+  const badge = status === 'mastered'
+    ? '<span class="study-mastered-badge">✓ Mastered</span>'
+    : status === 'practiced'
+      ? '<span class="study-practiced-badge">◐ Practiced</span>'
+      : '';
+  const sentences = g.items.map(it=>`<div class="study-line">${it.before} <b>${it.answer}</b> ${it.after}</div>`).join('');
+
+  return `<div class="study-card${cardClass}">
+    <div class="study-card-top">
+      <span class="study-card-name">${g.name}</span>
+      <span class="cefr-pill ${g.cefr}">${CEFR_LABEL[g.cefr]}</span>
+    </div>
+    <div class="study-card-explain">${g.explain}</div>
+    <div class="study-card-sentences">${sentences}</div>
+    <div class="study-card-actions">
+      <button class="study-practice-btn" onclick="practiceRuleFromStudy(${i})">▶ Practice this rule</button>
+      ${badge}
+    </div>
+  </div>`;
+}
+
+function practiceRuleFromStudy(idx){
+  const midGame = document.getElementById('gameScreen').classList.contains('active');
+  if(midGame){
+    jumpToRule(idx);
+  } else {
+    startFocusedGame(idx);
+  }
+}
+
+function jumpToRule(idx){
+  deck = deck.filter(i=>i!==idx);
+  currentGroupIdx = idx;
+  currentGroup = RULE_GROUPS[idx];
+  currentItemIndex = 0;
+  currentForms = [];
+  ruleStartTime = Date.now(); ruleScore = 0; ruleCorrectTaps = 0; ruleWrongTaps = 0; ruleHadMistake = false;
+  renderRuleCard();
+  renderContrastCard(currentGroup);
+  applyItemData();
+  renderParadigm();
+  closeStudy();
+  showToast(`Jumping to: ${RULE_GROUPS[idx].name}`, 'good');
+}
+
+function startFocusedGame(idx){
+  const nameEl = document.getElementById('nameInput');
+  const deptEl = document.getElementById('departmentSelect');
+  const errEl = document.getElementById('gateError');
+  const name = nameEl.value.trim();
+  const dept = deptEl.value;
+
+  if(!name){ closeStudy(); errEl.textContent = 'Please enter your name.'; nameEl.focus(); return; }
+  if(!dept){ closeStudy(); errEl.textContent = 'Please select your department.'; deptEl.focus(); return; }
+
+  errEl.textContent = '';
+  playerName = name;
+  playerDept = dept;
+
+  closeStudy();
+  document.getElementById('nameForm').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame(idx);
+}
+
+/* ═══════════════ SUPABASE LOGGING (per rule group) ═══════════════ */
 async function sendViaEdgeFunction(payload) {
   try {
     const response = await fetch(EDGE_FUNCTION_URL, {
@@ -868,16 +1263,24 @@ async function sendViaEdgeFunction(payload) {
   } catch (err) { console.error("⚠️ Edge Function Error:", err); }
 }
 
-function submitScoreToSupabase(finalScore, totalSeconds, totalCompleted){
+// Sends exactly once per completed rule group (4 sentences = 1 "page").
+// quest_id is unique per rule group (1-24, its fixed position in RULE_GROUPS,
+// not shuffle order) and encodes the outcome with singular/plural only:
+// "Rule N"  = mastered — every one of the 4 sentences solved on the first tap
+// "Rules N" = practiced — at least one sentence needed a retry after a wrong tap
+function submitRuleToSupabase(){
+  const timeSpent = Math.round((Date.now()-ruleStartTime)/1000);
+  const ruleNumber = currentGroupIdx + 1;
+  const questId = (ruleHadMistake ? "Rules " : "Rule ") + ruleNumber;
   const payload = {
     student_name: playerName,
     department: playerDept,
-    correct: correctTaps,
-    wrong: wrongTaps,
-    time_spent: totalSeconds,
-    quest_id: QUEST_ID,
-    score: finalScore,
-    sentences_pressed: totalCompleted
+    correct: ruleCorrectTaps,
+    wrong: ruleWrongTaps,
+    time_spent: timeSpent,
+    quest_id: questId,
+    score: ruleScore,
+    sentences_pressed: currentForms.length
   };
   sendViaEdgeFunction(payload);
 }
@@ -886,7 +1289,6 @@ function submitScoreToSupabase(finalScore, totalSeconds, totalCompleted){
 function endGame(){
   gameActive=false;
   clearInterval(timerInterval);
-  submitScoreToSupabase(score, elapsedSeconds, completedCount);
   setTimeout(showEndScreen,250);
 }
 
