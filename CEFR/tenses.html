@@ -1203,12 +1203,14 @@ async function sendViaEdgeFunction(payload) {
 }
 
 // Sends exactly once per completed specimen (12 tense forms = 1 "page").
-// If every one of those 12 forms was solved correctly on the first attempt,
-// this specimen is logged as "Mastered"; if any form needed a retry after
-// a wrong tap, it's logged as "Practiced".
+// quest_id is unique per specimen (1-10, its fixed position in VERB_BANK,
+// not shuffle order) and encodes the outcome with singular/plural only:
+// "Tense N"  = mastered — every one of the 12 forms solved on the first tap
+// "Tenses N" = practiced — at least one form needed a retry after a wrong tap
 function submitSpecimenToSupabase(){
   const timeSpent = Math.round((Date.now()-specimenStartTime)/1000);
-  const questId = specimenHadMistake ? QUEST_ID_PRACTICED : QUEST_ID_MASTERED;
+  const specimenNumber = currentSpecimenIdx + 1;
+  const questId = (specimenHadMistake ? "Tenses " : "Tense ") + specimenNumber;
   const payload = {
     student_name: playerName,
     department: playerDept,
