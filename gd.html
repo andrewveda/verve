@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+  <title>GD Evaluator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Auth guard: redirects to /verve/auth.html before anything paints if the session is invalid -->
+  <script src="auth-guard.js"></script>
+  <style>
+    :root {
+      --paper: #FBF8F2;
+      --paper-dim: #F1ECDF;
+      --ink: #23292E;
+      --ink-soft: #5B6570;
+      --line: #D8D2C0;
+      --pine: #1F5E52;
+      --pine-dark: #153F38;
+      --amber: #C97A2B;
+      --amber-soft: #F3E3CB;
+      --danger: #B0473E;
+      --danger-soft: #FBE9E7;
+      --success-soft: #E5F1EA;
+      --gold: #A9822F;
+      font-size: 16px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0; background: var(--paper); color: var(--ink);
+      font-family: 'Inter', system-ui, sans-serif; line-height: 1.25;
+      -webkit-font-smoothing: antialiased;
+      height: 100%; overscroll-behavior: none;
+    }
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+    :focus-visible { outline: 2px solid var(--pine); outline-offset: 2px; }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ---- App shell: exactly one viewport, no page scroll ---- */
+    .app {
+      height: 100dvh; width: 100%; max-width: 520px; margin: 0 auto;
+      display: flex; flex-direction: column;
+      padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+      gap: 6px; overflow: hidden;
+    }
+    .row { flex: 0 0 auto; }
+
+    /* Header */
+    .top-bar { display: flex; justify-content: space-between; align-items: center; height: 30px; }
+    .top-bar .brand { font-family: 'Source Serif 4', Georgia, serif; font-weight: 700; font-size: 1rem; color: var(--pine-dark); }
+    .avatar-btn { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); padding: 0; overflow: hidden; background: var(--paper-dim); }
+    .avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* Control strip: timer + start/pause + session badge */
+    .control-strip { display: flex; align-items: center; gap: 6px; height: 34px; }
+    .timer-display { font-size: 1.05rem; font-weight: 700; color: var(--pine-dark); min-width: 58px; }
+    .icon-btn { background: var(--pine); color: #fff; border: none; border-radius: 6px; padding: 0 10px; height: 30px; font-size: 0.75rem; font-weight: 700; }
+    .icon-btn.secondary { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+    .icon-btn:disabled { background: var(--line); color: var(--ink-soft); }
+    .session-badge { flex: 1; height: 30px; border: 1px dashed var(--line); border-radius: 6px; background: #fff; font-size: 0.7rem; color: var(--ink-soft); padding: 0 8px; display: flex; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left; }
+    .session-badge b { color: var(--ink); margin-right: 4px; }
+    .session-badge.needs-setup { border-color: var(--amber); color: var(--amber); font-weight: 700; }
+
+    /* Participant grid: fixed 5x2 layout, numbers only, no scrolling */
+    .participant-bar { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(2, 1fr); gap: 6px; height: 64px; }
+    .p-num {
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 10px; border: 1.5px solid var(--line); background: #fff;
+      font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 1.05rem; color: var(--ink);
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.06s ease;
+    }
+    .p-num:active { transform: scale(0.92); }
+    .p-num.active { border-color: var(--pine-dark); box-shadow: 0 0 0 1.5px var(--pine-dark) inset; }
+    .p-num.speaking { background: var(--amber-soft); border-color: var(--amber); box-shadow: 0 0 0 2px var(--amber) inset; }
+
+    /* Active participant strip */
+    .active-strip { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 30px; }
+    .p-name { font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 0.95rem; border: none; background: none; padding: 2px 4px; border-radius: 4px; width: 130px; }
+    .p-name:focus { background: var(--paper-dim); }
+    .active-strip .stats { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--ink-soft); }
+    .active-strip .floor-time { font-weight: 700; }
+    .active-strip .floor-time.live { color: var(--amber); }
+    .active-strip .points { font-family: 'IBM Plex Mono', monospace; font-weight: 700; color: var(--pine-dark); }
+
+    /* THE MAIN EVENT: trait grid fills all remaining space */
+    .trait-grid {
+      flex: 1 1 auto; min-height: 0;
+      display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr);
+      gap: 7px;
+    }
+    .tag-btn {
+      position: relative; border-radius: 12px; border: 1.5px solid var(--line);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+      background: #fff; padding: 4px; transition: transform 0.06s ease;
+      min-height: 0;
+    }
+    .tag-btn .emoji { font-size: clamp(1.1rem, 5vh, 1.6rem); line-height: 1; }
+    .tag-btn .label { font-size: 0.72rem; font-weight: 700; text-align: center; line-height: 1.1; }
+    .tag-btn .pt-badge { position: absolute; top: 5px; right: 7px; font-size: 0.62rem; font-weight: 800; font-family: 'IBM Plex Mono', monospace; }
+    .tag-btn.pos-btn { border-color: #BEE0CC; background: linear-gradient(180deg, #fff, var(--success-soft) 180%); }
+    .tag-btn.pos-btn .pt-badge { color: var(--pine); }
+    .tag-btn.neg-btn { border-color: #F0C9C4; background: linear-gradient(180deg, #fff, var(--danger-soft) 180%); }
+    .tag-btn.neg-btn .pt-badge { color: var(--danger); }
+    .tag-btn:active { transform: scale(0.94); }
+    .tag-btn.flash-pos { animation: flashPos 0.4s ease; }
+    .tag-btn.flash-neg { animation: flashNeg 0.4s ease; }
+    @keyframes flashPos { 0% { background: var(--success-soft); } 100% { background: #fff; } }
+    @keyframes flashNeg { 0% { background: var(--danger-soft); } 100% { background: #fff; } }
+
+    /* Last action strip */
+    .last-action { height: 24px; display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--ink-soft); padding: 0 2px; }
+    .last-action b { color: var(--ink); }
+    .last-action .undo-btn { background: none; border: none; color: var(--danger); font-size: 0.72rem; font-weight: 700; text-decoration: underline; padding: 0; }
+    .last-action .empty { font-style: italic; }
+
+    /* Bottom bar */
+    .bottom-bar { display: flex; gap: 6px; height: 40px; }
+    .bottom-bar button { flex: 1; border-radius: 8px; font-weight: 700; font-size: 0.78rem; border: none; }
+    .bottom-bar .csv-btn { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+    .bottom-bar .finish-btn { background: var(--danger); color: #fff; }
+
+    /* ---- Modal ---- */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(21,26,29,0.55); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal-card { background: var(--paper); border-radius: 14px; max-width: 380px; width: 100%; padding: 18px; border: 1px solid var(--line); box-shadow: 0 12px 32px rgba(21,26,29,0.25); }
+    .modal-card h2 { font-family: 'Source Serif 4', serif; font-size: 1.1rem; margin: 0 0 6px; }
+    .modal-card p { font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 12px; line-height: 1.5; }
+    .modal-card label { display: block; font-size: 0.68rem; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin: 10px 0 4px; }
+    .modal-card select, .modal-card input[type="text"] { width: 100%; font-family: inherit; font-size: 0.9rem; padding: 9px 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); }
+    .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .modal-actions button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 700; font-size: 0.85rem; }
+    .modal-actions .primary { background: var(--pine); color: #fff; }
+    .modal-actions .primary:disabled { background: var(--line); color: var(--ink-soft); }
+    .modal-actions .ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+    .modal-actions .danger { background: var(--danger); color: #fff; }
+    .modal-card .menu-item { display: block; width: 100%; text-align: left; padding: 10px 8px; border: none; background: none; font-size: 0.85rem; border-radius: 6px; }
+    .modal-card .menu-item:hover { background: var(--paper-dim); }
+    .modal-card .menu-item.danger-text { color: var(--danger); }
+
+    /* ---- Finish screen: full takeover, evaluator UI is hidden underneath ---- */
+    .finish-screen {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      height: 100dvh; width: 100%; max-width: 520px; margin: 0 auto;
+      padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
+      gap: 10px; text-align: center;
+    }
+    .finish-screen.show { display: flex; }
+    .finish-icon { font-size: 2.6rem; }
+    .finish-title { font-family: 'Source Serif 4', serif; font-size: 1.3rem; margin: 0; color: var(--pine-dark); }
+    .finish-summary { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; width: 100%; max-width: 340px; font-size: 0.82rem; color: var(--ink-soft); text-align: left; line-height: 1.8; }
+    .finish-summary b { color: var(--ink); display: inline-block; min-width: 78px; }
+    .finish-actions { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .pr-btn { background: var(--pine); color: #fff; border: none; border-radius: 10px; padding: 15px; font-weight: 700; font-size: 0.92rem; }
+    .pr-btn:active { background: var(--pine-dark); }
+    .pr-status { font-size: 0.72rem; color: var(--ink-soft); min-height: 16px; line-height: 1.5; }
+    .pr-status a { color: var(--pine); font-weight: 700; }
+    .new-gd-btn { background: transparent; border: 1.5px solid var(--line); color: var(--ink); border-radius: 10px; padding: 12px; font-weight: 700; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="row top-bar">
+    <span class="brand">GD Evaluator</span>
+    <button class="avatar-btn" id="avatarBtn" type="button" aria-label="Account menu">
+      <img id="userAvatar" src="" alt="">
+    </button>
+  </div>
+
+  <div class="row control-strip">
+    <div class="timer-display mono" id="globalTimer">00:00</div>
+    <button class="icon-btn" id="startPauseBtn" type="button">Start</button>
+    <button class="session-badge needs-setup" id="sessionBadge" type="button"></button>
+  </div>
+
+  <div class="row participant-bar" id="participantBar"></div>
+
+  <div class="row active-strip">
+    <input class="p-name" id="activePName" value="Participant 1" maxlength="20">
+    <div class="stats">
+      <span class="floor-time mono" id="activePTimer">00:00</span>
+      <span class="points" id="activePScore">0 pts</span>
+    </div>
+  </div>
+
+  <div class="row trait-grid" id="traitGrid">
+    <button class="tag-btn pos-btn" data-trait="Insightful" data-pts="10"><span class="pt-badge">+10</span><span class="emoji">💡</span><span class="label">Insightful</span></button>
+    <button class="tag-btn pos-btn" data-trait="Clear" data-pts="10"><span class="pt-badge">+10</span><span class="emoji">🗣️</span><span class="label">Clear</span></button>
+    <button class="tag-btn pos-btn" data-trait="Relevant" data-pts="10"><span class="pt-badge">+10</span><span class="emoji">🎯</span><span class="label">Relevant</span></button>
+    <button class="tag-btn pos-btn" data-trait="Built on Idea" data-pts="10"><span class="pt-badge">+10</span><span class="emoji">🤝</span><span class="label">Built on Idea</span></button>
+    <button class="tag-btn pos-btn" data-trait="Good Question" data-pts="10"><span class="pt-badge">+10</span><span class="emoji">❓</span><span class="label">Good Question</span></button>
+    <button class="tag-btn pos-btn" data-trait="Leadership" data-pts="10"><span class="pt-badge">+10</span><span class="emoji">⭐</span><span class="label">Leadership</span></button>
+    <button class="tag-btn neg-btn" data-trait="Interrupted" data-pts="-5"><span class="pt-badge">−5</span><span class="emoji">🚫</span><span class="label">Interrupted</span></button>
+    <button class="tag-btn neg-btn" data-trait="Off Topic" data-pts="-5"><span class="pt-badge">−5</span><span class="emoji">🌀</span><span class="label">Off Topic</span></button>
+    <button class="tag-btn neg-btn" data-trait="Repeated" data-pts="-5"><span class="pt-badge">−5</span><span class="emoji">🔁</span><span class="label">Repeated</span></button>
+    <button class="tag-btn neg-btn" data-trait="Dominated" data-pts="-5"><span class="pt-badge">−5</span><span class="emoji">🎤</span><span class="label">Dominated</span></button>
+    <button class="tag-btn neg-btn" data-trait="Low Participation" data-pts="-5"><span class="pt-badge">−5</span><span class="emoji">🤐</span><span class="label">Low Participation</span></button>
+    <button class="tag-btn neg-btn" data-trait="Unclear" data-pts="-5"><span class="pt-badge">−5</span><span class="emoji">❌</span><span class="label">Unclear</span></button>
+  </div>
+
+  <div class="row last-action mono" id="lastAction"><span class="empty">No taps yet</span></div>
+
+  <div class="row bottom-bar">
+    <button class="csv-btn" id="exportCsvBtn" type="button">Export CSV</button>
+    <button class="finish-btn" id="finishSessionBtn" type="button">Finish &amp; Download</button>
+  </div>
+</div>
+
+<!-- Generic modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card" id="modalCard"></div>
+</div>
+
+<!-- Shown after Finish & Download — replaces the evaluator entirely so it's unmistakable the session is over -->
+<div class="finish-screen" id="finishScreen">
+  <div class="finish-icon">✅</div>
+  <h2 class="finish-title">Discussion complete</h2>
+  <div class="finish-summary" id="finishSummary"></div>
+  <div class="finish-actions">
+    <button type="button" class="pr-btn" id="prBtn">Give Pull Request to GitHub</button>
+    <div class="pr-status" id="prStatus"></div>
+    <button type="button" class="new-gd-btn" id="newGdBtn">Start New Group Discussion</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // ---------------- Auth ----------------
+  const GH = window.GH || {};
+  const avatarEl = document.getElementById('userAvatar');
+  avatarEl.src = GH.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(GH.name || GH.username || 'GD')}`;
+  avatarEl.alt = GH.name || GH.username || 'User avatar';
+
+  document.getElementById('avatarBtn').onclick = () => {
+    openModal(`
+      <h2>${GH.name || GH.username || 'Evaluator'}</h2>
+      <p>${GH.dept ? 'Department: ' + GH.dept : 'No department on file'}</p>
+      <button type="button" class="menu-item" id="editSessionFromMenu">Edit discussion setup</button>
+      <button type="button" class="menu-item danger-text" id="logoutMenuItem">Log out</button>
+      <div class="modal-actions"><button type="button" class="ghost" id="closeMenuBtn">Close</button></div>
+    `);
+    document.getElementById('closeMenuBtn').onclick = closeModal;
+    document.getElementById('editSessionFromMenu').onclick = () => { closeModal(); openSetupModal(); };
+    document.getElementById('logoutMenuItem').onclick = () => {
+      openModal(`
+        <h2>Log out?</h2>
+        <p>You'll need to sign in again to reach the evaluator.</p>
+        <div class="modal-actions">
+          <button type="button" class="ghost" id="cancelLogout">Cancel</button>
+          <button type="button" class="danger" id="confirmLogout">Log out</button>
+        </div>
+      `);
+      document.getElementById('cancelLogout').onclick = closeModal;
+      document.getElementById('confirmLogout').onclick = () => {
+        ['logged_in','auth_provider','github_username','github_id','github_profile','avatar','userName','userDept']
+          .forEach(k => localStorage.removeItem(k));
+        window.location.replace('/verve/auth.html');
+      };
+    };
+  };
+
+  // ---------------- Modal helper ----------------
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalCard = document.getElementById('modalCard');
+  function openModal(html) { modalCard.innerHTML = html; modalOverlay.classList.add('open'); }
+  function closeModal() { modalOverlay.classList.remove('open'); modalCard.innerHTML = ''; }
+  modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) { /* require explicit action, no accidental dismiss mid-session */ } });
+
+  // ---------------- State ----------------
+  const DRAFT_KEY = 'gd_draft_v1';
+  const DEPARTMENTS = ['Cyber Security','CSE','EIE','Marketing','Sales','Human Resources','Finance','Operations','Customer Success','Other'];
+
+  let state = null; // built below, either fresh or restored
+
+  function freshState() {
+    return {
+      sessionId: 'GD-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.random().toString(36).slice(2,6).toUpperCase(),
+      dept: '', topic: '',
+      participants: Array.from({ length: 10 }, (_, i) => ({ id: i + 1, name: `Participant ${i + 1}`, score: 0, speakMs: 0, traits: [] })),
+      activeIndex: 0,
+      speakingIndex: null,
+      floorStartTs: null,
+      globalStartTs: null,
+      globalElapsedMs: 0,
+      finished: false,
+      seq: 0
+    };
+  }
+
+  function loadDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || parsed.finished) return null;
+      return parsed;
+    } catch { return null; }
+  }
+
+  let saveTimer = null;
+  function saveDraft() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch {}
+    }, 200);
+  }
+
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch {} }
+
+  // ---------------- DOM refs ----------------
+  const globalTimerEl = document.getElementById('globalTimer');
+  const startPauseBtn = document.getElementById('startPauseBtn');
+  const sessionBadge = document.getElementById('sessionBadge');
+  const participantBarEl = document.getElementById('participantBar');
+  const activePNameEl = document.getElementById('activePName');
+  const activePTimerEl = document.getElementById('activePTimer');
+  const activePScoreEl = document.getElementById('activePScore');
+  const lastActionEl = document.getElementById('lastAction');
+  const traitGrid = document.getElementById('traitGrid');
+  const appEl = document.querySelector('.app');
+  const finishScreen = document.getElementById('finishScreen');
+  const finishSummary = document.getElementById('finishSummary');
+  const prBtn = document.getElementById('prBtn');
+  const prStatus = document.getElementById('prStatus');
+  const newGdBtn = document.getElementById('newGdBtn');
+
+  function formatTime(ms) {
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60).toString().padStart(2, '0');
+    const s = (totalSec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  // ---------------- Accurate timers (timestamp-based, not tick-counted) ----------------
+  function currentGlobalMs() {
+    return state.globalElapsedMs + (state.globalStartTs ? Date.now() - state.globalStartTs : 0);
+  }
+  function currentSpeakMs(idx) {
+    const p = state.participants[idx];
+    const extra = (state.speakingIndex === idx && state.floorStartTs) ? Date.now() - state.floorStartTs : 0;
+    return p.speakMs + extra;
+  }
+
+  let renderLoop = null;
+  function tick() {
+    globalTimerEl.textContent = formatTime(currentGlobalMs());
+    if (state.speakingIndex !== null) {
+      const p = state.participants[state.speakingIndex];
+      p.speakMs = currentSpeakMs(state.speakingIndex);
+      // re-baseline so we don't double count between ticks
+      if (state.floorStartTs) { state.floorStartTs = Date.now(); }
+    }
+    updateActiveStrip();
+  }
+  function startRenderLoop() {
+    if (renderLoop) return;
+    renderLoop = setInterval(tick, 500);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') tick(); // resync instantly after throttling
+  });
+
+  // ---------------- Rendering ----------------
+  function renderParticipantBar() {
+    participantBarEl.innerHTML = '';
+    state.participants.forEach((p, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `p-num ${idx === state.activeIndex ? 'active' : ''} ${idx === state.speakingIndex ? 'speaking' : ''}`;
+      btn.textContent = String(idx + 1);
+      btn.setAttribute('aria-label', `${p.name}${idx === state.speakingIndex ? ', speaking now' : ''}`);
+      btn.onclick = () => handleParticipantTap(idx);
+      participantBarEl.appendChild(btn);
+    });
+  }
+
+  function updateActiveStrip() {
+    const p = state.participants[state.activeIndex];
+    if (document.activeElement !== activePNameEl) activePNameEl.value = p.name;
+    activePScoreEl.textContent = `${p.score} pts`;
+    const live = state.speakingIndex === state.activeIndex;
+    activePTimerEl.textContent = formatTime(currentSpeakMs(state.activeIndex));
+    activePTimerEl.classList.toggle('live', live);
+  }
+
+  function renderSessionBadge() {
+    if (state.dept) {
+      sessionBadge.classList.remove('needs-setup');
+      sessionBadge.innerHTML = `<b>${state.dept}</b>${state.topic ? '· ' + state.topic : ''}`;
+    } else {
+      sessionBadge.classList.add('needs-setup');
+      sessionBadge.textContent = 'Tap to set department →';
+    }
+  }
+
+  function renderLastAction() {
+    let last = null, lastName = null;
+    state.participants.forEach(p => p.traits.forEach(t => {
+      if (!last || t._seq > last._seq) { last = t; lastName = p.name; }
+    }));
+    if (!last) { lastActionEl.innerHTML = '<span class="empty">No taps yet</span>'; return; }
+    lastActionEl.innerHTML = `<span><b>${lastName}</b>: ${last.pts > 0 ? '+' : ''}${last.pts} ${last.trait} · ${last.ts}</span><button type="button" class="undo-btn" id="undoBtn">undo</button>`;
+    document.getElementById('undoBtn').onclick = undoLast;
+  }
+
+  function renderAll() {
+    renderParticipantBar();
+    updateActiveStrip();
+    renderSessionBadge();
+    renderLastAction();
+    startPauseBtn.textContent = state.globalStartTs ? 'Pause' : 'Start';
+  }
+
+  // ---------------- Interactions ----------------
+  function requireSetupOrPrompt() {
+    if (!state.dept) { openSetupModal(); return false; }
+    return true;
+  }
+
+  function startGlobal() {
+    if (!state.globalStartTs) { state.globalStartTs = Date.now(); startRenderLoop(); }
+  }
+  function pauseAll() {
+    if (state.globalStartTs) { state.globalElapsedMs += Date.now() - state.globalStartTs; state.globalStartTs = null; }
+    if (state.floorStartTs !== null && state.speakingIndex !== null) {
+      state.participants[state.speakingIndex].speakMs = currentSpeakMs(state.speakingIndex);
+      state.floorStartTs = null;
+    }
+    state.speakingIndex = null;
+    renderAll();
+    saveDraft();
+  }
+
+  startPauseBtn.onclick = () => {
+    if (state.globalStartTs) { pauseAll(); return; }
+    if (!requireSetupOrPrompt()) return;
+    startGlobal();
+    renderAll();
+    saveDraft();
+  };
+
+  function handleParticipantTap(idx) {
+    state.activeIndex = idx;
+    if (!state.globalStartTs) {
+      if (!requireSetupOrPrompt()) { renderAll(); return; }
+      startGlobal();
+    }
+    if (state.speakingIndex === idx) {
+      // pause this speaker's floor time
+      state.participants[idx].speakMs = currentSpeakMs(idx);
+      state.floorStartTs = null;
+      state.speakingIndex = null;
+    } else {
+      if (state.speakingIndex !== null) {
+        state.participants[state.speakingIndex].speakMs = currentSpeakMs(state.speakingIndex);
+      }
+      state.speakingIndex = idx;
+      state.floorStartTs = Date.now();
+    }
+    renderAll();
+    saveDraft();
+  }
+
+  activePNameEl.addEventListener('input', () => {
+    const p = state.participants[state.activeIndex];
+    p.name = activePNameEl.value.trim() || `Participant ${p.id}`;
+    renderParticipantBar();
+    saveDraft();
+  });
+
+  traitGrid.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tag-btn');
+    if (!btn) return;
+    if (!state.dept) { requireSetupOrPrompt(); return; }
+    if (!state.globalStartTs) startGlobal();
+    const trait = btn.dataset.trait;
+    const pts = parseInt(btn.dataset.pts, 10);
+    const p = state.participants[state.activeIndex];
+    p.score += pts;
+    p.traits.push({ trait, pts, ts: formatTime(currentGlobalMs()), _seq: state.seq++ });
+    btn.classList.remove('flash-pos', 'flash-neg');
+    void btn.offsetWidth;
+    btn.classList.add(pts > 0 ? 'flash-pos' : 'flash-neg');
+    updateActiveStrip();
+    renderLastAction();
+    saveDraft();
+  });
+
+  function undoLast() {
+    let target = null, targetP = null;
+    state.participants.forEach(p => p.traits.forEach(t => {
+      if (!target || t._seq > target._seq) { target = t; targetP = p; }
+    }));
+    if (!targetP) return;
+    const idx = targetP.traits.indexOf(target);
+    targetP.traits.splice(idx, 1);
+    targetP.score -= target.pts;
+    updateActiveStrip();
+    renderLastAction();
+    saveDraft();
+  }
+
+  // ---------------- Setup modal (department / topic) ----------------
+  function openSetupModal() {
+    openModal(`
+      <h2>Discussion setup</h2>
+      <p>Pick a department before scoring starts. This is stamped on the session report.</p>
+      <label for="deptSelect">Department</label>
+      <select id="deptSelect">
+        <option value="">Select department…</option>
+        ${DEPARTMENTS.map(d => `<option ${state.dept === d ? 'selected' : ''}>${d}</option>`).join('')}
+      </select>
+      <label for="topicInput">Topic (optional)</label>
+      <input type="text" id="topicInput" placeholder="e.g. Remote work vs office" value="${state.topic ? state.topic.replace(/"/g,'&quot;') : ''}">
+      <div class="modal-actions">
+        <button type="button" class="ghost" id="setupCancel">${state.dept ? 'Close' : 'Later'}</button>
+        <button type="button" class="primary" id="setupSave" ${state.dept ? '' : 'disabled'}>Save</button>
+      </div>
+    `);
+    const deptSelect = document.getElementById('deptSelect');
+    const saveBtn = document.getElementById('setupSave');
+    deptSelect.onchange = () => { saveBtn.disabled = !deptSelect.value; };
+    document.getElementById('setupCancel').onclick = closeModal;
+    saveBtn.onclick = () => {
+      state.dept = deptSelect.value;
+      state.topic = document.getElementById('topicInput').value.trim();
+      renderSessionBadge();
+      saveDraft();
+      closeModal();
+    };
+  }
+  sessionBadge.onclick = openSetupModal;
+
+  // ---------------- Resume-draft prompt ----------------
+  function offerResumeIfAny() {
+    const draft = loadDraft();
+    if (!draft) { state = freshState(); afterStateReady(); return; }
+    openModal(`
+      <h2>Resume session?</h2>
+      <p>Found an unfinished session <b>${draft.sessionId}</b>${draft.dept ? ' for ' + draft.dept : ''}. Pick up where you left off, or discard it and start fresh.</p>
+      <div class="modal-actions">
+        <button type="button" class="ghost" id="discardDraft">Discard</button>
+        <button type="button" class="primary" id="resumeDraft">Resume</button>
+      </div>
+    `);
+    document.getElementById('discardDraft').onclick = () => { clearDraft(); state = freshState(); closeModal(); afterStateReady(); };
+    document.getElementById('resumeDraft').onclick = () => {
+      state = draft;
+      backfillLegacySeq();
+      closeModal();
+      afterStateReady();
+    };
+  }
+
+  // Only relevant for drafts saved before sequence numbers existed; new sessions always have _seq.
+  function backfillLegacySeq() {
+    if (typeof state.seq !== 'number') state.seq = 0;
+    let needsBackfill = false;
+    state.participants.forEach(p => p.traits.forEach(t => { if (t._seq === undefined) needsBackfill = true; }));
+    if (!needsBackfill) return;
+    let seq = 0;
+    state.participants.forEach(p => p.traits.forEach(t => { t._seq = seq++; }));
+    state.seq = seq;
+  }
+
+  function afterStateReady() {
+    renderAll();
+    if (!state.dept) openSetupModal();
+    startRenderLoop();
+  }
+
+  // ---------------- Confirm-before-finish ----------------
+  function reportMeta() {
+    return {
+      timestamp: new Date().toISOString(),
+      sessionId: state.sessionId,
+      department: state.dept || 'Not set',
+      topic: state.topic || 'Not specified',
+      evaluator: GH.name || GH.username || 'Unknown',
+      duration: formatTime(currentGlobalMs())
+    };
+  }
+
+  function generateHTMLReport() {
+    const meta = reportMeta();
+    const ranked = [...state.participants].sort((a, b) => b.score - a.score);
+    const rows = ranked.map((p, i) => `
+      <tr>
+        <td style="padding:10px;border:1px solid #ddd;">${i + 1}</td>
+        <td style="padding:10px;border:1px solid #ddd;"><strong>${p.name}</strong></td>
+        <td style="padding:10px;border:1px solid #ddd;text-align:center;">${p.score}</td>
+        <td style="padding:10px;border:1px solid #ddd;text-align:center;">${formatTime(p.speakMs)}</td>
+        <td style="padding:10px;border:1px solid #ddd;">
+          ${p.traits.length === 0 ? '<em>No traits recorded</em>' : p.traits.map(t => `<span style="display:inline-block;background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:12px;margin:2px;">[${t.ts}] ${t.trait} (${t.pts > 0 ? '+' : ''}${t.pts})</span>`).join(' ')}
+        </td>
+      </tr>`).join('');
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>GD Session Report - ${meta.sessionId}</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;color:#23292E;max-width:900px;margin:30px auto;padding:20px;}h1{color:#1F5E52;border-bottom:2px solid #1F5E52;padding-bottom:8px;}.meta{background:#FBF8F2;padding:12px 16px;border-radius:8px;margin-bottom:20px;border:1px solid #D8D2C0;}.meta p{margin:4px 0;}table{width:100%;border-collapse:collapse;margin-top:10px;}th{background:#1F5E52;color:white;padding:10px;border:1px solid #1F5E52;text-align:left;}@media print{body{margin:0;}}</style>
+</head><body>
+<h1>GD Evaluation Session Data</h1>
+<div class="meta">
+<p><strong>Session ID:</strong> ${meta.sessionId}</p>
+<p><strong>Date/Time:</strong> ${meta.timestamp}</p>
+<p><strong>Department:</strong> ${meta.department}</p>
+<p><strong>Topic:</strong> ${meta.topic}</p>
+<p><strong>Evaluator:</strong> ${meta.evaluator}</p>
+<p><strong>Total Session Duration:</strong> ${meta.duration}</p>
+</div>
+<h2>Participant Performance Breakdown (ranked)</h2>
+<table><thead><tr><th>Rank</th><th>Participant</th><th>Total Score</th><th>Speaking Time</th><th>Recorded Trait Behaviors</th></tr></thead><tbody>${rows}</tbody></table>
+</body></html>`;
+  }
+
+  function generateCSV() {
+    const meta = reportMeta();
+    const ranked = [...state.participants].sort((a, b) => b.score - a.score);
+    const lines = [`# Session ${meta.sessionId} | ${meta.department} | ${meta.topic} | Evaluator: ${meta.evaluator} | Duration: ${meta.duration}`];
+    lines.push(['Rank','Participant','Score','SpeakTimeSeconds','TraitCount','Traits'].join(','));
+    ranked.forEach((p, i) => {
+      const traitsStr = p.traits.map(t => `${t.trait}(${t.pts>0?'+':''}${t.pts}@${t.ts})`).join(' | ').replace(/,/g, ';');
+      lines.push([i+1, `"${p.name}"`, p.score, Math.floor(p.speakMs/1000), p.traits.length, `"${traitsStr}"`].join(','));
+    });
+    return lines.join('\n');
+  }
+
+  function downloadBlob(content, type, filename) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById('exportCsvBtn').onclick = () => downloadBlob(generateCSV(), 'text/csv', `${state.sessionId}.csv`);
+
+  const GH_REPO = 'andrewveda/gd';
+  const GH_BRANCH = 'main';
+  // GitHub's server rejects overly long query strings; stay well under that so the prefill reliably works.
+  const GH_URL_SAFE_LIMIT = 7000;
+
+  function buildGithubNewFileUrl(filename, content) {
+    const params = new URLSearchParams({ filename, value: content });
+    return `https://github.com/${GH_REPO}/new/${GH_BRANCH}?${params.toString()}`;
+  }
+  function buildGithubUploadUrl() {
+    return `https://github.com/${GH_REPO}/upload/${GH_BRANCH}`;
+  }
+
+  document.getElementById('finishSessionBtn').onclick = () => {
+    openModal(`
+      <h2>Finish this discussion?</h2>
+      <p>This ends the session and downloads the report. The scoring screen goes away — can't be undone, so make sure everyone's been scored.</p>
+      <div class="modal-actions">
+        <button type="button" class="ghost" id="finishCancel">Keep going</button>
+        <button type="button" class="danger" id="finishConfirm">Finish &amp; download</button>
+      </div>
+    `);
+    document.getElementById('finishCancel').onclick = closeModal;
+    document.getElementById('finishConfirm').onclick = () => {
+      pauseAll();
+      const reportHTML = generateHTMLReport();
+      const filename = `${state.sessionId}.html`;
+      downloadBlob(reportHTML, 'text/html', filename);
+      state.finished = true;
+      clearDraft();
+      closeModal();
+      showFinishScreen(reportHTML, filename);
+    };
+  };
+
+  function showFinishScreen(reportHTML, filename) {
+    const meta = reportMeta();
+    const scoredCount = state.participants.filter(p => p.traits.length > 0).length;
+    finishSummary.innerHTML = `
+      <div><b>Session</b> ${meta.sessionId}</div>
+      <div><b>Department</b> ${meta.department}</div>
+      <div><b>Topic</b> ${meta.topic}</div>
+      <div><b>Duration</b> ${meta.duration}</div>
+      <div><b>Scored</b> ${scoredCount} of ${state.participants.length} participants</div>
+      <div><b>File</b> ${filename}</div>
+    `;
+    prStatus.textContent = '';
+    prBtn.onclick = () => openGithubPR(reportHTML, filename);
+    appEl.style.display = 'none';
+    finishScreen.classList.add('show');
+  }
+
+  function openGithubPR(reportHTML, filename) {
+    const prefillUrl = buildGithubNewFileUrl(filename, reportHTML);
+    const fitsInUrl = prefillUrl.length <= GH_URL_SAFE_LIMIT;
+    const ghUrl = fitsInUrl ? prefillUrl : buildGithubUploadUrl();
+    const opened = window.open(ghUrl, '_blank');
+    if (fitsInUrl) {
+      prStatus.innerHTML = opened
+        ? 'GitHub opened with the file pre-filled — name the PR and hit "Propose new file."'
+        : `Popup blocked — <a href="${ghUrl}" target="_blank">tap here to open GitHub</a>.`;
+    } else {
+      prStatus.innerHTML = opened
+        ? `Report was too large to pre-fill — GitHub's upload page is open, drag <b>${filename}</b> in, then propose the change.`
+        : `Popup blocked — <a href="${ghUrl}" target="_blank">tap here to open the upload page</a>, then drag <b>${filename}</b> in.`;
+    }
+  }
+
+  newGdBtn.onclick = () => {
+    finishScreen.classList.remove('show');
+    appEl.style.display = '';
+    state = freshState();
+    afterStateReady();
+  };
+
+  // ---------------- Boot ----------------
+  offerResumeIfAny();
+})();
+</script>
+</body>
+</html>
