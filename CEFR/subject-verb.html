@@ -865,11 +865,11 @@ async function loadPlayerHistory(name){
     questList.forEach(q=>{
       if(typeof q !== 'string') return;
       let ruleNum = null, mastered = false;
-      if(q.startsWith("Rule ")){
-        ruleNum = parseInt(q.replace("Rule ",""),10);
+      if(q.startsWith("Quest Rule ")){
+        ruleNum = parseInt(q.replace("Quest Rule ",""),10);
         mastered = true;
-      } else if(q.startsWith("Rules ")){
-        ruleNum = parseInt(q.replace("Rules ",""),10);
+      } else if(q.startsWith("Quest Rules ")){
+        ruleNum = parseInt(q.replace("Quest Rules ",""),10);
         mastered = false;
       }
       if(ruleNum && !isNaN(ruleNum)){
