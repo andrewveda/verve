@@ -598,7 +598,7 @@ function generateStatsImage(s, playerName, playerDept) {
   ctx.font = '24px Nunito, sans-serif';
   ctx.fillStyle = '#8b6914';
   ctx.textAlign = 'center';
-  ctx.fillText('andrewveda.github.io/SRM-VEC-English-PWA/buttons/wordle', canvas.width / 2, y_footer + 20);
+  ctx.fillText('andrewveda.com/verve/buttons/wordle-hub', canvas.width / 2, y_footer + 20);
 
   return canvas.toDataURL('image/png');
 }
@@ -882,7 +882,7 @@ function showEndScreen(){
   }
   launchFireworks(innerWidth/2,innerHeight/3);
   document.getElementById('playAgainBtn').onclick=startGame;
-  document.getElementById('leaderboardBtn').onclick=()=>window.open('https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/wordleleaderboard','_blank');
+  document.getElementById('leaderboardBtn').onclick=()=>window.open('https://andrewveda.com/verve/buttons/wordleleaderboard','_blank');
   document.getElementById('shareBtn').onclick=()=>shareOnWhatsApp(s,sName,sDept);
 }
 
@@ -911,7 +911,7 @@ function shareOnWhatsApp(s,playerName,playerDept){
     const file=new File([blob],'wordle-blitz-stats.png',{type:'image/png'});
     if(navigator.share&&navigator.canShare?.({files:[file]})){
       const grids=s.solvedLog.filter(e=>!e.failed).map(e=>`${e.word.toUpperCase()}: ${e.grid.split('\n')[0]}`).join('\n');
-      navigator.share({title:'Wordle Blitz Stats',text:`⚡ Wordle Blitz — I solved ${s.wordsSolved} words and scored ${s.score} pts!\n\n${grids}\n\n🎯 Try it: https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/wordle`,files:[file]}).catch(()=>fallbackShare(s));
+      navigator.share({title:'Wordle Blitz Stats',text:`⚡ Wordle Blitz — I solved ${s.wordsSolved} words and scored ${s.score} pts!\n\n${grids}\n\n🎯 Try it: https://andrewveda.com/verve/buttons/wordle-hub`,files:[file]}).catch(()=>fallbackShare(s));
     }else{
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wordle-blitz-stats.png';a.click();
       setTimeout(()=>URL.revokeObjectURL(a.href),5000);
@@ -921,7 +921,7 @@ function shareOnWhatsApp(s,playerName,playerDept){
 }
 function fallbackShare(s){
   const grids=s.solvedLog.filter(e=>!e.failed).map(e=>`${e.word.toUpperCase()}: ${e.grid.split('\n')[0]}`).join('\n');
-  window.open(`https://wa.me/?text=${encodeURIComponent(`⚡ Wordle Blitz — I solved ${s.wordsSolved} words and scored ${s.score} pts!\n\n${grids}\n\n🎯 Try it: https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/wordle`)}`,'_blank');
+  window.open(`https://wa.me/?text=${encodeURIComponent(`⚡ Wordle Blitz — I solved ${s.wordsSolved} words and scored ${s.score} pts!\n\n${grids}\n\n🎯 Try it: https://andrewveda.com/verve/buttons/wordle-hub`)}`,'_blank');
 }
 
 /* ── SKIP — FIX: guard transitioning immediately, not inside timeout ── */
