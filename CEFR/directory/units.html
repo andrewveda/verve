@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
-  <title>Grammar Press</title>
+  <title>Grammar with Verve</title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -280,7 +280,7 @@
 <div class="screen active" id="nameForm">
   <div class="gate-card">
     <div class="hero-quote">
-      <div class="hero-text">Grammar Press</div>
+      <div class="hero-text">Grammar with Verve</div>
       <div class="hero-author" id="heroIcon">📐✨</div>
     </div>
     <div class="gate-label">Your Name</div>
@@ -339,7 +339,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
         </button>
       </div>
-      <div class="brand"><h1>Herbari<span>✿</span>m</h1><div class="sub" id="brandSub">Grammar Press</div></div>
+      <div class="brand"><h1>Grammar with Verve</h1><div class="sub" id="brandSub"></div></div>
       <div class="timer-pill">
         <div class="timer-text" id="timerText">00:00</div>
       </div>
@@ -395,7 +395,7 @@
 <div class="screen" id="endScreen">
   <div class="end-card">
     <div class="end-title" id="endTitle">🌿 Collection Closed</div>
-    <div class="end-subtitle" id="endSubtitle">Grammar Press</div>
+    <div class="end-subtitle" id="endSubtitle">Grammar with Verve</div>
     <div class="end-stats">
       <div class="stat-box"><div class="stat-num" id="endScore">0</div><div class="stat-lbl">Score</div></div>
       <div class="stat-box"><div class="stat-num" id="endSentences">0</div><div class="stat-lbl">Pressed</div></div>
@@ -1007,8 +1007,8 @@ function showEndScreen(){
 
 function shareResult(){
   const top = completedList.slice().sort((a,b)=>b.pts-a.pts).slice(0,3).map(s=>`"${s.text}" (+${s.pts}) [${s.rule}]`).join('\n');
-  const msg=`🌿 Grammar Press — ${topicName}\n${playerName} (${playerDept})\nScore: ${score} pts · Time: ${document.getElementById('timerText').textContent} · ${completedCount} sentences · ${getRank(score).name}\n${top?'\nTop specimens:\n'+top+'\n':''}\nPress your own sentences!`;
-  if(navigator.share){ navigator.share({title:'Grammar Press',text:msg}).catch(()=>{}); }
+  const msg=`🌿 Grammar with Verve — ${topicName}\n${playerName} (${playerDept})\nScore: ${score} pts · Time: ${document.getElementById('timerText').textContent} · ${completedCount} sentences · ${getRank(score).name}\n${top?'\nTop specimens:\n'+top+'\n':''}\nPress your own sentences!`;
+  if(navigator.share){ navigator.share({title:'Grammar with Verve',text:msg}).catch(()=>{}); }
   else { window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); }
 }
 
