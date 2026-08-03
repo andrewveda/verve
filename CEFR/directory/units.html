@@ -519,8 +519,11 @@ async function loadPlayerHistory(name){
     console.log("quest_list:", player.quest_list);
     console.log("typeof quest_list:", typeof player.quest_list);
 
-    const questList = player.quest_list || [];
-
+const questList = (player.quest_list || "")
+  .split(",")
+  .map(q => q.trim())
+  .filter(Boolean);
+    
     console.log("questList:", questList);
 
     questList.forEach(q=>{
