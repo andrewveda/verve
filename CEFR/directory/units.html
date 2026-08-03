@@ -487,34 +487,74 @@ function getBestKey(){ return 'grammarPress_' + topicSlug + '_best'; }
 async function loadPlayerHistory(name){
   loadedRuleStatus = new Map();
   if(!name) return;
+
   try{
     const supabase = await getSupabaseClient();
-   const { data } = await supabase
-  .from("report_card_view")
-  .select("quest_list")
-  .ilike("name", name)
-  .limit(1);
-    if(error || !data){ console.warn("No prior history found for", name, error || ''); return; }
-    const questList = data.quest_list || [];
-    questList.forEach(q=>{
-      if(typeof q !== 'string') return;
-      let ruleNum = null, mastered = false;
 
-if (q.startsWith("Quest Rule ")) {
-    ruleNum = parseInt(q.replace("Quest Rule ",""),10);
-    mastered = true;
-}
-else if (q.startsWith("Quest Rules ")) {
-    ruleNum = parseInt(q.replace("Quest Rules ",""),10);
-    mastered = false;
-}
+    const { data, error } = await supabase
+      .from("report_card_view")
+      .select("*")
+      .ilike("name", name);
+
+    console.group("Player History");
+    console.log("Searching for:", name);
+    console.log("Supabase error:", error);
+    console.log("Rows returned:", data?.length);
+    console.log("Data:", data);
+    console.groupEnd();
+
+    if(error){
+      console.error(error);
+      return;
+    }
+
+    if(!data || data.length === 0){
+      console.warn("No player history found.");
+      return;
+    }
+
+    const player = data[0];
+
+    console.log("Selected row:", player);
+    console.log("quest_list:", player.quest_list);
+    console.log("typeof quest_list:", typeof player.quest_list);
+
+    const questList = player.quest_list || [];
+
+    console.log("questList:", questList);
+
+    questList.forEach(q=>{
+      console.log("Processing:", q);
+
+      let ruleNum = null;
+      let mastered = false;
+
+      if(q.startsWith("Quest Rule ")){
+        ruleNum = parseInt(q.replace("Quest Rule ",""),10);
+        mastered = true;
+      }
+      else if(q.startsWith("Quest Rules ")){
+        ruleNum = parseInt(q.replace("Quest Rules ",""),10);
+        mastered = false;
+      }
+
+      console.log({
+        q,
+        ruleNum,
+        mastered
+      });
+
       if(ruleNum && !isNaN(ruleNum)){
         const idx = ruleNum - 1;
-        if(mastered){ loadedRuleStatus.set(idx, 'mastered'); }
-        else if(loadedRuleStatus.get(idx) !== 'mastered'){ loadedRuleStatus.set(idx, 'practiced'); }
+        loadedRuleStatus.set(idx, mastered ? "mastered" : "practiced");
       }
     });
-  }catch(err){ console.error("Could not load player history:", err); }
+
+    console.log("Loaded rule status:", [...loadedRuleStatus]);
+
+  }catch(err){
+    console.error("Could not load player history:", err);
+  }
 }
 
 /* ═══════════════ LOAD TOPIC JSON ═══════════════ */
