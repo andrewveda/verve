@@ -270,6 +270,7 @@
     .study-practiced-badge{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--moss);letter-spacing:.03em;}
     .study-empty{text-align:center;padding:32px 0;font-family:'Fraunces',serif;font-style:italic;font-size:.95rem;color:var(--ink-muted);}
   </style>
+<base target="_blank">
 </head>
 <body>
 <div class="toast" id="toast"></div>
@@ -286,6 +287,7 @@
     <div class="gate-label">Department</div>
     <select id="departmentSelect">
       <option value="">-- Select Department --</option>
+      <option value="CSI Ewart">CSI Ewart</option>
       <option value="Cyber Security">Cyber Security</option>
       <option value="EIE">EIE</option>
       <option value="CSE-1">CSE-1</option>
@@ -1065,6 +1067,8 @@ function beginQuiz(){
   errEl.textContent = '';
   playerName = name;
   playerDept = dept;
+  localStorage.setItem("userName", name);
+  localStorage.setItem("userDept", dept);
 
   document.getElementById('nameForm').classList.remove('active');
   document.getElementById('gameScreen').classList.add('active');
@@ -1567,6 +1571,20 @@ function shareResult(){
     window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
   }
 }
+/* ═══════════════ AUTO-LOAD FROM LOCALSTORAGE ═══════════════ */
+document.addEventListener("DOMContentLoaded", () => {
+  const savedName = localStorage.getItem("userName");
+  const savedDept = localStorage.getItem("userDept");
+  if (savedName && savedDept) {
+    playerName = savedName;
+    playerDept = savedDept;
+    document.getElementById("nameInput").value = savedName;
+    document.getElementById("departmentSelect").value = savedDept;
+    document.getElementById("nameForm").classList.remove("active");
+    document.getElementById("gameScreen").classList.add("active");
+    newGame();
+  }
+});
 </script>
 </body>
 </html>
