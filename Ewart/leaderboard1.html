@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Communicate to Lead — Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabase = createClient(
+      "https://yellow-lab-4999.andrewveda.workers.dev",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE"
+    );
+
+    let filteredData = [];
+    let reportData = [];
+    let currentSort = "last_test_taken";
+    let sortAscending = false;
+    let lastTestInfo = { name: "", date: "" };
+    let showSecondsOnly = false;
+    let searchQuery = "";
+    let maxScore = 0;
+
+    async function loadData() {
+      showSkeleton(true);
+      const { data, error } = await supabase.from("report_card_view").select("*");
+      showSkeleton(false);
+
+      if (error) {
+        console.error(error);
+        showToast("Unable to load leaderboard data.", "error");
+        return;
+      }
+
+      reportData = (data || []).filter(
+        s => (s.department || "").trim().toUpperCase() === "CSI EWART"
+      );
+      filteredData = [...reportData];
+      maxScore = Math.max(...reportData.map(s => s.total_score || 0), 1);
+
+      if (reportData.length > 0) {
+        const sorted = [...reportData].sort((a, b) => new Date(b.last_test_taken) - new Date(a.last_test_taken));
+        lastTestInfo = { name: sorted[0].name, date: formatDate(sorted[0].last_test_taken) };
+        document.getElementById("last-test-info").textContent = `${lastTestInfo.name} · ${lastTestInfo.date}`;
+        animateCounters();
+      } else {
+        document.getElementById("last-test-info").textContent = "Awaiting first activity log...";
+      }
+
+      sortData(currentSort, false);
+    }
+
+    function showSkeleton(show) {
+      const lb = document.getElementById("leaderboard");
+      if (!show) {
+        lb.innerHTML = `<div class="leaderboard-header-row"><div>Rank</div><div>Student</div><div>Metric</div></div>`;
+        return;
+      }
+      let html = `<div class="leaderboard-header-row"><div>Rank</div><div>Student</div><div>Metric</div></div>`;
+      for (let i = 0; i < 8; i++) {
+        html += `
+          <div class="leaderboard-row skeleton-row">
+            <div class="rank"><div class="skeleton" style="width:24px;height:24px;border-radius:50%"></div></div>
+            <div class="name">
+              <div class="skeleton" style="width:140px;height:14px;border-radius:6px;margin-bottom:8px"></div>
+              <div class="skeleton" style="width:80px;height:10px;border-radius:4px"></div>
+            </div>
+            <div class="score"><div class="skeleton" style="width:60px;height:20px;border-radius:6px"></div></div>
+          </div>`;
+      }
+      lb.innerHTML = html;
+    }
+
+    function animateCounters() {
+      const els = document.querySelectorAll("[data-count]");
+      els.forEach(el => {
+        const target = parseInt(el.dataset.count);
+        const duration = 1200;
+        const start = performance.now();
+        const step = (now) => {
+          const progress = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.floor(ease * target).toLocaleString();
+          if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return "N/A";
+      return new Date(dateStr).toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: true
+      });
+    }
+
+    function formatSecondsOnly(seconds) {
+      if (!seconds) return "0s";
+      return `${Math.round(seconds)}s`;
+    }
+
+    function formatTime(seconds) {
+      if (!seconds && seconds !== 0) return `<span class="time-block"><span class="time-num">0</span><span class="time-unit">h</span></span><span class="time-block"><span class="time-num">0</span><span class="time-unit">m</span></span><span class="time-block"><span class="time-num">0</span><span class="time-unit">s</span></span>`;
+      seconds = Math.round(seconds);
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      return `<span class="time-block"><span class="time-num">${h}</span><span class="time-unit">h</span></span><span class="time-block"><span class="time-num">${m}</span><span class="time-unit">m</span></span><span class="time-block"><span class="time-num">${s}</span><span class="time-unit">s</span></span>`;
+    }
+
+    function getInitials(name) {
+      return name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
+    }
+
+    function getAvatarColor(name) {
+      const colors = ["#c9a84c", "#8b5cf6", "#ec4899", "#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#06b6d4"];
+      let hash = 0;
+      for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+      return colors[Math.abs(hash) % colors.length];
+    }
+
+    function sortData(key, toggle = true) {
+      if (toggle && currentSort === key) {
+        sortAscending = !sortAscending;
+      } else {
+        currentSort = key;
+        sortAscending = false;
+      }
+
+      applyFilters();
+
+      filteredData.sort((a, b) => {
+        let A = a[key], B = b[key];
+        if (A === null || A === undefined) A = sortAscending ? Infinity : -Infinity;
+        if (B === null || B === undefined) B = sortAscending ? Infinity : -Infinity;
+        if (key === 'last_test_taken') { A = new Date(a.last_test_taken).getTime(); B = new Date(b.last_test_taken).getTime(); }
+        return sortAscending ? A - B : B - A;
+      });
+
+      updateActiveButton();
+      renderLeaderboard();
+    }
+
+    function applyFilters() {
+      const q = searchQuery.toLowerCase().trim();
+      if (!q) { filteredData = [...reportData]; return; }
+      filteredData = reportData.filter(s => (s.name || "").toLowerCase().includes(q));
+    }
+
+    function updateActiveButton() {
+      document.querySelectorAll(".sort-btn").forEach(btn => {
+        btn.classList.remove("active");
+        const ind = btn.querySelector('.sort-indicator');
+        if (ind) ind.textContent = "";
+      });
+      const toggle = document.getElementById("time-toggle");
+      if (toggle) toggle.style.display = (currentSort === "total_time") ? "inline-flex" : "none";
+      const active = document.querySelector(`[data-sort="${currentSort}"]`);
+      if (active) {
+        active.classList.add("active");
+        let ind = active.querySelector('.sort-indicator');
+        if (!ind) { ind = document.createElement('span'); ind.className = 'sort-indicator'; active.appendChild(ind); }
+        ind.textContent = sortAscending ? " ↑" : " ↓";
+      }
+    }
+
+    function renderLeaderboard() {
+      const container = document.getElementById("leaderboard");
+      container.innerHTML = `<div class="leaderboard-header-row"><div>Rank</div><div>Student</div><div>Metric</div></div>`;
+
+      filteredData.forEach((s, idx) => {
+        const row = document.createElement("div");
+        row.className = "leaderboard-row";
+        row.style.animationDelay = `${idx * 40}ms`;
+        if (idx === 0) row.classList.add("gold");
+        else if (idx === 1) row.classList.add("silver");
+        else if (idx === 2) row.classList.add("bronze");
+
+        const rank = idx + 1;
+        let value = s[currentSort];
+        if (value === null || value === undefined) value = (currentSort === "last_test_taken") ? null : 0;
+
+        const displayValue =
+          currentSort === "accuracy" ? `${Math.round((value || 0) * 100)}%` :
+          currentSort === "total_time" ? (showSecondsOnly ? formatSecondsOnly(value) : formatTime(value)) :
+          currentSort === "last_test_taken" ? formatDate(value) :
+          value;
+
+        const initials = getInitials(s.name);
+        const avatarColor = getAvatarColor(s.name);
+        const scorePercent = Math.min(((s.total_score || 0) / maxScore) * 100, 100);
+
+        let inner = `
+          <div class="rank">${idx < 3 ? `<span class="rank-badge rank-${idx === 0 ? 'gold' : idx === 1 ? 'silver' : 'bronze'}">${idx + 1}</span>` : `<span class="rank-num">${rank}</span>`}</div>
+          <div class="name">
+            <div class="student-meta">
+              <div class="avatar" style="background:${avatarColor}22;color:${avatarColor};border-color:${avatarColor}44">${initials}</div>
+              <div class="name-stack">
+                <div class="full-name" title="${s.name}">${s.name}</div>
+                ${currentSort === "last_test_taken" ? `<div class="last-test-small">${formatDate(s.last_test_taken)}</div>` : `<div class="metric-tag">${getMetricLabel(currentSort)}</div>`}
+              </div>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width:${scorePercent}%"></div></div>
+          </div>`;
+
+        if (currentSort === "total_time" && !showSecondsOnly) {
+          const totalSeconds = s.total_time ?? 0;
+          const h = Math.floor(totalSeconds / 3600).toString().padStart(2, "0");
+          const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, "0");
+          const sec = (totalSeconds % 60).toString().padStart(2, "0");
+          inner += `<div class="score score-time">
+            <span class="t-block"><span class="t-num">${h}</span><span class="t-unit">h</span></span>
+            <span class="t-block"><span class="t-num">${m}</span><span class="t-unit">m</span></span>
+            <span class="t-block"><span class="t-num">${sec}</span><span class="t-unit">s</span></span>
+          </div>`;
+        } else {
+          inner += `<div class="score">${displayValue}</div>`;
+        }
+
+        row.innerHTML = inner;
+        row.onclick = () => showDetail(s);
+        container.appendChild(row);
+      });
+
+      if (filteredData.length === 0) {
+        container.innerHTML += `<div class="empty-state">No students match your search.</div>`;
+      }
+    }
+
+    function getMetricLabel(key) {
+      const map = {
+        total_score: "Total Score",
+        accuracy: "Accuracy",
+        quests_completed: "Quests",
+        videos_completed: "Videos",
+        vocab_completed: "Vocab",
+        total_time: "Time",
+        last_test_taken: "Last Active"
+      };
+      return map[key] || key;
+    }
+
+    const START_DATE = new Date("2025-08-25");
+    const CALENDAR_VISIBLE_START = new Date("2026-02-01");
+
+    function mapToDate(number) {
+      const d = new Date(START_DATE);
+      d.setDate(d.getDate() + (number - 1));
+      return d;
+    }
+
+    function parseItems(rawList) {
+      if (!rawList || rawList === "NULL") return [];
+      return rawList.split(",").map(item => item.trim()).filter(item => item.length > 0).map(item => {
+        const [type, num] = item.split(" ");
+        return { type, number: Number(num), label: item };
+      });
+    }
+
+    function parseVocabDates(rawList) {
+      if (!rawList || rawList === "NULL") return [];
+      return rawList.split(",").map(item => item.trim()).filter(Boolean).map(item => {
+        const match = item.match(/VocabDate_(\d{4}-\d{2}-\d{2})/);
+        if (match) return new Date(match[1] + "T00:00:00");
+        return null;
+      }).filter(Boolean);
+    }
+
+    function groupByDate(quests, videos, vocabDates) {
+      const map = {};
+      const add = (date, label) => {
+        if (!date || isNaN(date.getTime())) return;
+        const key = date.toISOString().split("T")[0];
+        if (!map[key]) map[key] = new Set();
+        map[key].add(label.startsWith("Quest") ? "quest" : label.startsWith("Video") ? "video" : "vocab");
+      };
+      quests.forEach(q => add(mapToDate(q.number), q.label));
+      videos.forEach(v => add(mapToDate(v.number), v.label));
+      vocabDates.forEach(d => add(d, "Vocab"));
+      return map;
+    }
+
+    function renderHeatmap(containerId, grouped) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      const today = new Date();
+      const end = new Date(today.getFullYear(), today.getMonth(), 1);
+      let cursor = new Date(CALENDAR_VISIBLE_START.getFullYear(), CALENDAR_VISIBLE_START.getMonth(), 1);
+
+      while (cursor <= end) {
+        container.innerHTML += renderOneMonth(cursor, grouped);
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+    }
+
+    function renderOneMonth(baseDate, grouped) {
+      const year = baseDate.getFullYear(), month = baseDate.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const numDays = new Date(year, month + 1, 0).getDate();
+      let html = `<div class="heatmap-month"><div class="heatmap-title">${baseDate.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</div><div class="heatmap-grid">`;
+      const days = ["S","M","T","W","T","F","S"];
+      days.forEach(d => html += `<div class="heatmap-day-label">${d}</div>`);
+      for (let i = 0; i < firstDay; i++) html += `<div class="heatmap-cell empty"></div>`;
+      for (let d = 1; d <= numDays; d++) {
+        const date = new Date(year, month, d);
+        const key = date.toISOString().split("T")[0];
+        const items = grouped[key];
+        let intensity = 0;
+        if (items) {
+          if (items.has("quest")) intensity += 1;
+          if (items.has("video")) intensity += 1;
+          if (items.has("vocab")) intensity += 1;
+        }
+        const level = intensity === 0 ? 0 : intensity === 1 ? 1 : intensity === 2 ? 2 : 3;
+        html += `<div class="heatmap-cell level-${level}" title="${key}${items ? ' • ' + Array.from(items).join(', ') : ''}"><span class="heat-date">${d}</span></div>`;
+      }
+      html += "</div></div>";
+      return html;
+    }
+
+    function showDetail(s) {
+      const modal = document.getElementById("modal");
+      const content = document.getElementById("modal-content");
+      const initials = getInitials(s.name);
+      const avatarColor = getAvatarColor(s.name);
+
+      content.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-avatar" style="background:${avatarColor}22;color:${avatarColor};border-color:${avatarColor}44">${initials}</div>
+          <div class="modal-title-block">
+            <div class="modal-id-tag">Student Profile</div>
+            <h2>${s.name}</h2>
+            <div class="modal-dept">CSI EWART WOMEN'S CHRISTIAN COLLEGE</div>
+          </div>
+          <button class="close-btn" onclick="closeModal()" aria-label="Close">×</button>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-box highlight"><div class="stat-label">Total Score</div><div class="stat-value">${s.total_score ?? 0}</div></div>
+          <div class="stat-box"><div class="stat-label">Accuracy</div><div class="stat-value">${Math.round((s.accuracy ?? 0) * 100)}%</div></div>
+          <div class="stat-box"><div class="stat-label">Vocab Sessions</div><div class="stat-value">${s.vocab_completed ?? 0}</div></div>
+          <div class="stat-box"><div class="stat-label">Quests</div><div class="stat-value">${s.total_attempts ?? 0}</div></div>
+          <div class="stat-box"><div class="stat-label">Correct</div><div class="stat-value" style="color:var(--success)">${s.total_correct ?? 0}</div></div>
+          <div class="stat-box"><div class="stat-label">Wrong</div><div class="stat-value" style="color:var(--danger)">${s.total_wrong ?? 0}</div></div>
+          <div class="stat-box wide"><div class="stat-label">Total Time</div><div class="stat-value time-stat">${formatTime(s.total_time)}</div></div>
+        </div>
+        <div class="detail-box">
+          <div class="detail-header">
+            <h3>Activity Heatmap</h3>
+            <div class="heatmap-legend">
+              <span class="legend-dot level-0"></span><span class="legend-dot level-1"></span><span class="legend-dot level-2"></span><span class="legend-dot level-3"></span>
+            </div>
+          </div>
+          <p class="detail-caption">Darker gold indicates higher activity. Hover for details.</p>
+          <div id="mini-calendar" class="mission-calendar"></div>
+        </div>
+        <div class="detail-box">
+          <h3>Last Active</h3>
+          <p class="last-active-time">${formatDate(s.last_test_taken)}</p>
+        </div>`;
+
+      const quests = parseItems(s.quest_list);
+      const videos = parseItems(s.video_list);
+      const vocabs = parseVocabDates(s.vocab_list);
+      const grouped = groupByDate(quests, videos, vocabs);
+      renderHeatmap("mini-calendar", grouped);
+
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+      setTimeout(() => modal.classList.add("open"), 10);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("modal");
+      modal.classList.remove("open");
+      setTimeout(() => {
+        modal.style.display = "none";
+        document.body.style.overflow = "";
+      }, 300);
+    }
+
+    function showClassStats() {
+      if (reportData.length === 0) return;
+      const totalStudents = reportData.length;
+      const avgScore = Math.round(reportData.reduce((sum, s) => sum + (s.total_score || 0), 0) / totalStudents);
+      const avgAccuracy = Math.round((reportData.reduce((sum, s) => sum + (s.accuracy || 0), 0) / totalStudents) * 100);
+      const totalAttempts = reportData.reduce((sum, s) => sum + (s.total_attempts || 0), 0);
+      const totalTime = reportData.reduce((sum, s) => sum + (s.total_time || 0), 0);
+      const totalVideos = reportData.reduce((sum, s) => sum + (s.videos_completed || 0), 0);
+      const totalQuests = reportData.reduce((sum, s) => sum + (s.quests_completed || 0), 0);
+      const totalVocab = reportData.reduce((sum, s) => sum + (s.vocab_completed || 0), 0);
+
+      const modal = document.getElementById("modal");
+      const content = document.getElementById("modal-content");
+      content.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-title-block" style="margin-left:0">
+            <div class="modal-id-tag">College Overview</div>
+            <h2>Class Statistics</h2>
+            <div class="modal-dept">CSI EWART WOMEN'S CHRISTIAN COLLEGE</div>
+          </div>
+          <button class="close-btn" onclick="closeModal()" aria-label="Close">×</button>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-box highlight"><div class="stat-label">Students</div><div class="stat-value">${totalStudents}</div></div>
+          <div class="stat-box"><div class="stat-label">Avg Score</div><div class="stat-value">${avgScore}</div></div>
+          <div class="stat-box"><div class="stat-label">Avg Accuracy</div><div class="stat-value">${avgAccuracy}%</div></div>
+          <div class="stat-box"><div class="stat-label">Total Attempts</div><div class="stat-value">${totalAttempts}</div></div>
+          <div class="stat-box"><div class="stat-label">Quests</div><div class="stat-value">${totalQuests}</div></div>
+          <div class="stat-box"><div class="stat-label">Videos</div><div class="stat-value">${totalVideos}</div></div>
+          <div class="stat-box"><div class="stat-label">Vocab</div><div class="stat-value">${totalVocab}</div></div>
+          <div class="stat-box wide"><div class="stat-label">Total Time</div><div class="stat-value time-stat">${formatTime(totalTime)}</div></div>
+        </div>`;
+      modal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+      setTimeout(() => modal.classList.add("open"), 10);
+    }
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      requestAnimationFrame(() => toast.classList.add("show"));
+      setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    window.sortData = (key) => sortData(key, true);
+    window.closeModal = closeModal;
+    window.showClassStats = showClassStats;
+    window.toggleTimeFormat = function () {
+      showSecondsOnly = !showSecondsOnly;
+      const btn = document.getElementById("time-toggle");
+      btn.textContent = showSecondsOnly ? "Show h:m:s" : "Show Seconds";
+      renderLeaderboard();
+    };
+    window.handleSearch = function (e) {
+      searchQuery = e.target.value;
+      applyFilters();
+      sortData(currentSort, false);
+    };
+
+    window.onload = loadData;
+
+    window.onclick = function (event) {
+      if (event.target === document.getElementById("modal")) closeModal();
+    };
+    window.onkeydown = function (e) {
+      if (e.key === "Escape") closeModal();
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --bg-elevated: #111827;
+      --surface: #151b2b;
+      --surface-hover: #1e2538;
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(212,175,55,0.25);
+      --gold: #d4af37;
+      --gold-light: #f0d878;
+      --gold-dim: rgba(212,175,55,0.12);
+      --gold-glow: rgba(212,175,55,0.35);
+      --text-primary: #f0f0f0;
+      --text-secondary: #94a3b8;
+      --text-dim: #64748b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    @property --gradient-angle {
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212,175,55,0.08), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139,92,246,0.05), transparent);
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface-hover); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+    .ambient-glow {
+      position: fixed;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(212,175,55,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .command-frame {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.03) inset;
+      overflow: hidden;
+      animation: frameEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @keyframes frameEnter {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      padding: 28px 28px 20px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(212,175,55,0.04) 0%, transparent 100%);
+      position: relative;
+    }
+
+    .header::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .title-block { display: flex; flex-direction: column; gap: 6px; }
+
+    .mission-title {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+      line-height: 1.4;
+      opacity: 0.9;
+    }
+
+    .title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text-primary);
+      line-height: 1.1;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--gold-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .subtitle::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: pulse-dot 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05));
+      border: 1px solid var(--border-hover);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+      backdrop-filter: blur(10px);
+    }
+
+    .badge-live:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(212,175,55,0.2);
+      border-color: var(--gold);
+    }
+
+    .top-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .search-bar {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-bar input:focus {
+      border-color: var(--gold-dim);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+    }
+
+    .search-bar input::placeholder { color: var(--text-dim); }
+
+    .search-bar::before {
+      content: "🔍";
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      opacity: 0.5;
+      filter: grayscale(1) brightness(2);
+    }
+
+    .sort-panel { display: flex; flex-direction: column; gap: 10px; }
+    .sort-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .sort-btn, #time-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .sort-btn:hover {
+      border-color: var(--gold-dim);
+      color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    .sort-btn.active {
+      background: linear-gradient(135deg, var(--gold), #b8942f);
+      color: #0b0f19;
+      border-color: var(--gold);
+      box-shadow: 0 4px 16px rgba(212,175,55,0.25);
+    }
+
+    .sort-indicator { font-size: 10px; opacity: 0.8; }
+
+    #time-toggle { font-size: 10px; display: none; }
+
+    #leaderboard {
+      margin: 0;
+      background: transparent;
+      overflow: hidden;
+      padding: 8px;
+    }
+
+    .leaderboard-header-row {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      padding: 10px 16px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      margin: 0 8px;
+    }
+
+    .leaderboard-row {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      padding: 14px 16px;
+      margin: 0 8px;
+      border-radius: var(--radius-sm);
+      border-bottom: 1px solid transparent;
+      cursor: pointer;
+      align-items: center;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      opacity: 0;
+      animation: rowEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation-delay: var(--delay, 0ms);
+    }
+
+    @keyframes rowEnter {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .leaderboard-row:hover {
+      background: var(--surface-hover);
+      transform: translateX(4px);
+    }
+
+    .leaderboard-row.gold {
+      background: linear-gradient(90deg, rgba(212,175,55,0.08), transparent);
+      border-left: 2px solid var(--gold);
+    }
+    .leaderboard-row.silver {
+      background: linear-gradient(90deg, rgba(148,163,184,0.06), transparent);
+      border-left: 2px solid #94a3b8;
+    }
+    .leaderboard-row.bronze {
+      background: linear-gradient(90deg, rgba(180,83,9,0.06), transparent);
+      border-left: 2px solid #b45309;
+    }
+
+    .rank { display: flex; align-items: center; justify-content: center; }
+
+    .rank-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--bg);
+    }
+
+    .rank-badge.rank-gold { background: linear-gradient(135deg, var(--gold), #b8942f); box-shadow: 0 0 16px rgba(212,175,55,0.3); }
+    .rank-badge.rank-silver { background: linear-gradient(135deg, #94a3b8, #64748b); box-shadow: 0 0 16px rgba(148,163,184,0.2); }
+    .rank-badge.rank-bronze { background: linear-gradient(135deg, #b45309, #92400e); box-shadow: 0 0 16px rgba(180,83,9,0.2); }
+
+    .rank-num {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dim);
+      width: 28px;
+      text-align: center;
+    }
+
+    .name {
+      padding: 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .student-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+      border: 1.5px solid;
+      letter-spacing: 0.05em;
+    }
+
+    .name-stack { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+    .full-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.3;
+    }
+
+    .metric-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .last-test-small {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .progress-track {
+      height: 3px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      border-radius: 2px;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 8px rgba(212,175,55,0.3);
+    }
+
+    .score {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--gold);
+      text-align: right;
+      min-width: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      font-variant-numeric: tabular-nums;
+      gap: 2px;
+      letter-spacing: -0.02em;
+    }
+
+    .score-time { font-size: 13px; gap: 6px; }
+
+    .t-block { display: inline-flex; align-items: baseline; gap: 2px; }
+    .t-num { font-size: 15px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+    .t-unit { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: lowercase; }
+
+    .time-block { display: inline-flex; align-items: baseline; gap: 2px; }
+    .time-num { font-size: 16px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+    .time-unit { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: lowercase; }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface-hover) 25%, var(--bg-elevated) 50%, var(--surface-hover) 75%);
+      background-size: 200% 100%;
+      animation: skeleton 1.5s infinite;
+      border-radius: 4px;
+    }
+
+    @keyframes skeleton {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-row { pointer-events: none; }
+    .skeleton-row .rank, .skeleton-row .name, .skeleton-row .score { opacity: 0.6; }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-dim);
+      font-size: 14px;
+      grid-column: 1 / -1;
+    }
+
+    #modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(11,15,25,0.70);
+      backdrop-filter: blur(12px);
+      justify-content: center;
+      align-items: flex-start;
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 40px 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #modal.open { opacity: 1; }
+
+    #modal-content {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 0;
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03) inset;
+      position: relative;
+      transform: translateY(20px) scale(0.98);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    #modal.open #modal-content {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(212,175,55,0.04), transparent);
+      position: relative;
+    }
+
+    .modal-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      flex-shrink: 0;
+      border: 2px solid;
+    }
+
+    .modal-title-block { flex: 1; min-width: 0; }
+
+    .modal-id-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--gold-dim);
+      border: 1px solid var(--border-hover);
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .modal-header h2 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .modal-dept {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .close-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      line-height: 1;
+      transition: all 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: rotate(90deg);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 20px 24px;
+    }
+
+    .stat-box {
+      background: var(--bg-elevated);
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .stat-box:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .stat-box.wide { grid-column: 1 / -1; }
+
+    .stat-box.highlight {
+      background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.04));
+      border-color: var(--border-hover);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-box.highlight .stat-value { color: var(--gold); }
+
+    .time-stat { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+    .time-stat .time-num { font-size: 18px; }
+    .time-stat .time-unit { font-size: 12px; }
+
+    .detail-box {
+      background: var(--bg-elevated);
+      padding: 18px;
+      margin: 0 24px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .detail-box h3 {
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-caption {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .last-active-time {
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mission-calendar { display: flex; flex-direction: column; gap: 20px; }
+
+    .heatmap-month { }
+    .heatmap-title {
+      text-align: center;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+      opacity: 0.8;
+    }
+
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .heatmap-day-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--text-dim);
+      padding-bottom: 4px;
+    }
+
+    .heatmap-cell {
+      aspect-ratio: 1;
+      border-radius: 5px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-dim);
+      transition: all 0.2s ease;
+      position: relative;
+      cursor: default;
+    }
+
+    .heatmap-cell.empty { background: transparent; border-color: transparent; }
+    .heatmap-cell.level-0 { background: var(--surface); }
+    .heatmap-cell.level-1 { background: rgba(212,175,55,0.25); border-color: rgba(212,175,55,0.3); color: var(--gold-light); }
+    .heatmap-cell.level-2 { background: rgba(212,175,55,0.45); border-color: rgba(212,175,55,0.5); color: #0b0f19; }
+    .heatmap-cell.level-3 { background: linear-gradient(135deg, var(--gold), #b8942f); border-color: var(--gold); color: #0b0f19; box-shadow: 0 0 12px rgba(212,175,55,0.25); }
+
+    .heatmap-cell:hover { transform: scale(1.15); z-index: 2; }
+
+    .heat-date { font-size: 8px; opacity: 0.7; }
+
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+
+    .legend-dot.level-0 { background: var(--surface); }
+    .legend-dot.level-1 { background: rgba(212,175,55,0.25); }
+    .legend-dot.level-2 { background: rgba(212,175,55,0.45); }
+    .legend-dot.level-3 { background: linear-gradient(135deg, var(--gold), #b8942f); }
+
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transform: translateX(120%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 320px;
+    }
+
+    .toast.show { transform: translateX(0); }
+    .toast.error { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.08); color: #fca5a5; }
+
+    @media (max-width: 640px) {
+      body { padding: 12px 8px 40px; }
+      .command-frame { border-radius: 16px; }
+      .header { padding: 20px 16px 16px; }
+      .title { font-size: 26px; }
+      .header-top { flex-direction: column; align-items: flex-start; }
+      .top-controls { padding: 14px 16px; }
+      .sort-buttons { gap: 6px; }
+      .sort-btn { font-size: 10px; padding: 6px 12px; }
+      .leaderboard-header-row { display: none; }
+      .leaderboard-row { padding: 12px; margin: 0 4px; grid-template-columns: 44px 1fr auto; }
+      .avatar { width: 32px; height: 32px; font-size: 11px; }
+      .full-name { font-size: 13px; }
+      .score { font-size: 16px; min-width: 70px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); padding: 16px; }
+      .detail-box { margin: 0 16px 10px; padding: 14px; }
+      .modal-header { padding: 18px 16px; }
+      .modal-header h2 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  <div id="toast-container"></div>
+
+  <div class="command-frame">
+    <div class="header">
+      <div class="header-top">
+        <div class="title-block">
+          <div class="mission-title">Communicate to Lead: Essential English Communication Skills for CSI Ewart Women's Christian College</div>
+          <div class="title">LEADERBOARD</div>
+        </div>
+        <button class="badge-live" onclick="showClassStats()">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse-dot 2.5s ease-in-out infinite;display:inline-block"></span>
+          Overview
+        </button>
+      </div>
+      <div class="subtitle" id="last-test-info">Initializing activity feed...</div>
+    </div>
+
+    <div class="top-controls">
+      <div class="search-bar">
+        <input type="text" placeholder="Search students..." oninput="handleSearch(event)" />
+      </div>
+      <div class="sort-panel">
+        <div class="sort-buttons">
+          <button class="sort-btn" data-sort="total_score" onclick="sortData('total_score')">Score <span class="sort-indicator"></span></button>
+          <button class="sort-btn" data-sort="accuracy" onclick="sortData('accuracy')">Accuracy <span class="sort-indicator"></span></button>
+          <button class="sort-btn" data-sort="vocab_completed" onclick="sortData('vocab_completed')">Vocab <span class="sort-indicator"></span></button>
+          <button class="sort-btn" data-sort="total_time" onclick="sortData('total_time')">Time <span class="sort-indicator"></span></button>
+          <button class="sort-btn" data-sort="quests_completed" onclick="sortData('quests_completed')">Quests <span class="sort-indicator"></span></button>
+          <button class="sort-btn" data-sort="videos_completed" onclick="sortData('videos_completed')">Videos <span class="sort-indicator"></span></button>
+          <button class="sort-btn" data-sort="last_test_taken" onclick="sortData('last_test_taken')">Last Active <span class="sort-indicator"></span></button>
+          <button id="time-toggle" class="sort-btn" style="display:none;" onclick="toggleTimeFormat()">Show Seconds</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="leaderboard">
+      <div class="leaderboard-header-row"><div>Rank</div><div>Student</div><div>Metric</div></div>
+    </div>
+  </div>
+
+  <div id="modal">
+    <div id="modal-content"></div>
+  </div>
+</body>
+</html>
