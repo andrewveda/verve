@@ -172,11 +172,48 @@
     .btn-end-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;}
     .btn-end-share{background:linear-gradient(135deg,#128c7e,#25d366);color:#fff;}
 
-    .study-overlay{display:none;position:fixed;inset:0;background:var(--paper);z-index:250;overflow-y:auto;padding:24px 16px;}
+    /* FULL STUDY GLOSSARY OVERLAY STYLING */
+    .study-overlay{
+      display:none;position:fixed;inset:0;background:var(--paper);z-index:250;overflow-y:auto;
+      -webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 32px);
+    }
     .study-overlay.show{display:block;}
     .study-inner{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+    .study-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1.5px solid var(--card-line);}
+    .study-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;color:var(--forest);}
+    .study-subtitle{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.05em;color:var(--ink-muted);text-transform:uppercase;margin-top:3px;}
+    .study-search{
+      width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:var(--card);font-family:'Inter',sans-serif;font-size:.9rem;color:var(--ink);outline:none;
+    }
+    .study-search:focus{border-color:var(--moss);}
+    .study-filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+    .study-chip{
+      padding:5px 12px;border-radius:99px;border:1.5px solid var(--card-line);background:var(--card);
+      color:var(--ink-muted);font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.04em;
+      text-transform:uppercase;cursor:pointer;transition:all .15s var(--ease);
+    }
+    .study-chip.active{border-color:var(--forest);background:var(--forest);color:#fff;}
     .study-grid{display:flex;flex-direction:column;gap:10px;}
-    .study-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:14px 16px;}
+    .study-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);}
+    .study-card.attempted{border-color:rgba(201,147,42,.55);background:linear-gradient(180deg,#fdf6e6,var(--card));}
+    .study-card.mastered{border-color:rgba(47,82,51,.6);background:linear-gradient(180deg,#eef3e9,var(--card));}
+    .study-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+    .study-card-name{font-family:'Fraunces',serif;font-weight:700;font-size:.96rem;color:var(--forest);}
+    .study-card-explain{font-family:'Inter',sans-serif;font-size:.77rem;line-height:1.44;color:var(--ink-muted);margin-bottom:10px;}
+    .study-card-sentences{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;padding:9px 11px;background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;}
+    .study-line{font-family:'Fraunces',serif;font-size:.82rem;color:var(--ink);line-height:1.5;}
+    .study-line b{color:var(--verb);}
+    .study-card-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .study-practice-btn{
+      padding:8px 16px;border:none;border-radius:99px;background:linear-gradient(135deg,var(--forest),var(--moss));
+      color:#fff;font-family:'Inter',sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;transition:transform .15s;
+    }
+    .study-practice-btn:active{transform:scale(.95);}
+    .study-practiced-badge{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--clay);letter-spacing:.03em;}
+    .study-mastered-badge{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--moss);letter-spacing:.03em;}
+    .study-empty{text-align:center;padding:32px 0;font-family:'Fraunces',serif;font-style:italic;font-size:.95rem;color:var(--ink-muted);}
   </style>
 </head>
 <body>
@@ -251,7 +288,7 @@
 
     <div class="stat-strip">
       <div class="stat-top">
-        <span class="rank-name" id="rank-name">Novice 🌰</span>
+        <span class="rank-name" id="rank-name">Seed 🌰</span>
         <span class="stat-nums"><b id="score">0</b>pts · <b id="streak">0</b> streak · best <b id="best-score">0</b></span>
       </div>
       <div class="rank-track"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
@@ -311,12 +348,32 @@
   </div>
 </div>
 
-<!-- Study Overlay -->
+<!-- Full Study Glossary Overlay -->
 <div class="study-overlay" id="studyOverlay">
   <div class="study-inner">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2 style="font-family:'Fraunces',serif;color:var(--forest);" id="studyTitle">📖 Module Glossary</h2>
-      <button class="icon-btn" onclick="closeStudy()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="study-header">
+      <div>
+        <div class="study-title" id="studyTitle">📖 Study — Module Glossary</div>
+        <div class="study-subtitle">Browse all rules & CEFR levels</div>
+      </div>
+      <button class="icon-btn" onclick="closeStudy()" aria-label="Close study">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <input class="study-search" id="studySearch" type="text" placeholder="Search a rule or example…" oninput="handleStudySearch()"/>
+    <div class="study-filter-row" id="studyCefrRow">
+      <div class="study-chip active" onclick="setStudyCefrFilter('all',this)">All Levels</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a1',this)">A1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a2',this)">A2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b1',this)">B1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b2',this)">B2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('c1',this)">C1</div>
+    </div>
+    <div class="study-filter-row" id="studyPracticedRow">
+      <div class="study-chip active" onclick="setStudyPracticedFilter('all',this)">All</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('mastered',this)">✓ Mastered</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('practiced',this)">◐ Practiced</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('unattempted',this)">Not Yet</div>
     </div>
     <div class="study-grid" id="studyGrid"></div>
   </div>
@@ -337,6 +394,12 @@ let sentenceStart = 0, elapsedSeconds = 0, timerInterval = null, gameActive = tr
 let completedList = [], ruleArchive = [], currentForms = [];
 let ruleStartTime = 0, ruleScore = 0, ruleCorrectTaps = 0, ruleWrongTaps = 0, ruleHadMistake = false;
 
+// Study Module State
+let ruleStatus = new Map(); // ruleIdx -> 'mastered' | 'practiced'
+let studyFilterCefr = 'all';
+let studyFilterPracticed = 'all';
+let studySearchTerm = '';
+
 async function loadGrammarPack(topicKey) {
   try {
     const res = await fetch(`./grammar/${topicKey}.json`);
@@ -346,6 +409,7 @@ async function loadGrammarPack(topicKey) {
     document.getElementById('moduleHeaderTitle').innerHTML = `${data.moduleTitle.split(' ')[0]}<span>✿</span>Press`;
     document.getElementById('moduleHeaderSub').textContent = data.moduleSub || "Grammar Press";
     document.getElementById('total-rules-count').textContent = RULE_GROUPS.length;
+    document.getElementById('studyTitle').textContent = `📖 Study — ${data.moduleSub || "Module Glossary"}`;
   } catch(err) {
     alert("Error loading grammar module JSON. Ensure server/local paths are valid.");
     console.error(err);
@@ -372,9 +436,13 @@ async function beginQuiz() {
 }
 document.getElementById('btnBeginQuiz').addEventListener('click', beginQuiz);
 
-function newGame() {
+function newGame(focusRuleIdx) {
   clearInterval(timerInterval);
   deck = RULE_GROUPS.map((_,i)=>i).sort(()=>Math.random()-0.5);
+  if(typeof focusRuleIdx === 'number') {
+    deck = deck.filter(i=>i!==focusRuleIdx);
+    deck.push(focusRuleIdx);
+  }
   score=0; streak=0; completedCount=0; correctTaps=0; wrongTaps=0;
   completedList=[]; ruleArchive=[]; elapsedSeconds=0; gameActive=true;
   updateStats();
@@ -482,6 +550,11 @@ function completeItem() {
       currentItemIndex++; applyItemData(); renderParadigm();
     } else {
       ruleArchive.push({ name: currentGroup.name, forms: currentForms.slice() });
+      if(ruleHadMistake) {
+        if(ruleStatus.get(currentGroupIdx) !== 'mastered') ruleStatus.set(currentGroupIdx, 'practiced');
+      } else {
+        ruleStatus.set(currentGroupIdx, 'mastered');
+      }
       submitRuleToSupabase();
       if(ruleArchive.length >= RULE_GROUPS.length) {
         endGame();
@@ -546,18 +619,117 @@ document.getElementById('btnPlayAgain').onclick = () => {
   newGame();
 };
 
-window.openStudy = () => {
-  if(!RULE_GROUPS.length) return;
-  const grid = document.getElementById('studyGrid');
-  grid.innerHTML = RULE_GROUPS.map(g => `
-    <div class="study-card">
-      <div style="font-weight:700;color:var(--forest);">${g.name} (${CEFR_LABEL[g.cefr]})</div>
-      <div style="font-size:.78rem;color:var(--ink-muted);margin:4px 0;">${g.explain}</div>
-    </div>
-  `).join('');
+/* ═══════════════ FULL STUDY GLOSSARY ENGINE ═══════════════ */
+async function openStudy(){
+  if(!RULE_GROUPS.length){
+    const selected = document.getElementById('topicSelect').value;
+    await loadGrammarPack(selected);
+  }
   document.getElementById('studyOverlay').classList.add('show');
-};
-window.closeStudy = () => document.getElementById('studyOverlay').classList.remove('show');
+  renderStudyGrid();
+}
+function closeStudy(){
+  document.getElementById('studyOverlay').classList.remove('show');
+}
+
+function handleStudySearch(){
+  studySearchTerm = document.getElementById('studySearch').value;
+  renderStudyGrid();
+}
+function setStudyCefrFilter(val, el){
+  studyFilterCefr = val;
+  document.querySelectorAll('#studyCefrRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+function setStudyPracticedFilter(val, el){
+  studyFilterPracticed = val;
+  document.querySelectorAll('#studyPracticedRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+
+function renderStudyGrid(){
+  const grid = document.getElementById('studyGrid');
+  const term = studySearchTerm.trim().toLowerCase();
+
+  const filtered = RULE_GROUPS
+    .map((g,i)=>({g,i}))
+    .filter(({g,i})=>{
+      if(studyFilterCefr !== 'all' && g.cefr !== studyFilterCefr) return false;
+      const status = ruleStatus.get(i);
+      if(studyFilterPracticed === 'mastered' && status !== 'mastered') return false;
+      if(studyFilterPracticed === 'practiced' && status !== 'practiced') return false;
+      if(studyFilterPracticed === 'unattempted' && status) return false;
+      if(term){
+        const hay = (g.name+' '+g.explain+' '+g.items.map(it=>it.before+' '+it.answer+' '+it.after).join(' ')).toLowerCase();
+        if(!hay.includes(term)) return false;
+      }
+      return true;
+    });
+
+  if(!filtered.length){
+    grid.innerHTML = '<div class="study-empty">No grammar rules match your search.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(({g,i})=>buildStudyCard(g,i)).join('');
+}
+
+function buildStudyCard(g,i){
+  const status = ruleStatus.get(i); 
+  const cardClass = status === 'mastered' ? ' mastered' : (status === 'practiced' ? ' attempted' : '');
+  const badge = status === 'mastered'
+    ? '<span class="study-mastered-badge">✓ Mastered</span>'
+    : status === 'practiced'
+      ? '<span class="study-practiced-badge">◐ Practiced</span>'
+      : '';
+  const sentences = g.items.map(it=>`<div class="study-line">${it.before} <b>${it.answer}</b> ${it.after}</div>`).join('');
+
+  return `<div class="study-card${cardClass}">
+    <div class="study-card-top">
+      <span class="study-card-name">${g.name}</span>
+      <span class="cefr-pill ${g.cefr}">${CEFR_LABEL[g.cefr]}</span>
+    </div>
+    <div class="study-card-explain">${g.explain}</div>
+    <div class="study-card-sentences">${sentences}</div>
+    <div class="study-card-actions">
+      <button class="study-practice-btn" onclick="window.practiceRuleFromStudy(${i})">▶ Practice this rule</button>
+      ${badge}
+    </div>
+  </div>`;
+}
+
+async function practiceRuleFromStudy(idx){
+  const midGame = document.getElementById('gameScreen').classList.contains('active');
+  if(midGame){
+    closeStudy();
+    newGame(idx);
+  } else {
+    const name = document.getElementById('nameInput').value.trim();
+    const dept = document.getElementById('departmentSelect').value;
+    if(!name || !dept){
+      closeStudy();
+      document.getElementById('gateError').textContent = 'Please enter your name & department first.';
+      return;
+    }
+    playerName = name; playerDept = dept;
+    const selected = document.getElementById('topicSelect').value;
+    await loadGrammarPack(selected);
+    closeStudy();
+    document.getElementById('nameForm').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    newGame(idx);
+  }
+}
+
+// Window attachment for inline HTML event handlers
+window.openStudy = openStudy;
+window.closeStudy = closeStudy;
+window.handleStudySearch = handleStudySearch;
+window.setStudyCefrFilter = setStudyCefrFilter;
+window.setStudyPracticedFilter = setStudyPracticedFilter;
+window.practiceRuleFromStudy = practiceRuleFromStudy;
+document.getElementById('btn-study').addEventListener('click', openStudy);
 </script>
 </body>
 </html>
