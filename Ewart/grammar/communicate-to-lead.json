@@ -1,0 +1,314 @@
+{
+  "topic": "Communicate to Lead: A Silver Blaze Investigation",
+  "icon": "🎓",
+  "sequential": true,
+  "contrast_label": "Correct Usage",
+  "contrast_options": ["form1", "form2"],
+  "ranks": [
+    { "name": "Trainee Investigator 🔍", "min": 0 },
+    { "name": "Field Detective 🕵️‍♀️", "min": 150 },
+    { "name": "Senior Detective 🧭", "min": 350 },
+    { "name": "Chief Inspector ⭐", "min": 600 },
+    { "name": "Master Detective — Sherlock's Equal 🎓", "min": 850 }
+  ],
+  "rule_groups": [
+    {
+      "name": "Ch.1 · A Vanished Champion — Subject–Verb Agreement",
+      "cefr": "a1",
+      "explain": "The verb must agree in number with its subject: a singular subject takes a singular verb, a plural subject takes the base (plural) form.",
+      "contrast_label": "Singular vs Plural Subject",
+      "contrast_options": ["singular", "plural"],
+      "toggle": {
+        "singular": {
+          "label": "Singular",
+          "icon": "1️⃣",
+          "text": "Inspector Gregory <b>investigates</b> the case alone.",
+          "note": "A singular subject (Inspector Gregory) takes a singular verb ending in -s."
+        },
+        "plural": {
+          "label": "Plural",
+          "icon": "👥",
+          "text": "The Scotland Yard detectives <b>investigate</b> the case together.",
+          "note": "A plural subject takes the base form of the verb, with no -s."
+        }
+      },
+      "items": [
+        { "before": "Colonel Ross", "answer": "owns", "after": "the finest racehorse in all of England.", "choices": ["owns", "own", "is owning", "owned"] },
+        { "before": "The stable lads", "answer": "keep", "after": "careful watch over Silver Blaze every night.", "choices": ["keep", "keeps", "keeping", "kept"] },
+        { "before": "Mr. John Straker, the trainer,", "answer": "is", "after": "responsible for the horse's safety.", "choices": ["is", "are", "be", "being"] },
+        { "before": "Neither the maid nor the stable boys", "answer": "hear", "after": "anything unusual during the quiet watch.", "choices": ["hear", "hears", "heard", "hearing"] },
+        { "before": "Every clue in this case", "answer": "deserves", "after": "careful attention from Sherlock Holmes.", "choices": ["deserves", "deserve", "deserving", "deserved"] }
+      ]
+    },
+    {
+      "name": "Ch.2 · The Alarm at King's Pyland — Articles",
+      "cefr": "a1",
+      "explain": "Use 'a/an' for something mentioned for the first time; use 'the' for something specific or already identified; use no article with general, uncountable ideas.",
+      "contrast_label": "The Definite, Indefinite & Zero Article",
+      "contrast_options": ["definite", "indefinite"],
+      "toggle": {
+        "definite": {
+          "label": "The (definite)",
+          "icon": "🎯",
+          "text": "Holmes examined <b>the</b> hoofprints beside the moor path.",
+          "note": "Use 'the' for something specific, already known to speaker and listener."
+        },
+        "indefinite": {
+          "label": "A / An (indefinite)",
+          "icon": "🆕",
+          "text": "He noticed <b>a</b> strange knife lying in the grass.",
+          "note": "Use 'a/an' for something mentioned for the first time, one of many."
+        }
+      },
+      "items": [
+        { "before": "On", "answer": "a", "after": "foggy Tuesday morning, Inspector Gregory sent for Sherlock Holmes.", "choices": ["a", "an", "the", "(no article)"] },
+        { "before": "They travelled together to", "answer": "the", "after": "stable known as King's Pyland.", "choices": ["the", "a", "an", "(no article)"] },
+        { "before": "Holmes bent down to examine", "answer": "a", "after": "footprint pressed deep into the mud.", "choices": ["a", "an", "the", "(no article)"] },
+        { "before": "", "answer": "The", "after": "body of the trainer lay upon the lonely moor.", "choices": ["The", "A", "An", "(no article)"] },
+        { "before": "By evening, the detective had already formed", "answer": "a", "after": "bold theory about the crime.", "choices": ["a", "the", "an", "(no article)"] }
+      ]
+    },
+    {
+      "name": "Ch.3 · Across the Moor — Prepositions",
+      "cefr": "a2",
+      "explain": "Prepositions of place (in, on, at, near) locate people or things; prepositions of direction (towards, in the direction of) show movement.",
+      "contrast_label": "Prepositions of Place & Direction",
+      "contrast_options": ["place", "direction"],
+      "toggle": {
+        "place": {
+          "label": "Place",
+          "icon": "📍",
+          "text": "The stable stood <b>on</b> the edge of the lonely moor.",
+          "note": "Use place prepositions (on, at, in, near) to locate people or things."
+        },
+        "direction": {
+          "label": "Direction",
+          "icon": "➡️",
+          "text": "Holmes walked <b>towards</b> the gypsy camp to question the travellers.",
+          "note": "Use direction prepositions (towards, into, across) to show movement."
+        }
+      },
+      "items": [
+        { "before": "Silver Blaze vanished", "answer": "in", "after": "the middle of the night.", "choices": ["in", "on", "at", "by"] },
+        { "before": "The trainer's body was found", "answer": "in", "after": "a small hollow on the moor.", "choices": ["in", "on", "at", "of"] },
+        { "before": "Holmes arrived", "answer": "at", "after": "King's Pyland shortly before noon.", "choices": ["at", "in", "on", "to"] },
+        { "before": "He walked", "answer": "in", "after": "the direction of the Mapleton stables.", "choices": ["in", "at", "on", "to"] },
+        { "before": "The strange visitor was last seen", "answer": "near", "after": "the gate, close to the stable door.", "choices": ["near", "in", "on", "under"] }
+      ]
+    },
+    {
+      "name": "Ch.4 · Reconstructing the Night — Past, Present & Future Tense",
+      "cefr": "b1",
+      "explain": "Simple past describes finished actions, simple present describes habits and general truths, and simple future (will + base verb) describes plans or predictions.",
+      "contrast_label": "Past · Present · Future",
+      "contrast_options": ["past", "present", "future"],
+      "toggle": {
+        "past": {
+          "label": "Past",
+          "icon": "⏪",
+          "text": "Straker <b>left</b> the house quietly before midnight.",
+          "note": "Simple past describes a completed action in a finished time."
+        },
+        "present": {
+          "label": "Present",
+          "icon": "⏺️",
+          "text": "Holmes <b>examines</b> every clue with total concentration.",
+          "note": "Simple present describes habits, facts, or a leader's ongoing method."
+        },
+        "future": {
+          "label": "Future",
+          "icon": "⏩",
+          "text": "Silver Blaze <b>will run</b> in tomorrow's big race.",
+          "note": "Simple future (will + base verb) describes a planned or predicted event."
+        }
+      },
+      "items": [
+        { "before": "Last night, someone", "answer": "gave", "after": "the stable-boy a strong sleeping draught.", "choices": ["gave", "gives", "will give", "giving"] },
+        { "before": "As a rule, a great leader", "answer": "communicates", "after": "calmly under pressure, never in panic.", "choices": ["communicates", "communicated", "will communicate", "communicating"] },
+        { "before": "Tomorrow, the great race", "answer": "will start", "after": "promptly at three o'clock.", "choices": ["will start", "started", "starts", "starting"] },
+        { "before": "Holmes", "answer": "explained", "after": "his conclusions clearly to Inspector Gregory before they parted.", "choices": ["explained", "explains", "will explain", "explaining"] },
+        { "before": "From now on, this stable", "answer": "will keep", "after": "two guards on duty every single night.", "choices": ["will keep", "kept", "keeps", "keeping"] }
+      ]
+    },
+    {
+      "name": "Ch.5 · Piecing Together the Evidence — Perfect Tenses",
+      "cefr": "b2",
+      "explain": "Present perfect (has/have + past participle) links a past action to a present result. Past perfect (had + past participle) shows an action completed before another past action.",
+      "contrast_label": "Present Perfect vs Past Perfect",
+      "contrast_options": ["present_perfect", "past_perfect"],
+      "toggle": {
+        "present_perfect": {
+          "label": "Present Perfect",
+          "icon": "🔗",
+          "text": "Holmes <b>has examined</b> every footprint near the stable.",
+          "note": "Present perfect links a past action to the present result — the evidence is now known."
+        },
+        "past_perfect": {
+          "label": "Past Perfect",
+          "icon": "⏮️",
+          "text": "By the time Watson arrived, Holmes <b>had already solved</b> half the mystery.",
+          "note": "Past perfect shows an action completed before another past action."
+        }
+      },
+      "items": [
+        { "before": "By midnight, the thief", "answer": "had already mixed", "after": "the sleeping powder into the curried mutton.", "choices": ["had already mixed", "has already mixed", "already mixed", "mixes already"] },
+        { "before": "Holmes", "answer": "had discovered", "after": "the truth by the time they reached London.", "choices": ["had discovered", "has discovered", "discovers", "discovering"] },
+        { "before": "So far, no one", "answer": "has found", "after": "the missing horse anywhere on the moor.", "choices": ["has found", "had found", "finds", "found"] },
+        { "before": "The good leader always checks whether her team", "answer": "has understood", "after": "every instruction correctly.", "choices": ["has understood", "had understood", "understands", "understood"] },
+        { "before": "Before the race began, the judges", "answer": "had inspected", "after": "every horse for its identity.", "choices": ["had inspected", "have inspected", "inspect", "inspected"] }
+      ]
+    },
+    {
+      "name": "Ch.6 · Presenting the Facts — Active & Passive Voice",
+      "cefr": "b1",
+      "explain": "Active voice puts the doer of the action first and sounds direct. Passive voice (be + past participle) puts the receiver of the action first — useful when the doer is unknown or the result matters more.",
+      "contrast_label": "Active vs Passive Voice",
+      "contrast_options": ["active", "passive"],
+      "toggle": {
+        "active": {
+          "label": "Active",
+          "icon": "🎯",
+          "text": "Someone <b>drugged</b> the stable-boy's supper that night.",
+          "note": "Active voice puts the doer of the action as the subject — direct and confident."
+        },
+        "passive": {
+          "label": "Passive",
+          "icon": "🌀",
+          "text": "The stable-boy's supper <b>was drugged</b> that night.",
+          "note": "Passive voice puts the receiver of the action first — useful when the doer is unknown or unimportant."
+        }
+      },
+      "items": [
+        { "before": "Someone", "answer": "drugged", "after": "the stable-boy's supper with powdered opium.", "choices": ["drugged", "was drugged", "had drugged by", "drug"] },
+        { "before": "The stable-boy's supper", "answer": "was drugged", "after": "with powdered opium that night.", "choices": ["was drugged", "drugged", "has drug", "drugging"] },
+        { "before": "The clever trainer", "answer": "lamed", "after": "his own horse to fix the betting odds.", "choices": ["lamed", "was lamed", "laming", "lame"] },
+        { "before": "A small silver whistle", "answer": "was found", "after": "under the dead man's coat.", "choices": ["was found", "found", "finds", "has find"] },
+        { "before": "Clear conclusions", "answer": "must be explained", "after": "to the whole team before any decision is made.", "choices": ["must be explained", "must explain", "explains", "explaining"] }
+      ]
+    },
+    {
+      "name": "Ch.7 · The Witnesses Speak — Reported Speech",
+      "cefr": "b2",
+      "explain": "In reported speech, the tense of the original statement usually shifts one step back into the past, and quotation marks are removed.",
+      "contrast_label": "Direct vs Reported Speech",
+      "contrast_options": ["direct", "reported"],
+      "toggle": {
+        "direct": {
+          "label": "Direct Speech",
+          "icon": "💬",
+          "text": "\"I saw a stranger near the gate,\" said the stable-boy.",
+          "note": "Direct speech quotes the speaker's exact words, inside quotation marks."
+        },
+        "reported": {
+          "label": "Reported Speech",
+          "icon": "🗣️",
+          "text": "The stable-boy said that he <b>had seen</b> a stranger near the gate.",
+          "note": "Reported speech shifts the tense backward and removes the quotation marks."
+        }
+      },
+      "items": [
+        { "before": "The maid told Holmes that she", "answer": "had heard", "after": "nothing strange that night.", "choices": ["had heard", "hears", "heard", "has heard"] },
+        { "before": "Colonel Ross insisted that Silver Blaze", "answer": "would", "after": "win the race, whatever happened.", "choices": ["would", "will", "shall", "should"] },
+        { "before": "Fitzroy Simpson claimed that he", "answer": "had never entered", "after": "the stable that night.", "choices": ["had never entered", "never enters", "never entered", "has never entered"] },
+        { "before": "Inspector Gregory asked Holmes whether he", "answer": "had found", "after": "any fresh evidence.", "choices": ["had found", "has found", "finds", "find"] },
+        { "before": "Holmes told the team that clear communication", "answer": "was", "after": "the key to solving any case.", "choices": ["was", "is", "had been", "will be"] }
+      ]
+    },
+    {
+      "name": "Ch.8 · Weighing the Possibilities — Conditionals",
+      "cefr": "c1",
+      "explain": "First conditional (if + present, will + verb) discusses real future possibilities. Second conditional (if + past, would + verb) imagines unlikely present situations. Third conditional (if + past perfect, would have + past participle) imagines an impossible past.",
+      "contrast_label": "First · Second · Third Conditional",
+      "contrast_options": ["first", "second", "third"],
+      "toggle": {
+        "first": {
+          "label": "1st Conditional",
+          "icon": "①",
+          "text": "If the horse <b>is</b> stolen, the trainer <b>will lose</b> his position.",
+          "note": "First conditional: real, possible future situations (if + present, will + base verb)."
+        },
+        "second": {
+          "label": "2nd Conditional",
+          "icon": "②",
+          "text": "If Holmes <b>were</b> less observant, he <b>would miss</b> the vital clue.",
+          "note": "Second conditional: imagined, unlikely or hypothetical present situations (if + past, would + base verb)."
+        },
+        "third": {
+          "label": "3rd Conditional",
+          "icon": "③",
+          "text": "If Straker <b>had been</b> more careful, he <b>would not have died</b>.",
+          "note": "Third conditional: an impossible past situation — imagining a different outcome that never happened."
+        }
+      },
+      "items": [
+        { "before": "If the stable-boy stays alert, he", "answer": "will report", "after": "any intruder immediately.", "choices": ["will report", "would report", "reports", "reported"] },
+        { "before": "If Holmes were not so methodical, he", "answer": "would never find", "after": "the truth in this tangled case.", "choices": ["would never find", "will never find", "never finds", "never found"] },
+        { "before": "If Straker had not drugged his own stable-boy, the crime", "answer": "would have been", "after": "far more difficult to commit.", "choices": ["would have been", "will be", "would be", "was"] },
+        { "before": "A wise leader always asks what", "answer": "would happen", "after": "if the plan fails.", "choices": ["would happen", "will happen", "happens", "happened"] },
+        { "before": "If the team had communicated sooner, the missing horse", "answer": "would have been found", "after": "much earlier.", "choices": ["would have been found", "will be found", "would be found", "was found"] }
+      ]
+    },
+    {
+      "name": "Ch.9 · Giving Direction — Modals & Question Tags",
+      "cefr": "b1",
+      "explain": "Modals like 'must' show obligation and 'might' show possibility, while question tags check understanding or invite agreement — all essential tools for a leader who communicates with clarity.",
+      "contrast_label": "Obligation · Possibility · Question Tag",
+      "contrast_options": ["obligation", "possibility", "question_tag"],
+      "toggle": {
+        "obligation": {
+          "label": "Obligation",
+          "icon": "❗",
+          "text": "Every officer <b>must</b> report new evidence at once.",
+          "note": "Use 'must' or 'have to' for strong obligation — essential for clear leadership instructions."
+        },
+        "possibility": {
+          "label": "Possibility",
+          "icon": "❓",
+          "text": "The missing horse <b>might</b> be hiding at a neighbouring stable.",
+          "note": "Use 'might' or 'could' to express possibility, not certainty."
+        },
+        "question_tag": {
+          "label": "Question Tag",
+          "icon": "🔁",
+          "text": "You noticed the dog's silence that night, <b>didn't you</b>?",
+          "note": "A question tag checks understanding or invites agreement — a useful leadership tool."
+        }
+      },
+      "items": [
+        { "before": "Every detective", "answer": "must", "after": "examine the smallest clue before drawing a conclusion.", "choices": ["must", "might", "would", "shan't"] },
+        { "before": "The stranger near the gate", "answer": "might", "after": "be the horse thief, though Holmes was not yet certain.", "choices": ["might", "must", "shan't", "needn't"] },
+        { "before": "The dog did not bark that night,", "answer": "did it", "after": "?", "choices": ["did it", "didn't it", "does it", "was it"] },
+        { "before": "Colonel Ross, you trust Holmes completely,", "answer": "don't you", "after": "?", "choices": ["don't you", "do you", "aren't you", "won't you"] },
+        { "before": "A strong leader", "answer": "should", "after": "listen carefully before giving any order.", "choices": ["should", "must not", "can't", "needn't"] }
+      ]
+    },
+    {
+      "name": "Ch.10 · The Race and the Truth — Pronouns & Punctuation",
+      "cefr": "a2",
+      "explain": "Possessive pronouns (his, her, its, their) show ownership without repeating a noun. A semicolon can join two closely related complete sentences, and a comma often introduces a quotation.",
+      "contrast_label": "Possessive Pronoun vs Semicolon",
+      "contrast_options": ["pronoun", "punctuation"],
+      "toggle": {
+        "pronoun": {
+          "label": "Pronoun",
+          "icon": "🔑",
+          "text": "Holmes gave <b>his</b> final report to Colonel Ross.",
+          "note": "Possessive pronouns (his, her, its, their) show ownership without repeating the noun."
+        },
+        "punctuation": {
+          "label": "Punctuation",
+          "icon": "✒️",
+          "text": "Silver Blaze, disguised with dye, won the race; the crowd cheered wildly.",
+          "note": "A semicolon joins two closely related complete sentences without a conjunction."
+        }
+      },
+      "items": [
+        { "before": "Colonel Ross could hardly believe", "answer": "his", "after": "own horse had won the race.", "choices": ["his", "him", "he", "its"] },
+        { "before": "The horse had hidden at Silas Brown's stable, and", "answer": "its", "after": "clever disguise had fooled everyone.", "choices": ["its", "it's", "their", "his"] },
+        { "before": "Holmes turned to Watson and said warmly", "answer": ",", "after": "\"Every mystery has a simple answer.\"", "choices": [",", ";", ":", "—"] },
+        { "before": "The horse ran superbly", "answer": ";", "after": "it crossed the finish line first, exactly as Holmes had predicted.", "choices": [";", ",", ":", "."] },
+        { "before": "", "answer": "Finally,", "after": "Holmes reminded his young colleague that a true leader always listens before she speaks.", "choices": ["Finally,", "Finally", "finally,", "Finally;"] }
+      ]
+    }
+  ]
+}
