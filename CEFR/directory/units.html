@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+  <title>Grammar Press — Universal Proficiency Engine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --paper:#f3ead4; --card:#fffbf2; --card-line:#e3d5b0;
+      --ink:#2d2620; --ink-muted:#8c7c62;
+      --forest:#2f5233; --moss:#6f8f5a;
+      --clay:#b5651d; --rust:#a4392c; --verb:#2f6b3f;
+      --a1:#4f8f5f; --a2:#4f8f5f; --b1:#c9932a; --b2:#c9932a; --c1:#a4392c;
+      --shadow-sm:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);
+      --shadow-md:0 2px 6px rgba(45,38,32,.10),0 10px 26px rgba(45,38,32,.12);
+      --ease:cubic-bezier(.16,1,.3,1);
+    }
+    html,body{min-height:100%;overscroll-behavior-x:none;}
+    body{
+      font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink);
+      min-height:100dvh; display:flex; flex-direction:column; align-items:center;
+      background-image:
+        radial-gradient(ellipse 70% 50% at 12% 8%, rgba(111,143,90,.14) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 45% at 92% 88%, rgba(181,101,29,.10) 0%, transparent 60%);
+    }
+    .screen{display:none;flex-direction:column;align-items:center;width:100%;min-height:100dvh;}
+    .screen.active{display:flex;}
+    #gameScreen{align-items:stretch;}
+    .col{
+      display:flex;flex-direction:column;width:100%;min-height:100%;max-width:520px;margin:0 auto;
+      padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
+      gap:clamp(9px,1.4dvh,14px);
+    }
+
+    /* Gate Screen */
+    #nameForm{align-items:center;justify-content:center;padding:24px;gap:0;}
+    .gate-card{
+      width:100%;max-width:400px;background:var(--card);border:1.5px solid var(--card-line);
+      border-radius:20px;padding:34px 26px 28px;box-shadow:0 20px 60px rgba(45,38,32,.14);
+      display:flex;flex-direction:column;align-items:stretch;gap:12px;
+      animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;
+    }
+    .hero-quote{text-align:center;margin-bottom:4px;}
+    .hero-text{font-family:'Fraunces',serif;font-weight:900;font-size:1.8rem;color:var(--forest);letter-spacing:-.5px;}
+    .hero-author{font-size:1.2rem;margin-top:2px;}
+    .gate-label{font-family:'Space Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);margin:4px 0 -4px;}
+    #nameInput, #departmentSelect, #topicSelect{
+      width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:#fffdf7;font-family:'Inter',sans-serif;font-size:.95rem;color:var(--ink);
+      appearance:none;-webkit-appearance:none;
+    }
+    #departmentSelect, #topicSelect{
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238c7c62' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+      background-repeat:no-repeat;background-position:right 14px center;background-size:18px;
+    }
+    #nameInput:focus, #departmentSelect:focus, #topicSelect:focus{outline:none;border-color:var(--moss);}
+    #gateError{color:var(--rust);font-size:.78rem;font-family:'Space Mono',monospace;text-align:center;min-height:1em;}
+    .btn-start{
+      margin-top:6px;padding:14px;border:none;border-radius:12px;
+      background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;
+      font-family:'Inter',sans-serif;font-weight:700;font-size:.92rem;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(47,82,51,.25);
+      transition:transform .15s;
+    }
+    .btn-start:active{transform:scale(.97);}
+    .btn-start:disabled{opacity:.6;cursor:default;}
+    .btn-study-link{
+      background:none;border:none;margin-top:2px;padding:6px;color:var(--ink-muted);
+      font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.03em;cursor:pointer;
+      text-decoration:underline;text-underline-offset:3px;
+    }
+
+    /* Top Bar & Stats */
+    .top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .top-actions{display:flex;gap:6px;}
+    .icon-btn{
+      width:38px;height:38px;border-radius:9px;border:1.5px solid var(--card-line);background:var(--card);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-muted);
+      box-shadow:var(--shadow-sm);transition:all .18s var(--ease);
+    }
+    .icon-btn svg{width:46%;height:46%;}
+    .brand{text-align:center;}
+    .brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.05rem,3.2dvh,1.3rem);letter-spacing:-.3px;color:var(--forest);}
+    .brand span{color:var(--rust);}
+    .brand .sub{font-family:'Space Mono',monospace;font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);}
+    .timer-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--card-line);border-radius:99px;padding:6px 13px;}
+    .timer-text{font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;color:var(--forest);}
+
+    .stat-strip{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:8px 13px;display:flex;flex-direction:column;gap:5px;}
+    .stat-top{display:flex;justify-content:space-between;align-items:baseline;}
+    .rank-name{font-family:'Fraunces',serif;font-weight:700;font-size:.82rem;color:var(--forest);}
+    .stat-nums{font-family:'Space Mono',monospace;font-size:.63rem;color:var(--ink-muted);}
+    .stat-nums b{color:var(--clay);font-weight:700;}
+    .rank-track{height:5px;background:#e9dcbb;border-radius:99px;overflow:hidden;}
+    .rank-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--forest));transition:width .6s var(--ease);}
+
+    /* Rule Card & Contrast Toggle */
+    .rule-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:11px 15px;display:flex;flex-direction:column;gap:5px;}
+    .rule-card-top{display:flex;align-items:center;justify-content:space-between;}
+    .rule-name{font-family:'Fraunces',serif;font-weight:700;font-size:.94rem;color:var(--forest);}
+    .cefr-pill{font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;padding:3px 9px;border-radius:99px;color:#fff;}
+    .cefr-pill.a1,.cefr-pill.a2{background:var(--a1);}
+    .cefr-pill.b1,.cefr-pill.b2{background:var(--b1);}
+    .cefr-pill.c1{background:var(--c1);}
+    .rule-explain{font-size:.76rem;line-height:1.42;color:var(--ink-muted);}
+
+    .contrast-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:8px;}
+    .contrast-header{display:flex;justify-content:space-between;align-items:center;}
+    .contrast-title{font-family:'Space Mono',monospace;font-size:.58rem;text-transform:uppercase;color:var(--clay);font-weight:700;}
+    .toggle-wrap{display:flex;background:#e2d4b0;border-radius:99px;padding:2px;gap:2px;}
+    .toggle-btn{padding:4px 12px;border:none;border-radius:99px;background:transparent;font-family:'Space Mono',monospace;font-size:.64rem;font-weight:700;color:var(--ink-muted);cursor:pointer;}
+    .toggle-btn.active{background:var(--forest);color:#fff;}
+    .contrast-sentence{font-family:'Fraunces',serif;font-size:.9rem;text-align:center;}
+    .contrast-sentence b{color:var(--verb);text-decoration:underline;text-underline-offset:3px;}
+    .contrast-meaning{font-size:.73rem;background:var(--card);padding:8px 10px;border-radius:8px;border:1px solid var(--card-line);display:flex;gap:6px;}
+
+    /* Specimen Mount & Tray */
+    .mount{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:20px 18px 14px;box-shadow:var(--shadow-md);position:relative;}
+    .mount::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px dashed #d8c69a;border-radius:8px;pointer-events:none;}
+    .mount.error{animation:shake .35s ease;}
+    .mount.success{animation:pop .4s var(--ease);}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+    @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+    .sentence-line{font-family:'Fraunces',serif;font-size:1.1rem;line-height:1.7;text-align:center;position:relative;z-index:1;}
+    .blank-slot{display:inline-block;min-width:70px;padding:1px 8px;border-bottom:2.5px dashed #c9b98d;font-weight:700;color:var(--ink-muted);text-align:center;}
+    .blank-slot.filled{border-bottom-style:solid;border-bottom-color:var(--verb);color:var(--verb);}
+    .mount-caption{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--ink-muted);margin-top:10px;}
+
+    .tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:52px;}
+    .tile{display:inline-flex;padding:10px 22px;border-radius:12px;background:#fffdf7;border:1.5px solid #bfe0c8;cursor:pointer;user-select:none;box-shadow:var(--shadow-sm);}
+    .tile.wrong{animation:tileShake .4s ease;}
+    .tile.solved{opacity:0;pointer-events:none;}
+    @keyframes tileShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+    .tile .word{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--verb);text-transform:lowercase;}
+
+    /* Paradigm Panel & End Screen */
+    .paradigm-panel{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:10px 14px 12px;margin-top:auto;display:flex;flex-direction:column;gap:6px;}
+    .paradigm-title{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ink-muted);text-transform:uppercase;}
+    .paradigm-title b{color:var(--forest);}
+    .paradigm-rows{display:flex;flex-direction:column;gap:4px;}
+    .paradigm-row{display:flex;align-items:baseline;gap:8px;padding:4px 2px;border-radius:6px;}
+    .paradigm-row.active{background:#eef3e9;}
+    .paradigm-num{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);min-width:16px;}
+    .paradigm-sentence{font-family:'Fraunces',serif;font-size:.86rem;color:var(--ink);flex:1;}
+    .paradigm-sentence.pending{color:#c9bfa5;font-style:italic;}
+    .paradigm-sentence b{color:var(--verb);}
+    .paradigm-check{font-size:.75rem;color:var(--moss);}
+
+    .archive-title{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;margin-top:8px;}
+    .archive-list{display:flex;flex-direction:column;gap:6px;max-height:120px;overflow-y:auto;}
+    .archive-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;padding:7px 10px;}
+    .archive-card .arc-rule{font-family:'Space Mono',monospace;font-size:.56rem;color:var(--forest);text-transform:uppercase;font-weight:700;}
+    .archive-card .arc-line{font-family:'Fraunces',serif;font-size:.78rem;color:var(--ink);}
+
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:16px;font-size:.82rem;z-index:200;transition:all .35s var(--ease);opacity:0;pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+    .toast.good{background:linear-gradient(135deg,var(--forest),var(--moss));}
+
+    #endScreen{justify-content:flex-start;padding:30px 16px;overflow-y:auto;}
+    .end-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:20px;padding:32px 26px;max-width:520px;width:100%;}
+    .end-title{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;text-align:center;color:var(--forest);}
+    .end-subtitle{text-align:center;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--ink-muted);text-transform:uppercase;margin-bottom:20px;}
+    .end-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px;}
+    .stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;text-align:center;border:1.5px solid var(--card-line);}
+    .stat-num{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:var(--forest);}
+    .stat-lbl{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;}
+    .end-btn-row{display:flex;gap:10px;margin-top:18px;}
+    .btn-end{flex:1;padding:13px;border:none;border-radius:12px;font-weight:700;font-size:.86rem;cursor:pointer;text-transform:uppercase;}
+    .btn-end-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;}
+    .btn-end-share{background:linear-gradient(135deg,#128c7e,#25d366);color:#fff;}
+
+    .study-overlay{display:none;position:fixed;inset:0;background:var(--paper);z-index:250;overflow-y:auto;padding:24px 16px;}
+    .study-overlay.show{display:block;}
+    .study-inner{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+    .study-grid{display:flex;flex-direction:column;gap:10px;}
+    .study-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:14px 16px;}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- Gate Screen -->
+<div class="screen active" id="nameForm">
+  <div class="gate-card">
+    <div class="hero-quote">
+      <div class="hero-text">Grammar Press</div>
+      <div class="hero-author">📖📐✨</div>
+    </div>
+    <div class="gate-label">Your Name</div>
+    <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off"/>
+    
+    <div class="gate-label">Department</div>
+    <select id="departmentSelect">
+      <option value="">-- Select Department --</option>
+      <option value="Cyber Security">Cyber Security</option>
+      <option value="EIE">EIE</option>
+      <option value="CSE-1">CSE-1</option>
+      <option value="CSE-2">CSE-2</option>
+      <option value="CSE-3">CSE-3</option>
+      <option value="Mechanical Engineering">Mechanical Engineering</option>
+      <option value="ECE-1">ECE-1</option>
+      <option value="ECE-2">ECE-2</option>
+      <option value="ECE-3">ECE-3</option>
+      <option value="AI DS-1">AI DS-1</option>
+      <option value="AI DS-2">AI DS-2</option>
+      <option value="Agri and Civil">Agri and Civil</option>
+      <option value="EEE">EEE</option>
+      <option value="Medical Electronics">Medical Electronics</option>
+      <option value="IT-1">IT-1</option>
+      <option value="IT-2">IT-2</option>
+    </select>
+
+    <div class="gate-label">Grammar Module</div>
+    <select id="topicSelect">
+      <option value="subject-verb-agreement">1. Subject-Verb Agreement</option>
+      <option value="articles">2. Articles (A, An, The, Zero)</option>
+      <option value="prepositions">3. Prepositions of Time & Place</option>
+      <option value="tenses">4. Tenses & Aspect Shifts</option>
+      <option value="active-passive">5. Active & Passive Voice</option>
+      <option value="reported-speech">6. Reported Speech</option>
+      <option value="conditionals">7. Conditionals & Wish Clauses</option>
+      <option value="question-tags">8. Question Tags & Auxiliaries</option>
+      <option value="pronouns">9. Pronouns & Relatives</option>
+      <option value="punctuation">10. Punctuation & Mechanics</option>
+    </select>
+
+    <div id="gateError"></div>
+    <button class="btn-start" id="btnBeginQuiz">✿ Start Module</button>
+    <button class="btn-study-link" onclick="openStudy()">📖 Study module rules first</button>
+  </div>
+</div>
+
+<!-- Main Game Screen -->
+<div class="screen" id="gameScreen">
+  <div class="col">
+    <div class="top-bar">
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-end-game" aria-label="End round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3v18"/><path d="M5 4h11l-2 3.5L16 11H5"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-study" aria-label="Study glossary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5v-15Z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg>
+        </button>
+      </div>
+      <div class="brand"><h1 id="moduleHeaderTitle">Grammar<span>✿</span>Press</h1><div class="sub" id="moduleHeaderSub">Universal Engine</div></div>
+      <div class="timer-pill"><div class="timer-text" id="timerText">00:00</div></div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-top">
+        <span class="rank-name" id="rank-name">Novice 🌰</span>
+        <span class="stat-nums"><b id="score">0</b>pts · <b id="streak">0</b> streak · best <b id="best-score">0</b></span>
+      </div>
+      <div class="rank-track"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="rule-card">
+      <div class="rule-card-top">
+        <span class="rule-name" id="rule-name">Rule</span>
+        <span class="cefr-pill" id="cefr-pill">A1</span>
+      </div>
+      <div class="rule-explain" id="rule-explain">Explanation...</div>
+    </div>
+
+    <div class="contrast-card" id="contrast-card">
+      <div class="contrast-header">
+        <span class="contrast-title">Contrastive Paradigm</span>
+        <div class="toggle-wrap" id="toggle-wrap"></div>
+      </div>
+      <div class="contrast-sentence" id="contrast-sentence"></div>
+      <div class="contrast-meaning">
+        <span id="contrast-icon">💡</span>
+        <span id="contrast-text">Toggle option to inspect target contrast.</span>
+      </div>
+    </div>
+
+    <div class="mount" id="mount">
+      <div class="sentence-line" id="sentence-line"></div>
+      <div class="mount-caption" id="mount-caption">tap the correct structural element</div>
+    </div>
+
+    <div class="tray" id="tray"></div>
+
+    <div class="paradigm-panel">
+      <div class="paradigm-title">Rule <b id="specimen-num">1</b>/<span id="total-rules-count">24</span> · <b id="paradigm-count">0</b>/4 sentences</div>
+      <div class="paradigm-rows" id="paradigm-rows"></div>
+      <div class="archive-title" id="archive-title" style="display:none;">Mastered Rules</div>
+      <div class="archive-list" id="archive-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- End Screen -->
+<div class="screen" id="endScreen">
+  <div class="end-card">
+    <div class="end-title" id="endTitle">🌿 Module Completed</div>
+    <div class="end-subtitle" id="endSubtitle">Grammar Press</div>
+    <div class="end-stats">
+      <div class="stat-box"><div class="stat-num" id="endScore">0</div><div class="stat-lbl">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="endSentences">0</div><div class="stat-lbl">Pressed</div></div>
+      <div class="stat-box"><div class="stat-num" id="endAccuracy">0%</div><div class="stat-lbl">Accuracy</div></div>
+    </div>
+    <div id="endSentencesList"></div>
+    <div class="end-btn-row">
+      <button class="btn-end btn-end-primary" id="btnPlayAgain">✿ Replay Module</button>
+      <button class="btn-end btn-end-share" id="btnShare">📲 Share</button>
+    </div>
+  </div>
+</div>
+
+<!-- Study Overlay -->
+<div class="study-overlay" id="studyOverlay">
+  <div class="study-inner">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="font-family:'Fraunces',serif;color:var(--forest);" id="studyTitle">📖 Module Glossary</h2>
+      <button class="icon-btn" onclick="closeStudy()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="study-grid" id="studyGrid"></div>
+  </div>
+</div>
+
+<script type="module">
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+const CEFR_LABEL = {a1:"A1",a2:"A2",b1:"B1",b2:"B2",c1:"C1"};
+const CEFR_POINTS = {a1:8,a2:9,b1:10,b2:13,c1:16};
+const RANKS = [{name:'Seed 🌰',min:0},{name:'Sprout 🌱',min:60},{name:'Bud 🌿',min:160},{name:'Bloom 🌸',min:320},{name:'Botanist ✿',min:760}];
+
+let RULE_GROUPS = [];
+let currentTopic = 'subject-verb-agreement';
+let playerName = '', playerDept = '';
+let deck = [], currentGroupIdx = null, currentGroup = null, currentItemIndex = 0, current = null, currentTiles = [];
+let placedCount = 0, currentMistakes = 0, score = 0, streak = 0, completedCount = 0, correctTaps = 0, wrongTaps = 0;
+let sentenceStart = 0, elapsedSeconds = 0, timerInterval = null, gameActive = true;
+let completedList = [], ruleArchive = [], currentForms = [];
+let ruleStartTime = 0, ruleScore = 0, ruleCorrectTaps = 0, ruleWrongTaps = 0, ruleHadMistake = false;
+
+async function loadGrammarPack(topicKey) {
+  try {
+    const res = await fetch(`./grammar/${topicKey}.json`);
+    if(!res.ok) throw new Error("Could not load grammar pack");
+    const data = await res.json();
+    RULE_GROUPS = data.rules;
+    document.getElementById('moduleHeaderTitle').innerHTML = `${data.moduleTitle.split(' ')[0]}<span>✿</span>Press`;
+    document.getElementById('moduleHeaderSub').textContent = data.moduleSub || "Grammar Press";
+    document.getElementById('total-rules-count').textContent = RULE_GROUPS.length;
+  } catch(err) {
+    alert("Error loading grammar module JSON. Ensure server/local paths are valid.");
+    console.error(err);
+  }
+}
+
+async function beginQuiz() {
+  const name = document.getElementById('nameInput').value.trim();
+  const dept = document.getElementById('departmentSelect').value;
+  currentTopic = document.getElementById('topicSelect').value;
+  const errEl = document.getElementById('gateError');
+
+  if(!name) { errEl.textContent = 'Please enter your name.'; return; }
+  if(!dept) { errEl.textContent = 'Please select your department.'; return; }
+
+  playerName = name; playerDept = dept;
+  errEl.textContent = '';
+
+  await loadGrammarPack(currentTopic);
+
+  document.getElementById('nameForm').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame();
+}
+document.getElementById('btnBeginQuiz').addEventListener('click', beginQuiz);
+
+function newGame() {
+  clearInterval(timerInterval);
+  deck = RULE_GROUPS.map((_,i)=>i).sort(()=>Math.random()-0.5);
+  score=0; streak=0; completedCount=0; correctTaps=0; wrongTaps=0;
+  completedList=[]; ruleArchive=[]; elapsedSeconds=0; gameActive=true;
+  updateStats();
+  loadNextRuleGroup();
+  timerInterval = setInterval(()=>{ if(gameActive) { elapsedSeconds++; updateTimer(); } },1000);
+}
+
+function updateTimer() {
+  const m = Math.floor(elapsedSeconds/60), s = elapsedSeconds%60;
+  document.getElementById('timerText').textContent = (m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+}
+
+function loadNextRuleGroup() {
+  if(!deck.length) return;
+  currentGroupIdx = deck.pop();
+  currentGroup = RULE_GROUPS[currentGroupIdx];
+  currentItemIndex = 0;
+  currentForms = [];
+  ruleStartTime = Date.now(); ruleScore = 0; ruleCorrectTaps = 0; ruleWrongTaps = 0; ruleHadMistake = false;
+
+  document.getElementById('rule-name').textContent = currentGroup.name;
+  const pill = document.getElementById('cefr-pill');
+  pill.textContent = CEFR_LABEL[currentGroup.cefr];
+  pill.className = 'cefr-pill ' + currentGroup.cefr;
+  document.getElementById('rule-explain').textContent = currentGroup.explain;
+
+  renderContrastCard(currentGroup);
+  applyItemData();
+  renderParadigm();
+}
+
+function renderContrastCard(group) {
+  const wrap = document.getElementById('toggle-wrap');
+  wrap.innerHTML = '';
+  const keys = Object.keys(group.toggle);
+  keys.forEach((key, idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (idx===0 ? ' active' : '');
+    btn.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+    btn.onclick = () => {
+      document.querySelectorAll('#toggle-wrap .toggle-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('contrast-sentence').innerHTML = group.toggle[key].text;
+      document.getElementById('contrast-text').textContent = group.toggle[key].note;
+    };
+    wrap.appendChild(btn);
+  });
+  if(keys.length) {
+    document.getElementById('contrast-sentence').innerHTML = group.toggle[keys[0]].text;
+    document.getElementById('contrast-text').textContent = group.toggle[keys[0]].note;
+  }
+}
+
+function applyItemData() {
+  current = currentGroup.items[currentItemIndex];
+  placedCount = 0; currentMistakes = 0; sentenceStart = Date.now();
+  currentTiles = current.choices.map((c,i)=>({id:i+'-'+Date.now(), text:c, correct:c===current.answer, solved:false})).sort(()=>Math.random()-0.5);
+  renderSentence(); renderTray();
+}
+
+function renderSentence() {
+  const blankHTML = placedCount ? `<span class="blank-slot filled">${current.answer}</span>` : `<span class="blank-slot">____</span>`;
+  document.getElementById('sentence-line').innerHTML = `${current.before} ${blankHTML} ${current.after}`;
+}
+
+function renderTray() {
+  const wrap = document.getElementById('tray'); wrap.innerHTML='';
+  currentTiles.forEach(t=>{
+    const el = document.createElement('div');
+    el.className = 'tile' + (t.solved ? ' solved' : '');
+    el.innerHTML = `<span class="word">${t.text}</span>`;
+    el.onclick = () => tapTile(t, el);
+    wrap.appendChild(el);
+  });
+}
+
+function tapTile(tile, el) {
+  if(!gameActive || placedCount) return;
+  if(tile.correct) {
+    tile.solved = true; placedCount = 1; correctTaps++; ruleCorrectTaps++;
+    renderSentence();
+    currentTiles.forEach(t=>t.solved=true); renderTray();
+    completeItem();
+  } else {
+    wrongTaps++; ruleWrongTaps++; currentMistakes++; ruleHadMistake = true; streak = 0;
+    el.classList.add('wrong'); setTimeout(()=>el.classList.remove('wrong'),400);
+    updateStats();
+  }
+}
+
+function completeItem() {
+  const elapsedSec = (Date.now()-sentenceStart)/1000;
+  const pts = Math.max(4, CEFR_POINTS[currentGroup.cefr] + Math.max(0, Math.round(8 - elapsedSec)) - (currentMistakes*3));
+  score += pts; ruleScore += pts; completedCount++;
+  if(currentMistakes===0) streak++; else streak=0;
+
+  const text = `${current.before} ${current.answer} ${current.after}`;
+  completedList.push({text, pts, rule: currentGroup.name});
+  currentForms.push({text, answer: current.answer});
+
+  updateStats(); renderParadigm();
+
+  setTimeout(()=>{
+    if(currentItemIndex < currentGroup.items.length - 1) {
+      currentItemIndex++; applyItemData(); renderParadigm();
+    } else {
+      ruleArchive.push({ name: currentGroup.name, forms: currentForms.slice() });
+      submitRuleToSupabase();
+      if(ruleArchive.length >= RULE_GROUPS.length) {
+        endGame();
+      } else {
+        loadNextRuleGroup();
+      }
+    }
+  }, 600);
+}
+
+function renderParadigm() {
+  const rows = document.getElementById('paradigm-rows'); rows.innerHTML = '';
+  currentGroup.items.forEach((item, idx) => {
+    const found = currentForms[idx];
+    const row = document.createElement('div');
+    row.className = 'paradigm-row' + (found ? ' done' : (idx === currentItemIndex ? ' active' : ''));
+    row.innerHTML = `<span class="paradigm-num">${idx+1}</span>` +
+      (found ? `<span class="paradigm-sentence">${item.before} <b>${found.answer}</b> ${item.after}</span><span class="paradigm-check">✓</span>`
+             : `<span class="paradigm-sentence pending">— pending —</span>`);
+    rows.appendChild(row);
+  });
+  document.getElementById('paradigm-count').textContent = currentForms.length;
+  document.getElementById('specimen-num').textContent = ruleArchive.length + 1;
+}
+
+function updateStats() {
+  document.getElementById('score').textContent = score;
+  document.getElementById('streak').textContent = streak;
+  let r = RANKS[0]; for(const rk of RANKS) if(score >= rk.min) r = rk;
+  document.getElementById('rank-name').textContent = r.name;
+}
+
+async function submitRuleToSupabase() {
+  const questId = `${currentTopic}_${ruleHadMistake ? "Rules" : "Rule"} ${currentGroupIdx + 1}`;
+  try {
+    await fetch(EDGE_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        student_name: playerName, department: playerDept,
+        correct: ruleCorrectTaps, wrong: ruleWrongTaps,
+        time_spent: Math.round((Date.now()-ruleStartTime)/1000),
+        quest_id: questId, score: ruleScore, sentences_pressed: currentForms.length
+      })
+    });
+  } catch(e) { console.error("Logger offline", e); }
+}
+
+function endGame() {
+  gameActive = false; clearInterval(timerInterval);
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('endScreen').classList.add('active');
+  document.getElementById('endScore').textContent = score;
+  document.getElementById('endSentences').textContent = completedCount;
+  const total = correctTaps + wrongTaps;
+  document.getElementById('endAccuracy').textContent = total ? Math.round(correctTaps/total*100)+'%' : '100%';
+}
+
+document.getElementById('btnPlayAgain').onclick = () => {
+  document.getElementById('endScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame();
+};
+
+window.openStudy = () => {
+  if(!RULE_GROUPS.length) return;
+  const grid = document.getElementById('studyGrid');
+  grid.innerHTML = RULE_GROUPS.map(g => `
+    <div class="study-card">
+      <div style="font-weight:700;color:var(--forest);">${g.name} (${CEFR_LABEL[g.cefr]})</div>
+      <div style="font-size:.78rem;color:var(--ink-muted);margin:4px 0;">${g.explain}</div>
+    </div>
+  `).join('');
+  document.getElementById('studyOverlay').classList.add('show');
+};
+window.closeStudy = () => document.getElementById('studyOverlay').classList.remove('show');
+</script>
+</body>
+</html>
