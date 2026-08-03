@@ -1,0 +1,81 @@
+{
+  "moduleTitle": "Herbarium — Agreement Press",
+  "moduleSub": "Subject-Verb Agreement Module",
+  "rules": [
+    {
+      "name": "3rd-Person Singular -s",
+      "cefr": "a1",
+      "explain": "Singular subjects (he/she/it, and singular names) take the -s verb form in the present simple. Plural subjects, and 'I'/'you', take the base form.",
+      "toggle": {
+        "singular": { "text": "Minerva <b>goes</b> to the market.", "note": "Singular subject → add -s to the verb." },
+        "plural": { "text": "Albus and Severus <b>go</b> to the market.", "note": "Plural subject → use the base form, no -s." }
+      },
+      "items": [
+        { "before": "Minerva", "after": "to the market every morning.", "answer": "goes", "choices": ["goes", "go"] },
+        { "before": "Albus and Severus", "after": "to the market every morning.", "answer": "go", "choices": ["go", "goes"] },
+        { "before": "They", "after": "to the market every morning.", "answer": "go", "choices": ["go", "goes"] },
+        { "before": "You", "after": "to the market every morning.", "answer": "go", "choices": ["go", "goes"] }
+      ]
+    },
+    {
+      "name": "Collective Nouns as a Unit",
+      "cefr": "b1",
+      "explain": "Collective nouns (team, committee, family) take a singular verb when acting as one group. Words for the individual members (players, people) take a plural verb.",
+      "toggle": {
+        "singular": { "text": "The team <b>is</b> practising today.", "note": "Collective noun acting as one unit → singular verb." },
+        "plural": { "text": "The players <b>are</b> practising today.", "note": "Naming the individual members → plural verb." }
+      },
+      "items": [
+        { "before": "The team", "after": "practising every day this week.", "answer": "is", "choices": ["is", "are"] },
+        { "before": "The committee", "after": "practising every day this week.", "answer": "is", "choices": ["is", "are"] },
+        { "before": "The players", "after": "practising every day this week.", "answer": "are", "choices": ["are", "is"] },
+        { "before": "They", "after": "practising every day this week.", "answer": "are", "choices": ["are", "is"] }
+      ]
+    },
+    {
+      "name": "Indefinite Pronouns",
+      "cefr": "a2",
+      "explain": "Pronouns ending in -one, -body, or -thing (everyone, nobody, something) are always singular. Few, many, several, and both are always plural.",
+      "toggle": {
+        "singular": { "text": "Everyone <b>is</b> invited.", "note": "-one/-body/-thing pronouns are always singular." },
+        "plural": { "text": "Few <b>are</b> invited.", "note": "Few, many, several, and both are always plural." }
+      },
+      "items": [
+        { "before": "Everyone", "after": "invited to the party tonight.", "answer": "is", "choices": ["is", "are"] },
+        { "before": "Nobody", "after": "invited to the party tonight.", "answer": "is", "choices": ["is", "are"] },
+        { "before": "Few", "after": "invited to the party tonight.", "answer": "are", "choices": ["are", "is"] },
+        { "before": "Many", "after": "invited to the party tonight.", "answer": "are", "choices": ["are", "is"] }
+      ]
+    },
+    {
+      "name": "Either/Or, Neither/Nor — Proximity Rule",
+      "cefr": "b2",
+      "explain": "With either...or and neither...nor, the verb agrees with whichever subject is closest to it — not with the first one.",
+      "toggle": {
+        "singular": { "text": "Either the employees or the manager <b>is</b> responsible.", "note": "Verb agrees with the closer subject — here, singular 'manager'." },
+        "plural": { "text": "Either the manager or the employees <b>are</b> responsible.", "note": "Verb agrees with the closer subject — here, plural 'employees'." }
+      },
+      "items": [
+        { "before": "Either the manager or the employees", "after": "responsible for this.", "answer": "are", "choices": ["are", "is"] },
+        { "before": "Either the employees or the manager", "after": "responsible for this.", "answer": "is", "choices": ["is", "are"] },
+        { "before": "Neither the teacher nor the students", "after": "ready for this.", "answer": "are", "choices": ["are", "is"] },
+        { "before": "Neither the students nor the teacher", "after": "ready for this.", "answer": "is", "choices": ["is", "are"] }
+      ]
+    },
+    {
+      "name": "'A Number Of' vs 'The Number Of'",
+      "cefr": "c1",
+      "explain": "'A number of' means 'many' and takes a plural verb. 'The number of' refers to the total count itself, which is a single figure — singular.",
+      "toggle": {
+        "singular": { "text": "The number of students <b>is</b> thirty.", "note": "'The number of' refers to one total figure → singular." },
+        "plural": { "text": "A number of students <b>are</b> present.", "note": "'A number of' means 'many' → plural." }
+      },
+      "items": [
+        { "before": "A number of students", "after": "present today.", "answer": "are", "choices": ["are", "is"] },
+        { "before": "A number of dancers", "after": "performing tonight.", "answer": "are", "choices": ["are", "is"] },
+        { "before": "The number of students", "after": "thirty today.", "answer": "is", "choices": ["is", "are"] },
+        { "before": "The number of dancers", "after": "twelve tonight.", "answer": "is", "choices": ["is", "are"] }
+      ]
+    }
+  ]
+}
