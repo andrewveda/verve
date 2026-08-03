@@ -901,6 +901,8 @@ async function beginQuiz(){
   errEl.textContent = '';
   playerName = name;
   playerDept = dept;
+  localStorage.setItem("userName", name);
+localStorage.setItem("userDept", dept);
 
   startBtn.disabled = true;
   startBtn.textContent = 'Loading your progress…';
@@ -911,6 +913,21 @@ async function beginQuiz(){
   document.getElementById('nameForm').classList.remove('active');
   document.getElementById('gameScreen').classList.add('active');
   newGame();
+}
+  // Skip the gate for returning users
+const savedName = localStorage.getItem("userName");
+const savedDept = localStorage.getItem("userDept");
+
+if (savedName && savedDept) {
+    playerName = savedName;
+    playerDept = savedDept;
+
+    document.getElementById("nameForm").classList.remove("active");
+    document.getElementById("gameScreen").classList.add("active");
+
+    loadPlayerHistory(playerName).then(() => {
+        newGame();
+    });
 }
 document.getElementById('btnBeginQuiz').addEventListener('click', beginQuiz);
 
