@@ -915,7 +915,7 @@ async function sendViaEdgeFunction(payload){
 function submitRuleToSupabase(){
   const timeSpent = Math.round((Date.now()-ruleStartTime)/1000);
   const ruleNumber = currentGroupIdx + 1;
-  const questId = (ruleHadMistake ? "Rules " : "Rule ") + ruleNumber;
+const questId = (ruleHadMistake ? "Quest Rules " : "Quest Rule ") + ruleNumber;
   const payload = {
     student_name: playerName, department: playerDept, correct: ruleCorrectTaps, wrong: ruleWrongTaps,
     time_spent: timeSpent, quest_id: questId, score: ruleScore, sentences_pressed: currentForms.length,
