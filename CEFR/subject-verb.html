@@ -914,21 +914,22 @@ localStorage.setItem("userDept", dept);
   document.getElementById('gameScreen').classList.add('active');
   newGame();
 }
-  // Skip the gate for returning users
-const savedName = localStorage.getItem("userName");
-const savedDept = localStorage.getItem("userDept");
+document.addEventListener("DOMContentLoaded", async () => {
+    const savedName = localStorage.getItem("userName");
+    const savedDept = localStorage.getItem("userDept");
 
-if (savedName && savedDept) {
-    playerName = savedName;
-    playerDept = savedDept;
+    if (savedName && savedDept) {
+        playerName = savedName;
+        playerDept = savedDept;
 
-    document.getElementById("nameForm").classList.remove("active");
-    document.getElementById("gameScreen").classList.add("active");
+        document.getElementById("nameForm").classList.remove("active");
+        document.getElementById("gameScreen").classList.add("active");
 
-    loadPlayerHistory(playerName).then(() => {
+        await loadPlayerHistory(playerName);
         newGame();
-    });
-}
+    }
+});
+
 document.getElementById('btnBeginQuiz').addEventListener('click', beginQuiz);
 
 function shuffledDeck(){
