@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+  <title>Communicate to Lead | Verve</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --paper:#f3ead4; --card:#fffbf2; --card-line:#e3d5b0;
+      --ink:#2d2620; --ink-muted:#8c7c62;
+      --forest:#2f5233; --forest-dark:#20391f; --moss:#6f8f5a;
+      --clay:#b5651d; --gold:#c9a227; --rust:#a4392c;
+      --shadow-sm:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);
+      --shadow-md:0 2px 6px rgba(45,38,32,.10),0 10px 26px rgba(45,38,32,.12);
+      --ease:cubic-bezier(.16,1,.3,1);
+    }
+    html,body{min-height:100%;overscroll-behavior-x:none;}
+    body{
+      font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink);
+      min-height:100dvh; display:flex; flex-direction:column; align-items:center;
+      background-image:
+        radial-gradient(ellipse 70% 50% at 12% 8%, rgba(111,143,90,.14) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 45% at 92% 88%, rgba(181,101,29,.10) 0%, transparent 60%);
+    }
+    .screen{display:none;flex-direction:column;align-items:center;width:100%;min-height:100dvh;}
+    .screen.active{display:flex;}
+    .col{
+      display:flex;flex-direction:column;width:100%;min-height:100%;max-width:520px;margin:0 auto;
+      padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
+      gap:clamp(10px,1.6dvh,16px);
+    }
+
+    /* ═══════ Gate ═══════ */
+    #gateScreen{align-items:center;justify-content:center;padding:24px;gap:0;}
+    .gate-card{
+      width:100%;max-width:400px;background:var(--card);border:1.5px solid var(--card-line);
+      border-radius:20px;padding:34px 26px 28px;box-shadow:0 20px 60px rgba(45,38,32,.14);
+      display:flex;flex-direction:column;align-items:stretch;gap:14px;
+      animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;
+    }
+    @keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+    .hero-quote{text-align:center;margin-bottom:8px;}
+    .hero-text{font-family:'Fraunces',serif;font-weight:900;font-size:1.7rem;color:var(--forest);letter-spacing:-.5px;line-height:1.2;}
+    .hero-sub{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--ink-muted);margin-top:6px;line-height:1.4;}
+    .hero-author{font-size:1.3rem;margin-top:4px;}
+    .gate-label{font-family:'Space Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);margin:6px 0 -6px;}
+    #nameInput, #departmentSelect{
+      width:100%;padding:14px 15px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:#fffdf7;font-family:'Inter',sans-serif;font-size:1rem;color:var(--ink);
+      appearance:none;-webkit-appearance:none;
+    }
+    #departmentSelect{
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238c7c62' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+      background-repeat:no-repeat;background-position:right 14px center;background-size:18px;
+    }
+    #nameInput:focus, #departmentSelect:focus{outline:none;border-color:var(--moss);}
+    #gateError{color:var(--rust);font-size:.78rem;font-family:'Space Mono',monospace;text-align:center;min-height:1em;}
+    .btn-start{
+      margin-top:6px;padding:15px;border:none;border-radius:12px;
+      background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;
+      font-family:'Inter',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(47,82,51,.25);
+      transition:transform .15s;
+    }
+    .btn-start:active{transform:scale(.97);}
+    .btn-start:disabled{opacity:.6;cursor:default;}
+
+    /* ═══════ Directory ═══════ */
+    #dirScreen{justify-content:flex-start;}
+    .top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .brand{text-align:center;flex:1;}
+    .brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.05rem,3.2dvh,1.4rem);letter-spacing:-.3px;color:var(--forest);}
+    .brand span{color:var(--rust);}
+    .brand .sub{font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-top:1px;}
+
+    .welcome-strip{
+      background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;
+      border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:12px;
+      box-shadow:var(--shadow-md);animation:cardIn .4s var(--ease);
+    }
+    .welcome-avatar{
+      width:2.6rem;height:2.6rem;background:rgba(255,255,255,.18);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;
+      font-size:1.1rem;font-weight:700;flex-shrink:0;
+    }
+    .welcome-text{flex:1;min-width:0;}
+    .welcome-text h2{font-size:.9rem;font-weight:600;margin-bottom:2px;}
+    .welcome-text p{font-size:.75rem;opacity:.85;}
+    .welcome-edit{
+      background:rgba(255,255,255,.15);border:none;color:#fff;padding:6px 12px;
+      border-radius:8px;font-family:'Space Mono',monospace;font-size:.65rem;font-weight:700;
+      cursor:pointer;white-space:nowrap;transition:background .15s;
+    }
+    .welcome-edit:active{background:rgba(255,255,255,.25);}
+
+    .section-title{font-family:'Space Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-muted);margin:4px 0 2px;padding-left:4px;}
+    .module-grid{display:flex;flex-direction:column;gap:10px;}
+    .module-card{
+      background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;
+      padding:14px 16px;text-decoration:none;color:inherit;display:flex;align-items:center;
+      gap:14px;box-shadow:var(--shadow-sm);transition:all .18s var(--ease);position:relative;overflow:hidden;
+    }
+    .module-card::before{
+      content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--moss);
+      opacity:0;transition:opacity .2s;
+    }
+    .module-card:active{transform:scale(.985);border-color:var(--moss);}
+    .module-card:active::before{opacity:1;}
+    .module-icon{
+      width:2.8rem;height:2.8rem;border-radius:12px;display:flex;align-items:center;
+      justify-content:center;font-size:1.3rem;flex-shrink:0;
+    }
+    .module-icon.blue{background:#ebf8ff;}
+    .module-icon.purple{background:#faf5ff;}
+    .module-icon.green{background:#f0fff4;}
+    .module-icon.orange{background:#fffaf0;}
+    .module-icon.red{background:#fff5f5;}
+    .module-info{flex:1;min-width:0;}
+    .module-info h3{font-family:'Fraunces',serif;font-size:.95rem;font-weight:700;color:var(--forest);margin-bottom:3px;}
+    .module-info p{font-size:.78rem;color:var(--ink-muted);line-height:1.35;}
+    .module-arrow{color:var(--ink-muted);font-size:1.3rem;font-weight:700;transition:transform .2s, color .2s;}
+    .module-card:active .module-arrow{transform:translateX(4px);color:var(--forest);}
+
+    .footer{text-align:center;padding:8px 0 4px;font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);letter-spacing:.04em;}
+    .footer strong{color:var(--forest);}
+
+    .toast{
+      position:fixed;bottom:calc(env(safe-area-inset-bottom) + 24px);left:50%;
+      transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;
+      padding:10px 20px;border-radius:16px;font-size:.82rem;font-weight:500;z-index:200;
+      pointer-events:none;transition:transform .35s var(--ease),opacity .35s;opacity:0;
+      max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+  </style>
+<base target="_blank">
+</head>
+<body>
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══════ Gate ═══════ -->
+  <div class="screen active" id="gateScreen">
+    <div class="gate-card">
+      <div class="hero-quote">
+        <div class="hero-text">Communicate to Lead</div>
+        <div class="hero-sub">Essential English Communication Skills<br>CSI Ewart Women's Christian College</div>
+        <div class="hero-author">✿</div>
+      </div>
+      <div class="gate-label">Your Name</div>
+      <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="name" autocapitalize="words"/>
+      <div class="gate-label">Department</div>
+      <select id="departmentSelect">
+        <option value="">-- Select Department --</option>
+        <option value="CSI Ewart">CSI Ewart</option>
+        <option value="Cyber Security">Cyber Security</option>
+      </select>
+      <div id="gateError"></div>
+      <button class="btn-start" id="btnEnter">✿ Enter</button>
+    </div>
+  </div>
+
+  <!-- ═══════ Directory ═══════ -->
+  <div class="screen" id="dirScreen">
+    <div class="col">
+      <div class="top-bar">
+        <div class="brand" style="text-align:left;">
+          <h1>Communi<span>cate</span></h1>
+          <div class="sub">Verve · Directory</div>
+        </div>
+      </div>
+
+      <div class="welcome-strip" id="welcomeStrip">
+        <div class="welcome-avatar" id="welcomeAvatar">?</div>
+        <div class="welcome-text">
+          <h2 id="welcomeName">Welcome</h2>
+          <p id="welcomeDept">Select a module below</p>
+        </div>
+        <button class="welcome-edit" id="btnEdit">Edit</button>
+      </div>
+
+      <div class="section-title">Learning Modules</div>
+      <div class="module-grid">
+        <a href="https://andrewveda.com/verve/CEFR/preposition.html" class="module-card">
+          <div class="module-icon blue">📍</div>
+          <div class="module-info">
+            <h3>Prepositions</h3>
+            <p>Master spatial and temporal relationships</p>
+          </div>
+          <div class="module-arrow">›</div>
+        </a>
+
+        <a href="https://andrewveda.com/verve/CEFR/pronouns.html" class="module-card">
+          <div class="module-icon purple">👤</div>
+          <div class="module-info">
+            <h3>Pronouns</h3>
+            <p>Understand reference and substitution</p>
+          </div>
+          <div class="module-arrow">›</div>
+        </a>
+
+        <a href="https://andrewveda.com/verve/CEFR/questions.html" class="module-card">
+          <div class="module-icon green">❓</div>
+          <div class="module-info">
+            <h3>Questions</h3>
+            <p>Form accurate interrogative sentences</p>
+          </div>
+          <div class="module-arrow">›</div>
+        </a>
+
+        <a href="https://andrewveda.com/verve/CEFR/subject-verb.html" class="module-card">
+          <div class="module-icon orange">🔗</div>
+          <div class="module-info">
+            <h3>Subject–Verb Agreement</h3>
+            <p>Ensure grammatical concordance</p>
+          </div>
+          <div class="module-arrow">›</div>
+        </a>
+
+        <a href="https://andrewveda.com/verve/CEFR/tenses.html" class="module-card">
+          <div class="module-icon red">⏱️</div>
+          <div class="module-info">
+            <h3>Tenses</h3>
+            <p>Navigate time in English grammar</p>
+          </div>
+          <div class="module-arrow">›</div>
+        </a>
+        <a href="https://andrewveda.com/verve/Ewart/leaderboard" class="module-card">
+          <div class="module-icon red">🏆</div>
+          <div class="module-info">
+            <h3>Leaderboard</h3>
+            <p>We are the champions!</p>
+          </div>
+          <div class="module-arrow">›</div>
+        </a>
+
+      </div>
+
+      <div class="footer">
+        <strong>Communicate to Lead</strong> — CSI Ewart Women's Christian College
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LS_NAME = 'userName';
+    const LS_DEPT = 'userDept';
+
+    function showToast(msg){
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    function enterDirectory(){
+      const nameEl = document.getElementById('nameInput');
+      const deptEl = document.getElementById('departmentSelect');
+      const errEl = document.getElementById('gateError');
+      const name = nameEl.value.trim();
+      const dept = deptEl.value;
+
+      if(!name){ errEl.textContent = 'Please enter your name.'; nameEl.focus(); return; }
+      if(!dept){ errEl.textContent = 'Please select your department.'; deptEl.focus(); return; }
+      errEl.textContent = '';
+
+      localStorage.setItem(LS_NAME, name);
+      localStorage.setItem(LS_DEPT, dept);
+
+      showDirectory(name, dept);
+    }
+
+    function showDirectory(name, dept){
+      document.getElementById('gateScreen').classList.remove('active');
+      document.getElementById('dirScreen').classList.add('active');
+      document.getElementById('welcomeName').textContent = 'Welcome, ' + name;
+      document.getElementById('welcomeDept').textContent = dept;
+      document.getElementById('welcomeAvatar').textContent = name.charAt(0).toUpperCase();
+    }
+
+    function editProfile(){
+      const name = localStorage.getItem(LS_NAME) || '';
+      const dept = localStorage.getItem(LS_DEPT) || '';
+      document.getElementById('dirScreen').classList.remove('active');
+      document.getElementById('gateScreen').classList.add('active');
+      document.getElementById('nameInput').value = name;
+      document.getElementById('departmentSelect').value = dept;
+      document.getElementById('nameInput').focus();
+    }
+
+    document.getElementById('btnEnter').addEventListener('click', enterDirectory);
+    document.getElementById('nameInput').addEventListener('keypress', function(e){
+      if(e.key === 'Enter') enterDirectory();
+    });
+    document.getElementById('btnEdit').addEventListener('click', editProfile);
+
+    // Auto-skip gate if already saved
+    document.addEventListener('DOMContentLoaded', function(){
+      const savedName = localStorage.getItem(LS_NAME);
+      const savedDept = localStorage.getItem(LS_DEPT);
+      if(savedName && savedDept){
+        showDirectory(savedName, savedDept);
+      }
+    });
+  </script>
+</body>
+</html>
