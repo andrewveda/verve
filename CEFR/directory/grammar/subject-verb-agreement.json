@@ -1,80 +1,1308 @@
 {
-  "moduleTitle": "Herbarium — Agreement Press",
-  "moduleSub": "Subject-Verb Agreement Module",
-  "rules": [
+  "topic": "Subject-Verb Agreement",
+  "icon": "🤝",
+  "contrast_label": "Correct vs Incorrect",
+  "contrast_options": [
+    "correct",
+    "wrong"
+  ],
+  "ranks": [
     {
-      "name": "3rd-Person Singular -s",
+      "name": "Seed 🌰",
+      "min": 0
+    },
+    {
+      "name": "Sprout 🌱",
+      "min": 60
+    },
+    {
+      "name": "Budding 🌿",
+      "min": 140
+    },
+    {
+      "name": "Blooming 🌸",
+      "min": 260
+    },
+    {
+      "name": "Flourishing 🌺",
+      "min": 400
+    },
+    {
+      "name": "Expert ✿",
+      "min": 560
+    }
+  ],
+  "rule_groups": [
+    {
+      "name": "Simple Singular vs Plural",
       "cefr": "a1",
-      "explain": "Singular subjects (he/she/it, and singular names) take the -s verb form in the present simple. Plural subjects, and 'I'/'you', take the base form.",
+      "explain": "A singular subject takes a singular verb; a plural subject takes a plural verb. Third-person singular verbs usually end in -s.",
       "toggle": {
-        "singular": { "text": "Minerva <b>goes</b> to the market.", "note": "Singular subject → add -s to the verb." },
-        "plural": { "text": "Albus and Severus <b>go</b> to the market.", "note": "Plural subject → use the base form, no -s." }
+        "correct": {
+          "text": "She <b>works</b> every day.",
+          "note": "Singular subject 'she' + singular verb 'works' (with -s)."
+        },
+        "wrong": {
+          "text": "She <b>work</b> every day.",
+          "note": "Incorrect: singular subject cannot take a base-form plural verb."
+        }
       },
       "items": [
-        { "before": "Minerva", "after": "to the market every morning.", "answer": "goes", "choices": ["goes", "go"] },
-        { "before": "Albus and Severus", "after": "to the market every morning.", "answer": "go", "choices": ["go", "goes"] },
-        { "before": "They", "after": "to the market every morning.", "answer": "go", "choices": ["go", "goes"] },
-        { "before": "You", "after": "to the market every morning.", "answer": "go", "choices": ["go", "goes"] }
+        {
+          "before": "The cat",
+          "after": "on the sofa.",
+          "choices": [
+            "sleep",
+            "sleeps"
+          ],
+          "answer": "sleeps"
+        },
+        {
+          "before": "My friends",
+          "after": "football on Sundays.",
+          "choices": [
+            "play",
+            "plays"
+          ],
+          "answer": "play"
+        },
+        {
+          "before": "The teacher",
+          "after": "the lesson clearly.",
+          "choices": [
+            "explain",
+            "explains"
+          ],
+          "answer": "explains"
+        },
+        {
+          "before": "Those dogs",
+          "after": "loudly at night.",
+          "choices": [
+            "bark",
+            "barks"
+          ],
+          "answer": "bark"
+        }
       ]
     },
     {
-      "name": "Collective Nouns as a Unit",
-      "cefr": "b1",
-      "explain": "Collective nouns (team, committee, family) take a singular verb when acting as one group. Words for the individual members (players, people) take a plural verb.",
+      "name": "Compound Subjects with 'And'",
+      "cefr": "a1",
+      "explain": "When two subjects are joined by 'and', they usually form a plural subject and need a plural verb.",
       "toggle": {
-        "singular": { "text": "The team <b>is</b> practising today.", "note": "Collective noun acting as one unit → singular verb." },
-        "plural": { "text": "The players <b>are</b> practising today.", "note": "Naming the individual members → plural verb." }
+        "correct": {
+          "text": "Tom and Jerry <b>are</b> friends.",
+          "note": "Two distinct subjects joined by 'and' create a plural compound subject."
+        },
+        "wrong": {
+          "text": "Tom and Jerry <b>is</b> friends.",
+          "note": "Incorrect: two subjects joined by 'and' cannot take a singular verb."
+        }
       },
       "items": [
-        { "before": "The team", "after": "practising every day this week.", "answer": "is", "choices": ["is", "are"] },
-        { "before": "The committee", "after": "practising every day this week.", "answer": "is", "choices": ["is", "are"] },
-        { "before": "The players", "after": "practising every day this week.", "answer": "are", "choices": ["are", "is"] },
-        { "before": "They", "after": "practising every day this week.", "answer": "are", "choices": ["are", "is"] }
+        {
+          "before": "The pen and the paper",
+          "after": "on the desk.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "are"
+        },
+        {
+          "before": "Rice and curry",
+          "after": "my favourite meal.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "The manager and his assistant",
+          "after": "in the meeting.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "were"
+        },
+        {
+          "before": "Bread and butter",
+          "after": "served for breakfast.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
       ]
     },
     {
-      "name": "Indefinite Pronouns",
+      "name": "Compound Subjects with 'Or / Nor'",
       "cefr": "a2",
-      "explain": "Pronouns ending in -one, -body, or -thing (everyone, nobody, something) are always singular. Few, many, several, and both are always plural.",
+      "explain": "With 'or' or 'nor', the verb agrees with the subject nearest to it.",
       "toggle": {
-        "singular": { "text": "Everyone <b>is</b> invited.", "note": "-one/-body/-thing pronouns are always singular." },
-        "plural": { "text": "Few <b>are</b> invited.", "note": "Few, many, several, and both are always plural." }
+        "correct": {
+          "text": "Neither the students nor the teacher <b>was</b> ready.",
+          "note": "'Teacher' is nearer and singular, so the verb is singular."
+        },
+        "wrong": {
+          "text": "Neither the students nor the teacher <b>were</b> ready.",
+          "note": "Incorrect: proximity rule demands singular 'was' because 'teacher' is closer."
+        }
       },
       "items": [
-        { "before": "Everyone", "after": "invited to the party tonight.", "answer": "is", "choices": ["is", "are"] },
-        { "before": "Nobody", "after": "invited to the party tonight.", "answer": "is", "choices": ["is", "are"] },
-        { "before": "Few", "after": "invited to the party tonight.", "answer": "are", "choices": ["are", "is"] },
-        { "before": "Many", "after": "invited to the party tonight.", "answer": "are", "choices": ["are", "is"] }
+        {
+          "before": "Either my sister or my brothers",
+          "after": "going to drive.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "are"
+        },
+        {
+          "before": "Neither the coach nor the players",
+          "after": "the match.",
+          "choices": [
+            "won",
+            "wins"
+          ],
+          "answer": "won"
+        },
+        {
+          "before": "The manager or his assistants",
+          "after": "the report.",
+          "choices": [
+            "write",
+            "writes"
+          ],
+          "answer": "write"
+        },
+        {
+          "before": "Either the dogs or the cat",
+          "after": "been fed.",
+          "choices": [
+            "has",
+            "have"
+          ],
+          "answer": "has"
+        }
       ]
     },
     {
-      "name": "Either/Or, Neither/Nor — Proximity Rule",
+      "name": "Indefinite Pronouns (Singular)",
+      "cefr": "a2",
+      "explain": "Pronouns like everyone, someone, anybody, nobody, each, every are grammatically singular and take singular verbs.",
+      "toggle": {
+        "correct": {
+          "text": "Everyone <b>has</b> a dream.",
+          "note": "'Everyone' is singular in form and takes a singular verb."
+        },
+        "wrong": {
+          "text": "Everyone <b>have</b> a dream.",
+          "note": "Incorrect: indefinite pronouns ending in -one, -body, -thing are singular."
+        }
+      },
+      "items": [
+        {
+          "before": "Somebody",
+          "after": "at the door.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "Each of the girls",
+          "after": "a ribbon.",
+          "choices": [
+            "has",
+            "have"
+          ],
+          "answer": "has"
+        },
+        {
+          "before": "Nobody",
+          "after": "the answer.",
+          "choices": [
+            "know",
+            "knows"
+          ],
+          "answer": "knows"
+        },
+        {
+          "before": "Everything",
+          "after": "in its place.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
+      ]
+    },
+    {
+      "name": "Indefinite Pronouns (Plural)",
+      "cefr": "a2",
+      "explain": "A few indefinite pronouns (both, few, many, several) are always plural and take plural verbs.",
+      "toggle": {
+        "correct": {
+          "text": "Many <b>were</b> invited.",
+          "note": "'Many' refers to numerous people, so it takes a plural verb."
+        },
+        "wrong": {
+          "text": "Many <b>was</b> invited.",
+          "note": "Incorrect: 'many' is a plural pronoun and cannot take a singular verb."
+        }
+      },
+      "items": [
+        {
+          "before": "Several",
+          "after": "already left.",
+          "choices": [
+            "has",
+            "have"
+          ],
+          "answer": "have"
+        },
+        {
+          "before": "Both of the candidates",
+          "after": "qualified.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "are"
+        },
+        {
+          "before": "Few",
+          "after": "the truth.",
+          "choices": [
+            "know",
+            "knows"
+          ],
+          "answer": "know"
+        },
+        {
+          "before": "Many",
+          "after": "to attend the concert.",
+          "choices": [
+            "want",
+            "wants"
+          ],
+          "answer": "want"
+        }
+      ]
+    },
+    {
+      "name": "Indefinite Pronouns (Contextual)",
+      "cefr": "b1",
+      "explain": "Some, all, most, none can be singular or plural depending on the noun they refer to.",
+      "toggle": {
+        "correct": {
+          "text": "Some of the milk <b>is</b> sour.",
+          "note": "'Milk' is uncountable, so 'some' takes a singular verb here."
+        },
+        "wrong": {
+          "text": "Some of the milk <b>are</b> sour.",
+          "note": "Incorrect: uncountable nouns require singular verbs regardless of 'some'."
+        }
+      },
+      "items": [
+        {
+          "before": "All of the cake",
+          "after": "gone.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "All of the guests",
+          "after": "arrived.",
+          "choices": [
+            "has",
+            "have"
+          ],
+          "answer": "have"
+        },
+        {
+          "before": "Most of the water",
+          "after": "evaporated.",
+          "choices": [
+            "has",
+            "have"
+          ],
+          "answer": "has"
+        },
+        {
+          "before": "None of the students",
+          "after": "the exam.",
+          "choices": [
+            "failed",
+            "fails"
+          ],
+          "answer": "failed"
+        }
+      ]
+    },
+    {
+      "name": "Collective Nouns (Singular vs Plural)",
+      "cefr": "b1",
+      "explain": "Collective nouns (team, family, audience) can take singular or plural verbs depending on whether the group acts as a unit or as individuals.",
+      "toggle": {
+        "correct": {
+          "text": "The team <b>is</b> winning.",
+          "note": "Treating the team as a single unit requires a singular verb."
+        },
+        "wrong": {
+          "text": "The team <b>are</b> winning.",
+          "note": "In American English this is non-standard; the singular is preferred for unified action."
+        }
+      },
+      "items": [
+        {
+          "before": "The audience",
+          "after": "applauding loudly.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "The committee",
+          "after": "divided on this issue.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "are"
+        },
+        {
+          "before": "My family",
+          "after": "from Kerala.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "The jury",
+          "after": "still deliberating.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
+      ]
+    },
+    {
+      "name": "Every / Each + Noun",
+      "cefr": "a2",
+      "explain": "'Every' and 'each' are singular markers. Even with compound subjects, the verb remains singular.",
+      "toggle": {
+        "correct": {
+          "text": "Every boy and girl <b>has</b> a book.",
+          "note": "'Every' makes each noun singular, so the compound subject still takes a singular verb."
+        },
+        "wrong": {
+          "text": "Every boy and girl <b>have</b> a book.",
+          "note": "Incorrect: 'every' forces singular agreement regardless of 'and'."
+        }
+      },
+      "items": [
+        {
+          "before": "Each student and teacher",
+          "after": "a badge.",
+          "choices": [
+            "wear",
+            "wears"
+          ],
+          "answer": "wears"
+        },
+        {
+          "before": "Every house on this street",
+          "after": "a garden.",
+          "choices": [
+            "has",
+            "have"
+          ],
+          "answer": "has"
+        },
+        {
+          "before": "Each of the boxes",
+          "after": "labelled.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "Every man, woman, and child",
+          "after": "equal rights.",
+          "choices": [
+            "deserve",
+            "deserves"
+          ],
+          "answer": "deserves"
+        }
+      ]
+    },
+    {
+      "name": "There is / There are",
+      "cefr": "a1",
+      "explain": "In existential 'there' constructions, the verb agrees with the actual subject that follows it, not with 'there'.",
+      "toggle": {
+        "correct": {
+          "text": "There <b>are</b> many problems.",
+          "note": "The real subject is 'problems' (plural), so the verb must be plural."
+        },
+        "wrong": {
+          "text": "There <b>is</b> many problems.",
+          "note": "Incorrect: the verb must agree with 'problems', not the expletive 'there'."
+        }
+      },
+      "items": [
+        {
+          "before": "There",
+          "after": "a book on the table.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "There",
+          "after": "some cookies left.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "are"
+        },
+        {
+          "before": "There",
+          "after": "neither time nor money.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "There",
+          "after": "two pens and a ruler in the case.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "are"
+        }
+      ]
+    },
+    {
+      "name": "Neither / Either + Singular Noun",
+      "cefr": "b1",
+      "explain": "'Neither' and 'either' are singular when used with a singular noun. The verb must be singular.",
+      "toggle": {
+        "correct": {
+          "text": "Neither option <b>seems</b> correct.",
+          "note": "'Neither' + singular noun requires a singular verb."
+        },
+        "wrong": {
+          "text": "Neither option <b>seem</b> correct.",
+          "note": "Incorrect: 'neither' is grammatically singular and demands a singular verb."
+        }
+      },
+      "items": [
+        {
+          "before": "Neither answer",
+          "after": "satisfactory.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "Either road",
+          "after": "to the village.",
+          "choices": [
+            "lead",
+            "leads"
+          ],
+          "answer": "leads"
+        },
+        {
+          "before": "Neither parent",
+          "after": "at home.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "was"
+        },
+        {
+          "before": "Either solution",
+          "after": "acceptable.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
+      ]
+    },
+    {
+      "name": "A Number of / The Number of",
       "cefr": "b2",
-      "explain": "With either...or and neither...nor, the verb agrees with whichever subject is closest to it — not with the first one.",
+      "explain": "'A number of' means many and takes a plural verb. 'The number of' refers to a figure and takes a singular verb.",
       "toggle": {
-        "singular": { "text": "Either the employees or the manager <b>is</b> responsible.", "note": "Verb agrees with the closer subject — here, singular 'manager'." },
-        "plural": { "text": "Either the manager or the employees <b>are</b> responsible.", "note": "Verb agrees with the closer subject — here, plural 'employees'." }
+        "correct": {
+          "text": "The number of errors <b>is</b> shocking.",
+          "note": "'The number' is a singular entity (the figure itself), so it takes a singular verb."
+        },
+        "wrong": {
+          "text": "The number of errors <b>are</b> shocking.",
+          "note": "Incorrect: 'the number' is singular; only 'a number of' is plural."
+        }
       },
       "items": [
-        { "before": "Either the manager or the employees", "after": "responsible for this.", "answer": "are", "choices": ["are", "is"] },
-        { "before": "Either the employees or the manager", "after": "responsible for this.", "answer": "is", "choices": ["is", "are"] },
-        { "before": "Neither the teacher nor the students", "after": "ready for this.", "answer": "are", "choices": ["are", "is"] },
-        { "before": "Neither the students nor the teacher", "after": "ready for this.", "answer": "is", "choices": ["is", "are"] }
+        {
+          "before": "A number of students",
+          "after": "absent today.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "are"
+        },
+        {
+          "before": "The number of applicants",
+          "after": "increased.",
+          "choices": [
+            "has",
+            "have"
+          ],
+          "answer": "has"
+        },
+        {
+          "before": "A number of issues",
+          "after": "to be resolved.",
+          "choices": [
+            "need",
+            "needs"
+          ],
+          "answer": "need"
+        },
+        {
+          "before": "The number of participants",
+          "after": "limited to fifty.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
       ]
     },
     {
-      "name": "'A Number Of' vs 'The Number Of'",
-      "cefr": "c1",
-      "explain": "'A number of' means 'many' and takes a plural verb. 'The number of' refers to the total count itself, which is a single figure — singular.",
+      "name": "None of + Plural Noun",
+      "cefr": "b1",
+      "explain": "'None' can take a singular or plural verb, but in formal contexts with countable plurals, the plural is traditional and widely accepted.",
       "toggle": {
-        "singular": { "text": "The number of students <b>is</b> thirty.", "note": "'The number of' refers to one total figure → singular." },
-        "plural": { "text": "A number of students <b>are</b> present.", "note": "'A number of' means 'many' → plural." }
+        "correct": {
+          "text": "None of the books <b>were</b> damaged.",
+          "note": "With countable plural nouns, the plural verb is traditionally preferred."
+        },
+        "wrong": {
+          "text": "None of the books <b>was</b> damaged.",
+          "note": "While 'was' is acceptable in strict singular logic, 'were' is the traditional formal choice for countables."
+        }
       },
       "items": [
-        { "before": "A number of students", "after": "present today.", "answer": "are", "choices": ["are", "is"] },
-        { "before": "A number of dancers", "after": "performing tonight.", "answer": "are", "choices": ["are", "is"] },
-        { "before": "The number of students", "after": "thirty today.", "answer": "is", "choices": ["is", "are"] },
-        { "before": "The number of dancers", "after": "twelve tonight.", "answer": "is", "choices": ["is", "are"] }
+        {
+          "before": "None of the candidates",
+          "after": "the interview.",
+          "choices": [
+            "passed",
+            "passes"
+          ],
+          "answer": "passed"
+        },
+        {
+          "before": "None of the water",
+          "after": "spilled.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "was"
+        },
+        {
+          "before": "None of my friends",
+          "after": "late.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "were"
+        },
+        {
+          "before": "None but the brave",
+          "after": "the fair.",
+          "choices": [
+            "deserve",
+            "deserves"
+          ],
+          "answer": "deserve"
+        }
+      ]
+    },
+    {
+      "name": "Along with / As well as / Together with",
+      "cefr": "b2",
+      "explain": "Phrases like 'along with', 'as well as', and 'together with' do not make a subject plural. The verb agrees with the main subject only.",
+      "toggle": {
+        "correct": {
+          "text": "The captain, as well as his crew, <b>was</b> rescued.",
+          "note": "'As well as his crew' is parenthetical; the main subject 'captain' is singular."
+        },
+        "wrong": {
+          "text": "The captain, as well as his crew, <b>were</b> rescued.",
+          "note": "Incorrect: intervening phrases do not change the grammatical number of the subject."
+        }
+      },
+      "items": [
+        {
+          "before": "The teacher, along with her students,",
+          "after": "the museum.",
+          "choices": [
+            "visit",
+            "visits"
+          ],
+          "answer": "visits"
+        },
+        {
+          "before": "The CEO, together with the board members,",
+          "after": "the decision.",
+          "choices": [
+            "make",
+            "makes"
+          ],
+          "answer": "makes"
+        },
+        {
+          "before": "My brother, as well as my cousins,",
+          "after": "in London.",
+          "choices": [
+            "live",
+            "lives"
+          ],
+          "answer": "lives"
+        },
+        {
+          "before": "The book, accompanied by a CD,",
+          "after": "useful.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
+      ]
+    },
+    {
+      "name": "Accompanied by / In addition to / Including",
+      "cefr": "b2",
+      "explain": "Prepositional phrases such as 'accompanied by', 'in addition to', and 'including' are not part of the grammatical subject.",
+      "toggle": {
+        "correct": {
+          "text": "The singer, accompanied by her band, <b>performs</b> tonight.",
+          "note": "'Accompanied by her band' is a prepositional modifier; the subject remains singular."
+        },
+        "wrong": {
+          "text": "The singer, accompanied by her band, <b>perform</b> tonight.",
+          "note": "Incorrect: the verb must agree with the singular subject, not the plural noun in the phrase."
+        }
+      },
+      "items": [
+        {
+          "before": "The president, in addition to his aides,",
+          "after": "arriving soon.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "The proposal, including all amendments,",
+          "after": "approved.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "was"
+        },
+        {
+          "before": "The house, accompanied by two acres,",
+          "after": "for sale.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "The chef, in addition to two sous-chefs,",
+          "after": "the kitchen.",
+          "choices": [
+            "run",
+            "runs"
+          ],
+          "answer": "runs"
+        }
+      ]
+    },
+    {
+      "name": "Titles, Names, and Quotations as Subjects",
+      "cefr": "b2",
+      "explain": "When a title, name, or quotation is the grammatical subject, it is treated as a singular unit even if it contains plural words.",
+      "toggle": {
+        "correct": {
+          "text": "'The Chronicles of Narnia' <b>is</b> a famous series.",
+          "note": "The title is a singular entity, so the verb is singular despite the plural-sounding name."
+        },
+        "wrong": {
+          "text": "'The Chronicles of Narnia' <b>are</b> a famous series.",
+          "note": "Incorrect: a book title is grammatically singular even if it sounds plural."
+        }
+      },
+      "items": [
+        {
+          "before": "'Great Expectations'",
+          "after": "a novel by Dickens.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "The United States",
+          "after": "a federal republic.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "'The Lord of the Rings'",
+          "after": "my favourite film trilogy.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "The Philippines",
+          "after": "in Southeast Asia.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
+      ]
+    },
+    {
+      "name": "Mathematics, Statistics, Politics, News",
+      "cefr": "b2",
+      "explain": "Nouns ending in -ics (mathematics, physics, politics) and words like 'news' are usually singular when referring to a field or category.",
+      "toggle": {
+        "correct": {
+          "text": "Mathematics <b>is</b> her favourite subject.",
+          "note": "Academic subjects ending in -ics take singular verbs when treated as disciplines."
+        },
+        "wrong": {
+          "text": "Mathematics <b>are</b> her favourite subject.",
+          "note": "Incorrect: 'mathematics' as a field of study is grammatically singular."
+        }
+      },
+      "items": [
+        {
+          "before": "The news",
+          "after": "shocking.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "Statistics",
+          "after": "a challenging course.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "Politics",
+          "after": "often unpredictable.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "Economics",
+          "after": "the study of scarcity.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
+      ]
+    },
+    {
+      "name": "Amount of / Quantity of + Uncountable",
+      "cefr": "b2",
+      "explain": "'An amount of' and 'a quantity of' with uncountable nouns take singular verbs. With countable nouns ('a number of'), the verb is plural.",
+      "toggle": {
+        "correct": {
+          "text": "A large amount of water <b>was</b> wasted.",
+          "note": "'Water' is uncountable, so the verb remains singular."
+        },
+        "wrong": {
+          "text": "A large amount of water <b>were</b> wasted.",
+          "note": "Incorrect: uncountable nouns paired with 'amount of' require singular verbs."
+        }
+      },
+      "items": [
+        {
+          "before": "A great quantity of sand",
+          "after": "shifted by the wind.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "was"
+        },
+        {
+          "before": "The amount of sugar",
+          "after": "excessive.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "A small amount of evidence",
+          "after": "presented.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "was"
+        },
+        {
+          "before": "A large quantity of data",
+          "after": "collected.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "was"
+        }
+      ]
+    },
+    {
+      "name": "Pair of / Dozen of + Plural Noun",
+      "cefr": "b1",
+      "explain": "When 'pair of', 'dozen of', or similar expressions are used, the verb usually agrees with 'pair' or 'dozen' (singular), not the plural noun.",
+      "toggle": {
+        "correct": {
+          "text": "A pair of shoes <b>is</b> on sale.",
+          "note": "The head noun is 'pair' (singular), so the verb is singular."
+        },
+        "wrong": {
+          "text": "A pair of shoes <b>are</b> on sale.",
+          "note": "Incorrect: the grammatical subject is the singular 'pair', not 'shoes'."
+        }
+      },
+      "items": [
+        {
+          "before": "A dozen of eggs",
+          "after": "enough for the recipe.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "This pair of trousers",
+          "after": "too tight.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "A series of lectures",
+          "after": "planned.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "A kind of birds",
+          "after": "found here.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
+      ]
+    },
+    {
+      "name": "Relative Clauses: One of + Plural Noun + Who/That",
+      "cefr": "c1",
+      "explain": "In 'one of those who/that' constructions, the verb in the relative clause is usually plural because its antecedent is the plural noun, not 'one'.",
+      "toggle": {
+        "correct": {
+          "text": "She is one of those students who <b>always study</b> hard.",
+          "note": "The relative clause modifies 'students' (plural), so the verb is plural."
+        },
+        "wrong": {
+          "text": "She is one of those students who <b>always studies</b> hard.",
+          "note": "Incorrect: 'who' refers back to 'students', not to 'one', requiring a plural verb."
+        }
+      },
+      "items": [
+        {
+          "before": "He is one of the authors who",
+          "after": "famous worldwide.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "are"
+        },
+        {
+          "before": "This is one of the cars that",
+          "after": "stolen.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "were"
+        },
+        {
+          "before": "She is one of those teachers who",
+          "after": "inspire students.",
+          "choices": [
+            "truly inspire",
+            "truly inspires"
+          ],
+          "answer": "truly inspire"
+        },
+        {
+          "before": "It was one of the events that",
+          "after": "history.",
+          "choices": [
+            "change",
+            "changes"
+          ],
+          "answer": "change"
+        }
+      ]
+    },
+    {
+      "name": "The Only One of + Plural Noun + Who/That",
+      "cefr": "c1",
+      "explain": "When 'the only one of' is used, the relative clause refers to 'the only one' (singular), so the verb must be singular.",
+      "toggle": {
+        "correct": {
+          "text": "He is the only one of the players who <b>has</b> scored.",
+          "note": "'The only one' is the true antecedent, so the relative clause takes a singular verb."
+        },
+        "wrong": {
+          "text": "He is the only one of the players who <b>have</b> scored.",
+          "note": "Incorrect: 'the only one' is singular, overriding the plural noun that follows."
+        }
+      },
+      "items": [
+        {
+          "before": "She is the only one of my friends who",
+          "after": "French.",
+          "choices": [
+            "speak",
+            "speaks"
+          ],
+          "answer": "speaks"
+        },
+        {
+          "before": "He was the only one of the candidates who",
+          "after": "the test.",
+          "choices": [
+            "passed",
+            "pass"
+          ],
+          "answer": "passed"
+        },
+        {
+          "before": "This is the only one of the buildings that",
+          "after": "preserved.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "was"
+        },
+        {
+          "before": "She is the only one of those nurses who",
+          "after": "on duty tonight.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
+      ]
+    },
+    {
+      "name": "What Clauses as Subjects",
+      "cefr": "c1",
+      "explain": "When a 'what'-clause is the subject, the verb is usually singular unless the clause clearly denotes multiple things.",
+      "toggle": {
+        "correct": {
+          "text": "What they need <b>is</b> more time.",
+          "note": "The 'what'-clause is treated as a singular concept here."
+        },
+        "wrong": {
+          "text": "What they need <b>are</b> more time.",
+          "note": "Incorrect: 'what they need' as a unit is singular; the complement does not change this."
+        }
+      },
+      "items": [
+        {
+          "before": "What surprises me",
+          "after": "his attitude.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "What we want",
+          "after": "better results.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        },
+        {
+          "before": "What she bought",
+          "after": "two dresses and a coat.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "was"
+        },
+        {
+          "before": "What matters most",
+          "after": "honesty.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "is"
+        }
+      ]
+    },
+    {
+      "name": "More than One / Many a",
+      "cefr": "c1",
+      "explain": "'More than one' and 'many a' are followed by a singular noun and take a singular verb despite implying plurality.",
+      "toggle": {
+        "correct": {
+          "text": "More than one student <b>has</b> failed.",
+          "note": "'More than one' is grammatically singular even though it implies multiple instances."
+        },
+        "wrong": {
+          "text": "More than one student <b>have</b> failed.",
+          "note": "Incorrect: the expression 'more than one' requires singular agreement."
+        }
+      },
+      "items": [
+        {
+          "before": "Many a soldier",
+          "after": "his life.",
+          "choices": [
+            "has lost",
+            "have lost"
+          ],
+          "answer": "has lost"
+        },
+        {
+          "before": "More than one solution",
+          "after": "proposed.",
+          "choices": [
+            "was",
+            "were"
+          ],
+          "answer": "was"
+        },
+        {
+          "before": "Many a dream",
+          "after": "shattered.",
+          "choices": [
+            "has been",
+            "have been"
+          ],
+          "answer": "has been"
+        },
+        {
+          "before": "More than one witness",
+          "after": "the crime.",
+          "choices": [
+            "saw",
+            "see"
+          ],
+          "answer": "saw"
+        }
+      ]
+    },
+    {
+      "name": "Inverted Word Order (Subject After Verb)",
+      "cefr": "b2",
+      "explain": "In questions, after negative adverbs (never, rarely, hardly), and in some formal structures, the subject follows the verb but still determines agreement.",
+      "toggle": {
+        "correct": {
+          "text": "Never <b>has</b> she been so happy.",
+          "note": "The subject is 'she' (singular); inversion does not change agreement."
+        },
+        "wrong": {
+          "text": "Never <b>have</b> she been so happy.",
+          "note": "Incorrect: the inverted subject 'she' remains singular."
+        }
+      },
+      "items": [
+        {
+          "before": "On the hill",
+          "after": "an old castle.",
+          "choices": [
+            "stand",
+            "stands"
+          ],
+          "answer": "stands"
+        },
+        {
+          "before": "Rarely",
+          "after": "the team lost a match.",
+          "choices": [
+            "has",
+            "have"
+          ],
+          "answer": "has"
+        },
+        {
+          "before": "Here",
+          "after": "the keys.",
+          "choices": [
+            "is",
+            "are"
+          ],
+          "answer": "are"
+        },
+        {
+          "before": "There",
+          "after": "the children.",
+          "choices": [
+            "go",
+            "goes"
+          ],
+          "answer": "go"
+        }
+      ]
+    },
+    {
+      "name": "Subjunctive Mood (Wishes, Demands, Suggestions)",
+      "cefr": "c1",
+      "explain": "In subjunctive clauses after 'demand', 'suggest', 'insist', 'recommend', and in wishes, the verb is the base form regardless of the subject.",
+      "toggle": {
+        "correct": {
+          "text": "I suggest that he <b>study</b> harder.",
+          "note": "The subjunctive uses the base form 'study' even with third-person singular 'he'."
+        },
+        "wrong": {
+          "text": "I suggest that he <b>studies</b> harder.",
+          "note": "Incorrect: in formal subjunctive, the -s is dropped regardless of the subject."
+        }
+      },
+      "items": [
+        {
+          "before": "It is essential that she",
+          "after": "on time.",
+          "choices": [
+            "be",
+            "is"
+          ],
+          "answer": "be"
+        },
+        {
+          "before": "The judge demanded that the witness",
+          "after": "the truth.",
+          "choices": [
+            "tell",
+            "tells"
+          ],
+          "answer": "tell"
+        },
+        {
+          "before": "I wish I",
+          "after": "rich.",
+          "choices": [
+            "were",
+            "was"
+          ],
+          "answer": "were"
+        },
+        {
+          "before": "It is recommended that every student",
+          "after": "the textbook.",
+          "choices": [
+            "read",
+            "reads"
+          ],
+          "answer": "read"
+        }
       ]
     }
   ]
