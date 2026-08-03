@@ -489,7 +489,11 @@ async function loadPlayerHistory(name){
   if(!name) return;
   try{
     const supabase = await getSupabaseClient();
-    const { data, error } = await supabase.from("report_card_view").select("quest_list").ilike("name", name).single();
+   const { data } = await supabase
+  .from("report_card_view")
+  .select("quest_list")
+  .ilike("name", name)
+  .limit(1);
     if(error || !data){ console.warn("No prior history found for", name, error || ''); return; }
     const questList = data.quest_list || [];
     questList.forEach(q=>{
