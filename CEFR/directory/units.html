@@ -547,10 +547,14 @@ const questList = (player.quest_list || "")
         mastered
       });
 
-      if(ruleNum && !isNaN(ruleNum)){
-        const idx = ruleNum - 1;
+     if (ruleNum && !isNaN(ruleNum)) {
+    const idx = ruleNum - 1;
+
+    // Never overwrite Mastered with Practiced
+    if (mastered || loadedRuleStatus.get(idx) !== "mastered") {
         loadedRuleStatus.set(idx, mastered ? "mastered" : "practiced");
-      }
+    }
+}
     });
 
     console.log("Loaded rule status:", [...loadedRuleStatus]);
