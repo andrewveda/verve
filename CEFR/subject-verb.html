@@ -288,6 +288,7 @@
     <div class="gate-label">Department</div>
     <select id="departmentSelect">
       <option value="">-- Select Department --</option>
+      <option value="CSI Ewart">CSI Ewart</option>
       <option value="Cyber Security">Cyber Security</option>
       <option value="EIE">EIE</option>
       <option value="CSE-1">CSE-1</option>
@@ -850,12 +851,13 @@ async function loadPlayerHistory(name){
   if(!name) return;
   try{
     const supabase = await getSupabaseClient();
-    const { data, error } = await supabase
-      .from("report_card_view")
-      .select("quest_list")
-      .ilike("name", name)
-      .single();
-
+  const { data, error } = await supabase
+  .from("report_card_view")
+  .select("quest_list")
+  .eq("name", playerName)
+  .eq("department", playerDepartment)
+  .single();
+    
     if(error || !data){
       console.warn("No prior history found for", name, error || '');
       return;
