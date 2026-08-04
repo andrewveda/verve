@@ -851,19 +851,20 @@ async function loadPlayerHistory(name){
   if(!name) return;
   try{
     const supabase = await getSupabaseClient();
-  const { data, error } = await supabase
+ const { data, error } = await supabase
   .from("report_card_view")
   .select("quest_list")
   .eq("name", playerName)
-  .eq("department", playerDepartment)
+  .eq("department", playerDept)
   .single();
     
     if(error || !data){
       console.warn("No prior history found for", name, error || '');
       return;
     }
-
-    const questList = data.quest_list || [];
+const questList = (data.quest_list || "")
+  .split(", ")
+  .filter(Boolean);
     questList.forEach(q=>{
       if(typeof q !== 'string') return;
       let ruleNum = null, mastered = false;
