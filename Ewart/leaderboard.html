@@ -283,7 +283,7 @@
         <div class="stats-grid">
           <div class="stat-box"><div class="stat-label">Total Score</div><div class="stat-value">${s.total_score ?? 0}</div><div class="stat-foot">Points Earned</div></div>
           <div class="stat-box"><div class="stat-label">Accuracy</div><div class="stat-value">${Math.round((s.accuracy ?? 0) * 100)}%</div><div class="stat-foot">Hit Rate</div></div>
-          <div class="stat-box"><div class="stat-label">Vocab</div><div class="stat-value">${s.vocab_completed ?? 0}</div><div class="stat-foot">Sessions done</div></div>
+          <div class="stat-box"><div class="stat-label">Vocabulary</div><div class="stat-value">${s.vocab_completed ?? 0}</div><div class="stat-foot">Sessions done</div></div>
           <div class="stat-box"><div class="stat-label">Quests</div><div class="stat-value">${s.total_attempts ?? 0}</div><div class="stat-foot">Quests attempted</div></div>
           <div class="stat-box"><div class="stat-label">Correct</div><div class="stat-value">${s.total_correct ?? 0}</div><div class="stat-foot">Direct Hits</div></div>
           <div class="stat-box"><div class="stat-label">Wrong</div><div class="stat-value">${s.total_wrong ?? 0}</div><div class="stat-foot">Near Misses</div></div>
@@ -533,7 +533,7 @@
         <div class="sort-buttons">
           <button class="sort-btn" data-sort="total_score"       onclick="sortData('total_score')">Score <span class="sort-indicator"></span></button>
           <button class="sort-btn" data-sort="accuracy"          onclick="sortData('accuracy')">Accuracy <span class="sort-indicator"></span></button>
-          <button class="sort-btn" data-sort="vocab_completed"   onclick="sortData('vocab_completed')">Vocab <span class="sort-indicator"></span></button>
+          <button class="sort-btn" data-sort="vocab_completed"   onclick="sortData('vocab_completed')">Vocabulary <span class="sort-indicator"></span></button>
           <button class="sort-btn" data-sort="total_time"        onclick="sortData('total_time')">Time <span class="sort-indicator"></span></button>
           <button class="sort-btn" data-sort="quests_completed"  onclick="sortData('quests_completed')">Quests <span class="sort-indicator"></span></button>
           <button class="sort-btn" data-sort="videos_completed"  onclick="sortData('videos_completed')">Videos <span class="sort-indicator"></span></button>
