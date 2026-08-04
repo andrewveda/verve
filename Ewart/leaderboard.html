@@ -135,6 +135,7 @@
           currentSort === "accuracy" ? `${Math.round((value || 0) * 100)}%` :
           currentSort === "total_time" ? (showSecondsOnly ? formatSecondsOnly(value) : formatTime(value)) :
           currentSort === "last_test_taken" ? formatDate(value) :
+          currentSort === "vocab_completed" ? (value || 0) * 10 :
           value;
 
         if (currentSort === "last_test_taken") {
@@ -283,7 +284,11 @@
         <div class="stats-grid">
           <div class="stat-box"><div class="stat-label">Total Score</div><div class="stat-value">${s.total_score ?? 0}</div><div class="stat-foot">Points Earned</div></div>
           <div class="stat-box"><div class="stat-label">Accuracy</div><div class="stat-value">${Math.round((s.accuracy ?? 0) * 100)}%</div><div class="stat-foot">Hit Rate</div></div>
-          <div class="stat-box"><div class="stat-label">Vocabulary</div><div class="stat-value">${s.vocab_completed ?? 0}</div><div class="stat-foot">Sessions done</div></div>
+       
+          
+          <div class="stat-box"><div class="stat-label">Vocabulary</div>
+          <div class="stat-value">${(s.vocab_completed ?? 0) * 10}</div>
+          <div class="stat-foot">Sessions done</div></div>
           <div class="stat-box"><div class="stat-label">Quests</div><div class="stat-value">${s.total_attempts ?? 0}</div><div class="stat-foot">Quests attempted</div></div>
           <div class="stat-box"><div class="stat-label">Correct</div><div class="stat-value">${s.total_correct ?? 0}</div><div class="stat-foot">Direct Hits</div></div>
           <div class="stat-box"><div class="stat-label">Wrong</div><div class="stat-value">${s.total_wrong ?? 0}</div><div class="stat-foot">Near Misses</div></div>
@@ -321,7 +326,7 @@
       const totalTime     = reportData.reduce((sum, s) => sum + (s.total_time || 0), 0);
       const totalVideos   = reportData.reduce((sum, s) => sum + (s.videos_completed || 0), 0);
       const totalQuests   = reportData.reduce((sum, s) => sum + (s.quests_completed || 0), 0);
-      const totalVocab    = reportData.reduce((sum, s) => sum + (s.vocab_completed || 0), 0);
+      const totalVocab = reportData.reduce((sum, s) => sum + ((s.vocab_completed || 0) * 10), 0);
 
       const modal = document.getElementById("modal");
       const content = document.getElementById("modal-content");
