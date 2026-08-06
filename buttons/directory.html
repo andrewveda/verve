@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Words to Carry — Directory</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=DM+Sans:ital,wght@0,400;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ivory:#FAF6EA; --ivory-deep:#F0E7CE; --ivory-deeper:#E8DBB8;
+  --card:#FFFDF7; --gold:#B8935A; --gold-deep:#8C6A34; --gold-light:#E4CE9B;
+  --ink:#2A2115; --ink-soft:#8A7A5C; --ink-faint:#B3A483; --line:rgba(140,106,52,0.22);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--ink);min-height:100dvh}
+
+.dir-header{padding:1.6rem 1.2rem 1.1rem;text-align:center;position:relative;overflow:hidden}
+.dir-glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(184,147,90,0.18) 0%,transparent 70%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none}
+.dir-title{position:relative;font-family:'Cinzel',serif;font-size:1.55rem;font-weight:900;background:linear-gradient(135deg,#8C6A34,#C9A961,#8C6A34);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.25rem}
+.dir-tagline{position:relative;font-size:0.78rem;color:var(--ink-soft);font-style:italic;max-width:320px;margin:0 auto}
+
+.dir-search-wrap{padding:0 1.1rem 0.9rem;max-width:520px;margin:0 auto}
+.dir-search{width:100%;padding:0.75rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:0.85rem;color:var(--ink);outline:none;font-family:'DM Sans',sans-serif}
+.dir-search:focus{border-color:var(--gold-deep);box-shadow:0 0 0 2px rgba(184,147,90,0.18)}
+.dir-count{font-size:0.65rem;color:var(--ink-faint);padding:0 1.1rem 0.6rem;max-width:520px;margin:0 auto;text-align:right}
+
+.dir-body{max-width:520px;margin:0 auto;padding:0 1rem 3rem}
+
+.dept-group{margin-bottom:0.9rem;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.dept-summary{list-style:none;display:flex;align-items:center;justify-content:space-between;padding:0.9rem 1.05rem;cursor:pointer;font-family:'Cinzel',serif;font-weight:700;font-size:0.92rem;color:var(--gold-deep)}
+.dept-summary::-webkit-details-marker{display:none}
+.dept-summary .dept-meta{display:flex;align-items:center;gap:8px}
+.dept-count{font-family:'DM Sans',sans-serif;font-size:0.62rem;font-weight:800;color:var(--ink-faint);background:var(--ivory-deep);border-radius:20px;padding:2px 9px}
+.dept-chevron{font-size:0.7rem;color:var(--ink-faint);transition:transform 0.2s}
+details[open] .dept-chevron{transform:rotate(90deg)}
+
+.dept-list{padding:0 0.7rem 0.7rem}
+.quote-card{display:flex;align-items:center;gap:10px;padding:0.7rem 0.6rem;border-radius:10px;text-decoration:none;color:var(--ink);transition:background 0.12s}
+.quote-card:active{background:var(--ivory-deep)}
+.quote-card + .quote-card{border-top:1px solid var(--line)}
+.quote-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#D9BC80,#8C6A34);color:#2A2115;font-family:'Cinzel',serif;font-weight:900;font-size:0.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.quote-info{flex:1;min-width:0}
+.quote-contributor{font-size:0.8rem;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.quote-snippet{font-size:0.68rem;color:var(--ink-soft);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.quote-status{font-size:0.85rem;flex-shrink:0}
+
+.dir-empty{text-align:center;color:var(--ink-faint);font-size:0.8rem;padding:2.4rem 1rem}
+
+.dir-start-link{display:block;text-align:center;font-size:0.72rem;color:var(--gold-deep);text-decoration:underline;text-underline-offset:3px;padding:0.4rem 0 1.6rem}
+</style>
+</head>
+<body>
+
+<div class="dir-header">
+  <div class="dir-glow"></div>
+  <div class="dir-title" id="dirTitle">Words to Carry</div>
+  <div class="dir-tagline" id="dirTagline">Piece together reflections shared by the team.</div>
+</div>
+
+<div class="dir-search-wrap">
+  <input class="dir-search" id="dirSearch" type="text" placeholder="Search by name or department…" autocomplete="off"/>
+</div>
+<div class="dir-count" id="dirCount"></div>
+
+<div class="dir-body" id="dirBody"></div>
+
+<script src="data.js"></script>
+<script>
+const DIRECTORY = window.PUZZLE_DIRECTORY || { quests: [] };
+
+/* Flatten every puzzle across every quest into one list, keeping a
+   reference to which quest it belongs to (needed to build the link). */
+function flattenPuzzles(){
+  const rows = [];
+  (DIRECTORY.quests || []).forEach(quest=>{
+    (quest.puzzles || []).forEach(p=>{
+      rows.push({
+        questId: quest.id,
+        puzzleId: p.id,
+        dept: (p.quoteData && p.quoteData.dept) || "Other",
+        contributor: (p.quoteData && p.quoteData.contributor) || "Unknown",
+        quote: (p.quoteData && p.quoteData.quote) || ""
+      });
+    });
+  });
+  return rows;
+}
+
+function getSolvedVerses(){
+  try{ return JSON.parse(localStorage.getItem("pq_solved")||"[]"); }
+  catch(e){ return []; }
+}
+
+function initials(name){
+  return name.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join("");
+}
+
+function groupByDept(rows){
+  const map = new Map();
+  rows.forEach(r=>{
+    if(!map.has(r.dept)) map.set(r.dept, []);
+    map.get(r.dept).push(r);
+  });
+  // Sort departments alphabetically, contributors alphabetically within each
+  return [...map.entries()]
+    .sort((a,b)=>a[0].localeCompare(b[0]))
+    .map(([dept, items])=>[dept, items.sort((a,b)=>a.contributor.localeCompare(b.contributor))]);
+}
+
+function render(filterText){
+  const all = flattenPuzzles();
+  const solved = getSolvedVerses();
+  const q = (filterText||"").trim().toLowerCase();
+  const rows = q
+    ? all.filter(r => r.contributor.toLowerCase().includes(q) || r.dept.toLowerCase().includes(q))
+    : all;
+
+  document.getElementById("dirCount").textContent = `${rows.length} quote${rows.length!==1?"s":""}`;
+
+  const body = document.getElementById("dirBody");
+  body.innerHTML = "";
+
+  if(!rows.length){
+    const empty = document.createElement("div");
+    empty.className = "dir-empty";
+    empty.textContent = "No quotes match that search.";
+    body.appendChild(empty);
+    return;
+  }
+
+  const grouped = groupByDept(rows);
+  grouped.forEach(([dept, items], i)=>{
+    const details = document.createElement("details");
+    details.className = "dept-group";
+    if(i===0 || q) details.open = true; // open first group by default, or all groups while searching
+
+    const summary = document.createElement("summary");
+    summary.className = "dept-summary";
+    summary.innerHTML = `<span class="dept-meta"><span>${dept}</span><span class="dept-count">${items.length}</span></span><span class="dept-chevron">›</span>`;
+    details.appendChild(summary);
+
+    const list = document.createElement("div");
+    list.className = "dept-list";
+    items.forEach(item=>{
+      const a = document.createElement("a");
+      a.className = "quote-card";
+      a.href = `puzzle-quest.html?quest=${encodeURIComponent(item.questId)}&puzzle=${encodeURIComponent(item.puzzleId)}`;
+      const isSolved = solved.includes(item.puzzleId);
+      a.innerHTML = `
+        <div class="quote-avatar">${initials(item.contributor)}</div>
+        <div class="quote-info">
+          <div class="quote-contributor">${item.contributor}</div>
+          <div class="quote-snippet">"${item.quote}"</div>
+        </div>
+        <div class="quote-status">${isSolved ? "✅" : "🧩"}</div>
+      `;
+      list.appendChild(a);
+    });
+    details.appendChild(list);
+    body.appendChild(details);
+  });
+
+  const link = document.createElement("a");
+  link.className = "dir-start-link";
+  link.href = "puzzle-quest.html";
+  link.textContent = "Start from the beginning →";
+  body.appendChild(link);
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  document.getElementById("dirTitle").textContent = DIRECTORY.directoryTitle || "Words to Carry";
+  document.getElementById("dirTagline").textContent = DIRECTORY.directoryTagline || "";
+  render("");
+  document.getElementById("dirSearch").addEventListener("input", e=>render(e.target.value));
+});
+</script>
+</body>
+</html>
