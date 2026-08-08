@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>Cause &amp; Effect Reasoning — Bank &amp; Govt. Exam Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --navy:#122a44; --navy2:#1a3a5c; --accent:#2f6fed; --accent-dark:#1f52c4;
+    --bg:#eef1f6; --card:#ffffff; --border:#dbe2ea; --border-strong:#c3cddb;
+    --text:#1f2937; --muted:#64748b; --muted2:#94a3b8;
+    --green:#1e8e5a; --green-bg:#e7f6ee; --red:#c0392b; --red-bg:#fbeaea;
+    --amber:#b8860b; --amber-bg:#fdf3df;
+    --shadow-sm:0 1px 2px rgba(18,42,68,.06),0 2px 6px rgba(18,42,68,.05);
+    --shadow-md:0 4px 14px rgba(18,42,68,.08),0 12px 28px rgba(18,42,68,.08);
+    --radius:10px;
+  }
+  html,body{min-height:100%;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;line-height:1.5;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 18px 60px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  /* Gate */
+  #screenGate.active{display:flex;}
+  #screenGate{align-items:center;justify-content:center;min-height:100dvh;padding:24px;background:linear-gradient(135deg,var(--navy),var(--navy2));}
+  .gate-card{
+    width:100%;max-width:400px;background:#fff;border-radius:14px;padding:34px 30px 28px;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:14px;
+  }
+  .gate-card h1{font-size:1.3rem;font-weight:800;color:var(--navy);text-align:center;letter-spacing:-.2px;}
+  .gate-card .tag{text-align:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:-6px 0 6px;font-weight:600;}
+  .gate-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:-6px;}
+  #nameInput,#departmentSelect{
+    width:100%;padding:12px 14px;border-radius:8px;border:1.5px solid var(--border-strong);
+    background:#fbfcfe;font-family:'Inter',sans-serif;font-size:.92rem;color:var(--text);
+    appearance:none;-webkit-appearance:none;
+  }
+  #departmentSelect{
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;background-size:16px;
+  }
+  #nameInput:focus,#departmentSelect:focus{outline:none;border-color:var(--accent);}
+  #gateError{color:var(--red);font-size:.76rem;text-align:center;min-height:1em;font-weight:600;}
+  #btnBeginQuiz{
+    margin-top:4px;padding:13px;border:none;border-radius:8px;background:var(--accent);color:#fff;
+    font-weight:700;font-size:.88rem;cursor:pointer;transition:background .15s;
+  }
+  #btnBeginQuiz:hover{background:var(--accent-dark);}
+  #btnBeginQuiz:disabled{opacity:.6;cursor:default;}
+
+  /* Header */
+  .site-header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:20px 0;box-shadow:0 2px 10px rgba(0,0,0,.15);}
+  .site-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:0;}
+  .brand-block h1{font-size:1.25rem;font-weight:800;letter-spacing:-.2px;}
+  .brand-block .tag{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#b9c9e6;margin-top:2px;font-weight:600;}
+  .header-nav{display:flex;gap:8px;flex-wrap:wrap;}
+  .nav-btn{
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;
+    padding:8px 14px;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;
+    transition:background .15s;white-space:nowrap;
+  }
+  .nav-btn:hover{background:rgba(255,255,255,.18);}
+  .nav-btn.current{background:#fff;color:var(--navy);}
+
+  /* Generic layout */
+  .section-title{font-size:1.15rem;font-weight:800;color:var(--navy);margin:28px 0 4px;letter-spacing:-.2px;}
+  .section-sub{font-size:.85rem;color:var(--muted);margin-bottom:16px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);}
+
+  /* Directions box */
+  .directions{
+    background:#fbfcfe;border:1px solid var(--border-strong);border-left:4px solid var(--accent);
+    border-radius:8px;padding:14px 18px;margin:20px 0;font-size:.85rem;color:var(--text);line-height:1.6;
+  }
+  .directions b{color:var(--navy);}
+  .option-key{margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-strong);}
+  .option-key div{font-size:.82rem;padding:2px 0;}
+  .option-key b{color:var(--accent-dark);font-family:'IBM Plex Mono',monospace;}
+
+  /* Home hero cards */
+  .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;}
+  @media(max-width:560px){.hero-grid{grid-template-columns:1fr;}}
+  .hero-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;
+    box-shadow:var(--shadow-sm);cursor:pointer;transition:transform .15s,box-shadow .15s;
+  }
+  .hero-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+  .hero-card .icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:10px;}
+  .hero-card.study .icon{background:#e7edfc;}
+  .hero-card.test .icon{background:var(--green-bg);}
+  .hero-card h3{font-size:1rem;font-weight:800;color:var(--navy);margin-bottom:4px;}
+  .hero-card p{font-size:.8rem;color:var(--muted);}
+
+  .stat-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .stat-chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:.78rem;color:var(--muted);flex:1;min-width:120px;text-align:center;}
+  .stat-chip b{display:block;font-size:1.15rem;color:var(--navy);font-weight:800;font-family:'IBM Plex Mono',monospace;}
+
+  /* Study cards */
+  .study-card{padding:18px 20px;margin-bottom:12px;}
+  .study-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;}
+  .study-card-top h4{font-size:.98rem;font-weight:800;color:var(--navy);}
+  .study-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:var(--accent);color:#fff;font-size:.7rem;font-weight:800;margin-right:8px;flex-shrink:0;}
+  .chev{transition:transform .2s;color:var(--muted);font-size:.8rem;}
+  .study-card.open .chev{transform:rotate(180deg);}
+  .study-body{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .study-card.open .study-body{max-height:900px;}
+  .study-body-inner{padding-top:14px;}
+  .study-body-inner p{font-size:.84rem;color:var(--text);margin-bottom:8px;line-height:1.6;}
+  .tip-box{background:var(--amber-bg);border:1px solid #f0dfa8;border-radius:8px;padding:10px 12px;font-size:.8rem;color:#7a5c05;margin:10px 0;}
+  .tip-box b{color:#7a5c05;}
+  .example-box{background:#f7f9fc;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:8px;}
+  .example-box .ex-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:6px;}
+  .stmt-line{font-size:.85rem;margin-bottom:4px;}
+  .stmt-line b{color:var(--navy);font-family:'IBM Plex Mono',monospace;margin-right:4px;}
+  .ex-answer{margin-top:8px;font-size:.82rem;color:var(--green);font-weight:700;}
+  .ex-explain{margin-top:4px;font-size:.8rem;color:var(--muted);line-height:1.55;}
+  .study-actions{margin-top:12px;}
+  .btn-mini{
+    background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:7px;
+    font-size:.76rem;font-weight:700;cursor:pointer;transition:background .15s;
+  }
+  .btn-mini:hover{background:var(--accent-dark);}
+
+  /* Practice test list */
+  .test-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px;margin-bottom:10px;flex-wrap:wrap;}
+  .test-card-left{display:flex;align-items:center;gap:12px;}
+  .test-card h4{font-size:.94rem;font-weight:800;color:var(--navy);}
+  .test-card .meta{font-size:.74rem;color:var(--muted);margin-top:2px;}
+  .badge{font-size:.66rem;font-weight:800;padding:3px 9px;border-radius:99px;letter-spacing:.03em;text-transform:uppercase;}
+  .badge.done{background:var(--green-bg);color:var(--green);}
+  .badge.pending{background:#eef1f6;color:var(--muted);}
+  .btn-primary{
+    background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:8px;
+    font-size:.82rem;font-weight:700;cursor:pointer;transition:background .15s;white-space:nowrap;
+  }
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-outline{
+    background:#fff;color:var(--accent);border:1.5px solid var(--accent);padding:8px 16px;border-radius:8px;
+    font-size:.8rem;font-weight:700;cursor:pointer;transition:all .15s;
+  }
+  .btn-outline:hover{background:var(--accent);color:#fff;}
+  .full-mock-card{
+    background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:var(--radius);
+    padding:22px 24px;margin:18px 0 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+    box-shadow:var(--shadow-md);
+  }
+  .full-mock-card h3{font-size:1.05rem;font-weight:800;margin-bottom:4px;}
+  .full-mock-card p{font-size:.78rem;color:#c3d3ef;}
+  .full-mock-card .btn-primary{background:#fff;color:var(--navy);}
+  .full-mock-card .btn-primary:hover{background:#eaf0fb;}
+
+  /* Test runner */
+  .test-header{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;box-shadow:var(--shadow-sm);position:sticky;top:10px;z-index:10;}
+  .test-title{font-size:.92rem;font-weight:800;color:var(--navy);}
+  .timer-box{display:flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:7px 14px;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:.92rem;}
+  .timer-box.warn{background:var(--red);}
+  .exit-btn{background:none;border:1px solid var(--border-strong);color:var(--muted);padding:7px 12px;border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer;}
+  .exit-btn:hover{border-color:var(--red);color:var(--red);}
+
+  .palette{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0;}
+  .pal-btn{
+    width:34px;height:34px;border-radius:7px;border:1.5px solid var(--border-strong);background:#fff;
+    color:var(--muted);font-size:.76rem;font-weight:700;cursor:pointer;font-family:'IBM Plex Mono',monospace;
+  }
+  .pal-btn.answered{background:var(--green);border-color:var(--green);color:#fff;}
+  .pal-btn.current{outline:2.5px solid var(--accent);outline-offset:2px;}
+
+  .q-card{padding:22px 24px;margin-bottom:14px;}
+  .q-num{font-size:.72rem;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+  .q-stmt{font-size:.92rem;line-height:1.65;margin-bottom:6px;}
+  .q-stmt b{color:var(--navy);font-family:'IBM Plex Mono',monospace;margin-right:6px;}
+  .q-options{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
+  .opt{
+    display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border:1.5px solid var(--border);
+    border-radius:8px;cursor:pointer;transition:all .15s;font-size:.84rem;
+  }
+  .opt:hover{border-color:var(--accent);background:#f7f9fe;}
+  .opt.selected{border-color:var(--accent);background:#eef3fe;}
+  .opt input{margin-top:2px;accent-color:var(--accent);flex-shrink:0;}
+  .opt .opt-letter{font-family:'IBM Plex Mono',monospace;font-weight:800;color:var(--accent-dark);flex-shrink:0;}
+  .q-nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .q-nav-right{display:flex;gap:10px;}
+
+  /* Result screen */
+  .result-hero{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px 24px;text-align:center;margin-top:16px;box-shadow:var(--shadow-sm);}
+  .result-hero h2{font-size:1.3rem;font-weight:800;color:var(--navy);margin-bottom:4px;}
+  .result-hero .sub{font-size:.82rem;color:var(--muted);}
+  .result-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:20px;}
+  @media(max-width:640px){.result-stats{grid-template-columns:repeat(2,1fr);}}
+  .r-stat{background:#f7f9fc;border:1px solid var(--border);border-radius:8px;padding:12px 8px;}
+  .r-stat b{display:block;font-size:1.3rem;font-weight:800;font-family:'IBM Plex Mono',monospace;color:var(--navy);}
+  .r-stat.correct b{color:var(--green);}
+  .r-stat.wrong b{color:var(--red);}
+  .r-stat span{font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;}
+  .result-actions{margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+
+  .review-item{padding:20px 22px;margin-bottom:12px;}
+  .review-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+  .review-num{font-size:.72rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+  .verdict{font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:99px;text-transform:uppercase;letter-spacing:.03em;}
+  .verdict.correct{background:var(--green-bg);color:var(--green);}
+  .verdict.wrong{background:var(--red-bg);color:var(--red);}
+  .verdict.skipped{background:#eef1f6;color:var(--muted);}
+  .review-opt{padding:8px 12px;border-radius:7px;font-size:.82rem;margin-bottom:5px;border:1px solid var(--border);}
+  .review-opt.your-wrong{background:var(--red-bg);border-color:#f0c4c0;}
+  .review-opt.correct-answer{background:var(--green-bg);border-color:#bfe3cf;}
+  .review-explain{margin-top:10px;background:#f7f9fc;border-left:3px solid var(--accent);padding:10px 14px;border-radius:6px;font-size:.82rem;color:var(--text);line-height:1.6;}
+  .review-explain b{color:var(--navy);}
+
+  .empty-note{text-align:center;color:var(--muted);font-size:.85rem;padding:30px 0;}
+  footer.foot{text-align:center;font-size:.72rem;color:var(--muted2);padding:30px 0 10px;}
+</style>
+</head>
+<body>
+
+<div class="screen active" id="screenGate">
+  <div class="gate-card">
+    <h1>Cause &amp; Effect Reasoning</h1>
+    <div class="tag">Bank &amp; Government Exam Practice</div>
+    <div class="gate-label">Your Name</div>
+    <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off"/>
+    <div class="gate-label">Department</div>
+    <select id="departmentSelect">
+      <option value="">-- Select Department --</option>
+      <option value="CSI Ewart">CSI Ewart</option>
+      <option value="Cyber Security">Cyber Security</option>
+      <option value="EIE">EIE</option>
+      <option value="CSE-1">CSE-1</option>
+      <option value="CSE-2">CSE-2</option>
+      <option value="CSE-3">CSE-3</option>
+      <option value="Mechanical Engineering">Mechanical Engineering</option>
+      <option value="ECE-1">ECE-1</option>
+      <option value="ECE-2">ECE-2</option>
+      <option value="ECE-3">ECE-3</option>
+      <option value="AI DS-1">AI DS-1</option>
+      <option value="AI DS-2">AI DS-2</option>
+      <option value="Agri and Civil">Agri and Civil</option>
+      <option value="EEE">EEE</option>
+      <option value="Medical Electronics">Medical Electronics</option>
+      <option value="IT-1">IT-1</option>
+      <option value="IT-2">IT-2</option>
+    </select>
+    <div id="gateError"></div>
+    <button id="btnBeginQuiz">Start Practice</button>
+  </div>
+</div>
+
+<div class="screen" id="mainApp">
+
+<div class="site-header">
+  <div class="wrap">
+    <div class="brand-block">
+      <h1>Cause &amp; Effect Reasoning</h1>
+      <div class="tag">Bank &amp; Government Exam Practice · IBPS / SBI / RRB Pattern</div>
+    </div>
+    <div class="header-nav" id="headerNav">
+      <button class="nav-btn" data-go="home">Home</button>
+      <button class="nav-btn" data-go="study">Study Notes</button>
+      <button class="nav-btn" data-go="practice">Practice Tests</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ═══════ HOME ═══════ -->
+  <div class="screen active" id="screenHome">
+    <div class="directions" style="margin-top:22px;">
+      <b>About this section:</b> Cause &amp; Effect is a standard topic in the Reasoning Ability section of IBPS PO/Clerk, SBI PO/Clerk, RRB, and similar exams. Each question gives two statements, numbered I and II. You must decide how the two statements are related — whether one caused the other, whether they are unrelated causes, or whether both are outcomes of some other unstated event. Attempt the study notes first if the topic is new to you, then move to the practice sets.
+    </div>
+
+    <div class="hero-grid">
+      <div class="hero-card study" data-go="study">
+        <div class="icon">📘</div>
+        <h3>Study Notes</h3>
+        <p>9 concept groups covering every pattern this topic tests — with tricks and a fully worked example each.</p>
+      </div>
+      <div class="hero-card test" data-go="practice">
+        <div class="icon">📝</div>
+        <h3>Practice Tests</h3>
+        <p>9 topic-wise sets of 5 questions each, plus one full 45-question mock in authentic exam format.</p>
+      </div>
+    </div>
+
+    <div class="stat-row" id="homeStats"></div>
+  </div>
+
+  <!-- ═══════ STUDY NOTES ═══════ -->
+  <div class="screen" id="screenStudy">
+    <div class="section-title">Study Notes</div>
+    <div class="section-sub">Read the concept, note the trick, then check your understanding with the worked example. Tap "Practice this type" to jump straight into that set.</div>
+    <div id="studyList"></div>
+  </div>
+
+  <!-- ═══════ PRACTICE TESTS (list) ═══════ -->
+  <div class="screen" id="screenPractice">
+    <div class="section-title">Practice Tests</div>
+    <div class="section-sub">Each set follows the exact IBPS/SBI five-option format. Timer allows 1 minute per question, matching real exam pacing.</div>
+
+    <div class="full-mock-card">
+      <div>
+        <h3>Full Mock Test — All Types Mixed</h3>
+        <p>45 questions · 45 minutes · shuffled order, exam-simulation difficulty</p>
+      </div>
+      <button class="btn-primary" id="btnFullMock">Start Full Mock</button>
+    </div>
+
+    <div id="testList"></div>
+  </div>
+
+  <!-- ═══════ TEST RUNNER ═══════ -->
+  <div class="screen" id="screenTest">
+    <div class="test-header">
+      <div>
+        <div class="test-title" id="testTitle">Test</div>
+        <div class="section-sub" style="margin:2px 0 0;" id="testProgress">Question 1 of 5</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="timer-box" id="timerBox">05:00</div>
+        <button class="exit-btn" id="btnExitTest">Exit Test</button>
+      </div>
+    </div>
+
+    <div class="palette" id="palette"></div>
+
+    <div class="card q-card" id="qCard"></div>
+
+    <div class="q-nav">
+      <button class="btn-outline" id="btnPrevQ">← Previous</button>
+      <div class="q-nav-right">
+        <button class="btn-outline" id="btnSkipQ">Skip / Clear</button>
+        <button class="btn-primary" id="btnNextQ">Save &amp; Next →</button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="btn-primary" id="btnSubmitTest" style="background:var(--green);">Submit Test</button>
+    </div>
+  </div>
+
+  <!-- ═══════ RESULT ═══════ -->
+  <div class="screen" id="screenResult">
+    <div class="result-hero">
+      <h2 id="resultTitle">Test Completed</h2>
+      <div class="sub" id="resultSub"></div>
+      <div class="result-stats">
+        <div class="r-stat"><b id="rTotal">0</b><span>Total</span></div>
+        <div class="r-stat correct"><b id="rCorrect">0</b><span>Correct</span></div>
+        <div class="r-stat wrong"><b id="rWrong">0</b><span>Wrong</span></div>
+        <div class="r-stat"><b id="rSkipped">0</b><span>Skipped</span></div>
+        <div class="r-stat"><b id="rAccuracy">0%</b><span>Accuracy</span></div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-primary" id="btnBackHome">Back to Home</button>
+        <button class="btn-outline" id="btnRetake">Retake this Test</button>
+      </div>
+    </div>
+
+    <div class="section-title">Answer Review &amp; Explanations</div>
+    <div id="reviewList"></div>
+  </div>
+
+  <footer class="foot">Cause &amp; Effect Reasoning Practice · Original practice content in authentic IBPS/SBI/RRB exam format</footer>
+</div>
+
+</div><!-- /#mainApp -->
+
+<script type="module">
+/* ═══════════════════════════════════════════════════════════════
+   OPTION KEY — fixed, identical wording for every single question,
+   matching the authentic format used in IBPS/SBI/RRB verbal
+   reasoning "Cause and Effect" sets.
+   ═══════════════════════════════════════════════════════════════ */
+const OPTIONS = [
+  { key:'A', text:"Statement I is the cause and Statement II is its effect." },
+  { key:'B', text:"Statement II is the cause and Statement I is its effect." },
+  { key:'C', text:"Both the statements I and II are independent causes." },
+  { key:'D', text:"Both the statements I and II are effects of independent causes." },
+  { key:'E', text:"Both the statements I and II are effects of some common cause." }
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   TYPES — 9 concept groups, 5 questions each (45 total). Each type
+   has a study note (definition + trick + one fully worked example)
+   plus its 5 practice questions with full explanations.
+   ═══════════════════════════════════════════════════════════════ */
+const TYPES = [
+  {
+    id:1, name:"Direct Cause → Effect",
+    definition:"Statement I describes an event or decision, and Statement II describes its direct, foreseeable result. The order in which the statements are written matches the real order in which things happened.",
+    trick:"Ask: 'If I remove Statement I, would Statement II still make sense?' If II clearly depends on I having happened first, the answer is (A).",
+    example:{ s1:"The regulator raised the minimum capital requirement for new banks.", s2:"Several small finance applicants withdrew their banking license applications.",
+      answer:'A', explain:"The stricter capital norm (I) directly discouraged smaller applicants, producing the withdrawals in II. I is the cause, II is its effect." },
+    questions:[
+      { s1:"The government announced a hike in the minimum support price for wheat.", s2:"Wheat cultivation across several states increased significantly in the following season.",
+        answer:'A', explain:"A higher guaranteed price (I) directly incentivised farmers to grow more wheat, producing the outcome described in II. I is the cause and II is its effect." },
+      { s1:"A leading bank reduced the interest rate on its savings accounts.", s2:"Depositors began shifting their savings into fixed deposit schemes offering higher returns.",
+        answer:'A', explain:"The lower savings rate (I) directly prompted depositors to seek better returns elsewhere (II). I is the cause, II is the effect." },
+      { s1:"The state transport department launched free bus travel for women.", s2:"Ridership among women passengers on state buses rose sharply within a month.",
+        answer:'A', explain:"The free-travel scheme (I) is the direct, immediate trigger for the rise in ridership (II)." },
+      { s1:"A severe cyclone made landfall along the eastern coastline.", s2:"Several coastal districts reported extensive damage to standing crops.",
+        answer:'A', explain:"The cyclone (I) is the direct physical cause of the crop damage reported in II." },
+      { s1:"The university introduced a mandatory entrance test for a popular course.", s2:"The number of applicants for that course fell in the following year.",
+        answer:'A', explain:"The tougher admission process (I) directly discouraged some applicants, producing the fall described in II." }
+    ]
+  },
+  {
+    id:2, name:"Reverse Order: II is the Cause",
+    definition:"Sometimes the statement written second is actually the true cause, and the statement written first is its effect. Exam-setters deliberately write the effect first to test whether you assume reading order equals causal order.",
+    trick:"Before deciding, ask which statement could exist on its own without needing an explanation, and which one clearly needs 'because of something' to make sense. The one that needs explaining is usually the effect.",
+    example:{ s1:"Sales of umbrellas rose sharply in the city this week.", s2:"The city received unusually heavy, unseasonal rainfall this week.",
+      answer:'B', explain:"The rainfall (II) is what drove people to buy umbrellas (I). II is the cause, I is the effect — reversed from the order written." },
+    questions:[
+      { s1:"Sales of air conditioners surged across the northern region this year.", s2:"The region experienced one of its hottest summers on record.",
+        answer:'B', explain:"The record heat (II) is what drove the surge in AC sales (I). II is the cause, I is the effect." },
+      { s1:"Enrollment in evening skill-development courses rose sharply this year.", s2:"Several large manufacturing units announced significant employee layoffs.",
+        answer:'B', explain:"The layoffs (II) pushed affected workers to reskill (I). II is the cause, I is the effect." },
+      { s1:"The price of imported edible oil rose in domestic markets.", s2:"A major oil-exporting country imposed new restrictions on exports.",
+        answer:'B', explain:"The export restriction (II) reduced supply, causing the domestic price rise (I). II is the cause, I is the effect." },
+      { s1:"Demand for private tuition in mathematics increased among school students.", s2:"The education board made the mathematics syllabus considerably more difficult.",
+        answer:'B', explain:"The harder syllabus (II) drove the increased demand for tuition (I). II is the cause, I is the effect." },
+      { s1:"Hospitals in the city reported a shortage of blood units.", s2:"A major multi-vehicle accident occurred on the highway near the city.",
+        answer:'B', explain:"The accident (II) created a sudden surge in demand, causing the shortage (I). II is the cause, I is the effect." }
+    ]
+  },
+  {
+    id:3, name:"Independent Causes",
+    definition:"Both statements describe separate actions or decisions — not outcomes — taken by different parties for their own reasons. Neither statement is caused by the other, and no single shared event explains both.",
+    trick:"Look for two 'active' statements — someone deciding, announcing, launching, introducing something. If both statements describe deliberate actions rather than results, and nothing links the two, the answer is (C).",
+    example:{ s1:"A city council approved funds for a new public park.", s2:"A private bank announced a new branch in a different part of the same city.",
+      answer:'C', explain:"Both are independent decisions taken by unrelated parties, for unrelated reasons; neither depends on the other." },
+    questions:[
+      { s1:"The municipal corporation decided to repave the main market road.", s2:"A private firm began construction of a new office complex on the outskirts of the city.",
+        answer:'C', explain:"Both statements describe independent decisions by different parties, taken for their own separate reasons. Neither is the cause or effect of the other." },
+      { s1:"The company revised its dress code policy for employees.", s2:"The finance ministry announced a change in the corporate tax slab.",
+        answer:'C', explain:"Two unrelated administrative decisions by different bodies, with no causal link between them." },
+      { s1:"The school decided to introduce a new elective subject from next term.", s2:"A local NGO began a free tree-plantation drive in a nearby park.",
+        answer:'C', explain:"Both are independent actions by unrelated organisations; neither causes nor is caused by the other." },
+      { s1:"The airline decided to add a new domestic route connecting two cities.", s2:"A telecom company launched a new prepaid plan in the same week.",
+        answer:'C', explain:"Two unconnected business decisions occurring in the same period, but with no causal relationship." },
+      { s1:"The city council approved funds for a new public library.", s2:"A private hospital chain announced plans to open a new branch nearby.",
+        answer:'C', explain:"Independent decisions by unrelated organisations; no shared trigger or causal connection." }
+    ]
+  },
+  {
+    id:4, name:"Effects of Independent Causes",
+    definition:"Both statements describe results or outcomes — not deliberate actions — but each outcome plausibly comes from its own separate, unstated cause. The two events are simply unconnected facts that both happen to be effects.",
+    trick:"If both statements read like 'something happened / something was reported / something changed' (passive, outcome-style language) rather than 'someone decided,' and nothing plausibly links the two, lean towards (D) rather than (C).",
+    example:{ s1:"A particular railway station reported a fall in ticket-counter footfall this month.", s2:"A different city's bus depot reported a rise in daily passenger count this month.",
+      answer:'D', explain:"Both are outcomes/results, but from two different, unstated, unrelated causes in different locations — not one explanation, and not a decision either party made." },
+    questions:[
+      { s1:"Vegetable prices in the eastern state rose sharply this month.", s2:"Petrol prices in the western state saw a marginal increase this month.",
+        answer:'D', explain:"Both are effects/outcomes, occurring in different regions, most plausibly due to different, unrelated underlying causes (local supply issues vs global crude prices). Neither causes the other, and no single shared cause is implied." },
+      { s1:"The number of tourists visiting a northern hill station declined this season.", s2:"Attendance at a popular southern beach resort also dropped this season.",
+        answer:'D', explain:"Both are outcomes, but at unrelated locations likely for unrelated local reasons — effects of independent, unstated causes." },
+      { s1:"A city's public library reported a fall in the number of visitors.", s2:"A neighbouring city's cinema hall reported a rise in ticket sales.",
+        answer:'D', explain:"Two separate outcomes in two separate places, with no plausible shared cause connecting them." },
+      { s1:"Traffic congestion on the northern highway eased slightly this month.", s2:"Water levels in a southern reservoir dropped below the seasonal average.",
+        answer:'D', explain:"Unrelated outcomes in unrelated systems; each plausibly has its own separate cause." },
+      { s1:"One state reported a rise in examination pass percentages this year.", s2:"A different state reported a fall in college dropout rates this year.",
+        answer:'D', explain:"Both are results/outcomes from different states, each most likely due to its own separate, unstated cause." }
+    ]
+  },
+  {
+    id:5, name:"Effects of a Common Cause",
+    definition:"Both statements are outcomes, and a single unstated event plausibly explains both of them at once. Neither statement causes the other — they are two branches of the same root cause.",
+    trick:"Ask: 'Could one single event explain both of these at the same time?' If yes — and neither statement reads as the direct cause of the other — the answer is (E).",
+    example:{ s1:"Outdoor sporting events across the city were postponed this week.", s2:"Several flights out of the city's airport were delayed this week.",
+      answer:'E', explain:"A single unstated event (severe weather) plausibly explains both the postponements and the flight delays at the same time. Neither statement causes the other." },
+    questions:[
+      { s1:"Flight operations at the coastal airport were suspended for the day.", s2:"Fishing communities along the coast were advised to stay ashore.",
+        answer:'E', explain:"Both are effects of the same unstated cause — most likely an approaching cyclone — rather than one causing the other." },
+      { s1:"School and college examinations scheduled for the week were postponed.", s2:"Several low-lying residential colonies in the same district were evacuated as a precaution.",
+        answer:'E', explain:"A shared, unstated cause (an approaching natural disaster) plausibly explains both effects simultaneously." },
+      { s1:"Retail footfall in shopping malls across the city dropped sharply this month.", s2:"Public transport ridership in the same city also fell noticeably this month.",
+        answer:'E', explain:"A likely common trigger reduced both indicators at once; neither statement is the cause of the other." },
+      { s1:"The number of loan defaults reported by banks increased this quarter.", s2:"Consumer spending on non-essential goods declined this quarter.",
+        answer:'E', explain:"Both are plausible effects of a common underlying economic slowdown, rather than one causing the other directly." },
+      { s1:"Hospitals in the district reported a spike in heat-stroke admissions.", s2:"The district's electricity board recorded its highest-ever single-day power demand.",
+        answer:'E', explain:"An unstated severe heatwave plausibly explains both effects — heat-stroke cases and record power demand from cooling appliances — at the same time." }
+    ]
+  },
+  {
+    id:6, name:"The Classic Trap: (C) vs (D)",
+    definition:"Both options (C) and (D) describe 'independent, unconnected' statements — but they are not the same. (C) is used when both statements are themselves causes (decisions/actions). (D) is used when both statements are themselves effects (outcomes/results) of their own separate causes.",
+    trick:"Reword each statement in your head as either 'X decided to...' (cause-type → points to C) or 'X was observed / reported / happened to...' (effect-type → points to D). If both are the same type and unrelated to each other, match C or D accordingly.",
+    example:{ s1:"A telecom company launched a new data plan nationwide.", s2:"A particular retail chain reported a fall in footfall at one of its stores.",
+      answer:'D', explain:"Wait — these are of different types (one action, one outcome) with no link, which real exams avoid; a clean version pairs two outcome-type statements. See the practice set for well-matched examples." },
+    questions:[
+      { s1:"The state government decided to waive stamp duty on property registration for a year.", s2:"A private developer launched a new residential project in a different city.",
+        answer:'C', explain:"Both statements describe independent decisions/actions (cause-type), unconnected to each other. This is 'independent causes,' not 'independent effects.'" },
+      { s1:"Footfall at a particular railway station's ticket counters declined this month.", s2:"Online ticket bookings for a different railway zone increased this month.",
+        answer:'D', explain:"Both statements report outcomes/results (effect-type) in different zones, from unrelated, unstated causes — 'effects of independent causes,' not 'independent causes.'" },
+      { s1:"A software company decided to shift a portion of its staff to permanent remote work.", s2:"A garment exporter signed a new supply contract with an overseas buyer.",
+        answer:'C', explain:"Two independent decisions/actions by different organisations — cause-type statements, unrelated to each other." },
+      { s1:"A particular bank branch reported a decline in cash withdrawals this week.", s2:"A different bank's mobile app reported a rise in fund-transfer transactions this week.",
+        answer:'D', explain:"Two independent outcomes/results reported by different banks — effect-type statements, from unrelated, unstated causes." },
+      { s1:"The regulator introduced new disclosure norms for mutual fund houses.", s2:"A separate committee recommended changes to the school examination pattern.",
+        answer:'C', explain:"Two independent decisions/recommendations by different bodies — cause-type statements, unconnected to each other." }
+    ]
+  },
+  {
+    id:7, name:"The Classic Trap: (D) vs (E)",
+    definition:"Both options (D) and (E) involve two outcome/effect-type statements — but (D) means each effect has its own separate, unstated cause, while (E) means one single shared cause explains both effects at once.",
+    trick:"Ask: 'Do these two outcomes plausibly share one root event (like weather, a policy, a disaster), or do they belong to two completely unconnected situations?' Shared plausible root → (E). No plausible shared root → (D).",
+    example:{ s1:"A city's air-quality index worsened considerably this week.", s2:"Visibility-related flight delays at the city's airport increased this week.",
+      answer:'E', explain:"Both are effects of a single common cause — heavy smog/particulate pollution — affecting air quality and visibility together." },
+    questions:[
+      { s1:"Ice-cream sales across the city rose sharply this week.", s2:"Sales of cold beverages also rose sharply across the city this week.",
+        answer:'E', explain:"A shared cause (a heatwave) plausibly explains both simultaneous rises — a common cause, not two unrelated effects." },
+      { s1:"A particular bookstore chain reported a fall in in-store sales this quarter.", s2:"A separate furniture retailer reported a rise in online sales this quarter.",
+        answer:'D', explain:"These are outcomes for two unrelated businesses with no plausible single shared trigger connecting them — independent, unstated causes each." },
+      { s1:"A coastal town reported disruption to its fishing operations for three days.", s2:"The same region's power grid recorded rolling outages over the same three days.",
+        answer:'E', explain:"A common unstated cause (a cyclone or major storm) plausibly explains both disruptions occurring together in the same region." },
+      { s1:"A particular airline reported a rise in flight cancellations on one route.", s2:"A different airline reported a rise in passenger complaints on an unrelated route.",
+        answer:'D', explain:"Two outcomes for different airlines on unrelated routes, with no plausible shared cause — independent, unstated causes each." },
+      { s1:"Vegetable vendors in the city reported spoilage of a large share of their stock this week.", s2:"The city's fire department responded to an unusually high number of short-circuit related calls this week.",
+        answer:'E', explain:"A common unstated cause (an extreme heatwave) plausibly explains both — spoiled produce and overloaded cooling appliances causing short-circuits." }
+    ]
+  },
+  {
+    id:8, name:"Principal Cause vs Immediate Trigger",
+    definition:"When both statements look like they could be causally linked, you must decide which one is the true originating (principal) cause and which is the direct consequence — this determines whether the answer is (A) or (B).",
+    trick:"The principal cause is usually the one that would still make logical sense as a standalone event; the effect is the one that reads as a 'response' or 'reaction' to something else. Read for which statement answers the question 'why did this happen?'",
+    example:{ s1:"A city's water board announced a temporary hike in water tariffs.", s2:"The board reported a sharp rise in its annual pumping and maintenance costs.",
+      answer:'B', explain:"The rising costs (II) are the principal cause behind the tariff hike (I); II is the cause, I is the effect." },
+    questions:[
+      { s1:"A key bridge on the national highway was shut for emergency repairs.", s2:"Trucking companies rerouted their cargo through a longer, alternate highway.",
+        answer:'A', explain:"The bridge closure (I) is the principal cause; the rerouting (II) is its direct consequence. I is the cause, II is the effect." },
+      { s1:"A popular budget airline announced significantly discounted fares for a month.", s2:"Bookings on competing airlines for the same routes fell noticeably.",
+        answer:'A', explain:"The discount campaign (I) is the principal cause that pulled bookings away from competitors (II). I is the cause, II is the effect." },
+      { s1:"A shipping line reported a rise in cargo bookings on a particular route.", s2:"A rival shipping line on the same route suspended operations due to a mechanical fault in its fleet.",
+        answer:'B', explain:"The rival's suspension (II) is the principal cause that pushed customers toward the other line, producing the rise in bookings (I). II is the cause, I is the effect." },
+      { s1:"A city's water supply board announced a temporary increase in water tariffs.", s2:"The board reported a significant rise in its annual maintenance and pumping costs.",
+        answer:'B', explain:"Rising costs (II) is the principal cause behind the tariff hike (I); II is the cause, I is the effect." },
+      { s1:"A retail chain announced the closure of several loss-making outlets.", s2:"The chain's quarterly results showed losses in those specific outlets over three consecutive quarters.",
+        answer:'B', explain:"The sustained losses (II) are the principal cause behind the decision to close the outlets (I). II is the cause, I is the effect." }
+    ]
+  },
+  {
+    id:9, name:"Full Mixed Practice",
+    definition:"This final set draws on every pattern covered above — direct causation, reversed order, independent causes, independent effects, and common cause — mixed together the way they appear in an actual exam.",
+    trick:"Work through each pair systematically: first decide if one statement is action-type or outcome-type, then check for a plausible direct link, then consider whether one shared event could explain both before settling on independent causes or independent effects.",
+    example:{ s1:"A regulator capped the maximum interest rate microfinance lenders may charge.", s2:"Several microfinance companies reported a decline in profit margins.",
+      answer:'A', explain:"The rate cap (I) directly reduced lender revenue, causing the profit decline (II). I is the cause, II is the effect." },
+    questions:[
+      { s1:"The regulator capped the maximum interest rate that microfinance lenders may charge.", s2:"Several microfinance companies reported a decline in their profit margins.",
+        answer:'A', explain:"The rate cap (I) directly reduced lender revenue per loan, causing the profit decline (II). I is the cause, II is the effect." },
+      { s1:"A particular retail brand's online orders surged over a festive weekend.", s2:"The brand ran a limited-time discount campaign across its app and website that weekend.",
+        answer:'B', explain:"The discount campaign (II) is the cause of the surge in orders (I). II is the cause, I is the effect." },
+      { s1:"A telecom operator announced a new bundled data-and-voice plan.", s2:"An unrelated automobile company recalled a batch of vehicles due to a manufacturing defect.",
+        answer:'C', explain:"Two independent decisions/actions by unrelated companies, with no connection between them — independent causes." },
+      { s1:"A particular multiplex chain reported a dip in weekday ticket sales.", s2:"A separate theme park reported a rise in weekend visitor numbers.",
+        answer:'D', explain:"Two unrelated outcomes for two unrelated businesses, each plausibly due to its own separate, unstated cause." },
+      { s1:"Vegetable vendors in a district reported spoilage of a large share of their stock this week.", s2:"The district's fire department responded to an unusually high number of short-circuit related calls this week.",
+        answer:'E', explain:"A common unstated cause (an extreme heatwave) plausibly explains both effects at once — this is 'effects of a common cause.'" }
+    ]
+  }
+];
+
+/* ═══════ Supabase logging (edge function) — same backend as the other Verve quizzes ═══════ */
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+// quest_id is built per concept type (1-9), prefixed "Reasoning Set" so this
+// quiz's entries never collide with the other Verve quizzes in the same table:
+// "Reasoning Set N"  = mastered — all 5 questions in that type answered correctly
+// "Reasoning Sets N" = practiced — at least one question was wrong or skipped
+
+const SUPABASE_PROXY_URL = "https://yellow-lab-4999.andrewveda.workers.dev";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE";
+let supabaseClient = null;
+async function getSupabaseClient(){
+  if(supabaseClient) return supabaseClient;
+  const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm");
+  supabaseClient = createClient(SUPABASE_PROXY_URL, SUPABASE_ANON_KEY);
+  return supabaseClient;
+}
+
+let playerName = '';
+let playerDept = '';
+// typeId -> 'mastered' | 'practiced', seeded from this player's Supabase history
+// and updated locally the moment a set is submitted (before the network call confirms).
+let typeStatus = new Map();
+// typeId -> {correct, total} for the most recent attempt this session, shown on badges.
+let lastScore = new Map();
+
+async function loadPlayerHistory(name){
+  typeStatus = new Map();
+  if(!name) return;
+  try{
+    const supabase = await getSupabaseClient();
+    const { data, error } = await supabase
+      .from("report_card_view")
+      .select("quest_list")
+      .eq("name", playerName)
+      .eq("department", playerDept)
+      .single();
+
+    if(error || !data){
+      console.warn("No prior history found for", name, error || '');
+      return;
+    }
+    const questList = (data.quest_list || "").split(", ").filter(Boolean);
+    questList.forEach(q=>{
+      if(typeof q !== 'string') return;
+      let typeNum = null, mastered = false;
+      if(q.startsWith("Reasoning Set ")){
+        typeNum = parseInt(q.replace("Reasoning Set ",""),10);
+        mastered = true;
+      } else if(q.startsWith("Reasoning Sets ")){
+        typeNum = parseInt(q.replace("Reasoning Sets ",""),10);
+        mastered = false;
+      }
+      if(typeNum && !isNaN(typeNum)){
+        if(mastered){
+          typeStatus.set(typeNum, 'mastered');
+        } else if(typeStatus.get(typeNum) !== 'mastered'){
+          typeStatus.set(typeNum, 'practiced');
+        }
+      }
+    });
+  }catch(err){
+    console.error("⚠️ Could not load player history:", err);
+  }
+}
+
+async function sendViaEdgeFunction(payload){
+  try{
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if(!response.ok){ console.error("❌ Edge Function Error:", await response.text()); return; }
+    console.log("✅ Saved to Supabase");
+  }catch(err){ console.error("⚠️ Edge Function Error:", err); }
+}
+
+// Sends exactly once per completed type-wise set (5 questions = 1 "page").
+// Only fires for single-type practice sets, not the mixed Full Mock.
+function submitTypeToSupabase(typeId, correct, wrong, skipped, timeSpent){
+  const total = correct + wrong + skipped;
+  const mastered = (correct === total && wrong === 0 && skipped === 0);
+  const questId = (mastered ? "Reasoning Set " : "Reasoning Sets ") + typeId;
+  const payload = {
+    student_name: playerName,
+    department: playerDept,
+    correct: correct,
+    wrong: wrong,
+    time_spent: timeSpent,
+    quest_id: questId,
+    score: correct,
+    sentences_pressed: total - skipped
+  };
+  sendViaEdgeFunction(payload);
+  typeStatus.set(typeId, mastered ? 'mastered' : 'practiced');
+  lastScore.set(typeId, {correct, total});
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAME / DEPARTMENT GATE
+   ═══════════════════════════════════════════════════════════════ */
+async function beginQuiz(){
+  const nameEl = document.getElementById('nameInput');
+  const deptEl = document.getElementById('departmentSelect');
+  const errEl = document.getElementById('gateError');
+  const startBtn = document.getElementById('btnBeginQuiz');
+  const name = nameEl.value.trim();
+  const dept = deptEl.value;
+
+  if(!name){ errEl.textContent = 'Please enter your name.'; nameEl.focus(); return; }
+  if(!dept){ errEl.textContent = 'Please select your department.'; deptEl.focus(); return; }
+
+  errEl.textContent = '';
+  playerName = name;
+  playerDept = dept;
+  localStorage.setItem("userName", name);
+  localStorage.setItem("userDept", dept);
+
+  startBtn.disabled = true;
+  startBtn.textContent = 'Loading your progress…';
+  await loadPlayerHistory(playerName);
+  startBtn.disabled = false;
+  startBtn.textContent = 'Start Practice';
+
+  document.getElementById('screenGate').classList.remove('active');
+  document.getElementById('mainApp').classList.add('active');
+  renderStudy();
+  renderPracticeList();
+  renderHomeStats();
+}
+document.getElementById('btnBeginQuiz').addEventListener('click', beginQuiz);
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const savedName = localStorage.getItem("userName");
+  const savedDept = localStorage.getItem("userDept");
+  if(savedName && savedDept){
+    playerName = savedName;
+    playerDept = savedDept;
+    await loadPlayerHistory(playerName);
+    document.getElementById('screenGate').classList.remove('active');
+    document.getElementById('mainApp').classList.add('active');
+    renderStudy();
+    renderPracticeList();
+    renderHomeStats();
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════════════════════ */
+let session = null;      // { title, questions:[{s1,s2,answer,explain,typeName}], answers:[], current, secondsLeft, timerId, typeId }
+let history = {};        // typeId -> {attempted, correct} — simple in-session progress, not persisted
+
+function directionsHTML(){
+  return `Directions: Each of the following questions gives two statements, numbered <b>I</b> and <b>II</b>. These statements may describe independent causes, independent effects, a shared common cause, or a direct cause-and-effect pair. Read both statements carefully, then choose the option that most accurately describes how they relate.` +
+  `<div class="option-key">` + OPTIONS.map(o=>`<div><b>(${o.key})</b> ${o.text}</div>`).join('') + `</div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════════════════════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('current'));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('[data-go]').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    const target = el.dataset.go;
+    if(target==='home') { showScreen('screenHome'); renderHomeStats(); document.querySelector('[data-go="home"].nav-btn')?.classList.add('current'); }
+    if(target==='study') { showScreen('screenStudy'); document.querySelector('[data-go="study"].nav-btn')?.classList.add('current'); }
+    if(target==='practice') { showScreen('screenPractice'); document.querySelector('[data-go="practice"].nav-btn')?.classList.add('current'); }
+  });
+});
+
+function renderHomeStats(){
+  const wrap = document.getElementById('homeStats');
+  const totalTypes = TYPES.length;
+  const masteredCount = [...typeStatus.values()].filter(v=>v==='mastered').length;
+  const attemptedCount = typeStatus.size;
+  let totalQ=0, totalCorrect=0;
+  lastScore.forEach(v=>{ totalQ+=v.total; totalCorrect+=v.correct; });
+  wrap.innerHTML = `
+    <div class="stat-chip"><b>${playerName||'Guest'}</b>${playerDept||''}</div>
+    <div class="stat-chip"><b>${masteredCount}/${totalTypes}</b>Sets Mastered</div>
+    <div class="stat-chip"><b>${attemptedCount}/${totalTypes}</b>Sets Attempted</div>
+    <div class="stat-chip"><b>${totalQ? Math.round(totalCorrect/totalQ*100)+'%':'—'}</b>Last Session Accuracy</div>
+  `;
+}
+renderHomeStats();
+
+/* ═══════════════════════════════════════════════════════════════
+   STUDY NOTES RENDER
+   ═══════════════════════════════════════════════════════════════ */
+function renderStudy(){
+  const list = document.getElementById('studyList');
+  list.innerHTML = `<div class="directions">${directionsHTML()}</div>` + TYPES.map((t,i)=>`
+    <div class="card study-card" id="study-${t.id}">
+      <div class="study-card-top" onclick="toggleStudy(${t.id})">
+        <h4><span class="study-num">${i+1}</span>${t.name}</h4>
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${typeStatus.get(t.id)==='mastered' ? '<span class="badge done">✓ Mastered</span>' : typeStatus.get(t.id)==='practiced' ? '<span class="badge pending" style="color:var(--amber);background:var(--amber-bg);">◐ Practiced</span>' : ''}
+          <span class="chev">▾</span>
+        </div>
+      </div>
+      <div class="study-body">
+        <div class="study-body-inner">
+          <p>${t.definition}</p>
+          <div class="tip-box"><b>Trick:</b> ${t.trick}</div>
+          <div class="example-box">
+            <div class="ex-label">Worked Example</div>
+            <div class="stmt-line"><b>I.</b>${t.example.s1}</div>
+            <div class="stmt-line"><b>II.</b>${t.example.s2}</div>
+            <div class="ex-answer">Correct Answer: (${t.example.answer}) ${OPTIONS.find(o=>o.key===t.example.answer).text}</div>
+            <div class="ex-explain">${t.example.explain}</div>
+          </div>
+          <div class="study-actions">
+            <button class="btn-mini" onclick="event.stopPropagation();startTypeTest(${t.id})">Practice this type — 5 Questions →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleStudy(id){
+  document.getElementById('study-'+id).classList.toggle('open');
+}
+window.toggleStudy = toggleStudy;
+renderStudy();
+
+/* ═══════════════════════════════════════════════════════════════
+   PRACTICE LIST RENDER
+   ═══════════════════════════════════════════════════════════════ */
+function renderPracticeList(){
+  const list = document.getElementById('testList');
+  list.innerHTML = TYPES.map((t,i)=>{
+    const status = typeStatus.get(t.id);
+    const score = lastScore.get(t.id);
+    const badge = status === 'mastered'
+      ? `<span class="badge done">✓ Mastered${score?' · '+score.correct+'/'+score.total:''}</span>`
+      : status === 'practiced'
+        ? `<span class="badge pending" style="color:var(--amber);background:var(--amber-bg);">◐ Practiced${score?' · '+score.correct+'/'+score.total:''}</span>`
+        : `<span class="badge pending">Not attempted</span>`;
+    return `
+    <div class="card test-card">
+      <div class="test-card-left">
+        <span class="study-num">${i+1}</span>
+        <div>
+          <h4>${t.name}</h4>
+          <div class="meta">5 Questions · 5 min · ${badge}</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="startTypeTest(${t.id})">Start Test</button>
+    </div>`;
+  }).join('');
+}
+renderPracticeList();
+
+document.getElementById('btnFullMock').addEventListener('click', startFullMock);
+
+/* ═══════════════════════════════════════════════════════════════
+   TEST SESSION LOGIC
+   ═══════════════════════════════════════════════════════════════ */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function startTypeTest(typeId){
+  const type = TYPES.find(t=>t.id===typeId);
+  const qs = type.questions.map(q=>({...q, typeName:type.name, typeId:type.id}));
+  beginSession(`${type.name} — Practice Set`, qs, qs.length*60, typeId);
+}
+window.startTypeTest = startTypeTest;
+
+function startFullMock(){
+  let all = [];
+  TYPES.forEach(t=> t.questions.forEach(q=> all.push({...q, typeName:t.name, typeId:t.id})));
+  all = shuffle(all);
+  beginSession('Full Mock Test — All Types', all, all.length*60, null);
+}
+
+function beginSession(title, questions, seconds, typeId){
+  session = { title, questions, answers: new Array(questions.length).fill(null), current: 0, secondsLeft: seconds, totalSeconds: seconds, timerId: null, typeId: typeId!==undefined?typeId:null };
+  document.getElementById('testTitle').textContent = title;
+  showScreen('screenTest');
+  renderPalette();
+  renderQuestion();
+  startTimer();
+}
+
+function startTimer(){
+  clearInterval(session.timerId);
+  updateTimerDisplay();
+  session.timerId = setInterval(()=>{
+    session.secondsLeft--;
+    updateTimerDisplay();
+    if(session.secondsLeft<=0){ clearInterval(session.timerId); submitTest(true); }
+  },1000);
+}
+function updateTimerDisplay(){
+  const box = document.getElementById('timerBox');
+  const m = Math.floor(session.secondsLeft/60), s = session.secondsLeft%60;
+  box.textContent = (m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+  box.classList.toggle('warn', session.secondsLeft <= 30);
+}
+
+function renderPalette(){
+  const wrap = document.getElementById('palette');
+  wrap.innerHTML = session.questions.map((q,i)=>`
+    <button class="pal-btn ${session.answers[i]?'answered':''} ${i===session.current?'current':''}" onclick="jumpTo(${i})">${i+1}</button>
+  `).join('');
+}
+function jumpTo(i){ session.current = i; renderQuestion(); renderPalette(); }
+window.jumpTo = jumpTo;
+
+function renderQuestion(){
+  const q = session.questions[session.current];
+  document.getElementById('testProgress').textContent = `Question ${session.current+1} of ${session.questions.length}${session.questions.length>5? '':' · '+q.typeName}`;
+  const selected = session.answers[session.current];
+  const card = document.getElementById('qCard');
+  card.innerHTML = `
+    <div class="q-num">${session.questions.length>5? q.typeName : 'Statements'}</div>
+    <div class="q-stmt"><b>I.</b>${q.s1}</div>
+    <div class="q-stmt"><b>II.</b>${q.s2}</div>
+    <div class="q-options">
+      ${OPTIONS.map(o=>`
+        <label class="opt ${selected===o.key?'selected':''}">
+          <input type="radio" name="opt" value="${o.key}" ${selected===o.key?'checked':''} onchange="selectOption('${o.key}')" />
+          <span class="opt-letter">(${o.key})</span> <span>${o.text}</span>
+        </label>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('btnPrevQ').disabled = session.current===0;
+}
+function selectOption(key){
+  session.answers[session.current] = key;
+  renderQuestion();
+  renderPalette();
+}
+window.selectOption = selectOption;
+
+document.getElementById('btnPrevQ').addEventListener('click', ()=>{
+  if(session.current>0){ session.current--; renderQuestion(); renderPalette(); }
+});
+document.getElementById('btnNextQ').addEventListener('click', ()=>{
+  if(session.current < session.questions.length-1){ session.current++; renderQuestion(); renderPalette(); }
+});
+document.getElementById('btnSkipQ').addEventListener('click', ()=>{
+  session.answers[session.current] = null;
+  renderQuestion(); renderPalette();
+});
+document.getElementById('btnExitTest').addEventListener('click', ()=>{
+  if(confirm('Exit this test? Your progress will not be saved.')){
+    clearInterval(session.timerId);
+    showScreen('screenPractice');
+  }
+});
+document.getElementById('btnSubmitTest').addEventListener('click', ()=>{
+  const unanswered = session.answers.filter(a=>a===null).length;
+  const msg = unanswered>0
+    ? `You have ${unanswered} unanswered question(s). Submit anyway?`
+    : `Submit the test now?`;
+  if(confirm(msg)) submitTest(false);
+});
+
+function submitTest(autoSubmitted){
+  clearInterval(session.timerId);
+  let correct=0, wrong=0, skipped=0;
+  session.questions.forEach((q,i)=>{
+    const a = session.answers[i];
+    if(a===null) skipped++;
+    else if(a===q.answer) correct++;
+    else wrong++;
+  });
+
+  // Log to Supabase — only for single-type practice sets, not the mixed Full Mock,
+  // since a mock's quest_id can't cleanly map to one concept type.
+  if(session.typeId !== null){
+    const timeSpent = session.totalSeconds - session.secondsLeft;
+    submitTypeToSupabase(session.typeId, correct, wrong, skipped, timeSpent);
+  } else {
+    // Full Mock: log per-type breakdown so Study/Practice badges still update.
+    const byType = {};
+    session.questions.forEach((q,i)=>{
+      if(!byType[q.typeId]) byType[q.typeId] = {correct:0, wrong:0, skipped:0};
+      const a = session.answers[i];
+      if(a===null) byType[q.typeId].skipped++;
+      else if(a===q.answer) byType[q.typeId].correct++;
+      else byType[q.typeId].wrong++;
+    });
+    const timeSpent = session.totalSeconds - session.secondsLeft;
+    Object.keys(byType).forEach(tid=>{
+      const b = byType[tid];
+      submitTypeToSupabase(parseInt(tid,10), b.correct, b.wrong, b.skipped, Math.round(timeSpent/Object.keys(byType).length));
+    });
+  }
+
+  const total = session.questions.length;
+  document.getElementById('resultTitle').textContent = autoSubmitted ? 'Time Up — Test Submitted' : 'Test Completed';
+  document.getElementById('resultSub').textContent = session.title;
+  document.getElementById('rTotal').textContent = total;
+  document.getElementById('rCorrect').textContent = correct;
+  document.getElementById('rWrong').textContent = wrong;
+  document.getElementById('rSkipped').textContent = skipped;
+  document.getElementById('rAccuracy').textContent = (session.answers.some(a=>a!==null)) ? Math.round(correct/(correct+wrong||1)*100)+'%' : '0%';
+
+  renderReview();
+  renderPracticeList();
+  renderStudy();
+  showScreen('screenResult');
+}
+
+function renderReview(){
+  const wrap = document.getElementById('reviewList');
+  wrap.innerHTML = session.questions.map((q,i)=>{
+    const your = session.answers[i];
+    const verdict = your===null ? 'skipped' : (your===q.answer ? 'correct' : 'wrong');
+    const verdictLabel = verdict==='skipped' ? 'Skipped' : (verdict==='correct' ? 'Correct' : 'Incorrect');
+    let optsHTML = '';
+    OPTIONS.forEach(o=>{
+      let cls = '';
+      if(o.key===q.answer) cls = 'correct-answer';
+      else if(o.key===your && your!==q.answer) cls = 'your-wrong';
+      if(cls) optsHTML += `<div class="review-opt ${cls}">(${o.key}) ${o.text}${o.key===your?' — your answer':''}${o.key===q.answer && o.key!==your?' — correct answer':''}</div>`;
+    });
+    return `
+    <div class="card review-item">
+      <div class="review-top">
+        <span class="review-num">Question ${i+1} · ${q.typeName}</span>
+        <span class="verdict ${verdict}">${verdictLabel}</span>
+      </div>
+      <div class="q-stmt"><b>I.</b>${q.s1}</div>
+      <div class="q-stmt"><b>II.</b>${q.s2}</div>
+      ${optsHTML}
+      <div class="review-explain"><b>Explanation:</b> ${q.explain}</div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('btnBackHome').addEventListener('click', ()=>{ showScreen('screenHome'); renderHomeStats(); });
+document.getElementById('btnRetake').addEventListener('click', ()=>{
+  beginSession(session.title, shuffle(session.questions), session.questions.length*60, session.typeId);
+});
+</script>
+</body>
+</html>
