@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+  <title>Speech with Verve</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --paper:#f3ead4; --card:#fffbf2; --card-line:#e3d5b0;
+      --ink:#2d2620; --ink-muted:#8c7c62;
+      --forest:#2f5233; --forest-dark:#20391f; --moss:#6f8f5a;
+      --clay:#b5651d; --gold:#c9a227; --rust:#a4392c;
+      --verb:#2f6b3f; --wrong:#a4392c;
+      --a1:#4f8f5f; --a2:#4f8f5f; --b1:#c9932a; --b2:#c9932a; --c1:#a4392c; --c2:#6b3fa0;
+      --shadow-sm:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);
+      --shadow-md:0 2px 6px rgba(45,38,32,.10),0 10px 26px rgba(45,38,32,.12);
+      --ease:cubic-bezier(.16,1,.3,1);
+    }
+    html,body{min-height:100%;overscroll-behavior-x:none;}
+    body{
+      font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink);
+      min-height:100dvh; display:flex; flex-direction:column; align-items:center;
+      background-image:
+        radial-gradient(ellipse 70% 50% at 12% 8%, rgba(111,143,90,.14) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 45% at 92% 88%, rgba(181,101,29,.10) 0%, transparent 60%);
+    }
+    .screen{display:none;flex-direction:column;align-items:center;width:100%;min-height:100dvh;}
+    .screen.active{display:flex;}
+    #gameScreen{align-items:stretch;}
+    .col{
+      display:flex;flex-direction:column;width:100%;min-height:100%;max-width:520px;margin:0 auto;
+      padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
+      gap:clamp(9px,1.4dvh,14px);
+    }
+
+    /* ═══════ Name / Department Gate ═══════ */
+    #nameForm{align-items:center;justify-content:center;padding:24px;gap:0;}
+    .gate-card{
+      width:100%;max-width:400px;background:var(--card);border:1.5px solid var(--card-line);
+      border-radius:20px;padding:34px 26px 28px;box-shadow:0 20px 60px rgba(45,38,32,.14);
+      display:flex;flex-direction:column;align-items:stretch;gap:14px;
+      animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;
+    }
+    .hero-quote{text-align:center;margin-bottom:8px;}
+    .hero-text{font-family:'Fraunces',serif;font-weight:900;font-size:1.7rem;color:var(--forest);letter-spacing:-.5px;}
+    .hero-author{font-size:1.3rem;margin-top:4px;}
+    .gate-label{font-family:'Space Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);margin:6px 0 -6px;}
+    #nameInput, #departmentSelect{
+      width:100%;padding:14px 15px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:#fffdf7;font-family:'Inter',sans-serif;font-size:1rem;color:var(--ink);
+      appearance:none;-webkit-appearance:none;
+    }
+    #departmentSelect{
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238c7c62' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+      background-repeat:no-repeat;background-position:right 14px center;background-size:18px;
+    }
+    #nameInput:focus, #departmentSelect:focus{outline:none;border-color:var(--moss);}
+    #gateError{color:var(--rust);font-size:.78rem;font-family:'Space Mono',monospace;text-align:center;min-height:1em;}
+    .btn-start{
+      margin-top:6px;padding:15px;border:none;border-radius:12px;
+      background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;
+      font-family:'Inter',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(47,82,51,.25);
+      transition:transform .15s;
+    }
+    .btn-start:active{transform:scale(.97);}
+    .btn-start:disabled{opacity:.6;cursor:default;}
+    .btn-study-link{
+      background:none;border:none;margin-top:2px;padding:8px;color:var(--ink-muted);
+      font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.03em;cursor:pointer;
+      text-decoration:underline;text-underline-offset:3px;transition:color .15s;
+    }
+    .btn-study-link:hover{color:var(--forest);}
+
+    /* Top Bar */
+    .top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .top-actions{display:flex;gap:6px;}
+    .icon-btn{
+      width:38px;height:38px;border-radius:9px;border:1.5px solid var(--card-line);background:var(--card);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-muted);
+      box-shadow:var(--shadow-sm);transition:all .18s var(--ease);
+    }
+    .icon-btn svg{width:46%;height:46%;}
+    .icon-btn:hover{background:#f7ede0;color:var(--rust);}
+    .icon-btn:active{transform:scale(.9);}
+    .brand{text-align:center;}
+    .brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.05rem,3.2dvh,1.4rem);letter-spacing:-.3px;color:var(--forest);}
+    .brand span{color:var(--rust);}
+    .brand .sub{font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-top:1px;}
+
+    .timer-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--card-line);border-radius:99px;padding:6px 13px;box-shadow:var(--shadow-sm);}
+    .timer-text{font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;color:var(--forest);white-space:nowrap;}
+
+    /* Stats Strip */
+    .stat-strip{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:8px 13px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:5px;}
+    .stat-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+    .rank-name{font-family:'Fraunces',serif;font-weight:700;font-size:.82rem;color:var(--forest);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .stat-nums{font-family:'Space Mono',monospace;font-size:.63rem;color:var(--ink-muted);white-space:nowrap;}
+    .stat-nums b{color:var(--clay);font-weight:700;font-size:1.05em;margin:0 2px;}
+    .rank-track{height:5px;background:#e9dcbb;border-radius:99px;overflow:hidden;}
+    .rank-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--forest));border-radius:99px;transition:width .6s var(--ease);}
+
+    /* Rule Card */
+    .rule-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:11px 15px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:5px;}
+    .rule-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+    .rule-name{font-family:'Fraunces',serif;font-weight:700;font-size:.94rem;color:var(--forest);}
+    .cefr-pill{font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:3px 9px;border-radius:99px;color:#fff;white-space:nowrap;}
+    .cefr-pill.a1,.cefr-pill.a2{background:var(--a1);}
+    .cefr-pill.b1,.cefr-pill.b2{background:var(--b1);}
+    .cefr-pill.c1{background:var(--c1);}
+    .cefr-pill.c2{background:var(--c2);}
+    .rule-explain{font-family:'Inter',sans-serif;font-size:.76rem;line-height:1.42;color:var(--ink-muted);}
+
+    /* Toggle contrast card */
+    .contrast-card{
+      background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:10px 14px;
+      display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 1px 3px rgba(45,38,32,.04);
+    }
+    .contrast-header{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+    .contrast-title{font-family:'Space Mono',monospace;font-size:.58rem;text-transform:uppercase;color:var(--clay);font-weight:700;letter-spacing:.05em;}
+    .toggle-wrap{display:flex;background:#e2d4b0;border-radius:99px;padding:2px;gap:2px;}
+    .toggle-btn{
+      padding:4px 12px;border:none;border-radius:99px;background:transparent;
+      font-family:'Space Mono',monospace;font-size:.64rem;font-weight:700;color:var(--ink-muted);
+      cursor:pointer;transition:all .2s var(--ease);white-space:nowrap;
+    }
+    .toggle-btn.active{background:var(--forest);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+    .contrast-sentence{font-family:'Fraunces',serif;font-size:.9rem;color:var(--ink);line-height:1.4;text-align:center;}
+    .contrast-sentence b{color:var(--verb);text-decoration:underline;text-underline-offset:3px;}
+    .contrast-meaning{
+      font-size:.73rem;line-height:1.4;color:var(--ink);background:var(--card);
+      padding:8px 10px;border-radius:8px;border:1px solid var(--card-line);
+      display:flex;align-items:flex-start;gap:6px;
+    }
+    .contrast-icon{font-size:1.05rem;line-height:1;flex-shrink:0;}
+
+    /* Specimen Mount */
+    .mount{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:20px 18px 14px;box-shadow:var(--shadow-md);position:relative;}
+    .mount::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px dashed #d8c69a;border-radius:8px;pointer-events:none;}
+    .mount.error{animation:shake .35s ease;}
+    .mount.success{animation:pop .4s var(--ease);}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+    @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+    .sentence-line{font-family:'Fraunces',serif;font-size:1.12rem;line-height:1.7;text-align:center;position:relative;z-index:1;}
+    .blank-slot{
+      display:inline-block;min-width:70px;padding:1px 8px;border-bottom:2.5px dashed #c9b98d;
+      font-weight:700;color:var(--ink-muted);text-align:center;
+    }
+    .blank-slot.filled{border-bottom-style:solid;border-bottom-color:var(--verb);color:var(--verb);animation:tileIn .25s cubic-bezier(.2,1.5,.4,1);}
+    @keyframes tileIn{from{transform:translateY(6px) scale(.85);opacity:0}to{transform:none;opacity:1}}
+    .mount-caption{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--ink-muted);margin-top:10px;letter-spacing:.03em;position:relative;z-index:1;}
+
+    /* Choice Tray */
+    .tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:52px;align-content:flex-start;}
+    .tile{
+      display:inline-flex;flex-direction:column;align-items:center;gap:1px;padding:10px 20px;border-radius:12px;
+      background:#fffdf7;border:1.5px solid #bfe0c8;cursor:pointer;user-select:none;
+      box-shadow:var(--shadow-sm);transition:transform .15s var(--ease),box-shadow .15s,opacity .15s;
+      animation:tileSpawn .22s cubic-bezier(.2,1.5,.4,1);
+    }
+    .tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .tile:active{transform:scale(.94);}
+    .tile.wrong{animation:tileShake .4s ease;}
+    .tile.solved{opacity:0;pointer-events:none;}
+    @keyframes tileShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+    @keyframes tileSpawn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+    .tile .word{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;color:var(--verb);text-transform:lowercase;text-align:center;}
+
+    /* Paradigm Panel */
+    .paradigm-panel{
+      background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:10px 14px 12px;
+      box-shadow:var(--shadow-sm);margin-top:auto;display:flex;flex-direction:column;gap:6px;
+    }
+    .paradigm-title{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;}
+    .paradigm-title b{color:var(--forest);}
+    .paradigm-rows{display:flex;flex-direction:column;gap:4px;}
+    .paradigm-row{display:flex;align-items:flex-start;gap:8px;padding:4px 2px;border-radius:6px;}
+    .paradigm-row.active{background:#eef3e9;}
+    .paradigm-num{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);min-width:16px;flex-shrink:0;}
+    .paradigm-row.done .paradigm-num{color:var(--forest);}
+    .paradigm-sentence{font-family:'Fraunces',serif;font-size:.86rem;color:var(--ink);flex:1;}
+    .paradigm-sentence.pending{color:#c9bfa5;font-style:italic;}
+    .paradigm-sentence b{color:var(--verb);}
+    .paradigm-check{font-size:.75rem;color:var(--moss);flex-shrink:0;}
+
+    .archive-title{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:8px;}
+    .archive-list{display:flex;flex-direction:column;gap:6px;max-height:130px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .archive-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;padding:7px 10px;}
+    .archive-card .arc-rule{font-family:'Space Mono',monospace;font-size:.56rem;color:var(--forest);text-transform:uppercase;font-weight:700;margin-bottom:3px;}
+    .archive-card .arc-line{font-family:'Fraunces',serif;font-size:.78rem;color:var(--ink);line-height:1.5;}
+    .archive-card .arc-line b{color:var(--verb);}
+
+    .toast{
+      position:fixed;bottom:calc(env(safe-area-inset-bottom) + 24px);left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;
+      padding:10px 20px;border-radius:16px;font-size:.82rem;font-weight:500;z-index:200;pointer-events:none;
+      transition:transform .35s var(--ease),opacity .35s;opacity:0;max-width:90vw;text-align:center;line-height:1.4;box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+    .toast.good{background:linear-gradient(135deg,var(--forest),var(--moss));}
+    .toast.bad{background:linear-gradient(135deg,var(--rust),#c0503f);}
+    .toast b{display:block;font-family:'Fraunces',serif;font-size:.95rem;margin-bottom:2px;}
+
+    /* End Screen */
+    #endScreen{justify-content:flex-start;padding:30px 16px 50px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .end-card{
+      background:var(--card);border:1.5px solid var(--card-line);border-radius:20px;padding:32px 26px;max-width:520px;
+      width:100%;box-shadow:0 20px 60px rgba(45,38,32,.14);animation:cardIn .55s cubic-bezier(.34,1.4,.64,1) forwards;
+    }
+    @keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+    .end-title{font-family:'Fraunces',serif;font-size:1.9rem;font-weight:900;text-align:center;color:var(--forest);margin-bottom:4px;}
+    .end-subtitle{text-align:center;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px;}
+    .end-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px;}
+    .stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;text-align:center;border:1.5px solid var(--card-line);}
+    .stat-num{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:var(--forest);line-height:1;}
+    .stat-lbl{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+    .end-sentences-title{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;}
+    .end-specimen-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:10px;padding:10px 12px;margin-bottom:8px;animation:pop-in .35s cubic-bezier(.2,1.5,.4,1) backwards;}
+    .end-specimen-card .arc-rule{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--forest);text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+    .end-specimen-card .arc-line{font-family:'Fraunces',serif;font-size:.85rem;color:var(--ink);line-height:1.6;}
+    @keyframes pop-in{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+    .end-btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+    .btn-end{
+      flex:1;padding:13px 10px;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:.86rem;font-weight:700;
+      letter-spacing:.03em;cursor:pointer;transition:transform .15s;text-transform:uppercase;min-width:90px;
+    }
+    .btn-end:hover{transform:scale(1.03);}
+    .btn-end-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;box-shadow:0 4px 16px rgba(47,82,51,.25);}
+    .btn-end-share{background:linear-gradient(135deg,#128c7e,#25d366);color:#fff;}
+
+    /* Study Glossary Overlay */
+    .study-overlay{
+      display:none;position:fixed;inset:0;background:var(--paper);z-index:250;overflow-y:auto;
+      -webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 32px);
+    }
+    .study-overlay.show{display:block;}
+    .study-inner{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+    .study-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1.5px solid var(--card-line);}
+    .study-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;color:var(--forest);}
+    .study-subtitle{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.05em;color:var(--ink-muted);text-transform:uppercase;margin-top:3px;}
+    .study-search{
+      width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:var(--card);font-family:'Inter',sans-serif;font-size:.9rem;color:var(--ink);outline:none;
+    }
+    .study-search:focus{border-color:var(--moss);}
+    .study-filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+    .study-chip{
+      padding:5px 12px;border-radius:99px;border:1.5px solid var(--card-line);background:var(--card);
+      color:var(--ink-muted);font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.04em;
+      text-transform:uppercase;cursor:pointer;transition:all .15s var(--ease);
+    }
+    .study-chip.active{border-color:var(--forest);background:var(--forest);color:#fff;}
+    .study-grid{display:flex;flex-direction:column;gap:10px;}
+    .study-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);}
+    .study-card.attempted{border-color:rgba(201,147,42,.55);background:linear-gradient(180deg,#fdf6e6,var(--card));}
+    .study-card.mastered{border-color:rgba(47,82,51,.6);background:linear-gradient(180deg,#eef3e9,var(--card));}
+    .study-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+    .study-card-name{font-family:'Fraunces',serif;font-weight:700;font-size:.96rem;color:var(--forest);}
+    .study-card-explain{font-family:'Inter',sans-serif;font-size:.77rem;line-height:1.44;color:var(--ink-muted);margin-bottom:10px;}
+    .study-card-sentences{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;padding:9px 11px;background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;}
+    .study-line{font-family:'Fraunces',serif;font-size:.82rem;color:var(--ink);line-height:1.5;}
+    .study-line b{color:var(--verb);}
+    .study-alt{display:block;font-family:'Inter',sans-serif;font-size:.68rem;line-height:1.45;color:var(--ink-muted);margin:1px 0 7px;font-style:italic;}
+    .study-alt b{color:var(--clay);font-style:normal;}
+    .study-alt-line{opacity:.9;}
+    .study-card-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .study-practice-btn{
+      padding:8px 16px;border:none;border-radius:99px;background:linear-gradient(135deg,var(--forest),var(--moss));
+      color:#fff;font-family:'Inter',sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;transition:transform .15s;
+    }
+    .study-practice-btn:active{transform:scale(.95);}
+    .study-practiced-badge{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--clay);letter-spacing:.03em;}
+    .study-mastered-badge{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--moss);letter-spacing:.03em;}
+    .study-empty{text-align:center;padding:32px 0;font-family:'Fraunces',serif;font-style:italic;font-size:.95rem;color:var(--ink-muted);}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ═══════ Name / Department Gate ═══════ -->
+<div class="screen active" id="nameForm">
+  <div class="gate-card">
+    <div class="hero-quote">
+      <div class="hero-text">Speech with Verve</div>
+      <div class="hero-author">💬🔁🗣️</div>
+    </div>
+    <div class="gate-label">Your Name</div>
+    <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off"/>
+    <div class="gate-label">Department</div>
+    <select id="departmentSelect">
+      <option value="">-- Select Department --</option>
+      <option value="CSI Ewart">CSI Ewart</option>
+      <option value="Cyber Security">Cyber Security</option>
+      <option value="EIE">EIE</option>
+      <option value="CSE-1">CSE-1</option>
+      <option value="CSE-2">CSE-2</option>
+      <option value="CSE-3">CSE-3</option>
+      <option value="Mechanical Engineering">Mechanical Engineering</option>
+      <option value="ECE-1">ECE-1</option>
+      <option value="ECE-2">ECE-2</option>
+      <option value="ECE-3">ECE-3</option>
+      <option value="AI DS-1">AI DS-1</option>
+      <option value="AI DS-2">AI DS-2</option>
+      <option value="Agri and Civil">Agri and Civil</option>
+      <option value="EEE">EEE</option>
+      <option value="Medical Electronics">Medical Electronics</option>
+      <option value="IT-1">IT-1</option>
+      <option value="IT-2">IT-2</option>
+    </select>
+    <div id="gateError"></div>
+    <button class="btn-start" id="btnBeginQuiz">✿ Start Quiz</button>
+    <button class="btn-study-link" onclick="openStudy()">📖 Study the rules first</button>
+  </div>
+</div>
+
+<div class="screen" id="gameScreen">
+  <div class="col">
+    <div class="top-bar">
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-end-game" aria-label="End round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 3.5L16 11H5"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-study" aria-label="Study glossary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5v-15Z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-new" aria-label="New round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+        </button>
+      </div>
+      <div class="brand"><h1>Verve<span>✿</span></h1><div class="sub">Speech with Verve</div></div>
+      <div class="timer-pill">
+        <div class="timer-text" id="timerText">00:00</div>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-top">
+        <span class="rank-name" id="rank-name">First Whisper 🤫</span>
+        <span class="stat-nums"><b id="score">0</b>pts · <b id="streak">0</b> streak · best <b id="best-score">0</b></span>
+      </div>
+      <div class="rank-track"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Rule Card -->
+    <div class="rule-card">
+      <div class="rule-card-top">
+        <span class="rule-name" id="rule-name">Rule name</span>
+        <span class="cefr-pill" id="cefr-pill">A1</span>
+      </div>
+      <div class="rule-explain" id="rule-explain">Explanation goes here.</div>
+    </div>
+
+    <!-- Direct / Reported toggle -->
+    <div class="contrast-card" id="contrast-card">
+      <div class="contrast-header">
+        <span class="contrast-title" id="contrast-title">Compare</span>
+        <div class="toggle-wrap" id="toggle-wrap"></div>
+      </div>
+      <div class="contrast-sentence" id="contrast-sentence"></div>
+      <div class="contrast-meaning">
+        <span class="contrast-icon" id="contrast-icon">💡</span>
+        <span id="contrast-text">Select an option to see how the sentence changes.</span>
+      </div>
+    </div>
+
+    <div class="mount" id="mount">
+      <div class="sentence-line" id="sentence-line"></div>
+      <div class="mount-caption" id="mount-caption">tap the correct word or form</div>
+    </div>
+
+    <div class="tray" id="tray"></div>
+
+    <!-- Paradigm panel: all sentences of the current rule group -->
+    <div class="paradigm-panel">
+      <div class="paradigm-title">Rule <b id="specimen-num">1</b>/36 · <b id="paradigm-count">0</b>/<span id="paradigm-total">5</span> sentences</div>
+      <div class="paradigm-rows" id="paradigm-rows"></div>
+      <div class="archive-title" id="archive-title" style="display:none;">Earlier rules</div>
+      <div class="archive-list" id="archive-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="endScreen">
+  <div class="end-card">
+    <div class="end-title" id="endTitle">🎭 Curtain Call</div>
+    <div class="end-subtitle" id="endSubtitle">Speech with Verve</div>
+    <div class="end-stats">
+      <div class="stat-box"><div class="stat-num" id="endScore">0</div><div class="stat-lbl">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="endSentences">0</div><div class="stat-lbl">Delivered</div></div>
+      <div class="stat-box"><div class="stat-num" id="endAccuracy">0%</div><div class="stat-lbl">Accuracy</div></div>
+    </div>
+    <div class="end-sentences-title">Your Performances</div>
+    <div id="endSentencesList"></div>
+    <div class="end-btn-row">
+      <button class="btn-end btn-end-primary" id="btnPlayAgain">✿ Play Again</button>
+      <button class="btn-end btn-end-share" id="btnShare">📲 Share</button>
+    </div>
+  </div>
+</div>
+
+<!-- Study Glossary Overlay -->
+<div class="study-overlay" id="studyOverlay">
+  <div class="study-inner">
+    <div class="study-header">
+      <div>
+        <div class="study-title">📖 Study — Direct &amp; Indirect Speech</div>
+        <div class="study-subtitle">Browse all 36 rule groups · A1 → C2</div>
+      </div>
+      <button class="icon-btn" id="btn-study-close" aria-label="Close study">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <input class="study-search" id="studySearch" type="text" placeholder="Search a rule or example…" oninput="handleStudySearch()"/>
+    <div class="study-filter-row" id="studyCefrRow">
+      <div class="study-chip active" onclick="setStudyCefrFilter('all',this)">All Levels</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a1',this)">A1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a2',this)">A2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b1',this)">B1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b2',this)">B2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('c1',this)">C1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('c2',this)">C2</div>
+    </div>
+    <div class="study-filter-row" id="studyPracticedRow">
+      <div class="study-chip active" onclick="setStudyPracticedFilter('all',this)">All</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('mastered',this)">✓ Mastered</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('practiced',this)">◐ Practiced</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('unattempted',this)">Not Yet</div>
+    </div>
+    <div class="study-grid" id="studyGrid"></div>
+  </div>
+</div>
+
+<script type="module">
+/* ═══════════════════════════════════════════════════════════════
+   RULE DATA — 36 direct/indirect (reported) speech rule groups,
+   CEFR-tagged A1 → C2 (6 per level), each with a one-line "why"
+   explanation, 5 practice sentences, and a hand-curated toggle
+   contrasting the same rule pattern across two related forms
+   (e.g. direct vs reported, or two backshift/register options).
+   ═══════════════════════════════════════════════════════════════ */
+const RULE_GROUPS = [
+  // ───────────────── A1 ─────────────────
+  {
+    name: "Reported Statements: Present Simple → Past Simple", cefr: "a1",
+    explain: "When the reporting verb is in the past (said/told), the present simple in direct speech usually shifts back to the past simple in reported speech.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'She said, "I <b>like</b> tea."', note:"Direct speech: the speaker's exact words in quotation marks." },
+      b: { label:"Reported", icon:"🔁", text:"She said (that) she <b>liked</b> tea.", note:"Reported speech: present simple shifts to past simple after a past reporting verb." }
+    },
+    items: [
+      { before:"He said he", after:"football every weekend.", answer:"played", choices:["played","plays"], altAnswer:"plays", altNote:"Backshift is optional for ongoing habits or facts that are still true — 'He said he plays football every weekend' is equally correct." },
+      { before:"She said she", after:"in London.", answer:"lived", choices:["lived","lives"], altAnswer:"lives", altNote:"If she still lives there, the present tense can stay unchanged: 'She said she lives in London.'" },
+      { before:"They said they", after:"tea in the morning.", answer:"drank", choices:["drank","drink"], altAnswer:"drink", altNote:"For an ongoing habit that's still true, 'drink' is equally acceptable — backshift isn't required." },
+      { before:"He told me he", after:"his sister.", answer:"loved", choices:["loved","loves"], altAnswer:"loves", altNote:"Since this feeling is presumably still true, 'loves' works just as well: 'He told me he loves his sister.'" },
+      { before:"She said the shop", after:"at nine.", answer:"opened", choices:["opened","opens"], altAnswer:"opens", altNote:"If it's still a standing fact (the shop still opens at nine), the present tense can remain: 'She said the shop opens at nine.'" }
+    ]
+  },
+  {
+    name: "Reported Statements: Present Continuous → Past Continuous", cefr: "a1",
+    explain: "The present continuous in direct speech becomes the past continuous in reported speech after a past reporting verb.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'He said, "I <b>am working</b> now."', note:"Direct speech keeps the present continuous." },
+      b: { label:"Reported", icon:"🔁", text:"He said he <b>was working</b> then.", note:"Reported speech: am/is/are + -ing shifts to was/were + -ing." }
+    },
+    items: [
+      { before:"She said she", after:"a new dress.", answer:"was wearing", choices:["was wearing","is wearing"], altAnswer:"is wearing", altNote:"If she's still wearing it at the moment of reporting, the present continuous can stay unchanged." },
+      { before:"They said they", after:"for the bus.", answer:"were waiting", choices:["were waiting","are waiting"], altAnswer:"are waiting", altNote:"If they're still waiting when this is reported, 'are waiting' remains correct." },
+      { before:"He said he", after:"a book.", answer:"was reading", choices:["was reading","is reading"], altAnswer:"is reading", altNote:"If the action is still ongoing at the time of reporting, the present continuous can be kept." },
+      { before:"She told me she", after:"to music.", answer:"was listening", choices:["was listening","is listening"], altAnswer:"is listening", altNote:"Still true right now? Then 'is listening' works just as well." },
+      { before:"He said it", after:"outside.", answer:"was raining", choices:["was raining","is raining"], altAnswer:"is raining", altNote:"If it's still raining at the moment of reporting, 'is raining' remains accurate." }
+    ]
+  },
+  {
+    name: "Pronoun & Possessive Changes", cefr: "a1",
+    explain: "Pronouns and possessives change to match the reporter's point of view: I→he/she, my→his/her, we→they.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'Tom said, "<b>I</b> like <b>my</b> new bike."', note:"Direct speech keeps the speaker's own pronouns." },
+      b: { label:"Reported", icon:"🔁", text:"Tom said (that) <b>he</b> liked <b>his</b> new bike.", note:"Reported speech shifts pronouns to the reporter's viewpoint." }
+    },
+    items: [
+      { before:"Tom said that", after:"liked his new bike.", answer:"he", choices:["he","I"] },
+      { before:"Anna said that", after:"was tired.", answer:"she", choices:["she","I"] },
+      { before:"The boys said that", after:"were hungry.", answer:"they", choices:["they","we"] },
+      { before:"He said that", after:"sister was a doctor.", answer:"his", choices:["his","my"] },
+      { before:"She said that", after:"parents were on holiday.", answer:"her", choices:["her","my"] }
+    ]
+  },
+  {
+    name: "Time Expression Changes", cefr: "a1",
+    explain: "Time expressions shift to match the new time of speaking: today→that day, tomorrow→the next day, yesterday→the day before.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"I\'ll call you <b>tomorrow</b>."', note:"Direct speech: time word from the original moment." },
+      b: { label:"Reported", icon:"🔁", text:"He said he would call me <b>the next day</b>.", note:"Reported speech: time word shifts to match the new context." }
+    },
+    items: [
+      { before:"She said she would visit", after:".", answer:"the next day", choices:["the next day","tomorrow"], altAnswer:"tomorrow", altNote:"Time words only shift if you're reporting on a different day. If you report it on the same day it was said, 'tomorrow' is still accurate." },
+      { before:"He said he had arrived", after:".", answer:"the day before", choices:["the day before","yesterday"], altAnswer:"yesterday", altNote:"If you're reporting this the next day (i.e. still 'yesterday' from your viewpoint), 'yesterday' stays correct." },
+      { before:"They said the meeting was", after:".", answer:"that day", choices:["that day","today"], altAnswer:"today", altNote:"If you report this on the same day, 'today' is just as accurate as 'that day'." },
+      { before:"She said she had seen him", after:".", answer:"the week before", choices:["the week before","last week"], altAnswer:"last week", altNote:"If you're still within the same week-relative frame as the speaker, 'last week' remains correct." },
+      { before:"He said he would finish it", after:".", answer:"the following week", choices:["the following week","next week"], altAnswer:"next week", altNote:"If reported soon after, before that week has passed, 'next week' is still accurate." }
+    ]
+  },
+  {
+    name: "Reporting Verbs: Say vs Tell", cefr: "a1",
+    explain: "Use 'say' without a personal object (say something), and 'tell' with a personal object (tell someone something).",
+    toggle: {
+      title: "Say vs Tell",
+      a: { label:"Say", icon:"🗣️", text:"She <b>said</b> (that) she was happy.", note:"'say' — no personal object needed." },
+      b: { label:"Tell", icon:"👉", text:"She <b>told</b> me (that) she was happy.", note:"'tell' — needs a personal object (me, him, us)." }
+    },
+    items: [
+      { before:"She", after:"that she was busy.", answer:"said", choices:["said","told"] },
+      { before:"He", after:"me that he was leaving.", answer:"told", choices:["told","said"] },
+      { before:"They", after:"us the news yesterday.", answer:"told", choices:["told","said"] },
+      { before:"My mother", after:"that dinner was ready.", answer:"said", choices:["said","told"] },
+      { before:"The teacher", after:"the students to be quiet.", answer:"told", choices:["told","said"] }
+    ]
+  },
+  {
+    name: "Direct vs Reported: Structure & Punctuation", cefr: "a1",
+    explain: "Direct speech uses quotation marks and the speaker's exact words. Reported speech removes the quotation marks and often uses 'that' to introduce the clause. Note: 'that' is optional and is very often dropped, especially in speech — 'He said he was tired' is just as correct as 'He said that he was tired.'",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'She said, "<b>I am hungry.</b>"', note:"Quotation marks, exact original words, own punctuation." },
+      b: { label:"Reported", icon:"🔁", text:"She said <b>that she was hungry.</b>", note:"No quotation marks; 'that' often links the clause." }
+    },
+    items: [
+      { before:"He said", after:"he was tired.", answer:"that", choices:["that","if"] },
+      { before:'"I am busy," she', after:".", answer:"said", choices:["said","says"] },
+      { before:"She told him", after:"she would come.", answer:"that", choices:["that","for"] },
+      { before:"They said", after:"they were ready.", answer:"that", choices:["that","when"] },
+      { before:'"We are late," they', after:".", answer:"said", choices:["said","say"] }
+    ]
+  },
+
+  // ───────────────── A2 ─────────────────
+  {
+    name: "Reported Statements: Past Simple → Past Perfect", cefr: "a2",
+    explain: "A past simple verb in direct speech usually shifts one step further back to the past perfect in reported speech.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"I <b>finished</b> my homework."', note:"Direct speech: past simple." },
+      b: { label:"Reported", icon:"🔁", text:"He said he <b>had finished</b> his homework.", note:"Reported speech: past simple shifts one step back to past perfect." }
+    },
+    items: [
+      { before:"She said she", after:"the letter.", answer:"had posted", choices:["had posted","posted"], altAnswer:"posted", altNote:"In informal spoken English, the past simple is very often kept unchanged, especially when the sequence of events is already clear from context." },
+      { before:"He said he", after:"the film already.", answer:"had watched", choices:["had watched","watched"], altAnswer:"watched", altNote:"Informally, 'watched' is also common — the extra backshift isn't strictly required." },
+      { before:"They said they", after:"early that morning.", answer:"had left", choices:["had left","left"], altAnswer:"left", altNote:"'Left' is frequently used instead in casual speech, since the time clue ('that morning') already shows the sequence." },
+      { before:"She told me she", after:"her keys.", answer:"had lost", choices:["had lost","lost"], altAnswer:"lost", altNote:"Informal English often keeps 'lost' unchanged rather than shifting all the way to the past perfect." },
+      { before:"He said he", after:"the exam.", answer:"had passed", choices:["had passed","passed"], altAnswer:"passed", altNote:"'Passed' is commonly used in relaxed speech instead of the fully backshifted 'had passed'." }
+    ]
+  },
+  {
+    name: "Reported Statements: Present Perfect → Past Perfect", cefr: "a2",
+    explain: "The present perfect in direct speech becomes the past perfect in reported speech.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"I <b>have finished</b> my work."', note:"Direct speech: present perfect." },
+      b: { label:"Reported", icon:"🔁", text:"She said she <b>had finished</b> her work.", note:"Reported speech: present perfect shifts to past perfect." }
+    },
+    items: [
+      { before:"He said he", after:"never been to Paris.", answer:"had", choices:["had","has"], altAnswer:"has", altNote:"If the situation is still true right now, the present perfect can remain unchanged: 'He said he has never been to Paris.'" },
+      { before:"She said she", after:"just arrived.", answer:"had", choices:["had","has"], altAnswer:"has", altNote:"If she has only just arrived and is still there, 'has just arrived' can stay unchanged." },
+      { before:"They said they", after:"already eaten.", answer:"had", choices:["had","have"], altAnswer:"have", altNote:"If reported very soon after and still relevant, 'have already eaten' remains acceptable." },
+      { before:"He told me he", after:"lost his phone.", answer:"had", choices:["had","has"], altAnswer:"has", altNote:"If the phone is still lost, 'has lost his phone' can stay unchanged." },
+      { before:"She said she", after:"finished the report.", answer:"had", choices:["had","has"], altAnswer:"has", altNote:"If this is still current news, 'has finished the report' is equally correct." }
+    ]
+  },
+  {
+    name: "Reported Yes/No Questions", cefr: "a2",
+    explain: "Report yes/no questions with if or whether, using normal statement word order (no auxiliary do/does/did, no question mark). 'If' and 'whether' are usually interchangeable here, though 'whether' is generally preferred in more formal writing and is required before 'or not'.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"❓", text:'He asked, "<b>Do you like</b> tea?"', note:"Direct question: auxiliary before subject, question mark." },
+      b: { label:"Reported", icon:"🔁", text:"He asked <b>if I liked</b> tea.", note:"Reported question: if/whether + statement word order, no auxiliary." }
+    },
+    items: [
+      { before:"She asked", after:"I was hungry.", answer:"if", choices:["if","that"] },
+      { before:"He asked me", after:"I could swim.", answer:"whether", choices:["whether","that"] },
+      { before:"They asked", after:"we were ready.", answer:"if", choices:["if","what"] },
+      { before:"She asked him", after:"he liked the film.", answer:"if", choices:["if","that"] },
+      { before:"He asked", after:"she had a car.", answer:"whether", choices:["whether","that"] }
+    ]
+  },
+  {
+    name: "Reported Wh- Questions", cefr: "a2",
+    explain: "Report wh-questions by keeping the question word, using statement word order, and dropping do/does/did.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"❓", text:'She asked, "<b>Where do you live</b>?"', note:"Direct question: auxiliary before subject." },
+      b: { label:"Reported", icon:"🔁", text:"She asked <b>where I lived</b>.", note:"Reported question: wh-word + statement word order." }
+    },
+    items: [
+      { before:"He asked me", after:"I lived.", answer:"where", choices:["where","if"] },
+      { before:"She asked", after:"the train left.", answer:"when", choices:["when","if"] },
+      { before:"They asked me", after:"I was crying.", answer:"why", choices:["why","that"] },
+      { before:"He asked her", after:"she was.", answer:"who", choices:["who","that"] },
+      { before:"She asked", after:"book I wanted.", answer:"which", choices:["which","if"] }
+    ]
+  },
+  {
+    name: "Reported Commands & Requests", cefr: "a2",
+    explain: "Report commands and requests with tell/ask + object + to-infinitive (or not + to-infinitive for negatives).",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'He said, "<b>Close</b> the door."', note:"Direct command: imperative form." },
+      b: { label:"Reported", icon:"🔁", text:"He told me <b>to close</b> the door.", note:"Reported command: tell/ask + object + to-infinitive." }
+    },
+    items: [
+      { before:"She told me", after:"the window.", answer:"to close", choices:["to close","close"] },
+      { before:"He asked us", after:"quiet.", answer:"to be", choices:["to be","be"] },
+      { before:"The teacher told the students", after:"their books.", answer:"to open", choices:["to open","open"] },
+      { before:"She told him", after:"late.", answer:"not to be", choices:["not to be","don't be"] },
+      { before:"He asked me", after:"him with the bags.", answer:"to help", choices:["to help","help"] }
+    ]
+  },
+  {
+    name: "Place Expression Changes", cefr: "a2",
+    explain: "Place expressions shift when reporting speech away from the original context: here→there, this→that.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"I like it <b>here</b>."', note:"Direct speech: place word from the original spot." },
+      b: { label:"Reported", icon:"🔁", text:"She said she liked it <b>there</b>.", note:"Reported speech: place word shifts away from the original spot." }
+    },
+    items: [
+      { before:"He said he liked it", after:".", answer:"there", choices:["there","here"], altAnswer:"here", altNote:"'Here' stays correct if the reporter is still speaking from the same place as the original speaker." },
+      { before:"She said", after:"book was hers.", answer:"that", choices:["that","this"], altAnswer:"this", altNote:"'This' remains correct if the book being referred to is still nearby when reporting." },
+      { before:"They said they would meet us", after:".", answer:"there", choices:["there","here"], altAnswer:"here", altNote:"'Here' stays correct if the reporter is speaking from that same meeting place." },
+      { before:"He said", after:"city was beautiful.", answer:"that", choices:["that","this"], altAnswer:"this", altNote:"'This' remains correct if the reporter is still in that city while reporting." },
+      { before:"She told me the keys were over", after:".", answer:"there", choices:["there","here"], altAnswer:"here", altNote:"'Here' stays correct if the reporter is standing in the same spot as the keys." }
+    ]
+  },
+
+  // ───────────────── B1 ─────────────────
+  {
+    name: "Reported Statements: Will → Would", cefr: "b1",
+    explain: "The modal 'will' in direct speech becomes 'would' in reported speech after a past reporting verb.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"I <b>will call</b> you."', note:"Direct speech keeps 'will'." },
+      b: { label:"Reported", icon:"🔁", text:"He said he <b>would call</b> me.", note:"Reported speech: will shifts to would." }
+    },
+    items: [
+      { before:"She said she", after:"help us.", answer:"would", choices:["would","will"], altAnswer:"will", altNote:"If the promise is still open and relevant at the time of reporting, 'will' can remain unchanged, especially in immediate or informal reporting." },
+      { before:"He said he", after:"be late.", answer:"would", choices:["would","will"], altAnswer:"will", altNote:"If you're reporting this right away and it's still true, 'will be late' can stay unchanged." },
+      { before:"They said they", after:"come to the party.", answer:"would", choices:["would","will"], altAnswer:"will", altNote:"If the plan is still current when you report it, 'will come' remains acceptable." },
+      { before:"She told me she", after:"finish it soon.", answer:"would", choices:["would","will"], altAnswer:"will", altNote:"Still true right now? 'Will finish it soon' works just as well." },
+      { before:"He said it", after:"rain tomorrow.", answer:"would", choices:["would","will"], altAnswer:"will", altNote:"If you're reporting this before 'tomorrow' has passed, 'will rain' is still accurate." }
+    ]
+  },
+  {
+    name: "Reported Statements: Can → Could", cefr: "b1",
+    explain: "The modal 'can' in direct speech becomes 'could' in reported speech.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"I <b>can swim</b>."', note:"Direct speech keeps 'can'." },
+      b: { label:"Reported", icon:"🔁", text:"She said she <b>could swim</b>.", note:"Reported speech: can shifts to could." }
+    },
+    items: [
+      { before:"He said he", after:"speak French.", answer:"could", choices:["could","can"], altAnswer:"can", altNote:"If the ability is still current, 'can' may remain unchanged instead of shifting to 'could'." },
+      { before:"She said she", after:"not come.", answer:"could", choices:["could","can"], altAnswer:"can", altNote:"If this is still true at the time of reporting, 'can't come' stays acceptable." },
+      { before:"They said they", after:"finish it by Friday.", answer:"could", choices:["could","can"], altAnswer:"can", altNote:"If Friday hasn't passed and it's still possible, 'can finish it by Friday' remains correct." },
+      { before:"He told me he", after:"drive.", answer:"could", choices:["could","can"], altAnswer:"can", altNote:"A still-current skill can stay in the present: 'He told me he can drive.'" },
+      { before:"She said she", after:"see the mountains.", answer:"could", choices:["could","can"], altAnswer:"can", altNote:"If she can still see them right now, 'can see the mountains' is equally correct." }
+    ]
+  },
+  {
+    name: "Reported Statements: Must → Had To", cefr: "b1",
+    explain: "'Must' (obligation) usually changes to 'had to' in reported speech; must for deduction can stay unchanged.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"I <b>must leave</b> now."', note:"Direct speech keeps 'must'." },
+      b: { label:"Reported", icon:"🔁", text:"He said he <b>had to leave</b>.", note:"Reported speech: must (obligation) shifts to had to." }
+    },
+    items: [
+      { before:"She said she", after:"finish the report.", answer:"had to", choices:["had to","must"], altAnswer:"must", altNote:"If it's still a current, standing obligation (not a one-off completed one), 'must' can remain unchanged." },
+      { before:"He said he", after:"go to the doctor.", answer:"had to", choices:["had to","must"], altAnswer:"must", altNote:"If the obligation still applies now, 'must go to the doctor' is also acceptable." },
+      { before:"They said they", after:"wait outside.", answer:"had to", choices:["had to","must"], altAnswer:"must", altNote:"For a rule that's still in force, 'must wait outside' can stay unchanged." },
+      { before:"She told me she", after:"leave early.", answer:"had to", choices:["had to","must"], altAnswer:"must", altNote:"If this obligation is still current, 'must leave early' remains correct." },
+      { before:"He said he", after:"pay the fine.", answer:"had to", choices:["had to","must"], altAnswer:"must", altNote:"If the fine is still owed, 'must pay the fine' can stay unchanged." }
+    ]
+  },
+  {
+    name: "Reported Suggestions", cefr: "b1",
+    explain: "Report suggestions with suggest + -ing, or suggest + that + subject + base verb.",
+    toggle: {
+      title: "-ing vs That-Clause",
+      a: { label:"-ing Form", icon:"🌀", text:"He suggested <b>going</b> to the cinema.", note:"suggest + gerund (-ing)." },
+      b: { label:"That-Clause", icon:"🔗", text:"He suggested that we <b>go</b> to the cinema.", note:"suggest + that + subject + base verb (no -s, no backshift)." }
+    },
+    items: [
+      { before:"She suggested", after:"a break.", answer:"taking", choices:["taking","to take"] },
+      { before:"He suggested that we", after:"a taxi.", answer:"take", choices:["take","took"], altAnswer:"took", altNote:"In informal British English, the ordinary past tense is sometimes used instead of the subjunctive: 'He suggested that we took a taxi.' 'Take' (the subjunctive base form) is the more standard, formal choice." },
+      { before:"They suggested", after:"earlier next time.", answer:"leaving", choices:["leaving","to leave"] },
+      { before:"She suggested that he", after:"a doctor.", answer:"see", choices:["see","sees"] },
+      { before:"He suggested", after:"the museum first.", answer:"visiting", choices:["visiting","to visit"] }
+    ]
+  },
+  {
+    name: "Reported Offers & Promises", cefr: "b1",
+    explain: "Report offers and promises with offer/promise + to-infinitive.",
+    toggle: {
+      title: "Offer vs Promise",
+      a: { label:"Offer", icon:"🤝", text:"He offered <b>to help</b> me.", note:"offer + to-infinitive." },
+      b: { label:"Promise", icon:"🤞", text:"He promised <b>to call</b> me.", note:"promise + to-infinitive." }
+    },
+    items: [
+      { before:"She offered", after:"me to the station.", answer:"to drive", choices:["to drive","driving"] },
+      { before:"He promised", after:"back the money.", answer:"to pay", choices:["to pay","paying"] },
+      { before:"They offered", after:"us with the move.", answer:"to help", choices:["to help","helping"] },
+      { before:"She promised", after:"me every day.", answer:"to write", choices:["to write","writing"] },
+      { before:"He offered", after:"the bags for her.", answer:"to carry", choices:["to carry","carrying"] }
+    ]
+  },
+  {
+    name: "No Backshift: Universal Truths & Still-True Facts", cefr: "b1",
+    explain: "When reporting a general truth or a fact that is still true, the verb tense does not have to change.",
+    toggle: {
+      title: "Backshifted vs No Backshift",
+      a: { label:"Backshifted", icon:"⏮️", text:"He said the sun <b>rose</b> in the east.", note:"Also acceptable, but not necessary here." },
+      b: { label:"No Backshift", icon:"♾️", text:"He said the sun <b>rises</b> in the east.", note:"Preferred for universal truths — the fact is still true now." }
+    },
+    items: [
+      { before:"The teacher said water", after:"at 100 degrees.", answer:"boils", choices:["boils","boiled"], altAnswer:"boiled", altNote:"Backshifting is still grammatically possible even for universal truths — it's simply not required. 'The teacher said water boiled at 100 degrees' is also acceptable." },
+      { before:"She said she", after:"in Paris.", answer:"lives", choices:["lives","lived"], altAnswer:"lived", altNote:"'Lived' is not wrong — backshift is optional here, just less natural than keeping the present tense for a still-true fact." },
+      { before:"He said the earth", after:"round the sun.", answer:"goes", choices:["goes","went"], altAnswer:"went", altNote:"'Went' is grammatically fine too; the present tense is simply the more natural choice for a permanent fact." },
+      { before:"She said her birthday", after:"in June.", answer:"is", choices:["is","was"], altAnswer:"was", altNote:"'Was' is acceptable as ordinary backshift, though 'is' is more natural since her birthday is still in June." },
+      { before:"He said he", after:"French fluently.", answer:"speaks", choices:["speaks","spoke"], altAnswer:"spoke", altNote:"'Spoke' remains grammatically valid; 'speaks' is just the more natural pick for a skill that's still current." }
+    ]
+  },
+
+  // ───────────────── B2 ─────────────────
+  {
+    name: "Reported Statements: May → Might", cefr: "b2",
+    explain: "'May' in direct speech usually becomes 'might' in reported speech.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"I <b>may be</b> late."', note:"Direct speech keeps 'may'." },
+      b: { label:"Reported", icon:"🔁", text:"She said she <b>might be</b> late.", note:"Reported speech: may shifts to might." }
+    },
+    items: [
+      { before:"He said he", after:"come to the party.", answer:"might", choices:["might","may"], altAnswer:"may", altNote:"If the possibility is still open when you report it, 'may' can remain unchanged, especially in immediate or informal reporting." },
+      { before:"She said it", after:"rain later.", answer:"might", choices:["might","may"], altAnswer:"may", altNote:"If 'later' hasn't happened yet, 'may rain later' is still accurate." },
+      { before:"They said they", after:"visit us next week.", answer:"might", choices:["might","may"], altAnswer:"may", altNote:"If the plan is still open, 'may visit us next week' remains acceptable." },
+      { before:"He told me he", after:"change his mind.", answer:"might", choices:["might","may"], altAnswer:"may", altNote:"Still an open possibility? 'May change his mind' works just as well." },
+      { before:"She said she", after:"need more time.", answer:"might", choices:["might","may"], altAnswer:"may", altNote:"If this is still an open possibility, 'may need more time' stays correct." }
+    ]
+  },
+  {
+    name: "Reported Statements: Shall → Should/Would", cefr: "b2",
+    explain: "'Shall' for future usually becomes 'would'; 'shall' for suggestions or offers becomes 'should'.",
+    toggle: {
+      title: "Future vs Suggestion",
+      a: { label:"Future", icon:"🔮", text:"He said he <b>would</b> arrive at noon.", note:"'Shall' (future) → would." },
+      b: { label:"Suggestion", icon:"💡", text:"He asked if they <b>should</b> start.", note:"'Shall' (suggestion/offer) → should." }
+    },
+    items: [
+      { before:"He said he", after:"be back soon.", answer:"would", choices:["would","should"] },
+      { before:"She asked if they", after:"begin.", answer:"should", choices:["should","would"] },
+      { before:"He said he", after:"finish by five.", answer:"would", choices:["would","should"] },
+      { before:"They asked whether they", after:"wait.", answer:"should", choices:["should","would"] },
+      { before:"She said she", after:"never forget it.", answer:"would", choices:["would","should"] }
+    ]
+  },
+  {
+    name: "Reported Exclamations & Wishes", cefr: "b2",
+    explain: "Report exclamations with exclaim/say + that, often adding an adverbial (with delight, in surprise); report wishes with wish + past/past perfect.",
+    toggle: {
+      title: "Exclamation vs Wish",
+      a: { label:"Exclamation", icon:"❗", text:"She exclaimed <b>that</b> it was wonderful.", note:"exclaim + that-clause." },
+      b: { label:"Wish", icon:"🌠", text:"He said he <b>wished</b> he had gone.", note:"wish + past perfect for a regret about the past." }
+    },
+    items: [
+      { before:"She exclaimed", after:"the view was beautiful.", answer:"that", choices:["that","if"] },
+      { before:"He said he", after:"he had studied harder.", answer:"wished", choices:["wished","wishes"], altAnswer:"wishes", altNote:"If the wish is still current right now, the present tense can be kept even after a past reporting verb: 'He said he wishes he had studied harder.'" },
+      { before:"They exclaimed with joy", after:"they had won.", answer:"that", choices:["that","if"] },
+      { before:"She said she", after:"she could fly.", answer:"wished", choices:["wished","wishes"], altAnswer:"wishes", altNote:"If this is still her wish today, 'wishes' is equally correct: 'She said she wishes she could fly.'" },
+      { before:"He exclaimed in surprise", after:"it was snowing.", answer:"that", choices:["that","if"] }
+    ]
+  },
+  {
+    name: "Reporting Verbs with Prepositions", cefr: "b2",
+    explain: "Some reporting verbs take a preposition before a gerund: insist on, accuse of, apologize for, admit to.",
+    toggle: {
+      title: "Insist On vs Accuse Of",
+      a: { label:"Insist On", icon:"📌", text:"He insisted <b>on paying</b> the bill.", note:"insist + on + gerund." },
+      b: { label:"Accuse Of", icon:"⚖️", text:"She accused him <b>of lying</b>.", note:"accuse + of + gerund." }
+    },
+    items: [
+      { before:"He apologized", after:"being late.", answer:"for", choices:["for","of"] },
+      { before:"She accused him", after:"stealing the money.", answer:"of", choices:["of","for"] },
+      { before:"They insisted", after:"helping us.", answer:"on", choices:["on","for"] },
+      { before:"He admitted", after:"breaking the vase.", answer:"to", choices:["to","of"] },
+      { before:"She insisted", after:"driving us home.", answer:"on", choices:["on","of"] }
+    ]
+  },
+  {
+    name: "Reported Conditionals", cefr: "b2",
+    explain: "When reporting conditional sentences, the verb tenses usually backshift one step, just like in ordinary reported statements.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"If I <b>have</b> time, I <b>will</b> help."', note:"Direct speech: first conditional." },
+      b: { label:"Reported", icon:"🔁", text:"He said if he <b>had</b> time, he <b>would</b> help.", note:"Reported speech: both clauses backshift one step." }
+    },
+    items: [
+      { before:"She said if she", after:"time, she would call me.", answer:"had", choices:["had","has"], altAnswer:"has", altNote:"If the condition is still open at the time of reporting, the present tense can remain, though this is less common in formal writing." },
+      { before:"He said that if it", after:", they would cancel the trip.", answer:"rained", choices:["rained","rains"], altAnswer:"rains", altNote:"If the trip is still in the future and the condition still open, 'rains' can remain unchanged." },
+      { before:"They said if they", after:"the chance, they would travel.", answer:"had", choices:["had","have"], altAnswer:"have", altNote:"If the chance is still open now, 'have the chance' remains acceptable." },
+      { before:"She said if he", after:"harder, he would pass.", answer:"studied", choices:["studied","studies"], altAnswer:"studies", altNote:"If the exam is still ahead, 'studies' can stay unchanged instead of backshifting." },
+      { before:"He said that if she", after:"early, she would catch the train.", answer:"left", choices:["left","leaves"], altAnswer:"leaves", altNote:"If the situation is still open/future, 'leaves' remains acceptable." }
+    ]
+  },
+  {
+    name: "Mixed Reporting Verb Patterns", cefr: "b2",
+    explain: "Reporting verbs follow different patterns: verb + that-clause (admit that), verb + object + to-infinitive (advise someone to), or verb + gerund (recommend doing).",
+    toggle: {
+      title: "Object + Infinitive vs That-Clause",
+      a: { label:"Obj + Infinitive", icon:"🎯", text:"She advised him <b>to rest</b>.", note:"advise + object + to-infinitive." },
+      b: { label:"That-Clause", icon:"🔗", text:"She admitted <b>that</b> she was wrong.", note:"admit + that-clause." }
+    },
+    items: [
+      { before:"He advised me", after:"a doctor.", answer:"to see", choices:["to see","that see"] },
+      { before:"She admitted", after:"she had made a mistake.", answer:"that", choices:["that","to"] },
+      { before:"They recommended", after:"early to avoid traffic.", answer:"leaving", choices:["leaving","to leave"] },
+      { before:"He warned us", after:"careful.", answer:"to be", choices:["to be","that be"] },
+      { before:"She reminded him", after:"the door.", answer:"to lock", choices:["to lock","that lock"] }
+    ]
+  },
+
+  // ───────────────── C1 ─────────────────
+  {
+    name: "Advanced Reporting Verbs: Claim, Deny, Warn, Urge", cefr: "c1",
+    explain: "Verbs like claim, admit, deny, warn, and urge carry a precise attitude or force that shapes the meaning of the report.",
+    toggle: {
+      title: "Claim vs Deny",
+      a: { label:"Claim", icon:"🙋", text:"He claimed <b>that</b> he was innocent.", note:"claim + that-clause — an assertion, possibly doubted." },
+      b: { label:"Deny", icon:"🚫", text:"He denied <b>having stolen</b> the money.", note:"deny + having + past participle — rejecting an accusation." }
+    },
+    items: [
+      { before:"She denied", after:"the window.", answer:"breaking", choices:["breaking","to break"] },
+      { before:"He claimed", after:"he had never met her.", answer:"that", choices:["that","if"] },
+      { before:"The officer warned the driver", after:"down.", answer:"to slow", choices:["to slow","slow"] },
+      { before:"She urged him", after:"the offer.", answer:"to accept", choices:["to accept","accept"] },
+      { before:"He admitted", after:"lied about his age.", answer:"having", choices:["having","to have"] }
+    ]
+  },
+  {
+    name: "Reported Speech with Modal Perfects", cefr: "c1",
+    explain: "Modal perfects (should have, might have, must have) don't backshift further — they already express past time and stay the same in reported speech.",
+    toggle: {
+      title: "Direct vs Reported",
+      a: { label:"Direct", icon:"💬", text:'"You <b>should have called</b> me."', note:"Direct speech: modal perfect." },
+      b: { label:"Reported", icon:"🔁", text:"She said I <b>should have called</b> her.", note:"Reported speech: modal perfect stays unchanged." }
+    },
+    items: [
+      { before:"He said she", after:"told him earlier.", answer:"should have", choices:["should have","should"] },
+      { before:"She said they", after:"missed the train.", answer:"must have", choices:["must have","had to"] },
+      { before:"He said he", after:"left his umbrella at home.", answer:"might have", choices:["might have","might"] },
+      { before:"She said I", after:"warned her sooner.", answer:"should have", choices:["should have","would have"] },
+      { before:"He said they", after:"already left by the time we arrived.", answer:"could have", choices:["could have","could"] }
+    ]
+  },
+  {
+    name: "Passive Reporting Structures", cefr: "c1",
+    explain: "Formal reported speech can use passive patterns: It is said that... / Subject + is said/believed/reported + to-infinitive.",
+    toggle: {
+      title: "It-Pattern vs Subject-Pattern",
+      a: { label:"It-Pattern", icon:"🌍", text:"<b>It is said that</b> he is very rich.", note:"Impersonal 'It' pattern." },
+      b: { label:"Subject-Pattern", icon:"🧍", text:"He <b>is said to be</b> very rich.", note:"Subject + to-infinitive pattern — same meaning, more formal." }
+    },
+    items: [
+      { before:"It", after:"that the plan will succeed.", answer:"is reported", choices:["is reported","reports"] },
+      { before:"She", after:"to have left the country.", answer:"is believed", choices:["is believed","believes"] },
+      { before:"It", after:"that prices will rise.", answer:"is expected", choices:["is expected","expects"] },
+      { before:"He", after:"to be the richest man in town.", answer:"is said", choices:["is said","says"] },
+      { before:"It", after:"that the CEO will resign soon.", answer:"is rumored", choices:["is rumored","rumors"] }
+    ]
+  },
+  {
+    name: "Reported Speech in Formal/Academic Register", cefr: "c1",
+    explain: "Formal and academic writing often uses adverbs like allegedly and reportedly, or phrases like according to, instead of a full reporting clause.",
+    toggle: {
+      title: "Reporting Clause vs Adverb",
+      a: { label:"Reporting Clause", icon:"📝", text:"The witness <b>said that</b> he saw the car.", note:"Full clause with a reporting verb." },
+      b: { label:"Adverb", icon:"📰", text:"The driver <b>allegedly</b> ran the red light.", note:"A single adverb compresses the reporting idea — common in news writing." }
+    },
+    items: [
+      { before:"According to the report, the company", after:"lost millions.", answer:"has", choices:["has","have"], altAnswer:"have", altNote:"In British English, collective nouns like 'company' or 'team' can take a plural verb: 'the company have lost millions.' 'Has' is standard, and universal, in American English." },
+      { before:"The suspect", after:"fled the scene before police arrived.", answer:"allegedly", choices:["allegedly","said"] },
+      { before:"", after:"to sources, the merger will be announced next week.", answer:"According", choices:["According","Reporting"] },
+      { before:"The company", after:"increased profits this quarter.", answer:"reportedly", choices:["reportedly","says"] },
+      { before:"According to witnesses, the fire", after:"in the kitchen.", answer:"started", choices:["started","starts"] }
+    ]
+  },
+  {
+    name: "Time & Aspect Shifts in Complex Sentences", cefr: "c1",
+    explain: "In longer reported sentences with multiple clauses, each verb shifts independently according to its own original tense.",
+    toggle: {
+      title: "Simple vs Complex",
+      a: { label:"Simple", icon:"🌱", text:"She said she <b>was</b> tired.", note:"One clause, one backshift." },
+      b: { label:"Complex", icon:"🧩", text:"She said that although she <b>had been</b> tired, she <b>had finished</b> the race.", note:"Each clause backshifts independently." }
+    },
+    items: [
+      { before:"He said that even though he", after:"hard, he had failed.", answer:"had studied", choices:["had studied","studied"], altAnswer:"studied", altNote:"In fast or informal speech, the extra backshift is sometimes dropped when 'even though' already makes the sequence clear: 'He said that even though he studied hard, he had failed.'" },
+      { before:"She said that by the time she arrived, the meeting", after:"already started.", answer:"had", choices:["had","has"], altAnswer:"has", altNote:"If this is still current news at the time of reporting, 'has already started' can remain unchanged." },
+      { before:"He said that while he", after:"working, the phone had rung.", answer:"was", choices:["was","is"], altAnswer:"is", altNote:"If he's still working at the time of reporting, 'is working' can stay unchanged." },
+      { before:"She said that after she", after:"the door, she had heard a noise.", answer:"had closed", choices:["had closed","closed"], altAnswer:"closed", altNote:"'After' already signals the sequence, so informal speech often drops the extra backshift: 'after she closed the door, she had heard a noise.'" },
+      { before:"He said that as soon as he", after:"home, it had started to rain.", answer:"had got", choices:["had got","got"], altAnswer:"got", altNote:"'As soon as' already marks the sequence clearly, so 'got home' is commonly used instead of the fully backshifted form." }
+    ]
+  },
+  {
+    name: "Free Indirect Speech in Narrative", cefr: "c1",
+    explain: "Free indirect speech blends a character's thoughts into third-person narration without a reporting verb or quotation marks, keeping the backshifted tense but the original word order and feeling.",
+    toggle: {
+      title: "Direct Thought vs Free Indirect",
+      a: { label:"Direct Thought", icon:"💭", text:'She thought, "<b>Will</b> he ever come back?"', note:"Direct thought: exact words, question mark, no narration blend." },
+      b: { label:"Free Indirect", icon:"🌫️", text:"<b>Would</b> he ever come back, she wondered.", note:"Free indirect: backshifted tense woven into the narration, no reporting clause needed." }
+    },
+    items: [
+      { before:"", after:"he ever forgive her, she wondered.", answer:"Would", choices:["Would","Will"] },
+      { before:"", after:"she ever see her family again? Maria stared out the window.", answer:"Would", choices:["Would","Will"] },
+      { before:"He looked at the clock.", after:"he be too late?", answer:"Would", choices:["Would","Will"] },
+      { before:"", after:"anyone believe her story, she asked herself.", answer:"Would", choices:["Would","Will"] },
+      { before:"She paused at the door.", after:"she really go through with it?", answer:"Would", choices:["Would","Will"] }
+    ]
+  },
+
+  // ───────────────── C2 ─────────────────
+  {
+    name: "Subjunctive & Hypothetical Backshift Exceptions", cefr: "c2",
+    explain: "In formal subjunctive reporting (insist that, demand that) the base form is used regardless of tense, resisting the normal backshift rules. British English often prefers 'should' + base verb as an alternative to the bare subjunctive: 'insisted that the report should be submitted.'",
+    toggle: {
+      title: "Subjunctive vs Ordinary Backshift",
+      a: { label:"Subjunctive", icon:"🕊️", text:"The board demanded that he <b>resign</b> immediately.", note:"Subjunctive: base form, no tense marking, no backshift." },
+      b: { label:"Ordinary Backshift", icon:"⏮️", text:"He said that he <b>resigned</b> that day.", note:"Ordinary reported statement: normal backshift applies." }
+    },
+    items: [
+      { before:"The committee insisted that the report", after:"submitted by Friday.", answer:"be", choices:["be","was"] },
+      { before:"She demanded that he", after:"the truth.", answer:"tell", choices:["tell","told"] },
+      { before:"The judge ordered that the case", after:"reopened.", answer:"be", choices:["be","was"] },
+      { before:"They recommended that she", after:"a specialist.", answer:"see", choices:["see","saw"] },
+      { before:"He proposed that the meeting", after:"postponed.", answer:"be", choices:["be","was"] }
+    ]
+  },
+  {
+    name: "Nominalization of Reporting", cefr: "c2",
+    explain: "Formal writing often compresses a reported clause into a noun phrase (his claim that..., her admission of...) instead of a full reporting-verb clause.",
+    toggle: {
+      title: "Clause vs Nominalization",
+      a: { label:"Clause", icon:"📝", text:"He <b>claimed that</b> he was innocent.", note:"Full reporting clause with a finite verb." },
+      b: { label:"Nominalization", icon:"🧱", text:"His <b>claim</b> of innocence was rejected.", note:"The reporting idea is packed into a noun." }
+    },
+    items: [
+      { before:"The minister's", after:"of the allegations sparked controversy.", answer:"denial", choices:["denial","denied"] },
+      { before:"Her", after:"to resign surprised everyone.", answer:"refusal", choices:["refusal","refused"] },
+      { before:"The witness's", after:"contradicted the official report.", answer:"testimony", choices:["testimony","testified"] },
+      { before:"His", after:"of guilt shocked the court.", answer:"admission", choices:["admission","admitted"] },
+      { before:"The company's", after:"that profits had risen was later disputed.", answer:"claim", choices:["claim","claimed"] }
+    ]
+  },
+  {
+    name: "Register & Ambiguity: Say, Tell, Mention, Remark", cefr: "c2",
+    explain: "Reporting verbs carry subtle register and attitude differences: mention (briefly, in passing), remark (with observation), state (formally), hint (indirectly).",
+    toggle: {
+      title: "Neutral vs Precise",
+      a: { label:"Neutral", icon:"💬", text:"She <b>said</b> that the results were positive.", note:"Generic, no extra shade of meaning." },
+      b: { label:"Precise", icon:"🔎", text:"She <b>remarked</b> that the results were surprisingly positive.", note:"'remarked' adds a note of observation the reporter is highlighting." }
+    },
+    items: [
+      { before:"He casually", after:"that he had once lived in Rome.", answer:"mentioned", choices:["mentioned","told"] },
+      { before:"The professor", after:"that the data was inconclusive.", answer:"noted", choices:["noted","said"], altAnswer:"said", altNote:"'Said' is always grammatically safe as a neutral fallback; 'noted' simply adds a more formal, factual register." },
+      { before:"She", after:"that the weather had been unusually cold.", answer:"remarked", choices:["remarked","told"] },
+      { before:"The spokesperson formally", after:"that the merger was confirmed.", answer:"stated", choices:["stated","mentioned"], altAnswer:"mentioned", altNote:"'Mentioned' is grammatically fine, though it usually implies a brief, casual remark — which sits oddly next to 'formally'. 'Stated' matches the formal register better." },
+      { before:"He", after:"in passing that he might resign soon.", answer:"hinted", choices:["hinted","stated"], altAnswer:"stated", altNote:"'Stated' is grammatically fine, but its directness clashes with 'in passing', which signals an indirect, offhand remark — 'hinted' fits the context better." }
+    ]
+  },
+  {
+    name: "Ellipsis & Fragment Reporting", cefr: "c2",
+    explain: "In natural, sophisticated speech, reported fragments can omit the subject or verb when the meaning is recoverable from context.",
+    toggle: {
+      title: "Full Clause vs Elliptical",
+      a: { label:"Full Clause", icon:"📐", text:"He said that he was tired.", note:"Complete reporting clause, nothing omitted." },
+      b: { label:"Elliptical", icon:"✂️", text:"He said he was, <b>if anything</b>, exhausted.", note:"Fragment inserted mid-clause; the verb 'was' is recoverable from context." }
+    },
+    items: [
+      { before:"He said he was tired, if not", after:".", answer:"exhausted", choices:["exhausted","exhaustion"] },
+      { before:"She admitted to being late, if slightly", after:".", answer:"embarrassed", choices:["embarrassed","embarrassing"] },
+      { before:"He claimed to be busy, or at least", after:"so.", answer:"said", choices:["said","says"] },
+      { before:"She mentioned feeling unwell, though not", after:"ill.", answer:"seriously", choices:["seriously","serious"] },
+      { before:"He admitted the plan had failed, if not", after:"collapsed.", answer:"entirely", choices:["entirely","entire"] }
+    ]
+  },
+  {
+    name: "Multiple Embedded Reports", cefr: "c2",
+    explain: "Reported speech can be embedded within reported speech (he said that she had told him that...), each layer following its own backshift logic.",
+    toggle: {
+      title: "Single vs Double Embedding",
+      a: { label:"Single Report", icon:"🔂", text:"She said that he was late.", note:"One layer of reporting." },
+      b: { label:"Double Embedding", icon:"🪆", text:"She said that he <b>had told her</b> that he <b>would be</b> late.", note:"Two layers, each verb shifted from its own original tense." }
+    },
+    items: [
+      { before:"She said that he had told her that he", after:"be late.", answer:"would", choices:["would","will"], altAnswer:"will", altNote:"If the situation was still pending at the time of the final report, 'will' can remain unchanged instead of double-backshifting to 'would'." },
+      { before:"He said that she had claimed that she", after:"never lied.", answer:"had", choices:["had","has"], altAnswer:"has", altNote:"If this is still presented as currently true, 'has never lied' can remain unchanged." },
+      { before:"They said that the manager had told them that the project", after:"delayed.", answer:"had been", choices:["had been","was"], altAnswer:"was", altNote:"A single-level past passive ('was delayed') is also commonly used instead of the fully backshifted double-embedded form, especially in speech." },
+      { before:"She said that her friend had mentioned that she", after:"moving abroad.", answer:"was", choices:["was","is"], altAnswer:"is", altNote:"If the move is still planned/current, 'is moving abroad' can remain unchanged." },
+      { before:"He said that the doctor had warned him that he", after:"rest more.", answer:"needed to", choices:["needed to","needs to"], altAnswer:"needs to", altNote:"If the advice still applies now, 'needs to rest more' remains acceptable." }
+    ]
+  },
+  {
+    name: "Mixed Review: All Forms", cefr: "c2",
+    explain: "The final round mixes every reported speech pattern you've studied — statements, questions, commands, modals, and formal structures — across all CEFR levels.",
+    toggle: {
+      title: "Simple vs Complex (Mixed)",
+      a: { label:"Simple", icon:"🌱", text:"He said he <b>was</b> tired.", note:"A single backshifted clause." },
+      b: { label:"Complex", icon:"🧩", text:"It <b>is reported</b> that talks <b>had stalled</b> before the deadline.", note:"Formal passive reporting plus a backshifted embedded clause." }
+    },
+    items: [
+      { before:"She asked me where I", after:".", answer:"lived", choices:["lived","live"], altAnswer:"live", altNote:"If the person still lives there, the present tense can remain unchanged: 'She asked me where I live.'" },
+      { before:"He told us", after:"careful on the ice.", answer:"to be", choices:["to be","be"] },
+      { before:"It", after:"that the treaty had been signed.", answer:"was announced", choices:["was announced","announced"] },
+      { before:"She said that if she", after:"more time, she would have finished.", answer:"had had", choices:["had had","had"] },
+      { before:"He admitted", after:"forgotten the appointment.", answer:"having", choices:["having","to have"] }
+    ]
+  }
+];
+
+const CEFR_LABEL = {a1:"A1",a2:"A2",b1:"B1",b2:"B2",c1:"C1",c2:"C2"};
+const CEFR_POINTS = {a1:8,a2:9,b1:10,b2:13,c1:16,c2:20};
+
+const TOTAL_RULES = RULE_GROUPS.length;
+
+const RANKS = [
+  {name:'First Whisper 🤫',min:0},{name:'Speaker 🗣️',min:120},{name:'Narrator 📖',min:300},
+  {name:'Orator 🎙️',min:550},{name:'Rhetorician 🏛️',min:850},{name:'Virtuoso 🎭',min:1200}
+];
+
+const BEST_KEY = 'verveSpeechBest';
+
+/* ═══════ Supabase logging (edge function) ═══════ */
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+// quest_id is built per rule group at send time, using its fixed position in
+// RULE_GROUPS (1-36, stable regardless of shuffle order), prefixed "Speech" so
+// this game's entries never collide with other Verve quizzes (e.g. Voice) that
+// share the same table:
+// "Speech Rule N"  = mastered — all 5 sentences in the group solved on the first tap
+// "Speech Rules N" = practiced — at least one sentence needed a retry after a wrong tap
+
+/* ═══════ Supabase client (for reading back a player's history) ═══════ */
+const SUPABASE_PROXY_URL = "https://yellow-lab-4999.andrewveda.workers.dev";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE";
+let supabaseClient = null;
+async function getSupabaseClient(){
+  if(supabaseClient) return supabaseClient;
+  const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm");
+  supabaseClient = createClient(SUPABASE_PROXY_URL, SUPABASE_ANON_KEY);
+  return supabaseClient;
+}
+
+let playerName = '';
+let playerDept = '';
+
+let deck = [];
+let currentGroupIdx = null;
+let currentGroup = null;      // active {name, cefr, explain, toggle, items}
+let currentItemIndex = 0;
+let current = null;           // active item {before, after, answer, choices}
+let currentTiles = [];        // shuffled choice tiles for this item
+
+let placedCount = 0;          // 0 or 1 — whether the current blank is filled
+let currentMistakes = 0;
+
+let score = 0, streak = 0, completedCount = 0, correctTaps = 0, wrongTaps = 0;
+let sentenceStart = 0;
+let completedList = [];       // flat log for share/end screen
+let ruleArchive = [];         // [{name, forms:[{text}]}] completed rule groups
+let currentForms = [];        // sentences completed so far in the group in progress
+let bestScore = parseInt(localStorage.getItem(BEST_KEY) || '0');
+
+let elapsedSeconds = 0;
+let timerInterval = null;
+let gameActive = true;
+
+// per-rule-group tracking for Supabase (mastered vs practiced)
+let ruleStartTime = 0, ruleScore = 0, ruleCorrectTaps = 0, ruleWrongTaps = 0, ruleHadMistake = false;
+
+// Study Glossary state
+// ruleIdx -> 'mastered' (all sentences solved with zero mistakes at least once) | 'practiced' (solved, but only ever with a retry)
+let ruleStatus = new Map();
+// Historical baseline pulled from Supabase for the current player name — persists
+// across "New Round"/"Play Again" resets within the session, and seeds ruleStatus
+// each time newGame() runs so Study/Archive reflect prior sessions too.
+let loadedRuleStatus = new Map();
+let studyOpen = false;
+let studyFilterCefr = 'all';
+let studyFilterPracticed = 'all';
+let studySearchTerm = '';
+
+/* ═══════════════ PLAYER HISTORY (Supabase) ═══════════════ */
+// Reads report_card_view.quest_list for this player name and turns entries like
+// "Speech Rule 3" (mastered) / "Speech Rules 8" (practiced) into a rule-index → status map.
+async function loadPlayerHistory(name){
+  loadedRuleStatus = new Map();
+  if(!name) return;
+  try{
+    const supabase = await getSupabaseClient();
+ const { data, error } = await supabase
+  .from("report_card_view")
+  .select("quest_list")
+  .eq("name", playerName)
+  .eq("department", playerDept)
+  .single();
+
+    if(error || !data){
+      console.warn("No prior history found for", name, error || '');
+      return;
+    }
+const questList = (data.quest_list || "")
+  .split(", ")
+  .filter(Boolean);
+    questList.forEach(q=>{
+      if(typeof q !== 'string') return;
+      let ruleNum = null, mastered = false;
+      if(q.startsWith("Speech Rule ")){
+        ruleNum = parseInt(q.replace("Speech Rule ",""),10);
+        mastered = true;
+      } else if(q.startsWith("Speech Rules ")){
+        ruleNum = parseInt(q.replace("Speech Rules ",""),10);
+        mastered = false;
+      }
+      if(ruleNum && !isNaN(ruleNum)){
+        const idx = ruleNum - 1;
+        if(mastered){
+          loadedRuleStatus.set(idx, 'mastered');
+        } else if(loadedRuleStatus.get(idx) !== 'mastered'){
+          loadedRuleStatus.set(idx, 'practiced');
+        }
+      }
+    });
+  }catch(err){
+    console.error("⚠️ Could not load player history:", err);
+  }
+}
+
+/* ═══════════════ NAME GATE ═══════════════ */
+async function beginQuiz(){
+  const nameEl = document.getElementById('nameInput');
+  const deptEl = document.getElementById('departmentSelect');
+  const errEl = document.getElementById('gateError');
+  const startBtn = document.getElementById('btnBeginQuiz');
+  const name = nameEl.value.trim();
+  const dept = deptEl.value;
+
+  if(!name){ errEl.textContent = 'Please enter your name.'; nameEl.focus(); return; }
+  if(!dept){ errEl.textContent = 'Please select your department.'; deptEl.focus(); return; }
+
+  errEl.textContent = '';
+  playerName = name;
+  playerDept = dept;
+  localStorage.setItem("userName", name);
+localStorage.setItem("userDept", dept);
+
+  startBtn.disabled = true;
+  startBtn.textContent = 'Loading your progress…';
+  await loadPlayerHistory(playerName);
+  startBtn.disabled = false;
+  startBtn.textContent = '✿ Start Quiz';
+
+  document.getElementById('nameForm').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame();
+}
+document.addEventListener("DOMContentLoaded", async () => {
+    const savedName = localStorage.getItem("userName");
+    const savedDept = localStorage.getItem("userDept");
+
+    if (savedName && savedDept) {
+        playerName = savedName;
+        playerDept = savedDept;
+
+        document.getElementById("nameForm").classList.remove("active");
+        document.getElementById("gameScreen").classList.add("active");
+
+        await loadPlayerHistory(playerName);
+        newGame();
+    }
+});
+
+document.getElementById('btnBeginQuiz').addEventListener('click', beginQuiz);
+
+function shuffledDeck(){
+  const idx = RULE_GROUPS.map((_,i)=>i);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  return idx;
+}
+
+function newGame(focusRuleIdx){
+  clearInterval(timerInterval);
+  deck = shuffledDeck();
+  if(typeof focusRuleIdx === 'number'){
+    deck = deck.filter(i=>i!==focusRuleIdx);
+    deck.push(focusRuleIdx);
+  }
+  score=0; streak=0; completedCount=0; correctTaps=0; wrongTaps=0;
+  completedList=[]; ruleArchive=[]; elapsedSeconds=0; gameActive=true;
+  // Seed this round's status from the player's historical progress, so the
+  // Study Glossary and archive reflect earlier sessions immediately.
+  ruleStatus = new Map(loadedRuleStatus);
+  updateStats(); renderArchive();
+  loadNextRuleGroup();
+  updateTimerDisplay();
+  startStopwatch();
+}
+
+function loadNextRuleGroup(){
+  if(!deck.length) return;
+  const i = deck.pop();
+  currentGroupIdx = i;
+  currentGroup = RULE_GROUPS[i];
+  currentItemIndex = 0;
+  currentForms = [];
+  ruleStartTime = Date.now(); ruleScore = 0; ruleCorrectTaps = 0; ruleWrongTaps = 0; ruleHadMistake = false;
+  renderRuleCard();
+  renderContrastCard(currentGroup);
+  applyItemData();
+  renderParadigm();
+}
+
+function renderRuleCard(){
+  document.getElementById('rule-name').textContent = currentGroup.name;
+  const pill = document.getElementById('cefr-pill');
+  pill.textContent = CEFR_LABEL[currentGroup.cefr];
+  pill.className = 'cefr-pill ' + currentGroup.cefr;
+  document.getElementById('rule-explain').textContent = currentGroup.explain;
+}
+
+/* ═══════════════ DIRECT / REPORTED TOGGLE ═══════════════ */
+function renderContrastCard(group){
+  document.getElementById('contrast-title').textContent = group.toggle.title;
+  const wrap = document.getElementById('toggle-wrap');
+  wrap.innerHTML = '';
+  ['a','b'].forEach((key,idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (idx===0 ? ' active' : '');
+    btn.textContent = group.toggle[key].label;
+    btn.dataset.key = key;
+    btn.onclick = () => selectContrastOption(key, group);
+    wrap.appendChild(btn);
+  });
+  selectContrastOption('a', group);
+}
+
+function selectContrastOption(key, group){
+  document.querySelectorAll('#toggle-wrap .toggle-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.key === key);
+  });
+  const data = group.toggle[key];
+  document.getElementById('contrast-sentence').innerHTML = data.text;
+  document.getElementById('contrast-icon').textContent = data.icon;
+  document.getElementById('contrast-text').textContent = data.note;
+}
+
+/* ═══════════════ ITEM (single blank) LOGIC ═══════════════ */
+function applyItemData(){
+  current = currentGroup.items[currentItemIndex];
+  placedCount = 0; currentMistakes = 0;
+  current.answeredTexts = [];
+  sentenceStart = Date.now();
+
+  currentTiles = current.choices.map((c,i)=>({id:i+'-'+Date.now(), text:c, correct:(c===current.answer || c===current.altAnswer), solved:false}));
+  shuffleArray(currentTiles);
+
+  renderSentence(); renderTray();
+  document.getElementById('mount-caption').textContent = current.altAnswer
+    ? 'both forms shown are correct — tap one to start'
+    : 'tap the correct word or form';
+}
+
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+
+/* ═══════════════ STOPWATCH ═══════════════ */
+function startStopwatch(){
+  timerInterval = setInterval(()=>{
+    if(!gameActive || studyOpen) return;
+    elapsedSeconds++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function updateTimerDisplay(){
+  const m = Math.floor(elapsedSeconds / 60);
+  const s = elapsedSeconds % 60;
+  document.getElementById('timerText').textContent = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+}
+
+/* ═══════════════ RENDER ═══════════════ */
+function renderSentence(){
+  const el = document.getElementById('sentence-line');
+  const blankHTML = placedCount
+    ? `<span class="blank-slot filled">${current.chosenText || current.answer}</span>`
+    : `<span class="blank-slot">____</span>`;
+  el.innerHTML = `${current.before} ${blankHTML} ${current.after}`;
+}
+
+function renderTray(){
+  const wrap=document.getElementById('tray'); wrap.innerHTML='';
+  currentTiles.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='tile'+(t.solved?' solved':'');
+    el.innerHTML = `<span class="word">${t.text}</span>`;
+    el.onclick = ()=>tapTile(t.id, el);
+    wrap.appendChild(el);
+  });
+}
+
+/* ═══════════════ GAMEPLAY ═══════════════ */
+function tapTile(id, el){
+  if(!gameActive || placedCount || studyOpen) return;
+  const tile = currentTiles.find(t=>t.id===id);
+  if(!tile) return;
+
+  if(tile.correct){
+    tile.solved = true;
+    placedCount = 1;
+    correctTaps++; ruleCorrectTaps++;
+    current.chosenText = tile.text;
+    current.chosenIsAlt = (current.altAnswer && tile.text === current.altAnswer);
+    current.answeredTexts.push(tile.text);
+    renderSentence();
+    renderTray();
+    document.getElementById('mount').classList.remove('error');
+    completeItem();
+  } else {
+    wrongTaps++; ruleWrongTaps++; currentMistakes++; ruleHadMistake = true; streak = 0;
+    el.classList.add('wrong');
+    setTimeout(()=>el.classList.remove('wrong'),400);
+    document.getElementById('mount').classList.add('error');
+    setTimeout(()=>document.getElementById('mount').classList.remove('error'),350);
+    updateStats();
+    if(navigator.vibrate) navigator.vibrate(15);
+  }
+}
+
+function completeItem(){
+  const elapsedSec = (Date.now()-sentenceStart)/1000;
+  const base = CEFR_POINTS[currentGroup.cefr];
+  const speedBonus = Math.max(0, Math.round(8 - elapsedSec));
+  const penalty = currentMistakes*3;
+  const pts = Math.max(4, base+speedBonus-penalty);
+
+  score += pts; ruleScore += pts; completedCount++;
+  if(currentMistakes===0) streak++; else streak=0;
+
+  const chosen = current.chosenText || current.answer;
+  const text = current.before+' '+chosen+' '+current.after;
+  completedList.push({text, pts, rule: currentGroup.name});
+
+  if(!currentForms[currentItemIndex]) currentForms[currentItemIndex] = [];
+  currentForms[currentItemIndex].push({text, answer: chosen, isAlt: !!current.chosenIsAlt});
+
+  updateStats(); renderParadigm();
+
+  document.getElementById('mount').classList.add('success');
+  setTimeout(()=>document.getElementById('mount').classList.remove('success'),650);
+
+  const allCorrectTexts = current.altAnswer ? [current.answer, current.altAnswer] : [current.answer];
+  const remaining = allCorrectTexts.filter(t=>!current.answeredTexts.includes(t));
+
+  let msg = `<b>+${pts} pts</b>${currentGroup.name}`;
+  if(current.chosenIsAlt && current.altNote){
+    msg = `<b>+${pts} pts — also correct!</b>${current.altNote}`;
+  }
+  if(streak>=3) msg = `<b>🔥 ${streak} streak! +${pts} pts</b>${currentGroup.name}`;
+  if(remaining.length){
+    msg += `<br><span style="opacity:.85;font-size:.88em;">👉 Both forms are correct — tap "${remaining[0]}" too!</span>`;
+  }
+  showToast(msg,'good',true);
+
+  if(navigator.vibrate) navigator.vibrate(streak>=3?[20,40,20]:18);
+
+  setTimeout(()=>{
+    if(!gameActive) return;
+    if(remaining.length){
+      // This item has another equally-correct form still waiting to be tapped —
+      // reset the blank and let the player fill it again with the alternate form.
+      placedCount = 0;
+      currentMistakes = 0;
+      sentenceStart = Date.now();
+      renderSentence();
+      document.getElementById('mount-caption').textContent = 'now tap the other correct form';
+    } else if(currentItemIndex < currentGroup.items.length - 1){
+      currentItemIndex++;
+      applyItemData();
+      renderParadigm();
+    } else {
+      ruleArchive.push({ name: currentGroup.name, forms: currentForms.flat() });
+      if(ruleHadMistake){
+        if(ruleStatus.get(currentGroupIdx) !== 'mastered') ruleStatus.set(currentGroupIdx, 'practiced');
+      } else {
+        ruleStatus.set(currentGroupIdx, 'mastered');
+      }
+      renderArchive();
+      submitRuleToSupabase();
+
+      if (ruleArchive.length >= TOTAL_RULES) {
+        showToast('🎭 Full Speech Range Mastered! 36/36 rules performed', 'good');
+        setTimeout(endGame, 1400);
+      } else {
+        showToast('🎭 Rule Mastered!', 'good');
+        loadNextRuleGroup();
+      }
+    }
+  }, 900);
+}
+
+/* ═══════════════ PARADIGM PANEL ═══════════════ */
+function renderParadigm(){
+  const rows = document.getElementById('paradigm-rows');
+  rows.innerHTML = '';
+  let totalNeeded = 0;
+  currentGroup.items.forEach((item, idx) => {
+    const neededForItem = item.altAnswer ? 2 : 1;
+    totalNeeded += neededForItem;
+    const foundArr = currentForms[idx];
+    const doneCount = foundArr ? foundArr.length : 0;
+    const isDone = doneCount >= neededForItem;
+    const row = document.createElement('div');
+    row.className = 'paradigm-row' + (isDone ? ' done' : (idx === currentItemIndex ? ' active' : ''));
+    const num = `<span class="paradigm-num">${idx+1}</span>`;
+    let sentence;
+    if(doneCount === 0){
+      sentence = `<span class="paradigm-sentence pending">— not delivered yet —</span>`;
+    } else {
+      const lines = foundArr.map(f=>`${item.before} <b>${f.answer}</b> ${item.after}`).join('<br>');
+      const mark = isDone ? '✓' : '◐';
+      sentence = `<span class="paradigm-sentence">${lines}</span><span class="paradigm-check">${mark}</span>`;
+    }
+    row.innerHTML = num + sentence;
+    rows.appendChild(row);
+  });
+  const delivered = currentForms.reduce((sum,arr)=> sum + (arr ? arr.length : 0), 0);
+  document.getElementById('paradigm-count').textContent = delivered;
+  document.getElementById('paradigm-total').textContent = totalNeeded;
+  document.getElementById('specimen-num').textContent = ruleArchive.length + 1;
+}
+
+function renderArchive(){
+  const title = document.getElementById('archive-title');
+  const list = document.getElementById('archive-list');
+  list.innerHTML = '';
+  if(!ruleArchive.length){ title.style.display='none'; return; }
+  title.style.display='block';
+  ruleArchive.slice().reverse().forEach(rule=>{
+    const card = document.createElement('div');
+    card.className = 'archive-card';
+    card.innerHTML = `<div class="arc-rule">${rule.name}</div>` +
+      rule.forms.map(f=>`<div class="arc-line">${f.text}</div>`).join('');
+    list.appendChild(card);
+  });
+}
+
+/* ═══════════════ STATS / RANK ═══════════════ */
+function getRank(pts){
+  let r=RANKS[0];
+  for(const rk of RANKS) if(pts>=rk.min) r=rk;
+  return r;
+}
+
+function updateStats(){
+  document.getElementById('score').textContent=score;
+  document.getElementById('streak').textContent=streak;
+  if(score>bestScore){ bestScore=score; localStorage.setItem(BEST_KEY,bestScore); }
+  document.getElementById('best-score').textContent=bestScore;
+
+  const rank=getRank(score);
+  const idx=RANKS.indexOf(rank), next=RANKS[idx+1];
+  document.getElementById('rank-name').textContent=rank.name;
+
+  const fill=document.getElementById('rank-fill');
+  fill.style.width = next ? Math.min(100,((score-rank.min)/(next.min-rank.min))*100)+'%' : '100%';
+}
+
+/* ═══════════════ TOAST ═══════════════ */
+let toastTimer;
+function showToast(msg,type='',isHTML=false){
+  const t=document.getElementById('toast');
+  if(isHTML){ t.innerHTML=msg; } else { t.textContent=msg; }
+  t.className='toast show '+type;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ═══════════════ CONTROLS ═══════════════ */
+document.getElementById('btn-new').addEventListener('click',()=>{
+  if(confirm('Start a new round? Current progress will be lost.')) newGame();
+});
+document.getElementById('btn-end-game').addEventListener('click',()=>{
+  if(confirm('End the round and see results?')) endGame();
+});
+document.getElementById('btn-study').addEventListener('click', openStudy);
+document.getElementById('btn-study-close').addEventListener('click', closeStudy);
+document.getElementById('studyOverlay').addEventListener('click', function(e){
+  if(e.target === this) closeStudy();
+});
+
+/* ═══════════════ STUDY GLOSSARY ═══════════════ */
+async function openStudy(){
+  studyOpen = true;
+  document.getElementById('studyOverlay').classList.add('show');
+  // If a player has typed their name on the gate but hasn't started yet,
+  // opportunistically preview their history so badges show immediately.
+  if(!playerName){
+    const typedName = document.getElementById('nameInput').value.trim();
+    if(typedName){
+      await loadPlayerHistory(typedName);
+      ruleStatus = new Map(loadedRuleStatus);
+    }
+  }
+  renderStudyGrid();
+}
+function closeStudy(){
+  studyOpen = false;
+  document.getElementById('studyOverlay').classList.remove('show');
+}
+
+function handleStudySearch(){
+  studySearchTerm = document.getElementById('studySearch').value;
+  renderStudyGrid();
+}
+function setStudyCefrFilter(val, el){
+  studyFilterCefr = val;
+  document.querySelectorAll('#studyCefrRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+function setStudyPracticedFilter(val, el){
+  studyFilterPracticed = val;
+  document.querySelectorAll('#studyPracticedRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+
+function renderStudyGrid(){
+  const grid = document.getElementById('studyGrid');
+  const term = studySearchTerm.trim().toLowerCase();
+
+  const filtered = RULE_GROUPS
+    .map((g,i)=>({g,i}))
+    .filter(({g,i})=>{
+      if(studyFilterCefr !== 'all' && g.cefr !== studyFilterCefr) return false;
+      const status = ruleStatus.get(i);
+      if(studyFilterPracticed === 'mastered' && status !== 'mastered') return false;
+      if(studyFilterPracticed === 'practiced' && status !== 'practiced') return false;
+      if(studyFilterPracticed === 'unattempted' && status) return false;
+      if(term){
+        const hay = (g.name+' '+g.explain+' '+g.items.map(it=>it.before+' '+it.answer+' '+it.after).join(' ')).toLowerCase();
+        if(!hay.includes(term)) return false;
+      }
+      return true;
+    });
+
+  if(!filtered.length){
+    grid.innerHTML = '<div class="study-empty">No speech rules match your search.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(({g,i})=>buildStudyCard(g,i)).join('');
+}
+
+function buildStudyCard(g,i){
+  const status = ruleStatus.get(i); // undefined | 'practiced' | 'mastered'
+  const cardClass = status === 'mastered' ? ' mastered' : (status === 'practiced' ? ' attempted' : '');
+  const badge = status === 'mastered'
+    ? '<span class="study-mastered-badge">✓ Mastered</span>'
+    : status === 'practiced'
+      ? '<span class="study-practiced-badge">◐ Practiced</span>'
+      : '';
+  const sentences = g.items.map(it=>{
+    if(it.altAnswer){
+      return `<div class="study-line">${it.before} <b>${it.answer}</b> ${it.after}</div>` +
+             `<div class="study-line study-alt-line">${it.before} <b>${it.altAnswer}</b> ${it.after}</div>` +
+             `<span class="study-alt">Both forms are correct in practice — ${it.altNote}</span>`;
+    }
+    return `<div class="study-line">${it.before} <b>${it.answer}</b> ${it.after}</div>`;
+  }).join('');
+
+  return `<div class="study-card${cardClass}">
+    <div class="study-card-top">
+      <span class="study-card-name">${g.name}</span>
+      <span class="cefr-pill ${g.cefr}">${CEFR_LABEL[g.cefr]}</span>
+    </div>
+    <div class="study-card-explain">${g.explain}</div>
+    <div class="study-card-sentences">${sentences}</div>
+    <div class="study-card-actions">
+      <button class="study-practice-btn" onclick="window.practiceRuleFromStudy(${i})">▶ Practice this rule</button>
+      ${badge}
+    </div>
+  </div>`;
+}
+
+async function practiceRuleFromStudy(idx){
+  const midGame = document.getElementById('gameScreen').classList.contains('active');
+  if(midGame){
+    jumpToRule(idx);
+  } else {
+    await startFocusedGame(idx);
+  }
+}
+
+function jumpToRule(idx){
+  deck = deck.filter(i=>i!==idx);
+  currentGroupIdx = idx;
+  currentGroup = RULE_GROUPS[idx];
+  currentItemIndex = 0;
+  currentForms = [];
+  ruleStartTime = Date.now(); ruleScore = 0; ruleCorrectTaps = 0; ruleWrongTaps = 0; ruleHadMistake = false;
+  renderRuleCard();
+  renderContrastCard(currentGroup);
+  applyItemData();
+  renderParadigm();
+  closeStudy();
+  showToast(`Jumping to: ${RULE_GROUPS[idx].name}`, 'good');
+}
+
+async function startFocusedGame(idx){
+  const nameEl = document.getElementById('nameInput');
+  const deptEl = document.getElementById('departmentSelect');
+  const errEl = document.getElementById('gateError');
+  const name = nameEl.value.trim();
+  const dept = deptEl.value;
+
+  if(!name){ closeStudy(); errEl.textContent = 'Please enter your name.'; nameEl.focus(); return; }
+  if(!dept){ closeStudy(); errEl.textContent = 'Please select your department.'; deptEl.focus(); return; }
+
+  errEl.textContent = '';
+  playerName = name;
+  playerDept = dept;
+
+  await loadPlayerHistory(playerName);
+
+  closeStudy();
+  document.getElementById('nameForm').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame(idx);
+}
+
+/* ═══════════════ SUPABASE LOGGING (per rule group) ═══════════════ */
+async function sendViaEdgeFunction(payload) {
+  try {
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) { console.error("❌ Edge Function Error:", await response.text()); return; }
+    console.log("✅ Saved to Supabase");
+  } catch (err) { console.error("⚠️ Edge Function Error:", err); }
+}
+
+// Sends exactly once per completed rule group (5 sentences = 1 "page").
+// quest_id is unique per rule group (1-36, its fixed position in RULE_GROUPS,
+// not shuffle order) and encodes the outcome with singular/plural only:
+// "Speech Rule N"  = mastered — every one of the 5 sentences solved on the first tap
+// "Speech Rules N" = practiced — at least one sentence needed a retry after a wrong tap
+function submitRuleToSupabase(){
+  const timeSpent = Math.round((Date.now()-ruleStartTime)/1000);
+  const ruleNumber = currentGroupIdx + 1;
+  const questId = (ruleHadMistake ? "Speech Rules " : "Speech Rule ") + ruleNumber;
+  const payload = {
+    student_name: playerName,
+    department: playerDept,
+    correct: ruleCorrectTaps,
+    wrong: ruleWrongTaps,
+    time_spent: timeSpent,
+    quest_id: questId,
+    score: ruleScore,
+    sentences_pressed: currentForms.flat().length
+  };
+  sendViaEdgeFunction(payload);
+  // Keep the local historical baseline in sync so it's consistent for the
+  // rest of this session even before the server round-trip is confirmed.
+  if(ruleHadMistake){
+    if(loadedRuleStatus.get(currentGroupIdx) !== 'mastered') loadedRuleStatus.set(currentGroupIdx, 'practiced');
+  } else {
+    loadedRuleStatus.set(currentGroupIdx, 'mastered');
+  }
+}
+
+/* ═══════════════ END GAME ═══════════════ */
+function endGame(){
+  gameActive=false;
+  clearInterval(timerInterval);
+  setTimeout(showEndScreen,250);
+}
+
+function showEndScreen(){
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('endScreen').classList.add('active');
+
+  const tm=[[1200,'🎭 Virtuoso!'],[850,'🏛️ Rhetorician'],[550,'🎙️ Full Orator'],[300,'📖 Confident Narrator'],[120,'🗣️ Rising Speaker'],[0,'🤫 First Whisper']];
+  document.getElementById('endTitle').textContent=(tm.find(([m])=>score>=m)||tm[tm.length-1])[1];
+  document.getElementById('endSubtitle').textContent=`${playerName} · ${playerDept} · ${getRank(score).name}`;
+  document.getElementById('endScore').textContent=score;
+  document.getElementById('endSentences').textContent=completedCount;
+
+  const totalTaps = correctTaps+wrongTaps;
+  document.getElementById('endAccuracy').textContent = totalTaps ? Math.round(correctTaps/totalTaps*100)+'%' : '100%';
+
+  const list=document.getElementById('endSentencesList');
+  list.innerHTML='';
+  const rulesToShow = ruleArchive.slice();
+  if(currentForms.length){
+    rulesToShow.push({ name: currentGroup.name, forms: currentForms.flat() });
+  }
+
+  if(!rulesToShow.length){
+    list.innerHTML='<span style="color:var(--ink-muted);font-size:.9rem;">No lines delivered this round.</span>';
+  } else {
+    rulesToShow.slice().reverse().forEach((rule,i)=>{
+      const div=document.createElement('div');
+      div.className='end-specimen-card';
+      div.style.animationDelay=(i*0.06)+'s';
+      div.innerHTML = `<div class="arc-rule">${rule.name}</div>` +
+        rule.forms.map(f=>`<div class="arc-line">${f.text}</div>`).join('');
+      list.appendChild(div);
+    });
+  }
+
+  document.getElementById('btnPlayAgain').onclick=()=>{
+    document.getElementById('endScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    newGame();
+  };
+  document.getElementById('btnShare').onclick=shareResult;
+}
+
+function shareResult(){
+  const top = completedList.slice().sort((a,b)=>b.pts-a.pts).slice(0,3).map(s=>`"${s.text}" (+${s.pts}) [${s.rule}]`).join('\n');
+  const msg=`🎭 Speech with Verve\n${playerName} (${playerDept})\nScore: ${score} pts · Time: ${document.getElementById('timerText').textContent} · ${completedCount} sentences · ${getRank(score).name}\n${top?'\nTop lines:\n'+top+'\n':''}\nDeliver your own lines!`;
+  if(navigator.share){
+    navigator.share({title:'Speech with Verve',text:msg}).catch(()=>{});
+  } else {
+    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  }
+}
+
+// Expose the handlers that are still wired via inline onclick="" in the HTML
+// (module scripts don't put top-level functions on window automatically).
+window.openStudy = openStudy;
+window.setStudyCefrFilter = setStudyCefrFilter;
+window.setStudyPracticedFilter = setStudyPracticedFilter;
+window.handleStudySearch = handleStudySearch;
+window.practiceRuleFromStudy = practiceRuleFromStudy;
+</script>
+</body>
+</html>
