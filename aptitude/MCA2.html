@@ -177,7 +177,7 @@
             <div class="candidate-chip" id="candidateChip"></div>
             <div class="test-info">
                 <div class="info-item"><div class="number">20</div><div class="label">Questions</div></div>
-                <div class="info-item"><div class="number">10</div><div class="label">Minutes</div></div>
+                <div class="info-item"><div class="number">20</div><div class="label">Minutes</div></div>
                 <div class="info-item"><div class="number">1</div><div class="label">Mark/Q</div></div>
             </div>
             <ul class="topic-list">
@@ -185,8 +185,8 @@
                 <li>Blood Relations <span class="topic-weight">2 Qs</span></li>
                 <li>Direction Sense <span class="topic-weight">2 Qs</span></li>
                 <li>Coding-Decoding <span class="topic-weight">3 Qs</span></li>
-                <li>Inequalities <span class="topic-weight">2 Qs</span></li>
-                <li>Alphanumeric Series <span class="topic-weight">2 Qs</span></li>
+                <li>Verbal Ability <span class="topic-weight">3 Qs</span></li>
+                <li>Alphanumeric Series <span class="topic-weight">1 Q</span></li>
                 <li>Order & Ranking <span class="topic-weight">1 Q</span></li>
                 <li>Linear Seating <span class="topic-weight">1 Q</span></li>
                 <li>Word Formation <span class="topic-weight">2 Qs</span></li>
@@ -204,7 +204,7 @@
         <div class="header">
             <div class="timer" id="timer">
                 <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/></svg>
-                <span id="timerText">10:00</span>
+                <span id="timerText">20:00</span>
             </div>
             <div class="progress-text"><span id="currentQ">1</span> / <span id="totalQ">20</span></div>
             <div class="cheat-counter" id="cheatCounter"><span>🛡</span><span id="cheatCount">0</span></div>
@@ -245,7 +245,7 @@
                 <ul id="cheatList"></ul>
             </div>
             <div class="topic-breakdown"><h4>Topic Breakdown</h4><div id="breakdownContainer"></div></div>
-            <button class="btn btn-primary" onclick="reviewAnswers()">Review Answers</button>
+            <button class="btn btn-primary" onclick="reviewAnswers()" style="display:none;" disabled>Review Answers</button>
             <button class="btn btn-secondary" style="margin-top:8px;" onclick="location.reload()">Retake Test</button>
         </div>
     </div>
@@ -263,19 +263,19 @@ const questions = [
     { id: 7, topic: 'Coding-Decoding', question: 'In a certain code, COMPUTER is written as RFUVQNPC. How is MEDICINE written?', options: ['EOJDJEFM', 'EOJDEJFM', 'MFEJDJOE', 'MFEDJJOE', 'None'], correct: 0, explanation: 'Reverse the word, then shift every middle letter forward by one place, keeping the first and last letters unchanged. MEDICINE reversed is ENICIDEM; shifting the middle six letters (N I C I D E → O J D J E F) gives E-O-J-D-J-E-F-M.' },
     { id: 8, topic: 'Coding-Decoding', question: 'If ROSE is coded as 6821, CHAIR as 73456 and PREACH as 961473, what is the code for SEARCH?', options: ['246173', '214673', '214763', '216473', 'None'], correct: 1, explanation: 'From the codes: R=6, O=8, S=2, E=1, C=7, H=3, A=4, I=5, P=9. So SEARCH = S(2) E(1) A(4) R(6) C(7) H(3) = 214673.' },
     { id: 9, topic: 'Coding-Decoding', question: 'In a certain code, \'sky is blue\' is written as \'ra ta ma\', \'blue sea deep\' is written as \'ma pa na\', and \'sea looks blue\' is written as \'pa ma ka\'. What is the code for \'sea\'?', options: ['ra', 'ta', 'ma', 'pa', 'na'], correct: 3, explanation: '\'ma\' is common to all three coded sentences and \'blue\' is common to all three word-sets, so ma = blue. \'pa\' is common to sentences 2 and 3, matching \'sea\', which is common to those same two sentences — so pa = sea.' },
-    { id: 10, topic: 'Inequalities', question: 'Statements: A > B, B ≥ C, C < D\\nConclusions: I. A > C II. D > A', options: ['Only I true', 'Only II true', 'Either I or II', 'Neither I nor II', 'Both I and II'], correct: 0, explanation: 'A > B ≥ C gives A > C, so I is true. Nothing links D and A directly, so II cannot be determined.' },
-    { id: 11, topic: 'Inequalities', question: 'Statements: X = Y ≥ Z, Z < W ≤ V\\nConclusions: I. Y ≥ W II. V > Z', options: ['Only I true', 'Only II true', 'Either I or II', 'Neither I nor II', 'Both I and II'], correct: 1, explanation: 'Y ≥ Z < W does not establish any relation between Y and W, so I is not valid. Since W ≤ V and Z < W, we get Z < W ≤ V, so V > Z is true — II is valid.' },
-    { id: 12, topic: 'Alphanumeric Series', question: 'Find the missing term: 2, 6, 12, 20, 30, 42, ?', options: ['50', '52', '54', '56', '60'], correct: 3, explanation: 'The differences between consecutive terms rise by 2 each time (4, 6, 8, 10, 12, 14), so 42 + 14 = 56. (Equivalently, each term is n×(n+1); the 7th term is 7×8 = 56.)' },
-    { id: 13, topic: 'Alphanumeric Series', question: 'How many letter pairs in \'CORPORATE\' have as many letters between them (counting positions in the word) as they have between them in the English alphabet?', options: ['None', 'One', 'Two', 'Three', 'More than three'], correct: 4, explanation: 'Checking pairs against their alphabet gap: P-O (0 letters between, matches), P-R (1 between, matches), P-T (3 between, matches), and R-T (1 between, matches). That gives 4 valid pairs — more than three.' },
+    { id: 10, topic: 'Verbal Ability', question: 'Choose the word most similar in meaning to the word: AUDACIOUS', options: ['Bold', 'Timid', 'Cautious', 'Humble', 'Reserved'], correct: 0, explanation: 'Audacious means showing a willingness to take bold risks; its closest synonym among the options is Bold.' },
+    { id: 11, topic: 'Verbal Ability', question: 'Choose the word most opposite in meaning to the word: BENEVOLENT', options: ['Malevolent', 'Generous', 'Compassionate', 'Friendly', 'Genuine'], correct: 0, explanation: 'Benevolent means kind and well-meaning. Its direct opposite is Malevolent, which means having or showing a wish to do evil to others.' },
+    { id: 12, topic: 'Verbal Ability', question: 'Choose the word that means: \'A person who is unable to read or write.\'', options: ['Illiterate', 'Illegible', 'Ineligible', 'Incoherent', 'Indolent'], correct: 0, explanation: 'Illiterate specifically means unable to read or write. Illegible describes handwriting that cannot be read, Ineligible means not qualified, Incoherent means unclear/disorganized speech, and Indolent means lazy — none of which fit the definition given.' },
+    { id: 13, topic: 'Alphanumeric Series', question: 'How many letter pairs in \'CORPORATE\' have as many letters between them (counting positions in the word) as they have between them in the English alphabet?', options: ['None', 'One', 'Two', 'Three', 'More than three'], correct: 4, explanation: 'Checking every possible letter pair in CORPORATE (comparing the gap between their positions in the word to the gap between their letters in the alphabet) turns up exactly four matches: P-O (0 letters between both ways), P-R (1 letter between both ways), P-T (3 letters between both ways), and R-T (1 letter between both ways). Since four pairs satisfy the condition, the answer is more than three.' },
     { id: 14, topic: 'Word Formation', question: 'If it is possible to make only one meaningful English word with the 2nd, 5th, 6th and 10th letters of the word STREAMLINE, which of the following will be the third letter of that word (counting from the left)? If no such word can be made, give \'X\' as the answer, and if more than one such word can be made, give \'Y\' as the answer.', options: ['E', 'A', 'M', 'X', 'Y'], correct: 4, explanation: 'S-T-R-E-A-M-L-I-N-E: the 2nd, 5th, 6th and 10th letters are T, A, M, E. These four letters can form more than one meaningful word — TEAM, TAME, MATE, and MEAT are all valid. Since more than one word is possible, the answer is Y.' },
-    { id: 15, topic: 'Order & Ranking', question: 'In a class of 60 students, girls are twice the number of boys. Kamal ranks 17th from the top. If there are 9 girls ahead of Kamal, how many boys are after him?', options: ['3', '7', '12', '23', '32'], correct: 2, explanation: 'Girls = 40, Boys = 20. Students after Kamal = 60 − 17 = 43. Since 9 girls are ahead of him, girls after him = 40 − 9 = 31. So boys after him = 43 − 31 = 12.' },
+    { id: 15, topic: 'Order & Ranking', question: 'In a class of 60 students, girls are twice the number of boys. Kamal ranks 17th from the top. If there are 9 girls ahead of Kamal, how many boys are after him?', options: ['3', '7', '12', '23', '32'], correct: 2, explanation: 'Total = 60, so girls = 40 and boys = 20. Kamal is 17th from the top, so 16 students are ahead of him; of those, 9 are girls, leaving 7 boys ahead. That accounts for 7 boys ahead + Kamal himself, which only balances if Kamal is a boy (otherwise boys ahead + boys after could never total 20). So boys after him = 20 − 7 (ahead) − 1 (Kamal) = 12.' },
     { id: 16, topic: 'Word Formation', question: 'If it is possible to make only one meaningful English word with the 5th, 6th, 7th and 8th letters of the word PASSWORD, which of the following will be the second letter of that word (counting from the left)? If no such word can be made, give \'X\' as the answer, and if more than one such word can be made, give \'Y\' as the answer.', options: ['W', 'O', 'R', 'X', 'Y'], correct: 1, explanation: 'P-A-S-S-W-O-R-D: the 5th, 6th, 7th and 8th letters are W, O, R, D — and the only meaningful English word these letters can form is WORD. No other rearrangement (e.g. DOWR, ROWD) is a valid word, so exactly one word is possible, and its second letter is O.' },
     { id: 17, topic: 'Linear Seating', question: 'Six persons A, B, C, D, E, F sit in a row facing north. B is at the extreme right. D is to the immediate left of B. E and F occupy the centre positions. C is to the immediate left of A. Who is at the extreme left?', options: ['A', 'C', 'D', 'E', 'F'], correct: 1, explanation: 'B is at position 6, D at position 5, and E, F occupy the centre seats (3 and 4). C is immediately left of A, so C and A must occupy positions 1 and 2 — meaning C is at the extreme left.' },
     { id: 18, topic: 'Puzzles', question: 'P, Q, R, S, T attend a conference from Monday to Friday. R attends on Tuesday. Q attends immediately after R. P attends before S. T attends after S. Who attends on Friday?', options: ['P', 'Q', 'R', 'S', 'T'], correct: 4, explanation: 'R is on Tuesday and Q immediately after, so Q is on Wednesday. That leaves Monday, Thursday and Friday for P, S and T. Since P must be before S and T must be after S, the only fit is P on Monday, S on Thursday and T on Friday.' },
     { id: 19, topic: 'Puzzles', question: 'Six persons visit a museum from Monday to Saturday. A visits before D. C visits immediately after B. E visits on Wednesday. F visits after D but before C. Who visits on Saturday?', options: ['A', 'B', 'C', 'D', 'F'], correct: 2, explanation: 'E is fixed on Wednesday. Working through the constraints (A before D before F before C, with B immediately before C) gives the unique order: A-Mon, D-Tue, E-Wed, F-Thu, B-Fri, C-Sat. So Saturday belongs to C.' },
     { id: 20, topic: 'Puzzles', question: 'Five lectures are scheduled from Monday to Friday. Chemistry is on Wednesday. Biology is immediately followed by English. Biology is on Monday. Maths is before Physics. Which lecture is on Friday?', options: ['Math', 'Physics', 'Chemistry', 'Biology', 'English'], correct: 1, explanation: 'Biology is Monday, so English (immediately after) is Tuesday, and Chemistry is fixed on Wednesday. That leaves Thursday and Friday for Maths and Physics; since Maths must come before Physics, Maths is Thursday and Physics is Friday.' }
 ];
-let currentQuestion = 0, answers = {}, timeLeft = 600, timerInterval, testSubmitted = false, startTime, cheatEvents = [], cheatCount = 0, isPaused = false, studentName = '', studentDept = 'MCA';
+let currentQuestion = 0, answers = {}, timeLeft = 1200, timerInterval, testSubmitted = false, startTime, cheatEvents = [], cheatCount = 0, isPaused = false, studentName = '', studentDept = 'MCA';
 
 function submitStudentInfo() {
     const nameVal = document.getElementById('studentNameInput').value.trim();
