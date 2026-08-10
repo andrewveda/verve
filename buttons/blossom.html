@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -109,6 +110,33 @@
     @keyframes pop-in { from{transform:scale(0.6);opacity:0} to{transform:scale(1);opacity:1} }
     .found-word.pangram { background:#fff8e6; border-color:var(--gold); color:#b07010; }
     .found-word.pangram::before { content:'★ '; }
+
+    
+    /* Discovery & Stars */
+    .discovery-pct { font-family:'Playfair Display',serif; font-size:clamp(1.1rem,3dvh,1.5rem); font-weight:900; color:var(--stem); line-height:1; transition:color 0.3s; }
+    .stars { font-size:clamp(0.8rem,2dvh,1.1rem); letter-spacing:2px; color:var(--gold); transition:transform 0.3s var(--ease); }
+    .star-pop { animation:starPop 0.45s cubic-bezier(.2,1.5,.4,1); }
+    @keyframes starPop { 0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)} }
+
+    /* Cheat overlay — full-screen warning */
+    .cheat-overlay { position:fixed; inset:0; background:rgba(42,31,26,0.94); z-index:300; display:none; flex-direction:column; align-items:center; justify-content:center; color:#fff; text-align:center; padding:24px; backdrop-filter:blur(10px); }
+    .cheat-overlay.active { display:flex; animation:fadeIn 0.25s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .cheat-overlay h2 { font-family:'Playfair Display',serif; font-size:clamp(1.6rem,5dvh,2.2rem); color:var(--center); margin-bottom:8px; }
+    .cheat-overlay p { font-size:clamp(0.9rem,2.2dvh,1.1rem); color:#c8b8a8; max-width:340px; margin-bottom:20px; line-height:1.5; }
+    .cheat-count-big { font-size:clamp(3rem,10dvh,5rem); font-weight:900; font-family:'Playfair Display',serif; color:var(--gold); line-height:1; }
+    .cheat-badge { display:none; align-items:center; gap:4px; background:#fff0ee; border:1.5px solid #f4a3b5; color:var(--center); padding:3px 10px; border-radius:99px; font-size:0.72rem; font-weight:700; white-space:nowrap; animation:pop-in 0.3s var(--ease); }
+    .cheat-badge.show { display:flex; }
+
+    /* Long word celebration */
+    .toast.bonus { background:linear-gradient(135deg,var(--gold),#c88010); }
+
+    /* End screen discovery */
+    .stat-box.discovery { background:linear-gradient(135deg,#f0f8f2,#e8f5e9); border-color:#4a8c5c; }
+    .stat-box.cheats { background:#fff0ee; border-color:#f4a3b5; }
+    .stat-box.cheats.clean { background:#f0f8f2; border-color:#c8e8d4; }
+    .stat-box.cheats.clean .stat-num { color:var(--stem); }
+    .stat-box.cheats .stat-num { color:var(--center); }
 
     /* ══ END SCREEN ══ */
     #endScreen { justify-content:flex-start; padding:30px 16px 50px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
@@ -227,6 +255,7 @@
   animation: petalRipple 0.5s var(--ease) forwards;
 }
   </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -246,6 +275,7 @@
         <button class="icon-btn" id="btn-new" aria-label="New puzzle">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
         </button>
+        <div class="cheat-badge" id="cheatBadge"><span>⚠️</span><span id="cheatCount">0</span></div>
       </div>
       <div class="brand"><h1>Bloss<span>✿</span>m</h1></div>
       <div class="timer-pill">
@@ -264,9 +294,16 @@
     <div class="stat-strip">
       <div class="stat-strip-top">
         <span class="rank-name" id="rank-name">Seedling 🌱</span>
-        <span class="stat-nums"><b id="score">0</b> pts · <b id="word-count">0</b> words · best <b id="best-score">0</b></span>
+        <div style="text-align:right;">
+          <div class="discovery-pct" id="discovery-pct">0%</div>
+          <div class="stars" id="star-rating">☆☆☆☆☆</div>
+        </div>
       </div>
-      <div class="rank-track"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+        <span class="stat-nums"><b id="word-count">0</b> / <b id="total-possible">0</b> found</span>
+        <span class="stat-nums" id="score-wrap" style="opacity:0.55;"><b id="score">0</b> pts · best <b id="best-score">0</b></span>
+      </div>
+      <div class="rank-track" style="margin-top:6px;"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
     </div>
 
     <div class="input-row">
@@ -296,15 +333,31 @@
   </div>
 </div>
 
+<!-- Cheat Warning Overlay -->
+<div class="cheat-overlay" id="cheatOverlay">
+  <div style="font-size:3rem;margin-bottom:8px;">👁️</div>
+  <h2>Focus Check</h2>
+  <p>Switching tabs or leaving the window is detected to keep the game fair for everyone.</p>
+  <div class="cheat-count-big" id="cheatOverlayCount">0</div>
+  <p style="margin-top:8px;">focus event<span id="cheatPlural">s</span> recorded</p>
+  <button class="btn-enter" onclick="dismissCheatWarning()" style="margin-top:24px;min-width:140px;">I'm Back</button>
+</div>
+
 <!-- ══ END SCREEN ══ -->
 <div class="screen" id="endScreen">
   <div class="end-card">
     <div class="end-title" id="endTitle">🌸 Time's Up!</div>
     <div class="end-subtitle" id="endSubtitle">Blossom Word Game</div>
     <div class="end-stats">
+      <div class="stat-box discovery">
+        <div class="stat-num" id="endDiscovery" style="font-size:1.7rem;">0%</div>
+        <div class="stat-lbl" id="endStars" style="color:var(--gold);letter-spacing:2px;font-size:0.9rem;">☆☆☆☆☆</div>
+      </div>
       <div class="stat-box"><div class="stat-num" id="endScore">0</div><div class="stat-lbl">Score</div></div>
       <div class="stat-box"><div class="stat-num" id="endWords">0</div><div class="stat-lbl">Words Found</div></div>
       <div class="stat-box"><div class="stat-num" id="endPangrams">0</div><div class="stat-lbl">Pangrams ★</div></div>
+      <div class="stat-box"><div class="stat-num" id="endLongest">—</div><div class="stat-lbl">Longest Word</div></div>
+      <div class="stat-box" id="cheatBox"><div class="stat-num" id="endCheats">0</div><div class="stat-lbl" id="cheatLabel">Focus Events</div></div>
     </div>
  <!-- Identity -->
     <div class="identity-section">
@@ -317,7 +370,6 @@
         <input type="text" id="playerName" placeholder="Your name" maxlength="60"/>
         <select id="playerDept">
           <option value="">— Select Department —</option>
-          <option>CSI Ewart</option>
           <option value="Cyber Security">Cyber Security</option>
           <option value="EIE">EIE</option>
           <option value="CSE-1">CSE-1</option><option value="CSE-2">CSE-2</option><option value="CSE-3">CSE-3</option>
@@ -1496,6 +1548,11 @@ let score=0, bestScore=parseInt(localStorage.getItem(BEST_KEY)||'0');
 let validating=false;
 let timeLeft=GAME_SECS, timerInterval=null, gameActive=false;
 let allPossibleWords=[];  // computed at end
+let totalPossibleWords=[]; // all valid words for this puzzle (computed at start)
+let cheatEvents=[];        // {type,time,timeLeft,wordAtTime}
+let longestWord='';
+let lastCheatTime=0;
+let cheatWarningTimer=null;
 
 /* ═══════════════════════════════════════════════
    INIT
@@ -1514,13 +1571,21 @@ function newPuzzle() {
   gameActive   = true;
   timeLeft     = GAME_SECS;
   allPossibleWords = [];
+  totalPossibleWords = getCandidateWords();
+  cheatEvents  = [];
+  longestWord  = '';
+  lastCheatTime= 0;
   updateScoreDisplay();
   updateFoundList();
+  updateDiscoveryDisplay();
   renderFlower();
   renderInput();
   updateTimerDisplay();
   updateArc();
   startTimer();
+  document.getElementById('cheatBadge').classList.remove('show');
+  document.getElementById('cheatCount').textContent='0';
+  document.getElementById('total-possible').textContent=totalPossibleWords.length;
 }
 
 /* ═══════════════════════════════════════════════
@@ -1673,11 +1738,15 @@ function submitWord() {
   const pts=wordScore(word);
   score+=pts; foundWords.add(word);
   if (isPangram(word)) pangrams.push(word);
+  if (word.length > longestWord.length) longestWord = word;
   currentWord=''; renderInput();
-  updateScoreDisplay(); updateFoundList();
-  let msg=pts===1?'+1 point':`+${pts} points`;
-  if (isPangram(word)) msg='★ Pangram! '+msg;
-  showToast(msg,'good');
+  updateScoreDisplay(); updateFoundList(); updateDiscoveryDisplay();
+  let msg='', toastType='good';
+  if (isPangram(word)) { msg='★ Pangram! +'+pts; }
+  else if (word.length >= 7) { msg=`🔥 ${word.length} letters! +${pts}`; toastType='bonus'; }
+  else if (word.length === 4) { msg='+1 point'; }
+  else { msg=`+${pts} points`; }
+  showToast(msg,toastType);
   document.getElementById('word-display').classList.add('success');
   setTimeout(()=>document.getElementById('word-display').classList.remove('success'),700);
   if (navigator.vibrate) navigator.vibrate(isPangram(word) ? [20,40,20] : 18);
@@ -1733,6 +1802,81 @@ function updateFoundList() {
     span.className='found-word'+(isPangram(w)?' pangram':'');
     span.textContent=w; list.appendChild(span);
   });
+}
+
+/* ═══════════════════════════════════════════════
+   DISCOVERY % & STARS
+═══════════════════════════════════════════════ */
+function getDiscoveryPct() {
+  if (!totalPossibleWords.length) return 0;
+  return Math.round((foundWords.size / totalPossibleWords.length) * 100);
+}
+
+function getStarRating(pct) {
+  if (pct >= 100) return '★★★★★';
+  if (pct >= 80)  return '★★★★☆';
+  if (pct >= 60)  return '★★★☆☆';
+  if (pct >= 40)  return '★★☆☆☆';
+  if (pct >= 20)  return '★☆☆☆☆';
+  return '☆☆☆☆☆';
+}
+
+function updateDiscoveryDisplay() {
+  const pct = getDiscoveryPct();
+  const pctEl = document.getElementById('discovery-pct');
+  const starEl = document.getElementById('star-rating');
+  pctEl.textContent = pct + '%';
+  const newStars = getStarRating(pct);
+  if (starEl.textContent !== newStars) {
+    starEl.textContent = newStars;
+    starEl.classList.remove('star-pop');
+    void starEl.offsetWidth;
+    starEl.classList.add('star-pop');
+  }
+  // Rank fill driven by discovery % instead of score
+  const thresholds = [0,20,40,60,80,100];
+  let prev = 0, next = 100;
+  for (let i = 0; i < thresholds.length - 1; i++) {
+    if (pct >= thresholds[i] && pct < thresholds[i+1]) { prev = thresholds[i]; next = thresholds[i+1]; break; }
+    if (pct >= 100) { prev = 80; next = 100; }
+  }
+  const denom = next - prev;
+  const fillPct = denom > 0 ? Math.min(100, ((pct - prev) / denom) * 100) : 100;
+  document.getElementById('rank-fill').style.width = fillPct + '%';
+  const ri = RANKS.slice().reverse().find(r => pct >= r.min) || RANKS[0];
+  document.getElementById('rank-name').textContent = ri.name;
+}
+
+/* ═══════════════════════════════════════════════
+   ANTI-CHEAT
+═══════════════════════════════════════════════ */
+function recordCheat(type) {
+  if (!gameActive) return;
+  const now = Date.now();
+  // Debounce: ignore events within 1.5s of last recorded cheat
+  if (now - lastCheatTime < 1500) return;
+  lastCheatTime = now;
+  cheatEvents.push({ type, time: now, timeLeft, wordAtTime: currentWord });
+  const badge = document.getElementById('cheatBadge');
+  const countEl = document.getElementById('cheatCount');
+  badge.classList.add('show');
+  countEl.textContent = cheatEvents.length;
+  showCheatWarning();
+}
+
+function showCheatWarning() {
+  const overlay = document.getElementById('cheatOverlay');
+  const countEl = document.getElementById('cheatOverlayCount');
+  const pluralEl = document.getElementById('cheatPlural');
+  countEl.textContent = cheatEvents.length;
+  pluralEl.textContent = cheatEvents.length === 1 ? '' : 's';
+  overlay.classList.add('active');
+  clearTimeout(cheatWarningTimer);
+  cheatWarningTimer = setTimeout(() => overlay.classList.remove('active'), 3500);
+}
+
+function dismissCheatWarning() {
+  document.getElementById('cheatOverlay').classList.remove('active');
 }
 
 function getRankName(pts) {
@@ -1806,13 +1950,30 @@ function showEndScreen() {
   document.getElementById('gameScreen').classList.remove('active');
   document.getElementById('endScreen').classList.add('active');
 
-  // Title
-  const tm=[[120,'🏆 Garden Genius!'],[80,'🌻 Flourishing!'],[50,'🌺 Blooming!'],[25,'🌸 Budding!'],[0,'🌱 Good effort!']];
-  document.getElementById('endTitle').textContent=(tm.find(([m])=>score>=m)||tm[4])[1];
-  document.getElementById('endSubtitle').textContent=`Blossom · ${foundWords.size} word${foundWords.size!==1?'s':''} · Rank: ${getRankName(score)}`;
+  // Title driven by Discovery %
+  const discoveryPct = getDiscoveryPct();
+  const tm=[[100,'🏆 Perfect Bloom!'],[80,'🌻 Flourishing!'],[60,'🌺 Blooming!'],[40,'🌸 Budding!'],[20,'🌱 Sprouting!'],[0,'🌱 Good effort!']];
+  document.getElementById('endTitle').textContent=(tm.find(([m])=>discoveryPct>=m)||tm[5])[1];
+  document.getElementById('endSubtitle').textContent=`Blossom · ${foundWords.size}/${totalPossibleWords.length} words · Discovery: ${discoveryPct}% ${getStarRating(discoveryPct)}`;
+
   document.getElementById('endScore').textContent=score;
   document.getElementById('endWords').textContent=foundWords.size;
   document.getElementById('endPangrams').textContent=pangrams.length;
+
+  // NEW metrics
+  document.getElementById('endDiscovery').textContent = discoveryPct + '%';
+  document.getElementById('endStars').textContent = getStarRating(discoveryPct);
+  document.getElementById('endLongest').textContent = longestWord || '—';
+  document.getElementById('endCheats').textContent = cheatEvents.length;
+  const cheatBox = document.getElementById('cheatBox');
+  const cheatLabel = document.getElementById('cheatLabel');
+  if (cheatEvents.length === 0) {
+    cheatBox.classList.add('clean');
+    cheatLabel.textContent = 'Perfect Focus 🎯';
+  } else {
+    cheatBox.classList.remove('clean');
+    cheatLabel.textContent = 'Focus Events';
+  }
 
   // Words YOU found
   const foundGrid=document.getElementById('endWordsFound');
@@ -1971,12 +2132,21 @@ function generateStatsImage() {
   ctx.font='28px sans-serif'; ctx.fillStyle='#8a7060';
   ctx.fillText('TOTAL SCORE', W/2, 800);
 
+  // Discovery & Stars
+  const discoveryPct = getDiscoveryPct();
+  ctx.font='bold 56px Georgia,serif'; ctx.fillStyle='#4a8c5c'; ctx.textAlign='center';
+  ctx.fillText(discoveryPct+'%', W/2, 850);
+  ctx.font='40px serif'; ctx.fillStyle='var(--gold)';
+  ctx.fillText(getStarRating(discoveryPct), W/2, 890);
+  ctx.font='24px sans-serif'; ctx.fillStyle='#8a7060';
+  ctx.fillText('DISCOVERY', W/2, 920);
+
   // Sub stats
-  const subY=900;
+  const subY=960;
   const stats=[
-    {v:foundWords.size, l:'Words Found'},
+    {v:foundWords.size+'/'+totalPossibleWords.length, l:'Words Found'},
     {v:pangrams.length, l:'Pangrams ★'},
-    {v:getRankName(score).split(' ')[0], l:'Rank'},
+    {v:longestWord||'—', l:'Longest'},
   ];
   stats.forEach((s,i)=>{
     const x=160+i*280;
@@ -2046,6 +2216,11 @@ function generateStatsImage() {
     ctx.fillText(l.toUpperCase(),lx,ly+12);
   });
 
+  // ── Focus / Cheat line ──
+  if (cheatEvents.length > 0) {
+    ctx.font='bold 26px sans-serif'; ctx.fillStyle='#e04e35'; ctx.textAlign='center';
+    ctx.fillText(`⚠️ ${cheatEvents.length} focus event${cheatEvents.length>1?'s':''} detected`, W/2, H-100);
+  }
   // ── Footer ──
   ctx.font='24px sans-serif'; ctx.fillStyle='#8a7060'; ctx.textAlign='center';
   ctx.fillText('🌸  play at andrewveda.github.io ', W/2, H-60);
@@ -2095,6 +2270,28 @@ function submitScore(name,dept) {
 }
 
 /* ═══════════════════════════════════════════════
+   ANTI-CHEAT EVENT LISTENERS
+═══════════════════════════════════════════════ */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && gameActive) recordCheat('tab_switch');
+});
+
+window.addEventListener('blur', () => {
+  if (gameActive) recordCheat('window_blur');
+});
+
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && gameActive && timeLeft < GAME_SECS - 3) {
+    recordCheat('fullscreen_exit');
+  }
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  if (!document.webkitFullscreenElement && gameActive && timeLeft < GAME_SECS - 3) {
+    recordCheat('fullscreen_exit');
+  }
+});
+
+/* ═══════════════════════════════════════════════
    SHARE — image + text to WhatsApp
 ═══════════════════════════════════════════════ */
 async function shareResult(name, dept) {
@@ -2131,5 +2328,6 @@ async function shareResult(name, dept) {
   }
 }
 </script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"14ed74a8395a4caaabc04f8e17f83022","r":1}' crossorigin="anonymous"></script>
 </body>
 </html>
