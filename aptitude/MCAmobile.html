@@ -182,16 +182,15 @@
                 <div class="info-item"><div class="number">1</div><div class="label">Mark/Q</div></div>
             </div>
             <ul class="topic-list">
-                <li>Syllogism <span class="topic-weight">2 Qs</span></li>
-                <li>Blood Relations <span class="topic-weight">2 Qs</span></li>
-                <li>Direction Sense <span class="topic-weight">2 Qs</span></li>
-                <li>Coding-Decoding <span class="topic-weight">3 Qs</span></li>
-                <li>Verbal Ability <span class="topic-weight">3 Qs</span></li>
-                <li>Alphanumeric Series <span class="topic-weight">1 Q</span></li>
-                <li>Order & Ranking <span class="topic-weight">1 Q</span></li>
-                <li>Linear Seating <span class="topic-weight">1 Q</span></li>
-                <li>Word Formation <span class="topic-weight">2 Qs</span></li>
-                <li>Puzzles (Day/Month) <span class="topic-weight">3 Qs</span></li>
+             <li>Syllogism <span class="topic-weight">2 Qs</span></li>
+<li>Blood Relations <span class="topic-weight">2 Qs</span></li>
+<li>Direction Sense <span class="topic-weight">2 Qs</span></li>
+<li>Coding-Decoding <span class="topic-weight">3 Qs</span></li>
+<li>Verbal Ability <span class="topic-weight">4 Qs</span></li>
+<li>Order & Ranking <span class="topic-weight">1 Q</span></li>
+<li>Linear Seating <span class="topic-weight">1 Q</span></li>
+<li>Word Formation <span class="topic-weight">2 Qs</span></li>
+<li>Puzzles (Day/Month) <span class="topic-weight">3 Qs</span></li>
             </ul>
             <div class="security-notice">
                 <strong>🔒 Secure Test Environment</strong>
@@ -259,6 +258,11 @@
 // Coding-Decoding(3), Verbal Ability(3), Alphanumeric Series(1), Order & Ranking(1),
 // Linear Seating(1), Word Formation(2), Puzzles(3)
 
+// SET B — Reasoning Ability Mock Test
+// Same topic distribution as Set A: Syllogism(2), Blood Relations(2), Direction Sense(2),
+// Coding-Decoding(3), Verbal Ability(3), Alphanumeric Series(1), Order & Ranking(1),
+// Linear Seating(1), Word Formation(2), Puzzles(3)
+
 const questions = [
     { id: 1, topic: 'Syllogism', question: 'Statements: All rivers are streams. Some streams are lakes. All lakes are ponds.\nConclusions: I. Some ponds are rivers. II. Some lakes are rivers.', options: ['Only I follows', 'Only II follows', 'Either I or II follows', 'Neither I nor II follows', 'Both I and II follow'], correct: 3, explanation: 'Neither conclusion follows. The chain of statements never establishes a definite link between rivers and lakes/ponds.' },
     { id: 2, topic: 'Syllogism', question: 'Statements: No cup is a plate. Some plates are bowls. All bowls are dishes.\nConclusions: I. Some dishes are plates. II. No dish is a cup.', options: ['Only I follows', 'Only II follows', 'Either I or II follows', 'Neither I nor II follows', 'Both I and II follow'], correct: 0, explanation: 'From "Some plates are bowls" and "All bowls are dishes", it follows that some plates are dishes. By valid conversion of an I-proposition, some dishes are plates — so Conclusion I follows. Conclusion II does not follow, because dishes may include objects other than bowls, so no definite relation between all dishes and cups can be established.' },
@@ -266,13 +270,13 @@ const questions = [
     { id: 4, topic: 'Blood Relations', question: "A is B's brother. C is B's father. D is C's mother. E is D's father. How is A related to E?", options: ['Grandson', 'Great-grandson', 'Son', 'Great-grandfather', 'Nephew'], correct: 1, explanation: "A is B's brother, so A is also C's son. D is C's mother, making D A's grandmother, and E is D's father — so E is A's great-grandfather, meaning A is E's great-grandson." },
     { id: 5, topic: 'Direction Sense', question: 'A man walks 6 km north, turns right, walks 4 km, turns right again, walks 6 km. In which direction is he from the starting point?', options: ['North', 'South', 'East', 'West', 'South-East'], correct: 2, explanation: 'Tracking coordinates: start (0,0) → 6 km North (0,6) → turn right (facing East), 4 km (4,6) → turn right (facing South), 6 km (4,0). The final point lies directly East of the start.' },
     { id: 6, topic: 'Direction Sense', question: 'One evening before sunset, Ramesh faces a pole. The shadow of the pole falls exactly to his left. Which direction is he facing?', options: ['East', 'North', 'West', 'South', 'Data inadequate'], correct: 3, explanation: "Before sunset the sun is in the West, so shadows fall toward the East. Facing South, a person's left hand points East — so a shadow falling to Ramesh's left means he is facing South." },
-    { id: 7, topic: 'Coding-Decoding', question: 'In a certain code, TABLE is written as UBCMF (every letter shifted one place forward in the alphabet). How is CHAIR written in the same code?', options: ['DIBJS', 'DIBIS', 'DIBJT', 'DHBJS', 'None'], correct: 0, explanation: 'Each letter is shifted forward by one place: C→D, H→I, A→B, I→J, R→S, giving DIBJS.' },
+    { id: 7, topic: 'Coding-Decoding', question: 'In a certain code, TABLE is written as UBCMF. How is CHAIR written in the same code?', options: ['DIBJS', 'DIBIS', 'DIBJT', 'DHBJS', 'None'], correct: 0, explanation: 'Each letter is shifted forward by one place: C→D, H→I, A→B, I→J, R→S, giving DIBJS.' },
     { id: 8, topic: 'Coding-Decoding', question: 'If TRAIN is coded as 12345, SMART as 67321, and PAINT as 83451, what is the code for SPRAIN?', options: ['682345', '682435', '624835', '682354', 'None of these'], correct: 0, explanation: 'From the codes: T=1, R=2, A=3, I=4, N=5, S=6, M=7, P=8. So SPRAIN = S(6) P(8) R(2) A(3) I(4) N(5) = 682345.' },
     { id: 9, topic: 'Coding-Decoding', question: "In a certain code, 'red is danger' is written as 'pa ta na', 'danger causes fear' is written as 'na ka la', and 'fear brings red' is written as 'ka pa da'. What is the code for 'danger'?", options: ['pa', 'ta', 'na', 'ka', 'la'], correct: 2, explanation: "'na' is the word common to the codes for the first two sentences, and 'danger' is the word common to those same two original sentences — so na = danger." },
     { id: 10, topic: 'Verbal Ability', question: 'Choose the word most similar in meaning to the word: PRUDENT', options: ['Wise', 'Foolish', 'Careless', 'Naive', 'Reckless'], correct: 0, explanation: 'Prudent means acting with care and good judgment; its closest synonym among the options is Wise.' },
     { id: 11, topic: 'Verbal Ability', question: 'Choose the word most opposite in meaning to the word: OPTIMISTIC', options: ['Pessimistic', 'Hopeful', 'Cheerful', 'Positive', 'Confident'], correct: 0, explanation: 'Optimistic means hopeful about the future. Its direct opposite is Pessimistic, expecting the worst outcome.' },
     { id: 12, topic: 'Verbal Ability', question: "Choose the word that means: 'A person who loves and collects books.'", options: ['Bibliophile', 'Philatelist', 'Numismatist', 'Cartographer', 'Bibliographer'], correct: 0, explanation: 'A Bibliophile is someone who loves and collects books. A Philatelist collects stamps, a Numismatist collects coins, a Cartographer makes maps, and a Bibliographer compiles lists of books — none of which match the definition given.' },
-    { id: 13, topic: 'Alphanumeric Series', question: 'Find the next number in the series: 2, 5, 10, 17, 26, 37, ?', options: ['48', '50', '52', '54', '56'], correct: 1, explanation: 'The differences between consecutive terms are 3, 5, 7, 9, 11 — consecutive odd numbers. The next difference is 13, so 37 + 13 = 50.' },
+    { id: 13, topic: 'Verbal Ability', question: 'How many seven-letter meaningful words (ending with E) can be formed from the word PERFUMELESS?', options: ['One', 'Two', 'Three', 'More than three', 'None'], correct: 4, explanation: 'Checking the available letters of PERFUMELESS (P, E, R, F, U, M, E, L, E, S, S) for every possible seven-letter combination ending in E turns up no valid, meaningful English word. So the answer is None.' },
     { id: 14, topic: 'Order & Ranking', question: "In a row of children, Sita is 12th from the left and Gita is 15th from the right. If they interchange their positions, Sita becomes 22nd from the left. How many children are there in the row?", options: ['32', '34', '36', '38', '40'], correct: 2, explanation: "After swapping, Sita takes Gita's original position, so Gita's original position from the left is 22. Position from left = Total − position from right + 1, so 22 = Total − 15 + 1, giving Total = 36." },
     { id: 15, topic: 'Linear Seating', question: 'Six friends P, Q, R, S, T, U sit in a row facing north. R is at the extreme left. S is to the immediate right of R. T and U occupy the two middle positions. Q is to the immediate right of P. Who is at the extreme right?', options: ['P', 'Q', 'T', 'U', 'S'], correct: 1, explanation: 'R and S occupy positions 1 and 2. Positions 3 and 4 are occupied by T and U, in either order — the clues do not fix which of them sits at 3 or 4, and it does not need to be fixed. That leaves positions 5 and 6 for P and Q, with Q immediately right of P — so P is at 5 and Q is at 6, the extreme right, regardless of how T and U are arranged.' },
     { id: 16, topic: 'Word Formation', question: "If it is possible to make only one meaningful English word with the 2nd, 3rd, 4th and 6th letters of the word FACTOR, which of the following will be the third letter of that word (counting from the left)? If no such word can be made, give 'X' as the answer, and if more than one such word can be made, give 'Y' as the answer.", options: ['C', 'A', 'R', 'X', 'Y'], correct: 2, explanation: "F-A-C-T-O-R: the 2nd, 3rd, 4th and 6th letters are A, C, T, R. These letters form exactly one meaningful word — CART — and no other arrangement of A, C, T, R is a valid English word. Its third letter (C-A-R-T) is R." },
