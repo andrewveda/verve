@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Career Catalyst Thon 🚀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-pink: #ff2a6d;
+            --neon-blue: #05d9e8;
+            --neon-purple: #b026ff;
+            --neon-green: #39ff14;
+            --neon-yellow: #fff01f;
+            --deep-space: #0a0a1a;
+            --cosmic-purple: #1a0a2e;
+            --star-white: #e0e0ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--deep-space);
+            color: var(--star-white);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Starfield Background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            animation: shoot 3s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes shoot {
+            0% { transform: translateX(-100px) translateY(100px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateX(100vw) translateY(-100px); opacity: 0; }
+        }
+
+        /* Nebula Orbs */
+        .nebula {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .nebula-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--neon-purple);
+            top: 10%;
+            left: -10%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .nebula-2 {
+            width: 250px;
+            height: 250px;
+            background: var(--neon-pink);
+            top: 50%;
+            right: -10%;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        .nebula-3 {
+            width: 200px;
+            height: 200px;
+            background: var(--neon-blue);
+            bottom: 10%;
+            left: 20%;
+            animation: float 12s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(30px, -30px); }
+            66% { transform: translate(-20px, 20px); }
+        }
+
+        /* Content Wrapper */
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(255, 42, 109, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink), var(--neon-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .rotating-names {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            height: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+            transition: opacity 0.3s ease;
+        }
+
+        .hero-sub {
+            font-size: 1.1rem;
+            color: rgba(224, 224, 255, 0.8);
+            margin-bottom: 2rem;
+            max-width: 320px;
+            line-height: 1.6;
+        }
+
+        .countdown-box {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.8rem 0.6rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .countdown-item .num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neon-yellow);
+            display: block;
+        }
+
+        .countdown-item .label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(224, 224, 255, 0.6);
+            margin-top: 0.2rem;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            color: white;
+            text-decoration: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 30px rgba(255, 42, 109, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .cta-btn:active {
+            transform: scale(0.95);
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce-down 2s ease-in-out infinite;
+        }
+
+        .scroll-hint svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--neon-blue);
+        }
+
+        @keyframes bounce-down {
+            0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            50% { transform: translateX(-50%) translateY(10px); opacity: 0.5; }
+        }
+
+        /* Section Styles */
+        section {
+            padding: 3rem 1.5rem;
+            position: relative;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .section-title .highlight {
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px rgba(5, 217, 232, 0.5);
+        }
+
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.2rem 0.8rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:active {
+            transform: scale(0.97);
+            border-color: var(--neon-blue);
+        }
+
+        .info-card .icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .info-card h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(224, 224, 255, 0.6);
+            margin-bottom: 0.3rem;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--star-white);
+        }
+
+        /* Rounds Section */
+        .rounds-container {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .round-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .round-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--neon-blue), var(--neon-purple));
+        }
+
+        .round-card:nth-child(2)::before {
+            background: linear-gradient(180deg, var(--neon-pink), var(--neon-yellow));
+        }
+
+        .round-card:nth-child(3)::before {
+            background: linear-gradient(180deg, var(--neon-green), var(--neon-blue));
+        }
+
+        .round-card:nth-child(4)::before {
+            background: linear-gradient(180deg, var(--neon-purple), var(--neon-pink));
+        }
+
+        .round-card:nth-child(5)::before {
+            background: linear-gradient(180deg, var(--neon-yellow), var(--neon-green));
+        }
+
+        .round-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .round-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--neon-blue);
+            text-shadow: 0 0 15px rgba(5, 217, 232, 0.4);
+            min-width: 40px;
+        }
+
+        .round-card:nth-child(2) .round-number { color: var(--neon-pink); text-shadow: 0 0 15px rgba(255, 42, 109, 0.4); }
+        .round-card:nth-child(3) .round-number { color: var(--neon-green); text-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
+        .round-card:nth-child(4) .round-number { color: var(--neon-purple); text-shadow: 0 0 15px rgba(176, 38, 255, 0.4); }
+        .round-card:nth-child(5) .round-number { color: var(--neon-yellow); text-shadow: 0 0 15px rgba(255, 240, 31, 0.4); }
+
+        .round-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .round-desc {
+            font-size: 0.9rem;
+            color: rgba(224, 224, 255, 0.75);
+            line-height: 1.6;
+            margin-left: 3.3rem;
+        }
+
+        .games-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.8rem;
+            margin-left: 3.3rem;
+        }
+
+        .game-tag {
+            background: rgba(5, 217, 232, 0.15);
+            border: 1px solid rgba(5, 217, 232, 0.3);
+            color: var(--neon-blue);
+            padding: 0.3rem 0.7rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Prizes Section */
+        .prize-card {
+            background: linear-gradient(135deg, rgba(255, 42, 109, 0.1), rgba(176, 38, 255, 0.1));
+            border: 1px solid rgba(255, 42, 109, 0.3);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            max-width: 350px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prize-card::after {
+            content: '🏆';
+            font-size: 4rem;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            opacity: 0.2;
+            transform: rotate(15deg);
+        }
+
+        .prize-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--neon-yellow);
+        }
+
+        .prize-card p {
+            font-size: 1rem;
+            color: rgba(224, 224, 255, 0.8);
+        }
+
+        /* Footer CTA */
+        .footer-cta {
+            text-align: center;
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        .footer-cta h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-cta p {
+            color: rgba(224, 224, 255, 0.7);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .register-btn-large {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--neon-green), var(--neon-blue));
+            color: var(--deep-space);
+            text-decoration: none;
+            padding: 1.2rem 3rem;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 30px rgba(57, 255, 20, 0.4);
+            transition: all 0.3s ease;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .register-btn-large:active {
+            transform: scale(0.95);
+        }
+
+        .footer-note {
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: rgba(224, 224, 255, 0.4);
+            text-align: center;
+            padding: 0 1.5rem 2rem;
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        /* Responsive tweaks */
+        @media (min-width: 480px) {
+            .hero h1 { font-size: 2.8rem; }
+            .rotating-names { font-size: 1.2rem; }
+            .section-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Starfield -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- Nebula Effects -->
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+
+    <div class="content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-badge">🚀 SRM Valliammai Engineering College</div>
+            <h1>
+                <span class="gradient-text">Communicate,</span><br>
+                <span class="gradient-text">Lead, Succeed</span>
+            </h1>
+            <div class="rotating-names" id="rotatingNames">A Career Catalyst Thon</div>
+            <p class="hero-sub">
+                The ultimate intergalactic showdown of wit, words, and wild creativity! 
+                Grab your crew of 3 and blast off! 🌌
+            </p>
+            
+            <div class="countdown-box" id="countdown">
+                <div class="countdown-item">
+                    <span class="num" id="days">00</span>
+                    <span class="label">Days</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="num" id="hours">00</span>
+                    <span class="label">Hours</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="num" id="mins">00</span>
+                    <span class="label">Mins</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="num" id="secs">00</span>
+                    <span class="label">Secs</span>
+                </div>
+            </div>
+
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdHpQ44xWflU3AOj6jPGQSR0ZVU9f-7obQ0b-SqYy9uet6aag/viewform" 
+               class="cta-btn" target="_blank">
+                Register Now ⚡
+            </a>
+
+            <div class="scroll-hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Event Info -->
+        <section>
+            <h2 class="section-title">Mission <span class="highlight">Details</span></h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <span class="icon">📅</span>
+                    <h3>Date</h3>
+                    <p>17.08.2026<br><small style="opacity:0.6">Monday</small></p>
+                </div>
+                <div class="info-card">
+                    <span class="icon">📍</span>
+                    <h3>Venue</h3>
+                    <p>AV Hall<br>Rooms 101, 102</p>
+                </div>
+                <div class="info-card">
+                    <span class="icon">👥</span>
+                    <h3>Squad Size</h3>
+                    <p>3 Members<br><small style="opacity:0.6">Per Team</small></p>
+                </div>
+                <div class="info-card">
+                    <span class="icon">🎯</span>
+                    <h3>Who</h3>
+                    <p>III-Year<br>Students Only</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rounds -->
+        <section>
+            <h2 class="section-title">The <span class="highlight">Gauntlet</span></h2>
+            <div class="rounds-container">
+                <div class="round-card">
+                    <div class="round-header">
+                        <span class="round-number">01</span>
+                        <span class="round-title">Linguistic Aptitude</span>
+                    </div>
+                    <p class="round-desc">
+                        One hour of pure word-madness! Your vocabulary, logic, and speed will be tested across 
+                        <strong>6 insane language games</strong>. Each game is ~5 minutes of high-octane brain fuel! 🧠⚡
+                    </p>
+                    <div class="games-list">
+                        <span class="game-tag">🌸 Blossom</span>
+                        <span class="game-tag">🟩 Wordle</span>
+                        <span class="game-tag">💀 Hangman</span>
+                        <span class="game-tag">🔠 Scrabble</span>
+                        <span class="game-tag">🧩 Cryptic Crossword</span>
+                        <span class="game-tag">🖼️ Jigsaws</span>
+                    </div>
+                </div>
+
+                <div class="round-card">
+                    <div class="round-header">
+                        <span class="round-number">02</span>
+                        <span class="round-title">Group Discussion</span>
+                    </div>
+                    <p class="round-desc">
+                        Think fast, speak louder! Battle it out with ideas, counter-arguments, and that 
+                        mic-drop energy. Can your squad dominate the debate floor? 🎤🔥
+                    </p>
+                </div>
+
+                <div class="round-card">
+                    <div class="round-header">
+                        <span class="round-number">03</span>
+                        <span class="round-title">Advertisement Challenge</span>
+                    </div>
+                    <p class="round-desc">
+                        Sell ice to an Eskimo! Create a mind-blowing ad on the spot. Creativity, drama, 
+                        and pure marketing genius — this is your moment to shine! 📢✨
+                    </p>
+                </div>
+
+                <div class="round-card">
+                    <div class="round-header">
+                        <span class="round-number">04</span>
+                        <span class="round-title">Documentation</span>
+                    </div>
+                    <p class="round-desc">
+                        The pen (or keyboard) is mightier than the sword! Craft crisp, killer reports 
+                        that scream professionalism. Wordsmiths, assemble! 📝🛡️
+                    </p>
+                </div>
+
+                <div class="round-card">
+                    <div class="round-header">
+                        <span class="round-number">05</span>
+                        <span class="round-title">Taboo Challenge</span>
+                    </div>
+                    <p class="round-desc">
+                        The ultimate communication game! Describe without describing. One word wrong 
+                        and you're done. Pressure? What pressure? 😰🚫
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prizes -->
+        <section>
+            <h2 class="section-title">Cosmic <span class="highlight">Rewards</span></h2>
+            <div class="prize-card">
+                <h3>Exciting Prizes Await!</h3>
+                <p>Glory, bragging rights, and out-of-this-world rewards for the champions who conquer all 5 rounds! 🏆🌟</p>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="footer-cta">
+            <h2>Ready for <span style="background: linear-gradient(135deg, var(--neon-green), var(--neon-yellow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Lift Off?</span></h2>
+            <p>Spots are limited. Assemble your squad and secure your place in the stars!</p>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdHpQ44xWflU3AOj6jPGQSR0ZVU9f-7obQ0b-SqYy9uet6aag/viewform" 
+               class="register-btn-large" target="_blank">
+                🚀 Register Your Squad
+            </a>
+        </section>
+
+        <div class="footer-note">
+            Organised by The Department of English<br>
+            SRM Valliammai Engineering College (Autonomous)<br>
+            Approved by AICTE | Accredited by NBA | 'A' Grade by NAAC
+        </div>
+    </div>
+
+    <script>
+        // Generate Stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 80; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = Math.random() * 3 + 1 + 'px';
+            star.style.height = star.style.width;
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+            star.style.animationDelay = Math.random() * 5 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Shooting stars
+        setInterval(() => {
+            const shooting = document.createElement('div');
+            shooting.className = 'shooting-star';
+            shooting.style.top = Math.random() * 50 + '%';
+            shooting.style.left = '0';
+            shooting.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            starsContainer.appendChild(shooting);
+            setTimeout(() => shooting.remove(), 4000);
+        }, 4000);
+
+        // Rotating Names
+        const names = [
+            "A Career Catalyst Thon",
+            "The Ultimate Word Wars",
+            "Communicate. Lead. Succeed.",
+            "Where Words Become Weapons",
+            "The Galactic Communication Games"
+        ];
+        let nameIndex = 0;
+        const nameEl = document.getElementById('rotatingNames');
+        
+        setInterval(() => {
+            nameEl.style.opacity = '0';
+            setTimeout(() => {
+                nameIndex = (nameIndex + 1) % names.length;
+                nameEl.textContent = names[nameIndex];
+                nameEl.style.opacity = '1';
+            }, 300);
+        }, 2500);
+
+        // Countdown
+        function updateCountdown() {
+            const eventDate = new Date('2026-08-17T09:00:00');
+            const now = new Date();
+            const diff = eventDate - now;
+            
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('days').textContent = String(days).padStart(2, '0');
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('mins').textContent = String(mins).padStart(2, '0');
+                document.getElementById('secs').textContent = String(secs).padStart(2, '0');
+            }
+        }
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // Floating particles on touch
+        document.addEventListener('touchstart', (e) => {
+            for (let i = 0; i < 5; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = e.touches[0].clientX + 'px';
+                p.style.top = e.touches[0].clientY + 'px';
+                p.style.width = '6px';
+                p.style.height = '6px';
+                p.style.background = ['#ff2a6d', '#05d9e8', '#b026ff', '#39ff14', '#fff01f'][Math.floor(Math.random() * 5)];
+                p.style.transition = 'all 1s ease-out';
+                document.body.appendChild(p);
+                
+                setTimeout(() => {
+                    p.style.transform = `translate(${(Math.random() - 0.5) * 100}px, ${(Math.random() - 0.5) * 100}px) scale(0)`;
+                    p.style.opacity = '0';
+                }, 10);
+                
+                setTimeout(() => p.remove(), 1000);
+            }
+        });
+    </script>
+</body>
+</html>
