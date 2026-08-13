@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Future of Hiring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0e1c;
+  --navy:#111a35;
+  --navy-2:#1b2547;
+  --hairline:#2a3560;
+  --gold:#c9a24b;
+  --gold-light:#e8cd85;
+  --ivory:#f3efe4;
+  --muted:#8b93b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--ink);
+  color:var(--ivory);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.container{max-width:760px;margin:auto;padding:0 20px 60px;}
+
+/* ---------- HERO ---------- */
+.hero{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 50% -10%, #1c2a5c 0%, var(--ink) 62%);
+  padding:64px 28px 56px;
+  border-bottom:1px solid var(--hairline);
+}
+.hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(30deg, transparent 48%, rgba(201,162,75,.14) 49%, rgba(201,162,75,.14) 50%, transparent 51%),
+    linear-gradient(150deg, transparent 48%, rgba(201,162,75,.08) 49%, rgba(201,162,75,.08) 50%, transparent 51%);
+  background-size:64px 64px;
+  opacity:.55;
+  mask-image:radial-gradient(70% 70% at 50% 30%, #000 40%, transparent 85%);
+}
+.hero-inner{position:relative;text-align:center;}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:10px;
+  font-size:.72rem; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold-light); margin-bottom:22px;
+}
+.eyebrow::before,.eyebrow::after{content:"";width:22px;height:1px;background:var(--gold);opacity:.7;}
+.hero h1{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:clamp(2.1rem,7vw,2.9rem);
+  letter-spacing:-.01em;
+  margin-bottom:18px;
+}
+.hero p{
+  font-size:1.02rem;
+  color:var(--muted);
+  max-width:520px;
+  margin:0 auto;
+}
+.hero p strong{color:var(--ivory);font-weight:600;}
+
+/* ---------- SECTION LABELS ---------- */
+.section{padding:48px 0 8px;}
+.section-head{
+  display:flex; align-items:baseline; justify-content:space-between;
+  gap:16px; margin-bottom:22px; border-bottom:1px solid var(--hairline); padding-bottom:14px;
+}
+.section-head h2{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:1.5rem;
+  color:var(--ivory);
+}
+.section-tag{
+  font-size:.68rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--gold); white-space:nowrap;
+}
+
+/* ---------- WHY THE SHIFT ---------- */
+.reasons{list-style:none;display:grid;gap:12px;}
+.reasons li{
+  display:flex; gap:14px; align-items:flex-start;
+  padding:14px 16px;
+  background:var(--navy);
+  border:1px solid var(--hairline);
+  border-radius:2px;
+  font-size:.95rem;
+  color:#d7dcf0;
+}
+.reasons li::before{
+  content:"";
+  flex:0 0 8px; width:8px; height:8px; margin-top:6px;
+  background:var(--gold);
+  clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);
+}
+
+/* ---------- BIG STATEMENT ---------- */
+.statement{
+  position:relative;
+  text-align:center;
+  margin:52px 0;
+  padding:34px 20px;
+}
+.statement::before,.statement::after{
+  content:"";position:absolute; left:50%; transform:translateX(-50%);
+  width:1px; height:26px; background:linear-gradient(var(--gold),transparent);
+}
+.statement::before{top:0;}
+.statement::after{bottom:0;transform:translateX(-50%) rotate(180deg);}
+.statement p{
+  font-family:'Fraunces',serif;
+  font-style:italic;
+  font-weight:500;
+  font-size:clamp(1.25rem,4.5vw,1.6rem);
+  color:var(--gold-light);
+}
+
+/* ---------- COMPANIES : FOCAL SECTION ---------- */
+.companies-section{
+  position:relative;
+  margin:8px 0 12px;
+  padding:40px 24px 44px;
+  background:var(--navy);
+  border:1px solid var(--hairline);
+  overflow:hidden;
+}
+.companies-section::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(201,162,75,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,162,75,.08) 1px, transparent 1px);
+  background-size:38px 38px;
+  mask-image:radial-gradient(90% 80% at 50% 40%, #000 30%, transparent 90%);
+}
+.companies-head{position:relative;text-align:center;margin-bottom:34px;}
+.companies-head .section-tag{display:block;margin-bottom:10px;}
+.companies-head h2{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:1.7rem;
+}
+.companies-head p{
+  color:var(--muted); font-size:.92rem; max-width:440px; margin:10px auto 0;
+}
+
+.roster{position:relative;display:flex;flex-direction:column;}
+.firm{
+  border-top:1px solid var(--hairline);
+}
+.firm:first-child{border-top:none;}
+.firm > summary{
+  list-style:none;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:20px 4px;
+}
+.firm > summary::-webkit-details-marker{display:none;}
+.firm-head{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.firm-toprow{
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+}
+.firm-name{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:1.12rem;
+  color:var(--ivory);
+}
+.firm-tag{
+  font-size:.64rem; letter-spacing:.12em; color:var(--gold-light);
+  text-transform:uppercase; white-space:nowrap;
+}
+.firm-drive-label{
+  font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted);
+}
+.firm-drive-label span{color:var(--gold-light);font-weight:600;}
+.chevron{
+  flex:0 0 auto;
+  width:22px; height:22px;
+  border:1px solid var(--hairline);
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+  transition:transform .25s ease, border-color .25s ease;
+}
+.chevron::before,.chevron::after{
+  content:"";
+  position:absolute;
+  width:8px; height:1px;
+  background:var(--gold);
+}
+.chevron::before{transform:rotate(45deg) translate(1px,0);left:3px;}
+.chevron::after{transform:rotate(-45deg) translate(-1px,0);right:3px;}
+.firm[open] .chevron{transform:rotate(180deg);border-color:var(--gold);}
+.firm-panel{padding:0 4px 22px;}
+.firm-desc{
+  font-size:.88rem; color:#c7cce6; line-height:1.65; max-width:58ch;
+}
+
+/* ---------- SKILLS ---------- */
+.pills{display:flex;flex-wrap:wrap;gap:10px;}
+.pill{
+  display:flex; align-items:center; gap:8px;
+  padding:9px 14px;
+  border:1px solid var(--hairline);
+  background:var(--navy);
+  border-radius:2px;
+  font-size:.85rem;
+  color:#d7dcf0;
+}
+.pill .dot{width:6px;height:6px;background:var(--gold);flex:0 0 auto;}
+
+/* ---------- FOOTER ---------- */
+.footer{
+  text-align:center;
+  margin-top:54px;
+  padding-top:26px;
+  border-top:1px solid var(--hairline);
+}
+.footer p{font-size:.92rem;color:var(--muted);}
+.footer .brand{
+  display:block; margin-top:10px;
+  font-family:'Fraunces',serif; font-style:italic; color:var(--gold-light); font-size:1rem;
+}
+
+@media (max-width:480px){
+  .section-head{flex-direction:column;align-items:flex-start;gap:6px;}
+}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Talent &amp; Assessment</div>
+    <h1>The Future of Hiring</h1>
+    <p>Leading employers are moving beyond traditional aptitude tests toward immersive cognitive assessments that evaluate <strong>how you think</strong>, not just <strong>what you know</strong>.</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Why the Shift</h2>
+      <span class="section-tag">Rationale</span>
+    </div>
+    <ul class="reasons">
+      <li>Measures real-world problem solving instead of memorisation</li>
+      <li>Evaluates critical thinking under time pressure</li>
+      <li>Assesses adaptability and decision-making</li>
+      <li>Reduces dependence on coaching and rote preparation</li>
+      <li>Identifies candidates with strong cognitive potential</li>
+    </ul>
+  </div>
+
+  <div class="statement">
+    <p>&ldquo;Thinking is the new competitive advantage&rdquo;</p>
+  </div>
+
+  <div class="companies-section">
+    <div class="companies-head">
+      <span class="section-tag">The Roster</span>
+      <h2>Companies Embracing Cognitive &amp; Puzzle-Based Hiring</h2>
+      <p>From cryptic ciphers to full simulation games, tap any firm to see how it actually plays out.</p>
+    </div>
+    <div class="roster">
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">Google</div>
+              <div class="firm-tag">Technology</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>The Billboard Puzzle</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">In 2004, a plain billboard appeared on Highway 101 with no logo &mdash; just a prime-number riddle hidden in the digits of <em>e</em>. Solving it led to a second puzzle, and only after cracking that did the trail reveal itself as a Google recruiting page inviting a résumé. A one-off stunt rather than a standing process, it became the template every "solve this to apply" campaign since has borrowed from.</p>
+        </div>
+      </details>
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">GCHQ</div>
+              <div class="firm-tag">Signals Intelligence</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>The Cryptic Christmas Card</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">The lineage runs back to 1942, when a fiendish <em>Daily Telegraph</em> cryptic crossword was used to scout codebreakers for Bletchley Park &mdash; the fastest solvers were quietly invited to join. GCHQ keeps the tradition alive with an annual cryptic Christmas card mixing wordplay, hidden codes, and lateral-thinking puzzles, released publicly as both a charity puzzle book and a live recruiting signal for the pattern-spotters it wants.</p>
+        </div>
+      </details>
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">Jane Street</div>
+              <div class="firm-tag">Quantitative Trading</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>The Monthly Puzzle</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">A famously hard logic and combinatorics puzzle goes up on the firm's website every month, less a screening tool than a standing signal of the culture &mdash; solving it isn't required for the job. The actual interview loop carries the same spirit live: timed mental-math rounds, probability brainteasers, and game-theory puzzles worked through out loud, testing clear reasoning under pressure over any memorised answer.</p>
+        </div>
+      </details>
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">McKinsey &amp; Company</div>
+              <div class="firm-tag">Strategy Consulting</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>Solve</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">Before a candidate ever sits a case interview, they're dropped into a narrative simulation &mdash; steering a scenario like Sea Wolf or the Red Rock Study through data gathering, analysis, and a final call under a hard clock. The firm reads both the decision made and the path taken, scoring for critical thinking, systems thinking, and situational awareness rather than book knowledge, and treats the result as one input among several rather than a pass/fail gate on its own.</p>
+        </div>
+      </details>
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">JPMorgan Chase</div>
+              <div class="firm-tag">Global Banking</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>Game-Based Screening</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">Early-career applicants move through a set of short neuroscience-style games &mdash; quick rounds built to surface risk appetite, memory, and decision speed &mdash; well before a human reads a résumé. Candidates who clear that stage typically face an AI-scored video interview next, so the game round functions as a wide, low-friction first filter across a very large applicant pool.</p>
+        </div>
+      </details>
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">IBM</div>
+              <div class="firm-tag">Enterprise Technology</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>Serious Games</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">IBM's contribution predates most of this trend: "serious games" like Innov8 and CityOne put students inside a 3D business simulator, tuning a virtual supply chain or city system and watching the downstream effects of each call. Built originally for university partners, they double as an early talent pipeline &mdash; letting IBM watch how a candidate reasons through a live system long before an interview.</p>
+        </div>
+      </details>
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">Deloitte</div>
+              <div class="firm-tag">Professional Services</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>Cosmic Cadet &amp; regional builds</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">The specific game shifts by office &mdash; Cosmic Cadet in many markets, a bespoke build with Talegent in Australia, an apprenticeship-focused title elsewhere &mdash; but the intent holds: twenty to thirty minutes of play generating thousands of behavioural data points on risk tolerance and innovation potential, read alongside the CV rather than instead of it.</p>
+        </div>
+      </details>
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">Capgemini</div>
+              <div class="firm-tag">Consulting &amp; Tech</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>Exceller</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">Campus hiring used to open with sixteen logical-reasoning multiple-choice questions; it now opens with a rotating set of short puzzle games drawn from a pool of roughly two dozen, four served per attempt. The mechanics change &mdash; unblocking a grid, spotting a pattern &mdash; but the underlying reasoning skills being scored are the same ones the old MCQ round measured.</p>
+        </div>
+      </details>
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">Siemens</div>
+              <div class="firm-tag">Industrial Engineering</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>Plantville</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">Plantville hands candidates a virtual factory floor and asks them to keep it running &mdash; balancing output, cost, and workforce decisions in real time. What began as a marketing tool to make industrial careers visible to a general audience was folded into talent acquisition once recruiters noticed how clearly it exposed operational judgment.</p>
+        </div>
+      </details>
+      <details class="firm">
+        <summary>
+          <div class="firm-head">
+            <div class="firm-toprow">
+              <div class="firm-name">Ashok Leyland</div>
+              <div class="firm-tag">Automotive &amp; Mobility</div>
+            </div>
+            <div class="firm-drive-label">The drive &mdash; <span>Nautics</span></div>
+          </div>
+          <span class="chevron"></span>
+        </summary>
+        <div class="firm-panel">
+          <p class="firm-desc">Layered on top of the standard technical and aptitude rounds on campus, Nautics is a mobile, role-play-style assessment built with Talent Litmus that reads leadership instinct, attitude, and cognitive ability through in-scenario choices &mdash; giving recruiters a competency read that a written test alone couldn't surface.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Skills Employers Value</h2>
+      <span class="section-tag">Signals</span>
+    </div>
+    <div class="pills">
+      <div class="pill"><span class="dot"></span>Critical Thinking</div>
+      <div class="pill"><span class="dot"></span>Pattern Recognition</div>
+      <div class="pill"><span class="dot"></span>Fast Decision Making</div>
+      <div class="pill"><span class="dot"></span>Creative Problem Solving</div>
+      <div class="pill"><span class="dot"></span>Verbal Reasoning</div>
+      <div class="pill"><span class="dot"></span>Spatial Reasoning</div>
+      <div class="pill"><span class="dot"></span>Strategic Thinking</div>
+      <div class="pill"><span class="dot"></span>Attention to Detail</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Prepare for the jobs of tomorrow by sharpening the way you think today.</p>
+    <span class="brand">The Future of Hiring</span>
+  </div>
+
+</div>
+</body>
+</html>
