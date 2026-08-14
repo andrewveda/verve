@@ -34,18 +34,17 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
-      padding: 20px;
+      padding: 0;
     }
 
     .app-container {
       width: 100%;
-      max-width: 600px;
+      max-width: none;
       background: var(--surface);
-      border-radius: 14px;
-      padding: 40px;
-      border: 1px solid var(--border);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.05);
+      border-radius: 0;
+      padding: 0;
+      border: none;
+      box-shadow: none;
     }
 
     .eyebrow {
@@ -57,20 +56,23 @@
       color: var(--muted);
       text-align: center;
       display: block;
+      padding: 8px 0 4px;
     }
 
     h1 {
-      font-size: 1.85rem;
+      font-size: 2.2rem;
       font-weight: 700;
       text-align: center;
       letter-spacing: -0.01em;
+      padding: 4px 0;
     }
 
     .subtitle {
       text-align: center;
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 1rem;
       line-height: 1.5;
+      padding: 4px 8px 12px;
     }
 
     .login-screen { display: block; }
@@ -80,19 +82,19 @@
     .form-group { }
     .form-group label {
       display: block;
-      padding-bottom: 8px;
+      padding: 8px 8px 4px;
       font-weight: 600;
       font-size: 0.85rem;
       color: var(--muted);
     }
     .form-group input, .form-group select {
       width: 100%;
-      padding: 13px 16px;
-      border-radius: 10px;
+      padding: 16px;
+      border-radius: 0;
       border: 1.5px solid var(--border);
       background: var(--surface);
       color: var(--ink);
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-family: inherit;
       transition: border-color 0.15s;
     }
@@ -107,10 +109,10 @@
 
     .btn {
       width: 100%;
-      padding: 15px;
-      border-radius: 10px;
+      padding: 18px;
+      border-radius: 0;
       border: none;
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       font-weight: 600;
       font-family: inherit;
       cursor: pointer;
@@ -144,26 +146,26 @@
     .game-header {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      padding-bottom: 18px;
+      gap: 0;
+      padding: 8px 0;
       border-bottom: 1px solid var(--border);
     }
-    .stat-box { text-align: center; }
+    .stat-box { text-align: center; padding: 4px 0; }
     .stat-box .value {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.15rem;
+      font-size: 1.4rem;
       font-weight: 600;
       color: var(--ink);
     }
     .stat-box.time .value {
-      font-size: 1.6rem;
+      font-size: 2rem;
       color: var(--accent);
       transition: color 0.3s;
     }
     .stat-box.time .value.warn { color: var(--warn); }
     .stat-box.time .value.bad { color: var(--bad); animation: pulse 1s infinite; }
     .stat-box .label {
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -175,27 +177,25 @@
     }
 
     .timer-rail {
-      height: 3px;
+      height: 4px;
       background: var(--surface-alt);
-      border-radius: 2px;
       overflow: hidden;
     }
     .timer-rail-fill {
       height: 100%;
       background: var(--accent);
-      border-radius: 2px;
       transition: width 0.1s linear, background 0.3s;
     }
     .timer-rail-fill.warn { background: var(--warn); }
     .timer-rail-fill.bad { background: var(--bad); }
 
-    .category-badge-wrap { text-align: center; }
+    .category-badge-wrap { text-align: center; padding: 8px 0; }
     .category-badge {
       display: inline-block;
-      padding: 5px 13px;
-      border-radius: 20px;
+      padding: 6px 14px;
+      border-radius: 0;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -207,27 +207,26 @@
 
     .letters-section { }
     .section-label {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
       font-weight: 600;
       text-align: center;
+      padding: 6px 0;
     }
     .letters-row {
       display: flex;
       flex-wrap: nowrap;
       justify-content: center;
-      gap: var(--tile-gap, 9px);
-      min-height: 60px;
-      overflow: hidden;
+      gap: 0;
     }
     .letter-tile {
       width: var(--tile-size, 48px);
       height: calc(var(--tile-size, 48px) * 1.125);
       flex-shrink: 0;
       background: var(--surface);
-      border-radius: 8px;
+      border-radius: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -235,7 +234,7 @@
       font-size: calc(var(--tile-size, 48px) * 0.44);
       font-weight: 600;
       color: var(--ink);
-      border: 1.5px solid var(--border);
+      border: 1px solid var(--border);
       cursor: pointer;
       user-select: none;
       transition: transform 0.12s, border-color 0.12s, background 0.12s, width 0.15s, height 0.15s;
@@ -256,9 +255,9 @@
     .submission-section {
       background: var(--surface-alt);
       border: 1.5px dashed var(--border);
-      border-radius: 12px;
-      padding: 22px;
-      min-height: 84px;
+      border-radius: 0;
+      padding: 0;
+      min-height: calc(var(--tile-size, 48px) * 1.125);
       transition: border-color 0.25s, background 0.25s;
     }
     .submission-section.has-letters {
@@ -287,18 +286,22 @@
 
     .submission-placeholder {
       color: var(--muted);
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       text-align: center;
       padding: 6px;
       width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .feedback {
       text-align: center;
-      padding: 13px;
-      border-radius: 10px;
+      padding: 14px;
+      border-radius: 0;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 1rem;
       display: none;
     }
     .feedback.show { display: block; animation: slideDown 0.25s ease; }
@@ -312,32 +315,33 @@
     .hint-text {
       text-align: center;
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       min-height: 1.2em;
+      padding: 6px 0;
     }
 
     .controls-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 0;
     }
     .submit-row { }
 
     .result-card {
       background: var(--surface-alt);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px;
+      border-radius: 0;
+      padding: 8px;
       text-align: center;
     }
     .result-score {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 3.4rem;
+      font-size: 4rem;
       font-weight: 700;
       color: var(--ink);
     }
     .result-score-label {
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -345,40 +349,41 @@
     .result-detail {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 0;
     }
     .result-detail.streak-row { grid-template-columns: 1fr; }
     .detail-item {
       background: var(--surface);
       border: 1px solid var(--border);
       padding: 14px;
-      border-radius: 10px;
+      border-radius: 0;
     }
     .detail-item .num {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       font-weight: 700;
     }
-    .detail-item .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .detail-item .lbl { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 
     .history-list {
       max-height: 200px;
       overflow-y: auto;
     }
     .history-list h3 {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
       font-weight: 600;
+      padding: 8px;
     }
     .history-item {
       display: flex;
       justify-content: space-between;
       padding: 10px 14px;
       background: var(--surface-alt);
-      border-radius: 8px;
-      font-size: 0.88rem;
+      border-radius: 0;
+      font-size: 0.95rem;
       font-family: 'IBM Plex Mono', monospace;
     }
     .history-item .h-word { font-weight: 600; }
@@ -388,10 +393,9 @@
     .h-skipped { color: var(--warn); }
 
     @media (max-width: 480px) {
-      .app-container { padding: 24px; }
-      h1 { font-size: 1.4rem; }
-      .result-score { font-size: 2.6rem; }
-      .stat-box.time .value { font-size: 1.3rem; }
+      h1 { font-size: 1.6rem; }
+      .result-score { font-size: 3rem; }
+      .stat-box.time .value { font-size: 1.6rem; }
     }
   </style>
 </head>
@@ -497,7 +501,7 @@
   <!-- RESULT SCREEN -->
   <div class="result-screen" id="resultScreen">
     <span class="eyebrow">Session Complete</span>
-    <h1 style="">Time's Up</h1>
+    <h1>Time's Up</h1>
 
     <div class="result-card">
       <div class="result-score" id="finalScore">0</div>
@@ -530,7 +534,7 @@
 
     <div class="history-list" id="historyList"></div>
 
-    <button class="btn btn-primary" onclick="restartQuiz()" style="">
+    <button class="btn btn-primary" onclick="restartQuiz()">
       Run It Back
     </button>
   </div>
@@ -781,18 +785,11 @@ function scrambleWord(word) {
 
 function computeTileSize(letterCount) {
   const availRow = document.getElementById("availableLetters");
-  const subRow = document.getElementById("submissionLetters");
-  const availableWidth = Math.min(
-    availRow.clientWidth || 480,
-    subRow.clientWidth || 480
-  );
+  const availableWidth = availRow.clientWidth || window.innerWidth;
 
-  let gap = 9;
-  if (letterCount > 12) gap = 4;
-  else if (letterCount > 8) gap = 6;
-
-  let raw = (availableWidth - gap * (letterCount - 1)) / letterCount;
-  raw = Math.max(20, Math.min(48, raw));
+  const gap = 0;
+  let raw = availableWidth / letterCount;
+  raw = Math.max(20, raw);
 
   document.documentElement.style.setProperty("--tile-size", raw + "px");
   document.documentElement.style.setProperty("--tile-gap", gap + "px");
@@ -820,9 +817,6 @@ function initCaseTiles() {
   placeholder.textContent = "Tap letters above to build your answer";
   subContainer.appendChild(placeholder);
 
-  // Available tray: tiles are created once and stay in their original slot
-  // for the whole case. Selecting a letter hides it in place rather than
-  // moving or collapsing the row, so the remaining letters never shift.
   availableLetters.forEach((item) => {
     const tile = document.createElement("div");
     tile.className = "letter-tile";
@@ -845,8 +839,6 @@ function selectLetter(id) {
   item.used = true;
   selectedLetters.push({ char: item.char, id: item.id });
 
-  // Hide the source tile in place (its slot stays reserved) instead of
-  // removing it, so the rest of the available row doesn't reflow.
   const sourceTile = tileRefs[id];
   sourceTile.classList.add("tile-placeholder");
   sourceTile.tabIndex = -1;
