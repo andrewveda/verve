@@ -3,28 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anagram Solver — Placement Trainer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>Anagrams with Verve</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --success: #22c55e;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface-light: #334155;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
+      --bg: #F7F7F4;
+      --surface: #FFFFFF;
+      --surface-alt: #F0F0EC;
+      --border: #DEDED8;
+      --ink: #1B1B18;
+      --muted: #6E6E68;
+      --accent: #3B6E64;
+      --accent-dark: #2C544C;
+      --accent-soft: #E7EFEC;
+      --good: #3B6E64;
+      --bad: #B3413A;
+      --bad-soft: #F5E7E5;
+      --warn: #A6752C;
+      --warn-soft: #F3ECE0;
+      --steel: #3A5A78;
+      --steel-soft: #E8EEF3;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'IBM Plex Sans', sans-serif;
       background: var(--bg);
-      color: var(--text);
+      color: var(--ink);
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -36,340 +42,357 @@
       width: 100%;
       max-width: 600px;
       background: var(--surface);
-      border-radius: 24px;
+      border-radius: 14px;
       padding: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-      border: 1px solid var(--surface-light);
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 28px rgba(0,0,0,0.05);
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      display: block;
     }
 
     h1 {
-      font-size: 2rem;
-      font-weight: 800;
+      font-size: 1.85rem;
+      font-weight: 700;
       text-align: center;
-      margin-bottom: 8px;
-      background: linear-gradient(135deg, #6366f1, #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.01em;
     }
 
     .subtitle {
       text-align: center;
-      color: var(--text-muted);
-      margin-bottom: 32px;
+      color: var(--muted);
       font-size: 0.95rem;
+      line-height: 1.5;
     }
 
     .login-screen { display: block; }
     .game-screen { display: none; }
     .result-screen { display: none; }
 
-    .form-group { margin-bottom: 20px; }
+    .form-group { }
     .form-group label {
       display: block;
-      margin-bottom: 8px;
+      padding-bottom: 8px;
       font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--text-muted);
+      font-size: 0.85rem;
+      color: var(--muted);
     }
     .form-group input, .form-group select {
       width: 100%;
-      padding: 14px 18px;
-      border-radius: 12px;
-      border: 2px solid var(--surface-light);
-      background: var(--bg);
-      color: var(--text);
+      padding: 13px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--ink);
       font-size: 1rem;
       font-family: inherit;
-      transition: border-color 0.2s;
+      transition: border-color 0.15s;
     }
     .form-group input:focus, .form-group select:focus {
       outline: none;
-      border-color: var(--primary);
+      border-color: var(--accent);
+    }
+    .form-group input:focus-visible, .form-group select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
     }
 
     .btn {
       width: 100%;
-      padding: 16px;
-      border-radius: 12px;
+      padding: 15px;
+      border-radius: 10px;
       border: none;
-      font-size: 1rem;
-      font-weight: 700;
+      font-size: 0.95rem;
+      font-weight: 600;
       font-family: inherit;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.15s, transform 0.1s;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
+    .btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
     .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      background: var(--ink);
       color: white;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.3); }
-    .btn-success { background: var(--success); color: white; }
-    .btn-success:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(34,197,94,0.3); }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-hint {
-      background: var(--surface-light);
-      color: var(--text);
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-success { background: var(--accent); color: white; }
+    .btn-success:hover { background: var(--accent-dark); }
+    .btn-success:active { transform: scale(0.99); }
+    .btn-hint, .btn-skip {
+      background: var(--surface-alt);
+      color: var(--ink);
+      border: 1px solid var(--border);
       flex: 1;
     }
-    .btn-hint:hover { background: #475569; }
-    .btn-skip {
-      background: var(--surface-light);
-      color: var(--text-muted);
-      flex: 1;
-    }
-    .btn-skip:hover { background: #475569; }
+    .btn-hint:hover, .btn-skip:hover { background: var(--border); }
 
     .game-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--surface-light);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
     }
     .stat-box { text-align: center; }
     .stat-box .value {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--primary);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--ink);
     }
+    .stat-box.time .value {
+      font-size: 1.6rem;
+      color: var(--accent);
+      transition: color 0.3s;
+    }
+    .stat-box.time .value.warn { color: var(--warn); }
+    .stat-box.time .value.bad { color: var(--bad); animation: pulse 1s infinite; }
     .stat-box .label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
+      font-size: 0.68rem;
+      color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.08em;
     }
 
-    .progress-bar {
-      height: 6px;
-      background: var(--bg);
-      border-radius: 3px;
-      margin-bottom: 16px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary), #a855f7);
-      border-radius: 3px;
-      transition: width 0.5s ease;
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
 
-    .timer-container { margin-bottom: 16px; }
-    .timer-bar {
-      height: 4px;
-      background: var(--surface-light);
+    .timer-rail {
+      height: 3px;
+      background: var(--surface-alt);
       border-radius: 2px;
       overflow: hidden;
     }
-    .timer-fill {
+    .timer-rail-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--success), var(--warning), var(--danger));
+      background: var(--accent);
       border-radius: 2px;
-      transition: width 0.1s linear;
+      transition: width 0.1s linear, background 0.3s;
     }
+    .timer-rail-fill.warn { background: var(--warn); }
+    .timer-rail-fill.bad { background: var(--bad); }
 
-    .category-badge-wrap { text-align: center; margin-bottom: 16px; }
+    .category-badge-wrap { text-align: center; }
     .category-badge {
       display: inline-block;
-      padding: 6px 14px;
+      padding: 5px 13px;
       border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .cat-business { background: rgba(34,197,94,0.15); color: var(--success); }
-    .cat-tech { background: rgba(99,102,241,0.15); color: var(--primary); }
-    .cat-aptitude { background: rgba(245,158,11,0.15); color: var(--warning); }
-    .cat-softskills { background: rgba(239,68,68,0.15); color: var(--danger); }
-
-    .letters-section { margin-bottom: 16px; }
-    .section-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .cat-business { background: var(--accent-soft); color: var(--accent-dark); }
+    .cat-tech { background: var(--steel-soft); color: var(--steel); }
+    .cat-aptitude { background: var(--warn-soft); color: var(--warn); }
+    .cat-softskills { background: var(--bad-soft); color: var(--bad); }
+
+    .letters-section { }
+    .section-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      text-align: center;
     }
     .letters-row {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       justify-content: center;
-      gap: 10px;
-      min-height: 64px;
+      gap: var(--tile-gap, 9px);
+      min-height: 60px;
+      overflow: hidden;
     }
     .letter-tile {
-      width: 52px;
-      height: 58px;
-      background: linear-gradient(180deg, var(--surface-light), var(--surface));
-      border-radius: 10px;
+      width: var(--tile-size, 48px);
+      height: calc(var(--tile-size, 48px) * 1.125);
+      flex-shrink: 0;
+      background: var(--surface);
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
-      font-weight: 800;
-      border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: calc(var(--tile-size, 48px) * 0.44);
+      font-weight: 600;
+      color: var(--ink);
+      border: 1.5px solid var(--border);
       cursor: pointer;
       user-select: none;
-      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      transition: transform 0.12s, border-color 0.12s, background 0.12s, width 0.15s, height 0.15s;
     }
     .letter-tile:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 16px rgba(99,102,241,0.25);
-      border-color: var(--primary);
+      transform: translateY(-2px);
+      border-color: var(--accent);
     }
-    .letter-tile:active { transform: scale(0.95); }
+    .letter-tile:active { transform: scale(0.96); }
+    .letter-tile:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .letter-tile.tile-placeholder {
+      visibility: hidden;
+    }
 
     .submission-section {
-      background: var(--bg);
-      border: 2px dashed var(--surface-light);
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 16px;
-      min-height: 90px;
-      transition: border-color 0.3s, background 0.3s;
+      background: var(--surface-alt);
+      border: 1.5px dashed var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      min-height: 84px;
+      transition: border-color 0.25s, background 0.25s;
     }
     .submission-section.has-letters {
-      border-color: var(--primary);
+      border-color: var(--accent);
       border-style: solid;
-      background: rgba(99,102,241,0.03);
+      background: var(--accent-soft);
     }
     .submission-section.correct {
-      border-color: var(--success);
-      background: rgba(34,197,94,0.05);
+      border-color: var(--good);
+      background: var(--accent-soft);
     }
     .submission-section.wrong {
-      border-color: var(--danger);
-      background: rgba(239,68,68,0.05);
+      border-color: var(--bad);
+      background: var(--bad-soft);
       animation: shake 0.4s;
     }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .submission-section.wrong { animation: none; }
+      .stat-box.time .value.bad { animation: none; }
     }
 
     .submission-placeholder {
-      color: var(--text-muted);
-      font-size: 0.9rem;
+      color: var(--muted);
+      font-size: 0.88rem;
       text-align: center;
-      padding: 8px;
+      padding: 6px;
       width: 100%;
     }
 
     .feedback {
       text-align: center;
-      padding: 14px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-      font-weight: 700;
+      padding: 13px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
       display: none;
     }
-    .feedback.show { display: block; animation: slideDown 0.3s ease; }
-    .feedback-success { background: rgba(34,197,94,0.1); color: var(--success); }
-    .feedback-error { background: rgba(239,68,68,0.1); color: var(--danger); }
+    .feedback.show { display: block; animation: slideDown 0.25s ease; }
+    .feedback-success { background: var(--accent-soft); color: var(--accent-dark); }
+    .feedback-error { background: var(--bad-soft); color: var(--bad); }
     @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-10px); }
+      from { opacity: 0; transform: translateY(-8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
     .hint-text {
       text-align: center;
-      color: var(--text-muted);
+      color: var(--muted);
       font-size: 0.85rem;
-      margin-bottom: 16px;
+      min-height: 1.2em;
     }
 
     .controls-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 10px;
     }
-    .submit-row { margin-bottom: 12px; }
+    .submit-row { }
 
     .result-card {
-      background: var(--bg);
-      border-radius: 16px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 12px;
       padding: 28px;
-      margin-bottom: 20px;
       text-align: center;
     }
     .result-score {
-      font-size: 4rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--primary), #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 3.4rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .result-score-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
     .result-detail {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 20px;
+      gap: 12px;
     }
+    .result-detail.streak-row { grid-template-columns: 1fr; }
     .detail-item {
       background: var(--surface);
-      padding: 16px;
-      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 10px;
     }
-    .detail-item .num { font-size: 1.5rem; font-weight: 800; }
-    .detail-item .lbl { font-size: 0.8rem; color: var(--text-muted); }
+    .detail-item .num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .detail-item .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 
     .history-list {
-      margin-top: 20px;
       max-height: 200px;
       overflow-y: auto;
+    }
+    .history-list h3 {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
     }
     .history-item {
       display: flex;
       justify-content: space-between;
       padding: 10px 14px;
-      background: var(--bg);
-      border-radius: 10px;
-      margin-bottom: 8px;
-      font-size: 0.9rem;
+      background: var(--surface-alt);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: 'IBM Plex Mono', monospace;
     }
-    .history-item .h-word { font-weight: 700; }
-    .history-item .h-status { font-weight: 700; }
-    .h-correct { color: var(--success); }
-    .h-wrong { color: var(--danger); }
-    .h-skipped { color: var(--warning); }
+    .history-item .h-word { font-weight: 600; }
+    .history-item .h-status { font-weight: 600; }
+    .h-correct { color: var(--good); }
+    .h-wrong { color: var(--bad); }
+    .h-skipped { color: var(--warn); }
 
     @media (max-width: 480px) {
       .app-container { padding: 24px; }
-      h1 { font-size: 1.5rem; }
-      .letter-tile { width: 42px; height: 48px; font-size: 1.2rem; }
-      .result-score { font-size: 3rem; }
+      h1 { font-size: 1.4rem; }
+      .result-score { font-size: 2.6rem; }
+      .stat-box.time .value { font-size: 1.3rem; }
     }
-
-    .loading-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15,23,42,0.9);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .loading-overlay.show { display: flex; }
-    .spinner {
-      width: 48px; height: 48px;
-      border: 4px solid var(--surface-light);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { color: var(--text-muted); font-size: 0.9rem; }
   </style>
 </head>
 <body>
@@ -378,8 +401,9 @@
 
   <!-- LOGIN SCREEN -->
   <div class="login-screen" id="loginScreen">
-    <h1>🔤 Anagram Solver</h1>
-    <p class="subtitle">Train your word skills for campus placement drives</p>
+    <span class="eyebrow">Placement Trainer</span>
+    <h1>Anagrams with Verve</h1>
+    <p class="subtitle">Race a 3-minute clock. Unscramble as many words as you can before time runs out.</p>
 
     <div class="form-group">
       <label for="playerName">Student Name</label>
@@ -410,45 +434,34 @@
       </select>
     </div>
 
-    <div class="form-group">
-      <label for="difficulty">Difficulty Level</label>
-      <select id="difficulty">
-        <option value="easy">Easy (4-6 letters)</option>
-        <option value="medium" selected>Medium (6-8 letters)</option>
-        <option value="hard">Hard (8-12 letters)</option>
-      </select>
-    </div>
-
     <button class="btn btn-primary" onclick="beginQuiz()">
-      🚀 Start Training
+      Start 3-Minute Rush
     </button>
   </div>
 
   <!-- GAME SCREEN -->
   <div class="game-screen" id="gameScreen">
     <div class="game-header">
+      <div class="stat-box time">
+        <div class="value" id="timeDisplay">03:00</div>
+        <div class="label">Time</div>
+      </div>
       <div class="stat-box">
         <div class="value" id="scoreDisplay">0</div>
         <div class="label">Score</div>
       </div>
       <div class="stat-box">
-        <div class="value" id="caseDisplay">1</div>
-        <div class="label">Case</div>
+        <div class="value" id="streakDisplay">0</div>
+        <div class="label">Streak</div>
       </div>
       <div class="stat-box">
-        <div class="value" id="livesDisplay">❤️❤️❤️</div>
-        <div class="label">Lives</div>
+        <div class="value" id="solvedDisplay">0</div>
+        <div class="label">Solved</div>
       </div>
     </div>
 
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-    </div>
-
-    <div class="timer-container">
-      <div class="timer-bar">
-        <div class="timer-fill" id="timerFill" style="width: 100%"></div>
-      </div>
+    <div class="timer-rail">
+      <div class="timer-rail-fill" id="timerRailFill" style="width: 100%"></div>
     </div>
 
     <div class="category-badge-wrap">
@@ -457,37 +470,38 @@
 
     <!-- Submission Box (Selected Letters) -->
     <div class="submission-section" id="submissionBox">
-      <div class="section-label">Your Answer — tap letters to return</div>
+      <div class="section-label">Your answer — tap letters to return</div>
       <div class="letters-row" id="submissionLetters"></div>
     </div>
 
     <!-- Available Letters (Scrambled) -->
     <div class="letters-section">
-      <div class="section-label">Available Letters — tap to select</div>
+      <div class="section-label">Available letters — tap to select</div>
       <div class="letters-row" id="availableLetters"></div>
     </div>
 
     <p class="hint-text" id="hintText">Unscramble the letters above</p>
 
-    <div class="feedback" id="feedback"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
 
     <div class="submit-row">
-      <button class="btn btn-success" id="submitBtn" onclick="submitAnswer()">✅ Submit Answer</button>
+      <button class="btn btn-success" id="submitBtn" onclick="submitAnswer()">Submit Answer</button>
     </div>
 
     <div class="controls-row">
-      <button class="btn btn-hint" onclick="showHint()">💡 Hint</button>
-      <button class="btn btn-skip" onclick="skipCase()">⏭ Skip</button>
+      <button class="btn btn-hint" onclick="showHint()">Hint (−5)</button>
+      <button class="btn btn-skip" onclick="skipCase()">Skip</button>
     </div>
   </div>
 
   <!-- RESULT SCREEN -->
   <div class="result-screen" id="resultScreen">
-    <h1>🎉 Training Complete!</h1>
-    <p class="subtitle" id="resultSubtitle">Great effort!</p>
+    <span class="eyebrow">Session Complete</span>
+    <h1 style="">Time's Up</h1>
 
     <div class="result-card">
       <div class="result-score" id="finalScore">0</div>
+      <div class="result-score-label">Total Score</div>
       <div class="result-detail">
         <div class="detail-item">
           <div class="num" id="finalCorrect">0</div>
@@ -506,107 +520,146 @@
           <div class="lbl">Accuracy</div>
         </div>
       </div>
+      <div class="result-detail streak-row">
+        <div class="detail-item">
+          <div class="num" id="finalBestStreak">0</div>
+          <div class="lbl">Best Streak</div>
+        </div>
+      </div>
     </div>
 
     <div class="history-list" id="historyList"></div>
 
-    <button class="btn btn-primary" onclick="restartQuiz()" style="margin-top: 20px;">
-      🔄 Train Again
+    <button class="btn btn-primary" onclick="restartQuiz()" style="">
+      Run It Back
     </button>
   </div>
 
 </div>
 
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div class="loading-text">Saving your progress...</div>
-</div>
-
 <script>
 /* ============================================
-   ANAGRAM SOLVER — PLACEMENT TRAINER
-   Tap-to-select, no-rearrange version
+   ANAGRAMS WITH VERVE
+   3-minute rush mode, tap-to-select, no rearrange
    ============================================ */
 
 const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+const SESSION_SECONDS = 180;
 
-const WORD_BANK = {
-  easy: [
-    { word: "TEAM", category: "softskills", hint: "Group working together" },
-    { word: "GOAL", category: "business", hint: "Target to achieve" },
-    { word: "DATA", category: "tech", hint: "Facts and statistics" },
-    { word: "CODE", category: "tech", hint: "Programming instructions" },
-    { word: "LEAD", category: "softskills", hint: "To guide others" },
-    { word: "PLAN", category: "business", hint: "A detailed proposal" },
-    { word: "TEST", category: "aptitude", hint: "An examination" },
-    { word: "WORK", category: "business", hint: "Activity involving effort" },
-    { word: "SKILL", category: "softskills", hint: "Ability to do something well" },
-    { word: "LOGIC", category: "aptitude", hint: "Reasoning conducted by circuits" },
-    { word: "BRAND", category: "business", hint: "Company identity" },
-    { word: "CLOUD", category: "tech", hint: "Internet-based computing" },
-    { word: "TRUST", category: "softskills", hint: "Firm belief in reliability" },
-    { word: "PROFIT", category: "business", hint: "Financial gain" },
-    { word: "SCRIPT", category: "tech", hint: "Written program code" }
-  ],
-  medium: [
-    { word: "NETWORK", category: "tech", hint: "Connected computers" },
-    { word: "ANALYSIS", category: "aptitude", hint: "Detailed examination" },
-    { word: "STRATEGY", category: "business", hint: "Plan of action" },
-    { word: "DATABASE", category: "tech", hint: "Organized data collection" },
-    { word: "LEADERSHIP", category: "softskills", hint: "Ability to lead" },
-    { word: "ALGORITHM", category: "tech", hint: "Step-by-step procedure" },
-    { word: "MARKETING", category: "business", hint: "Promoting products" },
-    { word: "APTITUDE", category: "aptitude", hint: "Natural ability" },
-    { word: "PROTOCOL", category: "tech", hint: "Set of rules" },
-    { word: "REVENUE", category: "business", hint: "Income generated" },
-    { word: "INTERFACE", category: "tech", hint: "Point of interaction" },
-    { word: "NEGOTIATE", category: "softskills", hint: "Try to reach an agreement" },
-    { word: "VARIABLE", category: "aptitude", hint: "Changeable quantity" },
-    { word: "FRAMEWORK", category: "tech", hint: "Basic structure" },
-    { word: "PORTFOLIO", category: "business", hint: "Collection of investments" }
-  ],
-  hard: [
-    { word: "INFRASTRUCTURE", category: "tech", hint: "Basic physical systems" },
-    { word: "ENTREPRENEUR", category: "business", hint: "Business founder" },
-    { word: "COMMUNICATION", category: "softskills", hint: "Exchange of information" },
-    { word: "PROBABILITY", category: "aptitude", hint: "Likelihood of occurrence" },
-    { word: "OPTIMIZATION", category: "tech", hint: "Making the best use of" },
-    { word: "COLLABORATION", category: "softskills", hint: "Working together" },
-    { word: "DEPRECIATION", category: "business", hint: "Reduction in value" },
-    { word: "PERMUTATION", category: "aptitude", hint: "Arrangement of items" },
-    { word: "ARCHITECTURE", category: "tech", hint: "System design structure" },
-    { word: "ACCELERATION", category: "aptitude", hint: "Rate of change of velocity" },
-    { word: "DIFFERENTIATION", category: "aptitude", hint: "Finding the derivative" },
-    { word: "MICROSERVICES", category: "tech", hint: "Small independent services" },
-    { word: "STAKEHOLDERS", category: "business", hint: "Interested parties" },
-    { word: "PROCRASTINATION", category: "softskills", hint: "Delaying action" },
-    { word: "CONFIGURATION", category: "tech", hint: "Arrangement of elements" }
-  ]
-};
+const WORD_BANK = [
+  { word: "TEAM", category: "softskills", hint: "Group working together" },
+  { word: "GOAL", category: "business", hint: "Target to achieve" },
+  { word: "DATA", category: "tech", hint: "Facts and statistics" },
+  { word: "CODE", category: "tech", hint: "Programming instructions" },
+  { word: "LEAD", category: "softskills", hint: "To guide others" },
+  { word: "PLAN", category: "business", hint: "A detailed proposal" },
+  { word: "TEST", category: "aptitude", hint: "An examination" },
+  { word: "WORK", category: "business", hint: "Activity involving effort" },
+  { word: "SKILL", category: "softskills", hint: "Ability to do something well" },
+  { word: "LOGIC", category: "aptitude", hint: "Reasoning conducted by circuits" },
+  { word: "BRAND", category: "business", hint: "Company identity" },
+  { word: "CLOUD", category: "tech", hint: "Internet-based computing" },
+  { word: "TRUST", category: "softskills", hint: "Firm belief in reliability" },
+  { word: "PROFIT", category: "business", hint: "Financial gain" },
+  { word: "SCRIPT", category: "tech", hint: "Written program code" },
+  { word: "SERVER", category: "tech", hint: "Machine that hosts requests" },
+  { word: "ROUTER", category: "tech", hint: "Directs network traffic" },
+  { word: "KERNEL", category: "tech", hint: "Core of an operating system" },
+  { word: "CACHE", category: "tech", hint: "Temporary fast storage" },
+  { word: "RATIO", category: "aptitude", hint: "Comparison of two quantities" },
+  { word: "INTEGER", category: "aptitude", hint: "A whole number" },
+  { word: "INVOICE", category: "business", hint: "Bill for goods or services" },
+  { word: "BUDGET", category: "business", hint: "Planned spending limit" },
+  { word: "MERGER", category: "business", hint: "Two companies becoming one" },
+  { word: "EQUITY", category: "business", hint: "Ownership value in a firm" },
+  { word: "EMPATHY", category: "softskills", hint: "Understanding others' feelings" },
+  { word: "FEEDBACK", category: "softskills", hint: "Response used to improve" },
+  { word: "NETWORK", category: "tech", hint: "Connected computers" },
+  { word: "ANALYSIS", category: "aptitude", hint: "Detailed examination" },
+  { word: "STRATEGY", category: "business", hint: "Plan of action" },
+  { word: "DATABASE", category: "tech", hint: "Organized data collection" },
+  { word: "LEADERSHIP", category: "softskills", hint: "Ability to lead" },
+  { word: "ALGORITHM", category: "tech", hint: "Step-by-step procedure" },
+  { word: "MARKETING", category: "business", hint: "Promoting products" },
+  { word: "APTITUDE", category: "aptitude", hint: "Natural ability" },
+  { word: "PROTOCOL", category: "tech", hint: "Set of rules" },
+  { word: "REVENUE", category: "business", hint: "Income generated" },
+  { word: "INTERFACE", category: "tech", hint: "Point of interaction" },
+  { word: "NEGOTIATE", category: "softskills", hint: "Try to reach an agreement" },
+  { word: "VARIABLE", category: "aptitude", hint: "Changeable quantity" },
+  { word: "FRAMEWORK", category: "tech", hint: "Basic structure" },
+  { word: "PORTFOLIO", category: "business", hint: "Collection of investments" },
+  { word: "FIREWALL", category: "tech", hint: "Blocks unauthorized access" },
+  { word: "BANDWIDTH", category: "tech", hint: "Data transfer capacity" },
+  { word: "DEBUGGING", category: "tech", hint: "Finding and fixing errors" },
+  { word: "GEOMETRY", category: "aptitude", hint: "Study of shapes" },
+  { word: "SEQUENCE", category: "aptitude", hint: "Ordered list of numbers" },
+  { word: "FORECAST", category: "business", hint: "Prediction of future trends" },
+  { word: "OVERHEAD", category: "business", hint: "Ongoing operating cost" },
+  { word: "TURNOVER", category: "business", hint: "Total sales in a period" },
+  { word: "INITIATIVE", category: "softskills", hint: "Taking action on your own" },
+  { word: "DISCIPLINE", category: "softskills", hint: "Controlled, consistent behavior" },
+  { word: "CONFIDENCE", category: "softskills", hint: "Belief in one's abilities" },
+  { word: "INFRASTRUCTURE", category: "tech", hint: "Basic physical systems" },
+  { word: "ENTREPRENEUR", category: "business", hint: "Business founder" },
+  { word: "COMMUNICATION", category: "softskills", hint: "Exchange of information" },
+  { word: "PROBABILITY", category: "aptitude", hint: "Likelihood of occurrence" },
+  { word: "OPTIMIZATION", category: "tech", hint: "Making the best use of" },
+  { word: "COLLABORATION", category: "softskills", hint: "Working together" },
+  { word: "DEPRECIATION", category: "business", hint: "Reduction in value" },
+  { word: "PERMUTATION", category: "aptitude", hint: "Arrangement of items" },
+  { word: "ARCHITECTURE", category: "tech", hint: "System design structure" },
+  { word: "ACCELERATION", category: "aptitude", hint: "Rate of change of velocity" },
+  { word: "DIFFERENTIATION", category: "aptitude", hint: "Finding the derivative" },
+  { word: "MICROSERVICES", category: "tech", hint: "Small independent services" },
+  { word: "STAKEHOLDERS", category: "business", hint: "Interested parties" },
+  { word: "PROCRASTINATION", category: "softskills", hint: "Delaying action" },
+  { word: "CONFIGURATION", category: "tech", hint: "Arrangement of elements" },
+  { word: "COMPLIANCE", category: "business", hint: "Following rules and regulations" },
+  { word: "ACQUISITION", category: "business", hint: "Buying out another company" },
+  { word: "INEQUALITY", category: "aptitude", hint: "Relation showing imbalance" },
+  { word: "ESTIMATION", category: "aptitude", hint: "Approximate calculation" },
+  { word: "DEDUCTION", category: "aptitude", hint: "Conclusion from reasoning" },
+  { word: "STATISTICS", category: "aptitude", hint: "Study of data" },
+  { word: "MENTORSHIP", category: "softskills", hint: "Guidance from an experienced peer" },
+  { word: "RESILIENCE", category: "softskills", hint: "Bouncing back from setbacks" },
+  { word: "ADAPTABILITY", category: "softskills", hint: "Adjusting to change easily" },
+  { word: "PUNCTUALITY", category: "softskills", hint: "Being on time" },
+  { word: "MIDDLEWARE", category: "tech", hint: "Software connecting systems" },
+  { word: "DEPLOYMENT", category: "tech", hint: "Releasing software to use" },
+  { word: "ENCRYPTION", category: "tech", hint: "Scrambling data for security" },
+  { word: "INVENTORY", category: "business", hint: "Stock of goods on hand" },
+  { word: "LOGISTICS", category: "business", hint: "Coordinating movement of goods" },
+  { word: "DIVIDEND", category: "business", hint: "Profit paid to shareholders" }
+];
 
 // Game State
 let playerName = "";
 let playerDept = "";
-let difficulty = "medium";
-let currentCaseIdx = 0;
 let score = 0;
-let lives = 3;
-let caseCorrectTaps = 0;
-let caseWrongTaps = 0;
+let streak = 0;
+let bestStreak = 0;
 let wrongTaps = 0;
 let correctTaps = 0;
 let completedCount = 0;
 let skippedCount = 0;
+let caseCorrectTaps = 0;
+let caseWrongTaps = 0;
 let caseStartTime = 0;
-let timerInterval = null;
-let timeLimit = 45;
 let caseHistory = [];
-let shuffledCases = [];
+
+let wordQueue = [];
+let queuePos = 0;
+let currentWordData = null;
+
+let timeRemaining = SESSION_SECONDS;
+let timerInterval = null;
 
 // Tap-to-select state
 let availableLetters = []; // {char, id, used}
 let selectedLetters = [];  // {char, id}
-let tileRefs = {};         // id -> DOM element (persistent per case)
+let tileRefs = {};         // id -> available-tray DOM element (persistent per case)
+let subTileRefs = {};      // id -> submission-tray DOM element
 
 /* ============================================
    INITIALIZATION
@@ -615,31 +668,25 @@ let tileRefs = {};         // id -> DOM element (persistent per case)
 function beginQuiz() {
   const nameInput = document.getElementById("playerName").value.trim();
   const deptInput = document.getElementById("playerDept").value;
-  const diffInput = document.getElementById("difficulty").value;
 
   if (!nameInput) { alert("Please enter your name"); return; }
   if (!deptInput) { alert("Please select your department"); return; }
 
   playerName = nameInput;
   playerDept = deptInput;
-  difficulty = diffInput;
 
-  if (difficulty === "easy") timeLimit = 30;
-  else if (difficulty === "medium") timeLimit = 45;
-  else timeLimit = 60;
+  wordQueue = shuffledCopy(WORD_BANK);
+  queuePos = 0;
 
-  const pool = [...WORD_BANK[difficulty]];
-  shuffleArray(pool);
-  shuffledCases = pool.slice(0, 10);
-
-  currentCaseIdx = 0;
   score = 0;
-  lives = 3;
+  streak = 0;
+  bestStreak = 0;
   wrongTaps = 0;
   correctTaps = 0;
   completedCount = 0;
   skippedCount = 0;
   caseHistory = [];
+  timeRemaining = SESSION_SECONDS;
 
   savePlayerInfo();
 
@@ -648,6 +695,7 @@ function beginQuiz() {
   document.getElementById("resultScreen").style.display = "none";
 
   loadCase();
+  startTimer();
 }
 
 function restartQuiz() {
@@ -657,28 +705,46 @@ function restartQuiz() {
 }
 
 /* ============================================
+   WORD QUEUE
+   ============================================ */
+
+function getNextWord() {
+  if (queuePos >= wordQueue.length) {
+    const lastWord = wordQueue[wordQueue.length - 1];
+    wordQueue = shuffledCopy(WORD_BANK);
+    if (wordQueue[0].word === lastWord.word && wordQueue.length > 1) {
+      [wordQueue[0], wordQueue[1]] = [wordQueue[1], wordQueue[0]];
+    }
+    queuePos = 0;
+  }
+  return wordQueue[queuePos++];
+}
+
+function shuffledCopy(arr) {
+  const copy = [...arr];
+  shuffleArray(copy);
+  return copy;
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+/* ============================================
    CASE MANAGEMENT
    ============================================ */
 
 function loadCase() {
-  if (currentCaseIdx >= shuffledCases.length || lives <= 0) {
-    completeSession();
-    return;
-  }
+  currentWordData = getNextWord();
 
-  const caseData = shuffledCases[currentCaseIdx];
-
-  // Reset counters
   caseCorrectTaps = 0;
   caseWrongTaps = 0;
   caseStartTime = Date.now();
 
-  // UI Updates
-  document.getElementById("caseDisplay").textContent = currentCaseIdx + 1;
-  document.getElementById("scoreDisplay").textContent = score;
-
-  const livesStr = "❤️".repeat(Math.max(0, lives)) + "🖤".repeat(Math.max(0, 3 - lives));
-  document.getElementById("livesDisplay").textContent = livesStr;
+  updateHeaderStats();
 
   document.getElementById("feedback").className = "feedback";
   document.getElementById("hintText").textContent = "Unscramble the letters above";
@@ -687,16 +753,16 @@ function loadCase() {
   subBox.className = "submission-section";
 
   const badge = document.getElementById("categoryBadge");
-  badge.textContent = caseData.category;
-  badge.className = "category-badge cat-" + caseData.category;
+  badge.textContent = currentWordData.category;
+  badge.className = "category-badge cat-" + currentWordData.category;
 
-  // Build tiles once — they persist for the entire case
   initCaseTiles();
+}
 
-  const progress = ((currentCaseIdx) / shuffledCases.length) * 100;
-  document.getElementById("progressFill").style.width = progress + "%";
-
-  startTimer();
+function updateHeaderStats() {
+  document.getElementById("scoreDisplay").textContent = score;
+  document.getElementById("streakDisplay").textContent = streak;
+  document.getElementById("solvedDisplay").textContent = completedCount;
 }
 
 function scrambleWord(word) {
@@ -709,24 +775,31 @@ function scrambleWord(word) {
   return scrambled;
 }
 
-function shuffleArray(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
-
 /* ============================================
    TILE MANAGEMENT (no re-render, no re-arrange)
    ============================================ */
 
-function initCaseTiles() {
-  const caseData = shuffledCases[currentCaseIdx];
-  const scrambled = scrambleWord(caseData.word);
+function computeTileSize(letterCount) {
+  const availRow = document.getElementById("availableLetters");
+  const subRow = document.getElementById("submissionLetters");
+  const availableWidth = Math.min(
+    availRow.clientWidth || 480,
+    subRow.clientWidth || 480
+  );
 
-  availableLetters = scrambled.split("").map((char, idx) => ({ char, id: idx, used: false }));
-  selectedLetters = [];
-  tileRefs = {};
+  let gap = 9;
+  if (letterCount > 12) gap = 4;
+  else if (letterCount > 8) gap = 6;
+
+  let raw = (availableWidth - gap * (letterCount - 1)) / letterCount;
+  raw = Math.max(20, Math.min(48, raw));
+
+  document.documentElement.style.setProperty("--tile-size", raw + "px");
+  document.documentElement.style.setProperty("--tile-gap", gap + "px");
+}
+
+function initCaseTiles() {
+  const scrambled = scrambleWord(currentWordData.word);
 
   const availContainer = document.getElementById("availableLetters");
   const subContainer = document.getElementById("submissionLetters");
@@ -734,20 +807,32 @@ function initCaseTiles() {
   availContainer.innerHTML = "";
   subContainer.innerHTML = "";
 
-  // Placeholder
+  computeTileSize(scrambled.length);
+
+  availableLetters = scrambled.split("").map((char, idx) => ({ char, id: idx, used: false }));
+  selectedLetters = [];
+  tileRefs = {};
+  subTileRefs = {};
+
   const placeholder = document.createElement("div");
   placeholder.className = "submission-placeholder";
   placeholder.id = "submissionPlaceholder";
   placeholder.textContent = "Tap letters above to build your answer";
   subContainer.appendChild(placeholder);
 
-  // Create tiles in available pool
+  // Available tray: tiles are created once and stay in their original slot
+  // for the whole case. Selecting a letter hides it in place rather than
+  // moving or collapsing the row, so the remaining letters never shift.
   availableLetters.forEach((item) => {
     const tile = document.createElement("div");
     tile.className = "letter-tile";
     tile.textContent = item.char;
     tile.dataset.id = item.id;
+    tile.tabIndex = 0;
+    tile.setAttribute("role", "button");
+    tile.setAttribute("aria-label", "Letter " + item.char);
     tile.onclick = () => selectLetter(item.id);
+    tile.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectLetter(item.id); } };
     availContainer.appendChild(tile);
     tileRefs[item.id] = tile;
   });
@@ -760,18 +845,27 @@ function selectLetter(id) {
   item.used = true;
   selectedLetters.push({ char: item.char, id: item.id });
 
-  const tile = tileRefs[id];
-  const availContainer = document.getElementById("availableLetters");
-  const subContainer = document.getElementById("submissionLetters");
+  // Hide the source tile in place (its slot stays reserved) instead of
+  // removing it, so the rest of the available row doesn't reflow.
+  const sourceTile = tileRefs[id];
+  sourceTile.classList.add("tile-placeholder");
+  sourceTile.tabIndex = -1;
 
-  // Remove placeholder
   const placeholder = document.getElementById("submissionPlaceholder");
   if (placeholder) placeholder.remove();
 
-  // Move tile to submission (instant, no animation)
-  availContainer.removeChild(tile);
-  subContainer.appendChild(tile);
-  tile.onclick = () => unselectLetter(id);
+  const subContainer = document.getElementById("submissionLetters");
+  const subTile = document.createElement("div");
+  subTile.className = "letter-tile";
+  subTile.textContent = item.char;
+  subTile.dataset.id = id;
+  subTile.tabIndex = 0;
+  subTile.setAttribute("role", "button");
+  subTile.setAttribute("aria-label", "Letter " + item.char + ", tap to remove");
+  subTile.onclick = () => unselectLetter(id);
+  subTile.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); unselectLetter(id); } };
+  subContainer.appendChild(subTile);
+  subTileRefs[id] = subTile;
 
   document.getElementById("submissionBox").classList.add("has-letters");
 }
@@ -784,27 +878,15 @@ function unselectLetter(id) {
   if (item) item.used = false;
   selectedLetters.splice(idx, 1);
 
-  const tile = tileRefs[id];
-  const availContainer = document.getElementById("availableLetters");
+  const subTile = subTileRefs[id];
+  if (subTile) subTile.remove();
+  delete subTileRefs[id];
+
+  const sourceTile = tileRefs[id];
+  sourceTile.classList.remove("tile-placeholder");
+  sourceTile.tabIndex = 0;
+
   const subContainer = document.getElementById("submissionLetters");
-
-  // Move tile back to available pool in original position
-  subContainer.removeChild(tile);
-
-  let inserted = false;
-  for (let i = id + 1; i < availableLetters.length; i++) {
-    const nextTile = tileRefs[i];
-    if (nextTile && nextTile.parentNode === availContainer) {
-      availContainer.insertBefore(tile, nextTile);
-      inserted = true;
-      break;
-    }
-  }
-  if (!inserted) {
-    availContainer.appendChild(tile);
-  }
-
-  tile.onclick = () => selectLetter(id);
 
   if (selectedLetters.length === 0) {
     const placeholder = document.createElement("div");
@@ -817,45 +899,48 @@ function unselectLetter(id) {
 }
 
 /* ============================================
-   TIMER
+   SESSION TIMER (single 3:00 clock)
    ============================================ */
 
 function startTimer() {
   clearInterval(timerInterval);
-  let remaining = timeLimit;
-  const fill = document.getElementById("timerFill");
-  fill.style.width = "100%";
+  updateTimerUI();
 
   timerInterval = setInterval(() => {
-    remaining -= 0.1;
-    const pct = (remaining / timeLimit) * 100;
-    fill.style.width = Math.max(0, pct) + "%";
+    timeRemaining -= 0.1;
+    updateTimerUI();
 
-    if (remaining <= 0) {
+    if (timeRemaining <= 0) {
       clearInterval(timerInterval);
-      handleTimeout();
+      timeRemaining = 0;
+      updateTimerUI();
+      completeSession();
     }
   }, 100);
 }
 
-function handleTimeout() {
-  const caseData = shuffledCases[currentCaseIdx];
-  caseWrongTaps++;
-  wrongTaps++;
+function updateTimerUI() {
+  const clamped = Math.max(0, timeRemaining);
+  const mins = Math.floor(clamped / 60);
+  const secs = Math.floor(clamped % 60);
+  const label = String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
 
-  showFeedback("⏰ Time's up! The word was: " + caseData.word, "error");
-  caseHistory.push({ word: caseData.word, status: "timeout" });
+  const timeValue = document.getElementById("timeDisplay");
+  timeValue.textContent = label;
 
-  const elapsedSec = (Date.now() - caseStartTime) / 1000;
-  const status = "practiced";
-  submitCaseToSupabase(status, elapsedSec);
+  const pct = (clamped / SESSION_SECONDS) * 100;
+  const rail = document.getElementById("timerRailFill");
+  rail.style.width = pct + "%";
 
-  setTimeout(() => {
-    currentCaseIdx++;
-    lives--;
-    completedCount++;
-    loadCase();
-  }, 2000);
+  timeValue.classList.remove("warn", "bad");
+  rail.classList.remove("warn", "bad");
+  if (clamped <= 20) {
+    timeValue.classList.add("bad");
+    rail.classList.add("bad");
+  } else if (clamped <= 60) {
+    timeValue.classList.add("warn");
+    rail.classList.add("warn");
+  }
 }
 
 /* ============================================
@@ -866,70 +951,70 @@ function submitAnswer() {
   if (selectedLetters.length === 0) return;
 
   const input = selectedLetters.map(l => l.char).join("").toUpperCase();
-  const caseData = shuffledCases[currentCaseIdx];
-  const correctWord = caseData.word.toUpperCase();
+  const correctWord = currentWordData.word.toUpperCase();
 
   if (input === correctWord) {
-    clearInterval(timerInterval);
     caseCorrectTaps++;
     correctTaps++;
+    completedCount++;
 
-    const timeBonus = Math.max(0, Math.round(timeLimit - ((Date.now() - caseStartTime) / 1000)));
-    const points = (difficulty === "easy" ? 10 : difficulty === "medium" ? 20 : 30) + timeBonus;
+    streak++;
+    bestStreak = Math.max(bestStreak, streak);
+
+    const basePoints = correctWord.length * 5;
+    const streakBonus = Math.min(streak, 10) * 3;
+    const points = basePoints + streakBonus;
     score += points;
 
     document.getElementById("submissionBox").className = "submission-section correct";
-    showFeedback("✅ Correct! +" + points + " points", "success");
-    caseHistory.push({ word: caseData.word, status: "correct" });
+    showFeedback("Correct! +" + points + " points (streak bonus " + streakBonus + ")", "success");
+    caseHistory.push({ word: currentWordData.word, status: "correct" });
+    updateHeaderStats();
 
     const elapsedSec = (Date.now() - caseStartTime) / 1000;
-    const status = "completed";
-    submitCaseToSupabase(status, elapsedSec);
+    submitCaseToSupabase("completed", elapsedSec);
 
     setTimeout(() => {
-      currentCaseIdx++;
-      completedCount++;
-      loadCase();
-    }, 1500);
+      if (timeRemaining > 0) loadCase();
+    }, 1300);
 
   } else {
     caseWrongTaps++;
     wrongTaps++;
+    streak = 0;
+    updateHeaderStats();
 
     const subBox = document.getElementById("submissionBox");
     subBox.className = "submission-section wrong";
-    showFeedback("❌ Incorrect! Try again", "error");
+    showFeedback("Not quite — try again", "error");
 
     setTimeout(() => {
-      subBox.className = "submission-section has-letters";
-    }, 600);
+      subBox.className = selectedLetters.length > 0 ? "submission-section has-letters" : "submission-section";
+    }, 500);
   }
 }
 
 function showHint() {
-  const caseData = shuffledCases[currentCaseIdx];
-  document.getElementById("hintText").textContent = "💡 " + caseData.hint;
+  document.getElementById("hintText").textContent = currentWordData.hint;
   score = Math.max(0, score - 5);
-  document.getElementById("scoreDisplay").textContent = score;
+  updateHeaderStats();
 }
 
 function skipCase() {
-  clearInterval(timerInterval);
-  const caseData = shuffledCases[currentCaseIdx];
-
-  showFeedback("⏭ Skipped. Answer: " + caseData.word, "error");
-  caseHistory.push({ word: caseData.word, status: "skipped" });
+  streak = 0;
   skippedCount++;
+  completedCount++;
+  updateHeaderStats();
+
+  showFeedback("Skipped. Answer: " + currentWordData.word, "error");
+  caseHistory.push({ word: currentWordData.word, status: "skipped" });
 
   const elapsedSec = (Date.now() - caseStartTime) / 1000;
-  const status = "practiced";
-  submitCaseToSupabase(status, elapsedSec);
+  submitCaseToSupabase("practiced", elapsedSec);
 
   setTimeout(() => {
-    currentCaseIdx++;
-    completedCount++;
-    loadCase();
-  }, 1500);
+    if (timeRemaining > 0) loadCase();
+  }, 1000);
 }
 
 function showFeedback(msg, type) {
@@ -943,7 +1028,7 @@ function showFeedback(msg, type) {
    ============================================ */
 
 function submitCaseToSupabase(status, elapsedSec) {
-  const caseNumber = currentCaseIdx + 1;
+  const caseNumber = completedCount;
   const questId = (status === 'practiced' ? "Cases " : "Case ") + caseNumber;
 
   const payload = {
@@ -971,14 +1056,14 @@ async function sendViaEdgeFunction(payload) {
     });
 
     if (!response.ok) {
-      console.error("❌ Edge Function Error:", await response.text());
+      console.error("Edge Function Error:", await response.text());
       return;
     }
 
-    console.log("✅ Saved to Supabase");
+    console.log("Saved to Supabase");
 
   } catch (err) {
-    console.error("⚠️ Edge Function Error:", err);
+    console.error("Edge Function Error:", err);
   }
 }
 
@@ -991,31 +1076,25 @@ function completeSession() {
   document.getElementById("gameScreen").style.display = "none";
   document.getElementById("resultScreen").style.display = "block";
 
-  const totalCases = caseHistory.length;
   const correctCount = caseHistory.filter(c => c.status === "correct").length;
-  const wrongCount = caseHistory.filter(c => c.status === "timeout").length;
-  const accuracy = totalCases > 0 ? Math.round((correctCount / totalCases) * 100) : 0;
+  const attempted = correctCount + skippedCount;
+  const accuracy = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
 
   document.getElementById("finalScore").textContent = score;
   document.getElementById("finalCorrect").textContent = correctCount;
-  document.getElementById("finalWrong").textContent = wrongCount;
+  document.getElementById("finalWrong").textContent = wrongTaps;
   document.getElementById("finalSkipped").textContent = skippedCount;
   document.getElementById("finalAccuracy").textContent = accuracy + "%";
-
-  const subtitle = document.getElementById("resultSubtitle");
-  if (accuracy >= 80) subtitle.textContent = "Outstanding! You're placement-ready! 🌟";
-  else if (accuracy >= 60) subtitle.textContent = "Great job! Keep practicing! 💪";
-  else if (accuracy >= 40) subtitle.textContent = "Good effort! Room for improvement! 📈";
-  else subtitle.textContent = "Keep practicing! You'll get there! 🎯";
+  document.getElementById("finalBestStreak").textContent = bestStreak;
 
   const list = document.getElementById("historyList");
-  list.innerHTML = "<h3 style='margin-bottom:12px;font-size:1rem;'>Case History</h3>";
+  list.innerHTML = "<h3>Word History</h3>";
   caseHistory.forEach((item, i) => {
     const div = document.createElement("div");
     div.className = "history-item";
     let statusClass = item.status === "correct" ? "h-correct" : item.status === "skipped" ? "h-skipped" : "h-wrong";
-    let statusText = item.status === "correct" ? "✅" : item.status === "skipped" ? "⏭" : "❌";
-    div.innerHTML = `<span class="h-word">Case ${i+1}: ${item.word}</span><span class="h-status ${statusClass}">${statusText}</span>`;
+    let statusText = item.status === "correct" ? "Correct" : item.status === "skipped" ? "Skipped" : "Missed";
+    div.innerHTML = `<span class="h-word">${i + 1}. ${item.word}</span><span class="h-status ${statusClass}">${statusText}</span>`;
     list.appendChild(div);
   });
 }
@@ -1034,6 +1113,10 @@ window.addEventListener("load", () => {
   const savedDept = localStorage.getItem("anagram_playerDept");
   if (savedName) document.getElementById("playerName").value = savedName;
   if (savedDept) document.getElementById("playerDept").value = savedDept;
+});
+
+window.addEventListener("resize", () => {
+  if (currentWordData) computeTileSize(currentWordData.word.length);
 });
 </script>
 
