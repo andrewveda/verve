@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anagram Solver — Placement Trainer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      border: 1px solid var(--surface-light);
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      font-size: 0.95rem;
+    }
+
+    /* Login Screen */
+    .login-screen { display: block; }
+    .game-screen { display: none; }
+    .result-screen { display: none; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 2px solid var(--surface-light);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.3); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+
+    /* Game Header */
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--surface-light);
+    }
+    .stat-box {
+      text-align: center;
+    }
+    .stat-box .value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .stat-box .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Anagram Display */
+    .category-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .cat-business { background: rgba(34,197,94,0.15); color: var(--success); }
+    .cat-tech { background: rgba(99,102,241,0.15); color: var(--primary); }
+    .cat-aptitude { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .cat-softskills { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+    .anagram-box {
+      background: var(--bg);
+      border: 2px dashed var(--surface-light);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .anagram-letters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .letter-tile {
+      width: 52px;
+      height: 58px;
+      background: linear-gradient(180deg, var(--surface-light), var(--surface));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      animation: popIn 0.4s ease backwards;
+    }
+    @keyframes popIn {
+      from { transform: scale(0) rotate(-10deg); opacity: 0; }
+      to { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .hint-text {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Input Area */
+    .answer-area { margin-bottom: 20px; }
+    .answer-input {
+      width: 100%;
+      padding: 18px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      border-radius: 14px;
+      border: 2px solid var(--surface-light);
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .answer-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+    }
+    .answer-input.correct { border-color: var(--success); background: rgba(34,197,94,0.05); }
+    .answer-input.wrong { border-color: var(--danger); background: rgba(239,68,68,0.05); animation: shake 0.4s; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .btn-hint {
+      background: var(--surface-light);
+      color: var(--text);
+    }
+    .btn-hint:hover { background: #475569; }
+    .btn-skip {
+      background: var(--surface-light);
+      color: var(--text-muted);
+    }
+
+    /* Progress */
+    .progress-bar {
+      height: 6px;
+      background: var(--bg);
+      border-radius: 3px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #a855f7);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* Feedback */
+    .feedback {
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-weight: 700;
+      display: none;
+    }
+    .feedback.show { display: block; animation: slideDown 0.3s ease; }
+    .feedback-success { background: rgba(34,197,94,0.1); color: var(--success); }
+    .feedback-error { background: rgba(239,68,68,0.1); color: var(--danger); }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Timer Bar */
+    .timer-container {
+      margin-bottom: 20px;
+    }
+    .timer-bar {
+      height: 4px;
+      background: var(--surface-light);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .timer-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--success), var(--warning), var(--danger));
+      border-radius: 2px;
+      transition: width 0.1s linear;
+    }
+
+    /* Results */
+    .result-card {
+      background: var(--bg);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .result-score {
+      font-size: 4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .result-detail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .detail-item {
+      background: var(--surface);
+      padding: 16px;
+      border-radius: 12px;
+    }
+    .detail-item .num { font-size: 1.5rem; font-weight: 800; }
+    .detail-item .lbl { font-size: 0.8rem; color: var(--text-muted); }
+
+    .history-list {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--bg);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+    .history-item .h-word { font-weight: 700; }
+    .history-item .h-status { font-weight: 700; }
+    .h-correct { color: var(--success); }
+    .h-wrong { color: var(--danger); }
+    .h-skipped { color: var(--warning); }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .app-container { padding: 24px; }
+      h1 { font-size: 1.5rem; }
+      .letter-tile { width: 42px; height: 48px; font-size: 1.2rem; }
+      .answer-input { font-size: 1.1rem; letter-spacing: 2px; }
+      .controls { grid-template-columns: 1fr; }
+      .result-score { font-size: 3rem; }
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15,23,42,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .loading-overlay.show { display: flex; }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 4px solid var(--surface-light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: var(--text-muted); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- LOGIN SCREEN -->
+  <div class="login-screen" id="loginScreen">
+    <h1>🔤 Anagram Solver</h1>
+    <p class="subtitle">Train your word skills for campus placement drives</p>
+
+    <div class="form-group">
+      <label for="playerName">Student Name</label>
+      <input type="text" id="playerName" placeholder="Enter your full name" autocomplete="name">
+    </div>
+
+    <div class="form-group">
+      <label for="playerDept">Department</label>
+      <select id="playerDept">
+        <option value="">Select Department</option>
+        <option value="CSE">Computer Science & Engineering</option>
+        <option value="IT">Information Technology</option>
+        <option value="ECE">Electronics & Communication</option>
+        <option value="EEE">Electrical & Electronics</option>
+        <option value="Mechanical">Mechanical Engineering</option>
+        <option value="Civil">Civil Engineering</option>
+        <option value="MBA">MBA / Business</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="difficulty">Difficulty Level</label>
+      <select id="difficulty">
+        <option value="easy">Easy (4-6 letters)</option>
+        <option value="medium" selected>Medium (6-8 letters)</option>
+        <option value="hard">Hard (8-12 letters)</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" onclick="beginQuiz()">
+      🚀 Start Training
+    </button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="game-screen" id="gameScreen">
+    <div class="game-header">
+      <div class="stat-box">
+        <div class="value" id="scoreDisplay">0</div>
+        <div class="label">Score</div>
+      </div>
+      <div class="stat-box">
+        <div class="value" id="caseDisplay">1</div>
+        <div class="label">Case</div>
+      </div>
+      <div class="stat-box">
+        <div class="value" id="livesDisplay">❤️❤️❤️</div>
+        <div class="label">Lives</div>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+
+    <div class="timer-container">
+      <div class="timer-bar">
+        <div class="timer-fill" id="timerFill" style="width: 100%"></div>
+      </div>
+    </div>
+
+    <div style="text-align: center;">
+      <span class="category-badge" id="categoryBadge">Business</span>
+    </div>
+
+    <div class="anagram-box">
+      <div class="anagram-letters" id="anagramLetters"></div>
+      <p class="hint-text" id="hintText">Unscramble the letters above</p>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="answer-area">
+      <input type="text" class="answer-input" id="answerInput" placeholder="TYPE HERE" autocomplete="off" onkeydown="handleKeyDown(event)">
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-hint" onclick="showHint()">💡 Hint</button>
+      <button class="btn btn-skip" onclick="skipCase()">⏭ Skip</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="result-screen" id="resultScreen">
+    <h1>🎉 Training Complete!</h1>
+    <p class="subtitle" id="resultSubtitle">Great effort!</p>
+
+    <div class="result-card">
+      <div class="result-score" id="finalScore">0</div>
+      <div class="result-detail">
+        <div class="detail-item">
+          <div class="num" id="finalCorrect">0</div>
+          <div class="lbl">Correct</div>
+        </div>
+        <div class="detail-item">
+          <div class="num" id="finalWrong">0</div>
+          <div class="lbl">Wrong</div>
+        </div>
+        <div class="detail-item">
+          <div class="num" id="finalSkipped">0</div>
+          <div class="lbl">Skipped</div>
+        </div>
+        <div class="detail-item">
+          <div class="num" id="finalAccuracy">0%</div>
+          <div class="lbl">Accuracy</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="history-list" id="historyList"></div>
+
+    <button class="btn btn-primary" onclick="restartQuiz()" style="margin-top: 20px;">
+      🔄 Train Again
+    </button>
+  </div>
+
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Saving your progress...</div>
+</div>
+
+<script>
+/* ============================================
+   ANAGRAM SOLVER — PLACEMENT TRAINER
+   ============================================ */
+
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+// Word banks by category and difficulty
+const WORD_BANK = {
+  easy: [
+    { word: "TEAM", category: "softskills", hint: "Group working together" },
+    { word: "GOAL", category: "business", hint: "Target to achieve" },
+    { word: "DATA", category: "tech", hint: "Facts and statistics" },
+    { word: "CODE", category: "tech", hint: "Programming instructions" },
+    { word: "LEAD", category: "softskills", hint: "To guide others" },
+    { word: "PLAN", category: "business", hint: "A detailed proposal" },
+    { word: "TEST", category: "aptitude", hint: "An examination" },
+    { word: "WORK", category: "business", hint: "Activity involving effort" },
+    { word: "SKILL", category: "softskills", hint: "Ability to do something well" },
+    { word: "LOGIC", category: "aptitude", hint: "Reasoning conducted by circuits" },
+    { word: "BRAND", category: "business", hint: "Company identity" },
+    { word: "CLOUD", category: "tech", hint: "Internet-based computing" },
+    { word: "TRUST", category: "softskills", hint: "Firm belief in reliability" },
+    { word: "PROFIT", category: "business", hint: "Financial gain" },
+    { word: "SCRIPT", category: "tech", hint: "Written program code" }
+  ],
+  medium: [
+    { word: "NETWORK", category: "tech", hint: "Connected computers" },
+    { word: "ANALYSIS", category: "aptitude", hint: "Detailed examination" },
+    { word: "STRATEGY", category: "business", hint: "Plan of action" },
+    { word: "DATABASE", category: "tech", hint: "Organized data collection" },
+    { word: "LEADERSHIP", category: "softskills", hint: "Ability to lead" },
+    { word: "ALGORITHM", category: "tech", hint: "Step-by-step procedure" },
+    { word: "MARKETING", category: "business", hint: "Promoting products" },
+    { word: "APTITUDE", category: "aptitude", hint: "Natural ability" },
+    { word: "PROTOCOL", category: "tech", hint: "Set of rules" },
+    { word: "REVENUE", category: "business", hint: "Income generated" },
+    { word: "INTERFACE", category: "tech", hint: "Point of interaction" },
+    { word: "NEGOTIATE", category: "softskills", hint: "Try to reach an agreement" },
+    { word: "VARIABLE", category: "aptitude", hint: "Changeable quantity" },
+    { word: "FRAMEWORK", category: "tech", hint: "Basic structure" },
+    { word: "PORTFOLIO", category: "business", hint: "Collection of investments" }
+  ],
+  hard: [
+    { word: "INFRASTRUCTURE", category: "tech", hint: "Basic physical systems" },
+    { word: "ENTREPRENEUR", category: "business", hint: "Business founder" },
+    { word: "COMMUNICATION", category: "softskills", hint: "Exchange of information" },
+    { word: "PROBABILITY", category: "aptitude", hint: "Likelihood of occurrence" },
+    { word: "OPTIMIZATION", category: "tech", hint: "Making the best use of" },
+    { word: "COLLABORATION", category: "softskills", hint: "Working together" },
+    { word: "DEPRECIATION", category: "business", hint: "Reduction in value" },
+    { word: "PERMUTATION", category: "aptitude", hint: "Arrangement of items" },
+    { word: "ARCHITECTURE", category: "tech", hint: "System design structure" },
+    { word: "ACCELERATION", category: "aptitude", hint: "Rate of change of velocity" },
+    { word: "DIFFERENTIATION", category: "aptitude", hint: "Finding the derivative" },
+    { word: "MICROSERVICES", category: "tech", hint: "Small independent services" },
+    { word: "STAKEHOLDERS", category: "business", hint: "Interested parties" },
+    { word: "PROCRASTINATION", category: "softskills", hint: "Delaying action" },
+    { word: "CONFIGURATION", category: "tech", hint: "Arrangement of elements" }
+  ]
+};
+
+// Game State
+let playerName = "";
+let playerDept = "";
+let difficulty = "medium";
+let currentCaseIdx = 0;
+let score = 0;
+let lives = 3;
+let caseCorrectTaps = 0;
+let caseWrongTaps = 0;
+let wrongTaps = 0;
+let correctTaps = 0;
+let completedCount = 0;
+let skippedCount = 0;
+let caseStartTime = 0;
+let timerInterval = null;
+let timeLimit = 45; // seconds per case
+let caseHistory = [];
+let shuffledCases = [];
+
+/* ============================================
+   INITIALIZATION
+   ============================================ */
+
+function beginQuiz() {
+  const nameInput = document.getElementById("playerName").value.trim();
+  const deptInput = document.getElementById("playerDept").value;
+  const diffInput = document.getElementById("difficulty").value;
+
+  if (!nameInput) { alert("Please enter your name"); return; }
+  if (!deptInput) { alert("Please select your department"); return; }
+
+  playerName = nameInput;
+  playerDept = deptInput;
+  difficulty = diffInput;
+
+  // Set time limit based on difficulty
+  if (difficulty === "easy") timeLimit = 30;
+  else if (difficulty === "medium") timeLimit = 45;
+  else timeLimit = 60;
+
+  // Shuffle and pick cases
+  const pool = [...WORD_BANK[difficulty]];
+  shuffleArray(pool);
+  shuffledCases = pool.slice(0, 10); // 10 cases per session
+
+  // Reset stats
+  currentCaseIdx = 0;
+  score = 0;
+  lives = 3;
+  wrongTaps = 0;
+  correctTaps = 0;
+  completedCount = 0;
+  skippedCount = 0;
+  caseHistory = [];
+
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("gameScreen").style.display = "block";
+  document.getElementById("resultScreen").style.display = "none";
+
+  loadCase();
+}
+
+function restartQuiz() {
+  document.getElementById("loginScreen").style.display = "block";
+  document.getElementById("gameScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "none";
+}
+
+/* ============================================
+   CASE MANAGEMENT
+   ============================================ */
+
+function loadCase() {
+  if (currentCaseIdx >= shuffledCases.length || lives <= 0) {
+    completeSession();
+    return;
+  }
+
+  const caseData = shuffledCases[currentCaseIdx];
+  const scrambled = scrambleWord(caseData.word);
+
+  // Reset case-specific counters
+  caseCorrectTaps = 0;
+  caseWrongTaps = 0;
+  caseStartTime = Date.now();
+
+  // UI Updates
+  document.getElementById("caseDisplay").textContent = currentCaseIdx + 1;
+  document.getElementById("scoreDisplay").textContent = score;
+  document.getElementById("livesDisplay").textContent = "❤️".repeat(lives);
+  document.getElementById("answerInput").value = "";
+  document.getElementById("answerInput").className = "answer-input";
+  document.getElementById("feedback").className = "feedback";
+  document.getElementById("hintText").textContent = "Unscramble the letters above";
+
+  // Category badge
+  const badge = document.getElementById("categoryBadge");
+  badge.textContent = caseData.category;
+  badge.className = "category-badge cat-" + caseData.category;
+
+  // Render scrambled letters
+  const lettersContainer = document.getElementById("anagramLetters");
+  lettersContainer.innerHTML = "";
+  scrambled.split("").forEach((char, i) => {
+    const tile = document.createElement("div");
+    tile.className = "letter-tile";
+    tile.textContent = char;
+    tile.style.animationDelay = (i * 0.05) + "s";
+    lettersContainer.appendChild(tile);
+  });
+
+  // Progress
+  const progress = ((currentCaseIdx) / shuffledCases.length) * 100;
+  document.getElementById("progressFill").style.width = progress + "%";
+
+  // Start timer
+  startTimer();
+  document.getElementById("answerInput").focus();
+}
+
+function scrambleWord(word) {
+  const arr = word.split("");
+  let scrambled = word;
+  // Ensure it's actually scrambled
+  while (scrambled === word) {
+    shuffleArray(arr);
+    scrambled = arr.join("");
+  }
+  return scrambled;
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+/* ============================================
+   TIMER
+   ============================================ */
+
+function startTimer() {
+  clearInterval(timerInterval);
+  let remaining = timeLimit;
+  const fill = document.getElementById("timerFill");
+  fill.style.width = "100%";
+
+  timerInterval = setInterval(() => {
+    remaining -= 0.1;
+    const pct = (remaining / timeLimit) * 100;
+    fill.style.width = Math.max(0, pct) + "%";
+
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      handleTimeout();
+    }
+  }, 100);
+}
+
+function handleTimeout() {
+  const caseData = shuffledCases[currentCaseIdx];
+  caseWrongTaps++;
+  wrongTaps++;
+
+  showFeedback("⏰ Time's up! The word was: " + caseData.word, "error");
+
+  caseHistory.push({ word: caseData.word, status: "timeout" });
+
+  const elapsedSec = (Date.now() - caseStartTime) / 1000;
+  const status = "practiced";
+  submitCaseToSupabase(status, elapsedSec);
+
+  setTimeout(() => {
+    currentCaseIdx++;
+    lives--;
+    completedCount++;
+    loadCase();
+  }, 2000);
+}
+
+/* ============================================
+   ANSWER HANDLING
+   ============================================ */
+
+function handleKeyDown(e) {
+  if (e.key === "Enter") {
+    checkAnswer();
+  }
+}
+
+function checkAnswer() {
+  const input = document.getElementById("answerInput").value.trim().toUpperCase();
+  const caseData = shuffledCases[currentCaseIdx];
+  const correctWord = caseData.word.toUpperCase();
+
+  if (!input) return;
+
+  if (input === correctWord) {
+    // Correct!
+    clearInterval(timerInterval);
+    caseCorrectTaps++;
+    correctTaps++;
+
+    const timeBonus = Math.max(0, Math.round(timeLimit - ((Date.now() - caseStartTime) / 1000)));
+    const points = (difficulty === "easy" ? 10 : difficulty === "medium" ? 20 : 30) + timeBonus;
+    score += points;
+
+    document.getElementById("answerInput").className = "answer-input correct";
+    showFeedback("✅ Correct! +" + points + " points", "success");
+
+    caseHistory.push({ word: caseData.word, status: "correct" });
+
+    const elapsedSec = (Date.now() - caseStartTime) / 1000;
+    const status = "completed";
+    submitCaseToSupabase(status, elapsedSec);
+
+    setTimeout(() => {
+      currentCaseIdx++;
+      completedCount++;
+      loadCase();
+    }, 1500);
+
+  } else {
+    // Wrong!
+    caseWrongTaps++;
+    wrongTaps++;
+
+    document.getElementById("answerInput").className = "answer-input wrong";
+    showFeedback("❌ Incorrect! Try again", "error");
+
+    setTimeout(() => {
+      document.getElementById("answerInput").className = "answer-input";
+      document.getElementById("answerInput").value = "";
+      document.getElementById("answerInput").focus();
+    }, 600);
+  }
+}
+
+function showHint() {
+  const caseData = shuffledCases[currentCaseIdx];
+  document.getElementById("hintText").textContent = "💡 " + caseData.hint;
+  score = Math.max(0, score - 5); // Penalty
+  document.getElementById("scoreDisplay").textContent = score;
+}
+
+function skipCase() {
+  clearInterval(timerInterval);
+  const caseData = shuffledCases[currentCaseIdx];
+
+  showFeedback("⏭ Skipped. Answer: " + caseData.word, "error");
+  caseHistory.push({ word: caseData.word, status: "skipped" });
+  skippedCount++;
+
+  const elapsedSec = (Date.now() - caseStartTime) / 1000;
+  const status = "practiced";
+  submitCaseToSupabase(status, elapsedSec);
+
+  setTimeout(() => {
+    currentCaseIdx++;
+    completedCount++;
+    loadCase();
+  }, 1500);
+}
+
+function showFeedback(msg, type) {
+  const fb = document.getElementById("feedback");
+  fb.textContent = msg;
+  fb.className = "feedback feedback-" + type + " show";
+}
+
+/* ============================================
+   SUPABASE INTEGRATION (Exact pattern from user)
+   ============================================ */
+
+function submitCaseToSupabase(status, elapsedSec) {
+  const caseNumber = currentCaseIdx + 1;
+  const questId = (status === 'practiced' ? "Cases " : "Case ") + caseNumber;
+
+  const payload = {
+    student_name: playerName,
+    department: playerDept,
+    correct: caseCorrectTaps,
+    wrong: caseWrongTaps,
+    time_spent: Math.round(elapsedSec),
+    quest_id: questId,
+    score: score,
+    sentences_pressed: completedCount
+  };
+
+  sendViaEdgeFunction(payload);
+}
+
+async function sendViaEdgeFunction(payload) {
+  try {
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      console.error("❌ Edge Function Error:", await response.text());
+      return;
+    }
+
+    console.log("✅ Saved to Supabase");
+
+  } catch (err) {
+    console.error("⚠️ Edge Function Error:", err);
+  }
+}
+
+/* ============================================
+   SESSION COMPLETION
+   ============================================ */
+
+function completeSession() {
+  clearInterval(timerInterval);
+  document.getElementById("gameScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "block";
+
+  const totalCases = caseHistory.length;
+  const correctCount = caseHistory.filter(c => c.status === "correct").length;
+  const wrongCount = caseHistory.filter(c => c.status === "timeout").length;
+  const accuracy = totalCases > 0 ? Math.round((correctCount / totalCases) * 100) : 0;
+
+  document.getElementById("finalScore").textContent = score;
+  document.getElementById("finalCorrect").textContent = correctCount;
+  document.getElementById("finalWrong").textContent = wrongCount;
+  document.getElementById("finalSkipped").textContent = skippedCount;
+  document.getElementById("finalAccuracy").textContent = accuracy + "%";
+
+  // Rating message
+  const subtitle = document.getElementById("resultSubtitle");
+  if (accuracy >= 80) subtitle.textContent = "Outstanding! You're placement-ready! 🌟";
+  else if (accuracy >= 60) subtitle.textContent = "Great job! Keep practicing! 💪";
+  else if (accuracy >= 40) subtitle.textContent = "Good effort! Room for improvement! 📈";
+  else subtitle.textContent = "Keep practicing! You'll get there! 🎯";
+
+  // History list
+  const list = document.getElementById("historyList");
+  list.innerHTML = "<h3 style='margin-bottom:12px;font-size:1rem;'>Case History</h3>";
+  caseHistory.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    let statusClass = item.status === "correct" ? "h-correct" : item.status === "skipped" ? "h-skipped" : "h-wrong";
+    let statusText = item.status === "correct" ? "✅" : item.status === "skipped" ? "⏭" : "❌";
+    div.innerHTML = `<span class="h-word">Case ${i+1}: ${item.word}</span><span class="h-status ${statusClass}">${statusText}</span>`;
+    list.appendChild(div);
+  });
+}
+
+/* ============================================
+   RESTORE FROM LOCALSTORAGE (Optional)
+   ============================================ */
+
+window.addEventListener("load", () => {
+  const savedName = localStorage.getItem("anagram_playerName");
+  const savedDept = localStorage.getItem("anagram_playerDept");
+  if (savedName) document.getElementById("playerName").value = savedName;
+  if (savedDept) document.getElementById("playerDept").value = savedDept;
+});
+
+function savePlayerInfo() {
+  localStorage.setItem("anagram_playerName", playerName);
+  localStorage.setItem("anagram_playerDept", playerDept);
+}
+
+// Hook save into beginQuiz
+const originalBeginQuiz = beginQuiz;
+beginQuiz = function() {
+  originalBeginQuiz();
+  savePlayerInfo();
+};
+</script>
+
+</body>
+</html>
