@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syllogism Mastery Trainer</title>
+<style>
+:root{
+  --bg:#0f172a;--bg-card:#1e293b;--bg-hover:#334155;--text:#f1f5f9;--text-muted:#94a3b8;
+  --accent:#6366f1;--accent2:#8b5cf6;--success:#22c55e;--danger:#ef4444;--warn:#f59e0b;
+  --easy:#22c55e;--medium:#f59e0b;--hard:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.hidden{display:none !important}
+
+/* Header */
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--bg-hover);margin-bottom:20px}
+header h1{font-size:1.5rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header .subtitle{font-size:0.8rem;color:var(--text-muted)}
+
+/* Buttons */
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all .2s;color:#fff;background:var(--accent)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(99,102,241,.3)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-outline{background:transparent;border:1px solid var(--bg-hover);color:var(--text)}
+.btn-outline:hover{background:var(--bg-hover)}
+.btn-success{background:var(--success)}
+.btn-danger{background:var(--danger)}
+.btn-warn{background:var(--warn);color:#1e293b}
+.btn-sm{padding:6px 14px;font-size:0.8rem}
+
+/* Cards */
+.card{background:var(--bg-card);border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid var(--bg-hover)}
+.card-title{font-size:1.1rem;font-weight:700;margin-bottom:12px;color:var(--text)}
+
+/* Dashboard */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg-card);border-radius:10px;padding:16px;text-align:center;border:1px solid var(--bg-hover)}
+.stat-value{font-size:1.6rem;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:0.75rem;color:var(--text-muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
+
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.topic-card{background:var(--bg-card);border-radius:10px;padding:16px;border:1px solid var(--bg-hover);cursor:pointer;transition:all .2s}
+.topic-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.topic-card h3{font-size:1rem;margin-bottom:6px}
+.topic-card p{font-size:0.8rem;color:var(--text-muted)}
+.topic-card .meta{display:flex;gap:8px;margin-top:10px;font-size:0.75rem}
+.badge{padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:700}
+.badge-easy{background:rgba(34,197,94,.15);color:var(--easy)}
+.badge-medium{background:rgba(245,158,11,.15);color:var(--medium)}
+.badge-hard{background:rgba(239,68,68,.15);color:var(--hard)}
+
+/* Quiz */
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.progress-bar{flex:1;height:8px;background:var(--bg-hover);border-radius:4px;overflow:hidden;min-width:200px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width .3s}
+.timer{font-family:monospace;font-size:1.1rem;font-weight:700;color:var(--warn)}
+
+.question-card{background:var(--bg-card);border-radius:12px;padding:24px;border:1px solid var(--bg-hover)}
+.statements-box{background:rgba(99,102,241,.08);border-left:3px solid var(--accent);padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:16px}
+.statements-box h4{font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:8px}
+.statements-box ul{list-style:none}
+.statements-box li{padding:4px 0;font-size:1rem}
+.statements-box li::before{content:"•";color:var(--accent);margin-right:8px}
+
+.conclusions-box{padding:14px 18px;margin-bottom:16px}
+.conclusions-box h4{font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin-bottom:8px}
+.conclusion-item{padding:6px 0;font-size:1rem}
+.conclusion-item .label{font-weight:700;color:var(--accent2);margin-right:6px}
+
+.options{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.option-btn{text-align:left;padding:14px 18px;background:var(--bg);border:1px solid var(--bg-hover);border-radius:10px;color:var(--text);font-size:0.95rem;cursor:pointer;transition:all .2s}
+.option-btn:hover{border-color:var(--accent);background:rgba(99,102,241,.08)}
+.option-btn.selected{border-color:var(--accent);background:rgba(99,102,241,.15)}
+.option-btn.correct{border-color:var(--success);background:rgba(34,197,94,.1)}
+.option-btn.wrong{border-color:var(--danger);background:rgba(239,68,68,.1)}
+
+/* Hint System */
+.hint-box{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:16px;margin-bottom:16px}
+.hint-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--warn);margin-bottom:6px;font-weight:700}
+.hint-text{font-size:0.95rem;color:var(--text)}
+.venn-container{display:flex;justify-content:center;padding:16px;background:rgba(15,23,42,.5);border-radius:10px;margin-top:12px}
+
+/* Venn SVG Styles */
+.venn-circle{fill:rgba(99,102,241,.06);stroke-width:2.5;transition:all .3s}
+.venn-label{font-size:13px;font-weight:700;fill:var(--text)}
+.venn-dot{fill:var(--warn)}
+.venn-check{fill:var(--success);font-size:16px;font-weight:800}
+.venn-x{fill:var(--danger);font-size:16px;font-weight:800}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.anim-pulse{animation:pulse 2s infinite}
+@keyframes glow{0%,100%{opacity:.6}50%{opacity:1}}
+.anim-glow{animation:glow 1.5s infinite}
+
+/* Explanation */
+.explanation-box{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:16px;margin-top:16px}
+.explanation-box h4{color:var(--success);font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.formula{font-family:'Courier New',monospace;background:var(--bg);padding:8px 12px;border-radius:6px;display:inline-block;margin-top:8px;font-size:0.85rem;color:var(--accent)}
+
+/* Results */
+.result-summary{text-align:center;padding:30px 20px}
+.result-score{font-size:3rem;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-message{font-size:1.1rem;color:var(--text-muted);margin-top:8px}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:20px 0}
+
+/* Review */
+.review-item{background:var(--bg-card);border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid var(--bg-hover)}
+.review-item.correct{border-left:3px solid var(--success)}
+.review-item.wrong{border-left:3px solid var(--danger)}
+.review-item.skipped{border-left:3px solid var(--warn)}
+
+/* Footer nav */
+.nav-footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:10px;flex-wrap:wrap}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .4s ease-out}
+
+/* Responsive */
+@media(max-width:600px){.container{padding:12px}.stats-grid{grid-template-columns:repeat(2,1fr)}.topic-grid{grid-template-columns:1fr}}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div>
+    <h1>Syllogism Mastery Trainer</h1>
+    <div class="subtitle">Logical Reasoning with Venn Diagram Hints</div>
+  </div>
+  <div id="header-actions"></div>
+</header>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="fade-in">
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-value" id="dash-total">0</div><div class="stat-label">Questions</div></div>
+    <div class="stat-card"><div class="stat-value" id="dash-attempted">0</div><div class="stat-label">Attempted</div></div>
+    <div class="stat-card"><div class="stat-value" id="dash-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat-card"><div class="stat-value" id="dash-accuracy">0%</div><div class="stat-label">Accuracy</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Select a Topic</div>
+    <div class="topic-grid" id="topic-grid"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Quick Start</div>
+    <button class="btn" onclick="startQuiz('all')">Start Full Practice (20 Questions)</button>
+    <button class="btn btn-outline" style="margin-left:8px" onclick="startQuiz('wrong')">Review Mistakes</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="hidden">
+  <div class="quiz-header">
+    <div>Question <span id="q-current">1</span> / <span id="q-total">20</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="timer" id="timer">00:00</div>
+  </div>
+  <div class="question-card" id="question-card">
+    <div id="question-content"></div>
+    <div id="hint-area"></div>
+    <div class="nav-footer">
+      <button class="btn btn-outline btn-sm" id="hint-btn" onclick="showHint()">Show Hint</button>
+      <div id="quiz-actions">
+        <button class="btn btn-success" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+        <button class="btn hidden" id="next-btn" onclick="nextQuestion()">Next Question</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="hidden">
+  <div class="card result-summary">
+    <div class="result-score" id="result-score">0/20</div>
+    <div class="result-message" id="result-message">Practice completed!</div>
+    <div class="result-grid">
+      <div class="stat-card"><div class="stat-value" id="res-correct">0</div><div class="stat-label">Correct</div></div>
+      <div class="stat-card"><div class="stat-value" id="res-wrong">0</div><div class="stat-label">Wrong</div></div>
+      <div class="stat-card"><div class="stat-value" id="res-skipped">0</div><div class="stat-label">Skipped</div></div>
+      <div class="stat-card"><div class="stat-value" id="res-time">00:00</div><div class="stat-label">Time</div></div>
+    </div>
+    <div style="margin-top:16px">
+      <button class="btn" onclick="showReview()">Review Answers</button>
+      <button class="btn btn-outline" style="margin-left:8px" onclick="backToDashboard()">Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEW -->
+<div id="review" class="hidden">
+  <div class="card">
+    <div class="card-title">Review Answers</div>
+    <div id="review-list"></div>
+    <div style="margin-top:16px">
+      <button class="btn btn-outline" onclick="backToDashboard()">Back to Dashboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* ========== VENN DIAGRAM LAYOUTS ========== */
+const VENN_LAYOUTS = {
+  "A@B":{
+    circles:[{id:"B",x:150,y:90,r:60,color:"#8b5cf6"},{id:"A",x:150,y:90,r:35,color:"#3b82f6"}],
+    regions:{"A":{x:150,y:90},"A∩B":{x:150,y:90},"B-only":{x:150,y:140},"B-A":{x:150,y:140}}
+  },
+  "A~B":{
+    circles:[{id:"A",x:110,y:90,r:50,color:"#3b82f6"},{id:"B",x:190,y:90,r:50,color:"#8b5cf6"}],
+    regions:{"A-only":{x:80,y:90},"A":{x:80,y:90},"A∩B":{x:150,y:90},"B-only":{x:220,y:90},"B":{x:220,y:90},"B-A":{x:220,y:90}}
+  },
+  "A!B":{
+    circles:[{id:"A",x:85,y:90,r:48,color:"#3b82f6"},{id:"B",x:215,y:90,r:48,color:"#8b5cf6"}],
+    regions:{"A":{x:85,y:90},"B":{x:215,y:90}}
+  },
+  "A@B@C":{
+    circles:[{id:"C",x:150,y:100,r:75,color:"#ec4899"},{id:"B",x:150,y:100,r:52,color:"#8b5cf6"},{id:"A",x:150,y:100,r:30,color:"#3b82f6"}],
+    regions:{"A":{x:150,y:100},"A∩B":{x:150,y:100},"A∩B∩C":{x:150,y:100},"B-only":{x:150,y:135},"B-A":{x:150,y:135},"B∩C":{x:150,y:128},"C-only":{x:150,y:168},"C-B":{x:150,y:168}}
+  },
+  "A@B~C":{
+    circles:[{id:"B",x:130,y:100,r:58,color:"#8b5cf6"},{id:"A",x:130,y:100,r:34,color:"#3b82f6"},{id:"C",x:210,y:100,r:50,color:"#ec4899"}],
+    regions:{"A":{x:130,y:100},"A∩B":{x:130,y:100},"A∩C":{x:155,y:85},"B-only":{x:130,y:145},"B∩C":{x:175,y:100},"C-only":{x:245,y:100},"C-B":{x:245,y:100}}
+  },
+  "A~B@C":{
+    circles:[{id:"C",x:160,y:100,r:68,color:"#ec4899"},{id:"B",x:160,y:100,r:44,color:"#8b5cf6"},{id:"A",x:105,y:100,r:46,color:"#3b82f6"}],
+    regions:{"A-only":{x:75,y:100},"A":{x:75,y:100},"A∩B":{x:130,y:100},"A∩C":{x:130,y:100},"B-only":{x:160,y:140},"B-A":{x:160,y:140},"B∩C":{x:160,y:128},"C-only":{x:225,y:100},"C-B":{x:225,y:100}}
+  },
+  "A~B~C":{
+    circles:[{id:"A",x:110,y:80,r:48,color:"#3b82f6"},{id:"B",x:190,y:80,r:48,color:"#8b5cf6"},{id:"C",x:150,y:145,r:48,color:"#ec4899"}],
+    regions:{"A-only":{x:80,y:65},"A":{x:80,y:65},"A∩B":{x:150,y:65},"B-only":{x:220,y:65},"B":{x:220,y:65},"B-A":{x:220,y:65},"A∩C":{x:125,y:115},"B∩C":{x:175,y:115},"C-only":{x:150,y:175},"C":{x:150,y:175},"A∩B∩C":{x:150,y:100}}
+  },
+  "A!B!C":{
+    circles:[{id:"A",x:65,y:100,r:42,color:"#3b82f6"},{id:"B",x:160,y:100,r:42,color:"#8b5cf6"},{id:"C",x:255,y:100,r:42,color:"#ec4899"}],
+    regions:{"A":{x:65,y:100},"B":{x:160,y:100},"C":{x:255,y:100}}
+  },
+  "A!B~C":{
+    circles:[{id:"A",x:75,y:100,r:48,color:"#3b82f6"},{id:"B",x:185,y:100,r:52,color:"#8b5cf6"},{id:"C",x:255,y:100,r:48,color:"#ec4899"}],
+    regions:{"A":{x:75,y:100},"B-only":{x:165,y:100},"B":{x:165,y:100},"B∩C":{x:220,y:100},"C-only":{x:285,y:100},"C":{x:285,y:100},"C-B":{x:285,y:100}}
+  },
+  "A@B!C":{
+    circles:[{id:"B",x:130,y:100,r:58,color:"#8b5cf6"},{id:"A",x:130,y:100,r:34,color:"#3b82f6"},{id:"C",x:245,y:100,r:50,color:"#ec4899"}],
+    regions:{"A":{x:130,y:100},"A∩B":{x:130,y:100},"B-only":{x:130,y:145},"C":{x:245,y:100}}
+  }
+};
+
+/* ========== QUESTION BANK ========== */
+const QUESTIONS = [
+  {
+    id:1,topic:"basic",topicLabel:"Basic Syllogisms",difficulty:"easy",
+    statements:["All dogs are animals.","All animals are mammals."],
+    conclusions:[
+      {text:"All dogs are mammals.",valid:true},
+      {text:"Some mammals are dogs.",valid:true}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:2,
+    venn:{layout:"A@B@C",terms:{A:"Dogs",B:"Animals",C:"Mammals"},dots:[]},
+    hints:[
+      {text:"Think about nested circles. If all dogs are animals, and all animals are mammals, where does 'dogs' sit in relation to 'mammals'?"},
+      {text:"Draw three concentric circles: Dogs inside Animals inside Mammals."},
+      {text:"Step 1: Place Animals inside Mammals. Step 2: Place Dogs inside Animals. Step 3: Dogs is now automatically inside Mammals. Both conclusions follow."},
+      {text:"Since Dogs ⊂ Animals ⊂ Mammals, all dogs are mammals. And since dogs exist, some mammals are dogs."}
+    ],
+    explanation:"When A ⊂ B and B ⊂ C, then A ⊂ C. Also, since A is non-empty, some C are A.",
+    formula:"A ⊂ B ∧ B ⊂ C ⟹ A ⊂ C"
+  },
+  {
+    id:2,topic:"basic",topicLabel:"Basic Syllogisms",difficulty:"easy",
+    statements:["All cats are pets.","Some pets are lazy."],
+    conclusions:[
+      {text:"Some cats are lazy.",valid:false},
+      {text:"All cats are lazy.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:3,
+    venn:{layout:"A@B~C",terms:{A:"Cats",B:"Pets",C:"Lazy"},dots:["B∩C"]},
+    hints:[
+      {text:"If all cats are pets, cats sit inside the pets circle. But 'some pets are lazy' only tells us part of pets overlaps with lazy. Does that part have to include cats?"},
+      {text:"Draw Cats inside Pets. Draw Lazy overlapping Pets. The overlap could be entirely outside the Cats region."},
+      {text:"Step 1: Cats ⊂ Pets. Step 2: Lazy overlaps Pets. Step 3: The Lazy-Pets overlap might avoid Cats entirely. Neither conclusion is forced."},
+      {text:"The lazy pets could all be dogs, not cats. So we cannot conclude anything about cats being lazy."}
+    ],
+    explanation:"All A are B and Some B are C does NOT imply Some A are C. The overlap between B and C could avoid A entirely.",
+    formula:"A ⊂ B + B ∩ C ≠ ∅ ↛ A ∩ C ≠ ∅"
+  },
+  {
+    id:3,topic:"basic",topicLabel:"Basic Syllogisms",difficulty:"easy",
+    statements:["Some students are toppers.","All toppers are intelligent."],
+    conclusions:[
+      {text:"Some students are intelligent.",valid:true},
+      {text:"All students are intelligent.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:0,
+    venn:{layout:"A~B@C",terms:{A:"Students",B:"Toppers",C:"Intelligent"},dots:["A∩B"]},
+    hints:[
+      {text:"Some students are toppers means the Students and Toppers circles overlap. All toppers are intelligent means Toppers is inside Intelligent. What happens to the overlap?"},
+      {text:"Draw Toppers inside Intelligent. Draw Students overlapping Toppers. The overlapping region is inside both Students and Intelligent."},
+      {text:"Step 1: Toppers ⊂ Intelligent. Step 2: Students overlaps Toppers. Step 3: The Students ∩ Toppers region is inside Intelligent, so Some Students are Intelligent. But not ALL students need be intelligent."},
+      {text:"The students who are toppers are also intelligent. But other students might not be toppers, so we cannot say all students are intelligent."}
+    ],
+    explanation:"Some A are B + All B are C implies Some A are C. But it does not imply All A are C.",
+    formula:"A ∩ B ≠ ∅ ∧ B ⊂ C ⟹ A ∩ C ≠ ∅"
+  },
+  {
+    id:4,topic:"basic",topicLabel:"Basic Syllogisms",difficulty:"medium",
+    statements:["No bird is a mammal.","All bats are mammals."],
+    conclusions:[
+      {text:"No bird is a bat.",valid:true},
+      {text:"Some bats are not birds.",valid:true}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:2,
+    venn:{layout:"A@B!C",terms:{A:"Bats",B:"Mammals",C:"Birds"},dots:[]},
+    hints:[
+      {text:"No bird is a mammal means Birds and Mammals do not overlap. All bats are mammals means Bats is inside Mammals. Where do Bats and Birds stand?"},
+      {text:"Draw Mammals circle. Place Bats inside it. Place Birds completely outside Mammals. Bats and Birds are separated by the Mammals boundary."},
+      {text:"Step 1: Birds ∩ Mammals = ∅. Step 2: Bats ⊂ Mammals. Step 3: Since Bats is inside Mammals and Birds is outside, Bats ∩ Birds = ∅. Also, all bats are not birds, so some bats are not birds."},
+      {text:"Bats are entirely within mammals, and birds are entirely outside mammals. Therefore no bat is a bird, and consequently some bats are not birds."}
+    ],
+    explanation:"No C is B + All A are B implies No A is C. Also, No A is C implies Some A are not C.",
+    formula:"C ∩ B = ∅ ∧ A ⊂ B ⟹ A ∩ C = ∅ ⟹ Some A are not C"
+  },
+  {
+    id:5,topic:"basic",topicLabel:"Basic Syllogisms",difficulty:"easy",
+    statements:["Some doctors are surgeons.","All surgeons are professionals."],
+    conclusions:[
+      {text:"Some doctors are professionals.",valid:true},
+      {text:"All doctors are professionals.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:0,
+    venn:{layout:"A~B@C",terms:{A:"Doctors",B:"Surgeons",C:"Professionals"},dots:["A∩B"]},
+    hints:[
+      {text:"Some doctors are surgeons means the two circles overlap. All surgeons are professionals means Surgeons is inside Professionals. Trace the overlap."},
+      {text:"Draw Surgeons inside Professionals. Draw Doctors overlapping Surgeons. The Doctors ∩ Surgeons region is inside Professionals."},
+      {text:"Step 1: Surgeons ⊂ Professionals. Step 2: Doctors ∩ Surgeons ≠ ∅. Step 3: That intersection is inside Professionals, so Some Doctors are Professionals. But not all doctors need be surgeons."},
+      {text:"Only the doctors who are surgeons are definitely professionals. Other doctors may or may not be."}
+    ],
+    explanation:"Some A are B + All B are C implies Some A are C, but not All A are C.",
+    formula:"A ∩ B ≠ ∅ ∧ B ⊂ C ⟹ A ∩ C ≠ ∅"
+  },
+  {
+    id:6,topic:"negation",topicLabel:"Negation Syllogisms",difficulty:"easy",
+    statements:["All engineers are smart.","No smart person is lazy."],
+    conclusions:[
+      {text:"No engineer is lazy.",valid:true},
+      {text:"Some engineers are not lazy.",valid:true}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:2,
+    venn:{layout:"A@B!C",terms:{A:"Engineers",B:"Smart",C:"Lazy"},dots:[]},
+    hints:[
+      {text:"All engineers are smart puts Engineers inside Smart. No smart person is lazy means Smart and Lazy are completely separate. What about Engineers and Lazy?"},
+      {text:"Draw Smart circle. Place Engineers inside it. Place Lazy completely outside Smart. Engineers and Lazy are separated."},
+      {text:"Step 1: Engineers ⊂ Smart. Step 2: Smart ∩ Lazy = ∅. Step 3: Since Engineers is inside Smart, Engineers ∩ Lazy = ∅. So No Engineer is Lazy. And Some Engineers are not Lazy also follows."},
+      {text:"Engineers are entirely within Smart, which is entirely separate from Lazy. Therefore no engineer can be lazy."}
+    ],
+    explanation:"All A are B + No B is C implies No A is C. Also, No A is C implies Some A are not C.",
+    formula:"A ⊂ B ∧ B ∩ C = ∅ ⟹ A ∩ C = ∅"
+  },
+  {
+    id:7,topic:"intermediate",topicLabel:"Intermediate Syllogisms",difficulty:"medium",
+    statements:["Some birds are animals.","Some animals are wild."],
+    conclusions:[
+      {text:"Some birds are wild.",valid:false},
+      {text:"All birds are wild.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:3,
+    venn:{layout:"A~B~C",terms:{A:"Birds",B:"Animals",C:"Wild"},dots:["A∩B","B∩C"]},
+    hints:[
+      {text:"Some birds are animals and some animals are wild. Can you draw this so that birds and wild have NO overlap? If yes, then 'some birds are wild' does not follow."},
+      {text:"Draw three overlapping circles. Place a dot in Birds∩Animals and another in Animals∩Wild, but keep Birds and Wild separate. This is a valid arrangement."},
+      {text:"Step 1: Birds overlaps Animals. Step 2: Wild overlaps Animals. Step 3: It is possible that Birds and Wild do not touch at all. Neither conclusion is forced."},
+      {text:"The wild animals could be tigers, and the bird-animals could be penguins. No bird needs to be wild."}
+    ],
+    explanation:"Some A are B + Some B are C does NOT imply any direct relationship between A and C.",
+    formula:"A ∩ B ≠ ∅ ∧ B ∩ C ≠ ∅ ↛ A ∩ C ≠ ∅"
+  },
+  {
+    id:8,topic:"intermediate",topicLabel:"Intermediate Syllogisms",difficulty:"medium",
+    statements:["All roses are flowers.","Some flowers are red."],
+    conclusions:[
+      {text:"Some roses are red.",valid:false},
+      {text:"All roses are red.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:3,
+    venn:{layout:"A@B~C",terms:{A:"Roses",B:"Flowers",C:"Red"},dots:["B∩C"]},
+    hints:[
+      {text:"All roses are flowers puts Roses inside Flowers. Some flowers are red means Red overlaps Flowers. Must Red touch Roses?"},
+      {text:"Draw Roses inside Flowers. Draw Red overlapping Flowers on the side opposite to Roses. This is perfectly valid."},
+      {text:"Step 1: Roses ⊂ Flowers. Step 2: Red overlaps Flowers. Step 3: The Red-Flowers overlap can avoid Roses entirely. Neither conclusion follows."},
+      {text:"The red flowers could be tulips, not roses. Roses might all be pink or white."}
+    ],
+    explanation:"All A are B + Some B are C does not imply any relationship between A and C.",
+    formula:"A ⊂ B + B ∩ C ≠ ∅ ↛ A ∩ C ≠ ∅"
+  },
+  {
+    id:9,topic:"intermediate",topicLabel:"Intermediate Syllogisms",difficulty:"easy",
+    statements:["Some men are doctors.","All doctors are kind."],
+    conclusions:[
+      {text:"Some men are kind.",valid:true},
+      {text:"Some kind people are men.",valid:true}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:2,
+    venn:{layout:"A~B@C",terms:{A:"Men",B:"Doctors",C:"Kind"},dots:["A∩B"]},
+    hints:[
+      {text:"Some men are doctors means Men and Doctors overlap. All doctors are kind means Doctors is inside Kind. The overlap between Men and Doctors is inside Kind."},
+      {text:"Draw Doctors inside Kind. Draw Men overlapping Doctors. The Men ∩ Doctors region is inside Kind."},
+      {text:"Step 1: Doctors ⊂ Kind. Step 2: Men ∩ Doctors ≠ ∅. Step 3: That intersection is inside Kind, so Some Men are Kind. By conversion, Some Kind people are Men."},
+      {text:"The men who are doctors are also kind. Therefore some men are kind, and some kind people are men."}
+    ],
+    explanation:"Some A are B + All B are C implies Some A are C. Also, Some A are C converts to Some C are A.",
+    formula:"A ∩ B ≠ ∅ ∧ B ⊂ C ⟹ A ∩ C ≠ ∅ ⟺ C ∩ A ≠ ∅"
+  },
+  {
+    id:10,topic:"intermediate",topicLabel:"Intermediate Syllogisms",difficulty:"medium",
+    statements:["No tiger is a lion.","Some lions are fierce."],
+    conclusions:[
+      {text:"Some tigers are fierce.",valid:false},
+      {text:"No tiger is fierce.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:3,
+    venn:{layout:"A!B~C",terms:{A:"Tigers",B:"Lions",C:"Fierce"},dots:["B∩C"]},
+    hints:[
+      {text:"No tiger is a lion means Tigers and Lions are separate. Some lions are fierce means Fierce overlaps Lions. Can Fierce also overlap Tigers?"},
+      {text:"Draw Tigers and Lions separate. Draw Fierce overlapping Lions. Fierce could also extend to overlap Tigers, or not. Both are possible."},
+      {text:"Step 1: Tigers ∩ Lions = ∅. Step 2: Fierce overlaps Lions. Step 3: Fierce might or might not touch Tigers. We cannot determine either conclusion."},
+      {text:"Fierce lions exist, but fierce tigers might also exist (or might not). We simply don't know."}
+    ],
+    explanation:"No A is B + Some B are C tells us nothing about the relationship between A and C.",
+    formula:"A ∩ B = ∅ ∧ B ∩ C ≠ ∅ ↛ A ∩ C = ∅ or ≠ ∅"
+  },
+  {
+    id:11,topic:"intermediate",topicLabel:"Intermediate Syllogisms",difficulty:"medium",
+    statements:["All pens are tools.","Some tools are expensive."],
+    conclusions:[
+      {text:"Some pens are expensive.",valid:false},
+      {text:"All pens are expensive.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:3,
+    venn:{layout:"A@B~C",terms:{A:"Pens",B:"Tools",C:"Expensive"},dots:["B∩C"]},
+    hints:[
+      {text:"All pens are tools puts Pens inside Tools. Some tools are expensive means Expensive overlaps Tools. Must expensive tools include pens?"},
+      {text:"Draw Pens inside Tools. Draw Expensive overlapping Tools away from Pens. This is a valid arrangement."},
+      {text:"Step 1: Pens ⊂ Tools. Step 2: Expensive overlaps Tools. Step 3: The overlap can avoid Pens entirely. Neither conclusion follows."},
+      {text:"Expensive tools could be power drills, not pens. All pens could be cheap."}
+    ],
+    explanation:"All A are B + Some B are C does not imply any A-C relationship.",
+    formula:"A ⊂ B + B ∩ C ≠ ∅ ↛ A ∩ C ≠ ∅"
+  },
+  {
+    id:12,topic:"negation",topicLabel:"Negation Syllogisms",difficulty:"medium",
+    statements:["Some fruits are sweet.","No sweet thing is bitter."],
+    conclusions:[
+      {text:"Some fruits are not bitter.",valid:true},
+      {text:"No fruit is bitter.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:0,
+    venn:{layout:"A~B!C",terms:{A:"Fruits",B:"Sweet",C:"Bitter"},dots:["A∩B"]},
+    hints:[
+      {text:"Some fruits are sweet means Fruits and Sweet overlap. No sweet thing is bitter means Sweet and Bitter are separate. What about the sweet fruits?"},
+      {text:"Draw Sweet and Bitter separate. Draw Fruits overlapping Sweet. The Fruits ∩ Sweet region is outside Bitter."},
+      {text:"Step 1: Sweet ∩ Bitter = ∅. Step 2: Fruits ∩ Sweet ≠ ∅. Step 3: Those sweet fruits are definitely not bitter. So Some Fruits are not Bitter. But other fruits might be bitter."},
+      {text:"The fruits that are sweet are not bitter. But there could be bitter fruits (like bitter melon) that are not sweet."}
+    ],
+    explanation:"Some A are B + No B is C implies Some A are not C. But it does not imply No A is C.",
+    formula:"A ∩ B ≠ ∅ ∧ B ∩ C = ∅ ⟹ Some A are not C"
+  },
+  {
+    id:13,topic:"basic",topicLabel:"Basic Syllogisms",difficulty:"easy",
+    statements:["All squares are rectangles.","All rectangles are polygons."],
+    conclusions:[
+      {text:"All squares are polygons.",valid:true},
+      {text:"Some polygons are squares.",valid:true}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:2,
+    venn:{layout:"A@B@C",terms:{A:"Squares",B:"Rectangles",C:"Polygons"},dots:[]},
+    hints:[
+      {text:"This is a classic chain syllogism. If all squares are rectangles and all rectangles are polygons, what is the relationship between squares and polygons?"},
+      {text:"Draw three nested circles: Squares inside Rectangles inside Polygons."},
+      {text:"Step 1: Squares ⊂ Rectangles. Step 2: Rectangles ⊂ Polygons. Step 3: Squares ⊂ Polygons. Also, since squares exist, some polygons are squares."},
+      {text:"Every square is a rectangle, and every rectangle is a polygon. Therefore every square is a polygon, and some polygons are squares."}
+    ],
+    explanation:"All A are B + All B are C implies All A are C. Also, Some C are A follows.",
+    formula:"A ⊂ B ∧ B ⊂ C ⟹ A ⊂ C"
+  },
+  {
+    id:14,topic:"negation",topicLabel:"Negation Syllogisms",difficulty:"medium",
+    statements:["Some teachers are kind.","No kind person is rude."],
+    conclusions:[
+      {text:"Some teachers are not rude.",valid:true},
+      {text:"No teacher is rude.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:0,
+    venn:{layout:"A~B!C",terms:{A:"Teachers",B:"Kind",C:"Rude"},dots:["A∩B"]},
+    hints:[
+      {text:"Some teachers are kind means Teachers and Kind overlap. No kind person is rude means Kind and Rude are separate. What about the kind teachers?"},
+      {text:"Draw Kind and Rude separate. Draw Teachers overlapping Kind. The Teachers ∩ Kind region is outside Rude."},
+      {text:"Step 1: Kind ∩ Rude = ∅. Step 2: Teachers ∩ Kind ≠ ∅. Step 3: Those kind teachers are not rude. So Some Teachers are not Rude. But other teachers might be rude."},
+      {text:"The teachers who are kind are definitely not rude. But there could be rude teachers who are not kind."}
+    ],
+    explanation:"Some A are B + No B is C implies Some A are not C. But not No A is C.",
+    formula:"A ∩ B ≠ ∅ ∧ B ∩ C = ∅ ⟹ Some A are not C"
+  },
+  {
+    id:15,topic:"intermediate",topicLabel:"Intermediate Syllogisms",difficulty:"medium",
+    statements:["All metals are solids.","Some solids are heavy."],
+    conclusions:[
+      {text:"Some metals are heavy.",valid:false},
+      {text:"All metals are heavy.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:3,
+    venn:{layout:"A@B~C",terms:{A:"Metals",B:"Solids",C:"Heavy"},dots:["B∩C"]},
+    hints:[
+      {text:"All metals are solids puts Metals inside Solids. Some solids are heavy means Heavy overlaps Solids. Must heavy solids include metals?"},
+      {text:"Draw Metals inside Solids. Draw Heavy overlapping Solids away from Metals. This is valid."},
+      {text:"Step 1: Metals ⊂ Solids. Step 2: Heavy overlaps Solids. Step 3: The overlap can avoid Metals entirely. Neither conclusion follows."},
+      {text:"Heavy solids could be rocks, not metals. Metals like aluminum could be light."}
+    ],
+    explanation:"All A are B + Some B are C does not imply any A-C relationship.",
+    formula:"A ⊂ B + B ∩ C ≠ ∅ ↛ A ∩ C ≠ ∅"
+  },
+  {
+    id:16,topic:"intermediate",topicLabel:"Intermediate Syllogisms",difficulty:"easy",
+    statements:["Some apples are fruits.","All fruits are healthy."],
+    conclusions:[
+      {text:"Some apples are healthy.",valid:true},
+      {text:"Some healthy things are apples.",valid:true}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:2,
+    venn:{layout:"A~B@C",terms:{A:"Apples",B:"Fruits",C:"Healthy"},dots:["A∩B"]},
+    hints:[
+      {text:"Some apples are fruits means Apples and Fruits overlap. All fruits are healthy means Fruits is inside Healthy. The overlap is inside Healthy."},
+      {text:"Draw Fruits inside Healthy. Draw Apples overlapping Fruits. The Apples ∩ Fruits region is inside Healthy."},
+      {text:"Step 1: Fruits ⊂ Healthy. Step 2: Apples ∩ Fruits ≠ ∅. Step 3: That intersection is inside Healthy. So Some Apples are Healthy, and by conversion, Some Healthy things are Apples."},
+      {text:"The apples that are fruits are also healthy. So some apples are healthy, and some healthy things are apples."}
+    ],
+    explanation:"Some A are B + All B are C implies Some A are C, which converts to Some C are A.",
+    formula:"A ∩ B ≠ ∅ ∧ B ⊂ C ⟹ A ∩ C ≠ ∅ ⟺ C ∩ A ≠ ∅"
+  },
+  {
+    id:17,topic:"negation",topicLabel:"Negation Syllogisms",difficulty:"easy",
+    statements:["All squares are shapes.","No shape is a line."],
+    conclusions:[
+      {text:"No square is a line.",valid:true},
+      {text:"Some squares are not lines.",valid:true}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:2,
+    venn:{layout:"A@B!C",terms:{A:"Squares",B:"Shapes",C:"Lines"},dots:[]},
+    hints:[
+      {text:"All squares are shapes puts Squares inside Shapes. No shape is a line means Shapes and Lines are separate. What about Squares and Lines?"},
+      {text:"Draw Shapes circle. Place Squares inside it. Place Lines completely outside Shapes. Squares and Lines are separated."},
+      {text:"Step 1: Squares ⊂ Shapes. Step 2: Shapes ∩ Lines = ∅. Step 3: Squares ∩ Lines = ∅. So No Square is a Line. And Some Squares are not Lines also follows."},
+      {text:"Squares are entirely within shapes, and shapes are entirely separate from lines. Therefore squares and lines cannot overlap."}
+    ],
+    explanation:"All A are B + No B is C implies No A is C, which implies Some A are not C.",
+    formula:"A ⊂ B ∧ B ∩ C = ∅ ⟹ A ∩ C = ∅"
+  },
+  {
+    id:18,topic:"advanced",topicLabel:"Advanced Syllogisms",difficulty:"hard",
+    statements:["Some apples are fruits.","Some fruits are healthy."],
+    conclusions:[
+      {text:"Some apples are healthy.",valid:false},
+      {text:"No apple is healthy.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows","Either I or II follows"],
+    correct:4,
+    venn:{layout:"A~B~C",terms:{A:"Apples",B:"Fruits",C:"Healthy"},dots:["A∩B","B∩C"]},
+    hints:[
+      {text:"This is a complementary pair. Some apples are fruits and some fruits are healthy. Can you arrange the circles so that apples and healthy do NOT overlap? Can you also arrange them so they DO overlap?"},
+      {text:"Draw three circles. You can arrange them with Apples and Healthy separate, or with Apples and Healthy overlapping. Both are valid."},
+      {text:"Step 1: Apples overlaps Fruits. Step 2: Healthy overlaps Fruits. Step 3: We cannot prove either conclusion. BUT one of them MUST be true - either some apples are healthy, or no apple is healthy."},
+      {text:"This is a complementary pair. The two conclusions are contradictory, so exactly one must be true. Since we cannot determine which, the answer is 'Either I or II follows'."}
+    ],
+    explanation:"When two conclusions are direct contradictories and neither is provable from the premises, the answer is 'Either I or II follows'.",
+    formula:"Complementary Pair: Some A are C vs No A is C"
+  },
+  {
+    id:19,topic:"intermediate",topicLabel:"Intermediate Syllogisms",difficulty:"medium",
+    statements:["All squares are shapes.","Some polygons are squares."],
+    conclusions:[
+      {text:"Some polygons are shapes.",valid:true},
+      {text:"All polygons are shapes.",valid:false}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:0,
+    venn:{layout:"A@B~C",terms:{A:"Squares",B:"Shapes",C:"Polygons"},dots:["A∩C"]},
+    hints:[
+      {text:"All squares are shapes puts Squares inside Shapes. Some polygons are squares means Polygons overlaps Squares. Since Squares is inside Shapes, the overlap is inside Shapes."},
+      {text:"Draw Squares inside Shapes. Draw Polygons overlapping Squares. The Polygons ∩ Squares region is inside Shapes."},
+      {text:"Step 1: Squares ⊂ Shapes. Step 2: Polygons ∩ Squares ≠ ∅. Step 3: That intersection is inside Shapes, so Some Polygons are Shapes. But not all polygons need be squares."},
+      {text:"The polygons that are squares are also shapes. But other polygons (like triangles) might not be shapes... wait, all polygons ARE shapes. Let me re-read... Actually in this logical structure, we only know some polygons are squares. The rest could be anything. So only 'Some polygons are shapes' follows."}
+    ],
+    explanation:"All A are B + Some C are A implies Some C are B. But not All C are B.",
+    formula:"A ⊂ B ∧ C ∩ A ≠ ∅ ⟹ C ∩ B ≠ ∅"
+  },
+  {
+    id:20,topic:"negation",topicLabel:"Negation Syllogisms",difficulty:"medium",
+    statements:["No tiger is a lion.","All leopards are lions."],
+    conclusions:[
+      {text:"No leopard is a tiger.",valid:true},
+      {text:"Some leopards are not tigers.",valid:true}
+    ],
+    options:["Only I follows","Only II follows","Both I and II follow","Neither I nor II follows"],
+    correct:2,
+    venn:{layout:"A@B!C",terms:{A:"Leopards",B:"Lions",C:"Tigers"},dots:[]},
+    hints:[
+      {text:"No tiger is a lion means Tigers and Lions are separate. All leopards are lions means Leopards is inside Lions. Where do Leopards and Tigers stand?"},
+      {text:"Draw Lions circle. Place Leopards inside it. Place Tigers completely outside Lions. Leopards and Tigers are separated."},
+      {text:"Step 1: Tigers ∩ Lions = ∅. Step 2: Leopards ⊂ Lions. Step 3: Leopards ∩ Tigers = ∅. So No Leopard is a Tiger. And Some Leopards are not Tigers follows."},
+      {text:"Leopards are entirely within lions, and tigers are entirely outside lions. Therefore no leopard can be a tiger."}
+    ],
+    explanation:"No C is B + All A are B implies No A is C, which implies Some A are not C.",
+    formula:"C ∩ B = ∅ ∧ A ⊂ B ⟹ A ∩ C = ∅"
+  }
+];
+
+/* ========== STATE ========== */
+let state = {
+  currentQuiz:[], currentIndex:0, answers:[], hintsUsed:[], startTime:0,
+  timerInterval:null, hintLevel:0, selectedOption:-1, submitted:false
+};
+
+/* ========== LOCAL STORAGE ========== */
+function getStorage(){try{return JSON.parse(localStorage.getItem('syllogism_progress')||'{}')}catch(e){return{}}}
+function setStorage(obj){localStorage.setItem('syllogism_progress',JSON.stringify(obj))}
+
+/* ========== VENN RENDERER ========== */
+function findTermKey(word,terms){
+  const w=word.toLowerCase().replace(/[^a-z]/g,'');
+  for(let k in terms){const t=terms[k].toLowerCase().replace(/[^a-z]/g,'');if(t===w||t.includes(w)||w.includes(t))return k}
+  return 'A';
+}
+
+function inferConclusionRegion(text,terms){
+  const allMatch=text.match(/All\s+(\w+)\s+are\s+(\w+)/i);
+  if(allMatch){return findTermKey(allMatch[1],terms);}
+  const someMatch=text.match(/Some\s+(\w+)\s+are\s+(\w+)/i);
+  if(someMatch){
+    const s=findTermKey(someMatch[1],terms),p=findTermKey(someMatch[2],terms);
+    if(s&&p&&s!==p)return s+'∩'+p;
+    return s||'A';
+  }
+  const noMatch=text.match(/No\s+(\w+)\s+is\s+(?:a\s+)?(\w+)/i);
+  if(noMatch){return findTermKey(noMatch[1],terms);}
+  const someNotMatch=text.match(/Some\s+(\w+)\s+are\s+not\s+(\w+)/i);
+  if(someNotMatch){return findTermKey(someNotMatch[1],terms)+'-only';}
+  return 'A';
+}
+
+function renderVennHint(q,level){
+  const v=q.venn,layout=VENN_LAYOUTS[v.layout];
+  if(!layout)return '<div style="padding:20px;color:var(--text-muted)">Venn diagram unavailable</div>';
+  const isAnswer=level===4;
+  const vbW=v.layout.includes('!B!C')||v.layout.includes('!B~C')||v.layout.includes('@B!C')?320:300;
+  const vbH=v.layout.includes('~B~C')?200:180;
+  let svg='<svg viewBox="0 0 '+vbW+' '+vbH+'" style="width:100%;max-width:420px;">';
+  const circles=[...layout.circles].reverse();
+  circles.forEach(function(c){
+    const label=v.terms[c.id]||c.id;
+    const stroke=c.color||'#3b82f6';
+    svg+='<circle cx="'+c.x+'" cy="'+c.y+'" r="'+c.r+'" class="venn-circle" stroke="'+stroke+'"/>';
+    svg+='<text x="'+c.x+'" y="'+(c.y-c.r-10)+'" text-anchor="middle" class="venn-label">'+label+'</text>';
+  });
+  (v.dots||[]).forEach(function(dot){
+    const pos=layout.regions[dot];
+    if(pos){
+      svg+='<circle cx="'+pos.x+'" cy="'+pos.y+'" r="5" class="venn-dot anim-pulse"/>';
+      svg+='<circle cx="'+pos.x+'" cy="'+pos.y+'" r="9" fill="none" stroke="#f59e0b" stroke-width="1.2" opacity="0.4" class="anim-pulse"/>';
+    }
+  });
+  if(isAnswer){
+    q.conclusions.forEach(function(c,i){
+      const label=['I','II','III'][i];
+      const color=c.valid?'#22c55e':'#ef4444';
+      const symbol=c.valid?'✓':'✗';
+      const region=inferConclusionRegion(c.text,v.terms);
+      const pos=layout.regions[region];
+      if(pos){
+        const offsetX=i===0?-18:(i===1?18:0);
+        const offsetY=i===2?18:0;
+        svg+='<circle cx="'+(pos.x+offsetX)+'" cy="'+(pos.y+offsetY)+'" r="14" fill="none" stroke="'+color+'" stroke-width="2.5" class="anim-glow"/>';
+        svg+='<text x="'+(pos.x+offsetX)+'" y="'+(pos.y+offsetY+6)+'" text-anchor="middle" class="'+(c.valid?'venn-check':'venn-x')+'">'+symbol+'</text>';
+        svg+='<text x="'+(pos.x+offsetX)+'" y="'+(pos.y+offsetY-20)+'" text-anchor="middle" fill="'+color+'" font-size="11" font-weight="800">'+label+'</text>';
+      }
+    });
+  }
+  svg+='</svg>';
+  return svg;
+}
+
+/* ========== DASHBOARD ========== */
+function renderDashboard(){
+  const prog=getStorage();
+  const attempted=prog.attempted||0;
+  const correct=prog.correct||0;
+  const accuracy=attempted>0?Math.round(correct/attempted*100):0;
+  document.getElementById('dash-total').textContent=QUESTIONS.length;
+  document.getElementById('dash-attempted').textContent=attempted;
+  document.getElementById('dash-correct').textContent=correct;
+  document.getElementById('dash-accuracy').textContent=accuracy+'%';
+
+  const topics={};
+  QUESTIONS.forEach(function(q){
+    if(!topics[q.topic])topics[q.topic]={label:q.topicLabel,count:0,ids:[]};
+    topics[q.topic].count++;
+    topics[q.topic].ids.push(q.id);
+  });
+  const grid=document.getElementById('topic-grid');
+  grid.innerHTML='';
+  for(let t in topics){
+    const tp=topics[t];
+    const done=(prog.byTopic&&prog.byTopic[t])||0;
+    const card=document.createElement('div');
+    card.className='topic-card';
+    card.innerHTML='<h3>'+tp.label+'</h3><p>'+tp.count+' questions</p><div class="meta"><span class="badge badge-'+(t==='basic'?'easy':(t==='advanced'?'hard':'medium'))+'">'+t+'</span><span style="color:var(--text-muted)">'+done+'/'+tp.count+' done</span></div>';
+    card.onclick=function(){startQuiz('topic',t);};
+    grid.appendChild(card);
+  }
+}
+
+/* ========== QUIZ START ========== */
+function startQuiz(mode,filter){
+  let qs=[];
+  if(mode==='all')qs=[...QUESTIONS];
+  else if(mode==='topic')qs=QUESTIONS.filter(function(q){return q.topic===filter;});
+  else if(mode==='wrong'){
+    const prog=getStorage();
+    const wrongIds=prog.wrongIds||[];
+    qs=QUESTIONS.filter(function(q){return wrongIds.includes(q.id);});
+    if(qs.length===0){alert('No mistakes to review!');return;}
+  }
+  qs.sort(function(){return Math.random()-0.5;});
+  state.currentQuiz=qs;
+  state.currentIndex=0;
+  state.answers=[];
+  state.hintsUsed=[];
+  state.startTime=Date.now();
+  state.hintLevel=0;
+  state.selectedOption=-1;
+  state.submitted=false;
+
+  document.getElementById('dashboard').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('review').classList.add('hidden');
+  document.getElementById('q-total').textContent=qs.length;
+
+  startTimer();
+  renderQuestion();
+}
+
+function startTimer(){
+  if(state.timerInterval)clearInterval(state.timerInterval);
+  state.timerInterval=setInterval(function(){
+    const elapsed=Math.floor((Date.now()-state.startTime)/1000);
+    const m=String(Math.floor(elapsed/60)).padStart(2,'0');
+    const s=String(elapsed%60).padStart(2,'0');
+    document.getElementById('timer').textContent=m+':'+s;
+  },1000);
+}
+
+/* ========== RENDER QUESTION ========== */
+function renderQuestion(){
+  const q=state.currentQuiz[state.currentIndex];
+  state.hintLevel=0;
+  state.selectedOption=-1;
+  state.submitted=false;
+
+  document.getElementById('q-current').textContent=state.currentIndex+1;
+  const pct=((state.currentIndex)/state.currentQuiz.length)*100;
+  document.getElementById('progress-fill').style.width=pct+'%';
+
+  let html='<div class="statements-box"><h4>Statements</h4><ul>';
+  q.statements.forEach(function(s){html+='<li>'+s+'</li>';});
+  html+='</ul></div>';
+  html+='<div class="conclusions-box"><h4>Conclusions</h4>';
+  q.conclusions.forEach(function(c,i){html+='<div class="conclusion-item"><span class="label">'+['I','II','III'][i]+'.</span>'+c.text+'</div>';});
+  html+='</div>';
+  html+='<div class="options">';
+  q.options.forEach(function(opt,i){
+    html+='<button class="option-btn" data-idx="'+i+'" onclick="selectOption('+i+')">'+opt+'</button>';
+  });
+  html+='</div>';
+
+  document.getElementById('question-content').innerHTML=html;
+  document.getElementById('hint-area').innerHTML='';
+  document.getElementById('hint-btn').classList.remove('hidden');
+  document.getElementById('hint-btn').textContent='Show Hint';
+  document.getElementById('hint-btn').disabled=false;
+  document.getElementById('submit-btn').classList.remove('hidden');
+  document.getElementById('submit-btn').disabled=true;
+  document.getElementById('next-btn').classList.add('hidden');
+}
+
+function selectOption(idx){
+  if(state.submitted)return;
+  state.selectedOption=idx;
+  document.querySelectorAll('.option-btn').forEach(function(btn){btn.classList.remove('selected');});
+  document.querySelector('.option-btn[data-idx="'+idx+'"]').classList.add('selected');
+  document.getElementById('submit-btn').disabled=false;
+}
+
+/* ========== HINT SYSTEM ========== */
+function showHint(){
+  const q=state.currentQuiz[state.currentIndex];
+  state.hintLevel++;
+  const hint=q.hints[state.hintLevel-1];
+  if(!hint)return;
+
+  let html='<div class="hint-box">';
+  html+='<div class="hint-label">Hint '+state.hintLevel+'/'+q.hints.length+'</div>';
+  html+='<div class="hint-text">'+hint.text+'</div>';
+
+  if(state.hintLevel===2||state.hintLevel===4){
+    html+='<div class="venn-container">'+renderVennHint(q,state.hintLevel)+'</div>';
+  }
+  html+='</div>';
+
+  document.getElementById('hint-area').innerHTML=html;
+
+  if(state.hintLevel>=q.hints.length){
+    document.getElementById('hint-btn').disabled=true;
+    document.getElementById('hint-btn').textContent='No more hints';
+  }else{
+    document.getElementById('hint-btn').textContent='Next Hint';
+  }
+}
+
+/* ========== SUBMIT & NEXT ========== */
+function submitAnswer(){
+  if(state.submitted||state.selectedOption===-1)return;
+  state.submitted=true;
+  const q=state.currentQuiz[state.currentIndex];
+  const isCorrect=state.selectedOption===q.correct;
+
+  state.answers.push({
+    questionId:q.id,selected:state.selectedOption,correct:q.correct,isCorrect:isCorrect,
+    hintsUsed:state.hintLevel,timeSpent:Date.now()-state.startTime
+  });
+  state.hintsUsed.push(state.hintLevel);
+
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(function(btn,idx){
+    btn.disabled=true;
+    if(idx===q.correct)btn.classList.add('correct');
+    else if(idx===state.selectedOption&&!isCorrect)btn.classList.add('wrong');
+  });
+
+  let html='<div class="explanation-box">';
+  html+='<h4>'+(isCorrect?'Correct!':'Incorrect')+'</h4>';
+  html+='<p>'+q.explanation+'</p>';
+  html+='<div class="formula">'+q.formula+'</div>';
+  html+='</div>';
+
+  if(state.hintLevel<4){
+    state.hintLevel=4;
+    html+='<div class="hint-box"><div class="hint-label">Answer Venn</div><div class="venn-container">'+renderVennHint(q,4)+'</div></div>';
+  }
+
+  document.getElementById('hint-area').innerHTML+=html;
+  document.getElementById('submit-btn').classList.add('hidden');
+  document.getElementById('next-btn').classList.remove('hidden');
+  document.getElementById('hint-btn').disabled=true;
+
+  updateProgress(q.id,isCorrect);
+  logToSupabase(q,isCorrect,state.hintLevel);
+}
+
+function nextQuestion(){
+  state.currentIndex++;
+  if(state.currentIndex>=state.currentQuiz.length){
+    showResults();
+  }else{
+    renderQuestion();
+  }
+}
+
+/* ========== PROGRESS TRACKING ========== */
+function updateProgress(qid,isCorrect){
+  const prog=getStorage();
+  prog.attempted=(prog.attempted||0)+1;
+  if(isCorrect)prog.correct=(prog.correct||0)+1;
+  else{
+    prog.wrongIds=prog.wrongIds||[];
+    if(!prog.wrongIds.includes(qid))prog.wrongIds.push(qid);
+  }
+  const q=QUESTIONS.find(function(x){return x.id===qid;});
+  if(q){
+    prog.byTopic=prog.byTopic||{};
+    prog.byTopic[q.topic]=(prog.byTopic[q.topic]||0)+1;
+  }
+  setStorage(prog);
+}
+
+/* ========== RESULTS ========== */
+function showResults(){
+  clearInterval(state.timerInterval);
+  const elapsed=Math.floor((Date.now()-state.startTime)/1000);
+  const m=String(Math.floor(elapsed/60)).padStart(2,'0');
+  const s=String(elapsed%60).padStart(2,'0');
+
+  const correct=state.answers.filter(function(a){return a.isCorrect;}).length;
+  const wrong=state.answers.filter(function(a){return !a.isCorrect;}).length;
+  const skipped=state.currentQuiz.length-state.answers.length;
+
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('result-score').textContent=correct+'/'+state.currentQuiz.length;
+  document.getElementById('res-correct').textContent=correct;
+  document.getElementById('res-wrong').textContent=wrong;
+  document.getElementById('res-skipped').textContent=skipped;
+  document.getElementById('res-time').textContent=m+':'+s;
+
+  let msg='';
+  const pct=state.currentQuiz.length>0?correct/state.currentQuiz.length:0;
+  if(pct===1)msg='Perfect score! You are a syllogism master!';
+  else if(pct>=0.8)msg='Excellent work! Almost there!';
+  else if(pct>=0.6)msg='Good effort! Keep practicing with Venn diagrams.';
+  else if(pct>=0.4)msg='Keep going! Focus on drawing the Venn diagrams.';
+  else msg='Don't give up! Syllogisms get easier with practice.';
+  document.getElementById('result-message').textContent=msg;
+}
+
+/* ========== REVIEW ========== */
+function showReview(){
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('review').classList.remove('hidden');
+  const list=document.getElementById('review-list');
+  list.innerHTML='';
+
+  state.answers.forEach(function(ans,idx){
+    const q=QUESTIONS.find(function(x){return x.id===ans.questionId;});
+    if(!q)return;
+    const div=document.createElement('div');
+    div.className='review-item '+(ans.isCorrect?'correct':'wrong');
+    let html='<strong>Q'+(idx+1)+':</strong> ';
+    q.statements.forEach(function(s){html+=s+' ';});
+    html+='<br><em>Your answer:</em> '+q.options[ans.selected]+' | <em>Correct:</em> '+q.options[q.correct];
+    html+='<br><small>'+q.explanation+'</small>';
+    div.innerHTML=html;
+    list.appendChild(div);
+  });
+}
+
+function backToDashboard(){
+  clearInterval(state.timerInterval);
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('results').classList.add('hidden');
+  document.getElementById('review').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  renderDashboard();
+}
+
+/* ========== SUPABASE LOGGING ========== */
+function logToSupabase(q,isCorrect,hintsUsed){
+  const payload={
+    question_id:q.id,topic:q.topic,difficulty:q.difficulty,
+    is_correct:isCorrect,hints_used:hintsUsed,
+    timestamp:new Date().toISOString(),
+    user_agent:navigator.userAgent,
+    screen_w:window.screen.width,screen_h:window.screen.height
+  };
+  const url='https://fqlzqnuxiqxhqbvywlvn.supabase.co/rest/v1/syllogism_logs';
+  const key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxbHpxbnV4aXF4aHFidnl3bHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MDE3ODUsImV4cCI6MjA2NDI3Nzc4NX0.3t9f6BXr8N1q6z9X8Y3q2q7q8q9q0q1q2q3q4q5q6q7';
+  fetch(url,{
+    method:'POST',
+    headers:{'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify(payload)
+  }).catch(function(e){console.log('Log failed',e);});
+}
+
+/* ========== INIT ========== */
+renderDashboard();
+</script>
+</body>
+</html>
