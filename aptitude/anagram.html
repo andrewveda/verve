@@ -187,10 +187,7 @@
     .cat-aptitude { background: rgba(245,158,11,0.15); color: var(--warning); }
     .cat-softskills { background: rgba(239,68,68,0.15); color: var(--danger); }
 
-    /* Available letters (scrambled) */
-    .letters-section {
-      margin-bottom: 16px;
-    }
+    .letters-section { margin-bottom: 16px; }
     .section-label {
       font-size: 0.75rem;
       color: var(--text-muted);
@@ -220,8 +217,7 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.2);
       cursor: pointer;
       user-select: none;
-      transition: all 0.2s;
-      animation: popIn 0.4s ease backwards;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
     }
     .letter-tile:hover {
       transform: translateY(-3px);
@@ -229,12 +225,7 @@
       border-color: var(--primary);
     }
     .letter-tile:active { transform: scale(0.95); }
-    @keyframes popIn {
-      from { transform: scale(0) rotate(-10deg); opacity: 0; }
-      to { transform: scale(1) rotate(0deg); opacity: 1; }
-    }
 
-    /* Submission box */
     .submission-section {
       background: var(--bg);
       border: 2px dashed var(--surface-light);
@@ -242,7 +233,7 @@
       padding: 24px;
       margin-bottom: 16px;
       min-height: 90px;
-      transition: border-color 0.3s;
+      transition: border-color 0.3s, background 0.3s;
     }
     .submission-section.has-letters {
       border-color: var(--primary);
@@ -269,6 +260,7 @@
       font-size: 0.9rem;
       text-align: center;
       padding: 8px;
+      width: 100%;
     }
 
     .feedback {
@@ -300,11 +292,8 @@
       gap: 12px;
       margin-bottom: 12px;
     }
-    .submit-row {
-      margin-bottom: 12px;
-    }
+    .submit-row { margin-bottom: 12px; }
 
-    /* Results */
     .result-card {
       background: var(--bg);
       border-radius: 16px;
@@ -402,22 +391,22 @@
       <select id="playerDept">
         <option value="">Select Department</option>
         <option value="Cyber Security">Cyber Security</option>
-      <option value="EIE">EIE</option>
-      <option value="CSE-1">CSE-1</option>
-      <option value="CSE-2">CSE-2</option>
-      <option value="CSE-3">CSE-3</option>
-      <option value="Mechanical Engineering">Mechanical Engineering</option>
-      <option value="ECE-1">ECE-1</option>
-      <option value="ECE-2">ECE-2</option>
-      <option value="ECE-3">ECE-3</option>
-      <option value="AI DS-1">AI DS-1</option>
-      <option value="AI DS-2">AI DS-2</option>
-      <option value="Agri and Civil">Agri and Civil</option>
-      <option value="EEE">EEE</option>
-      <option value="Medical Electronics">Medical Electronics</option>
-      <option value="IT-1">IT-1</option>
-      <option value="IT-2">IT-2</option>
-      <option value="MCA">MCA</option>
+        <option value="EIE">EIE</option>
+        <option value="CSE-1">CSE-1</option>
+        <option value="CSE-2">CSE-2</option>
+        <option value="CSE-3">CSE-3</option>
+        <option value="Mechanical Engineering">Mechanical Engineering</option>
+        <option value="ECE-1">ECE-1</option>
+        <option value="ECE-2">ECE-2</option>
+        <option value="ECE-3">ECE-3</option>
+        <option value="AI DS-1">AI DS-1</option>
+        <option value="AI DS-2">AI DS-2</option>
+        <option value="Agri and Civil">Agri and Civil</option>
+        <option value="EEE">EEE</option>
+        <option value="Medical Electronics">Medical Electronics</option>
+        <option value="IT-1">IT-1</option>
+        <option value="IT-2">IT-2</option>
+        <option value="MCA">MCA</option>
       </select>
     </div>
 
@@ -469,9 +458,7 @@
     <!-- Submission Box (Selected Letters) -->
     <div class="submission-section" id="submissionBox">
       <div class="section-label">Your Answer — tap letters to return</div>
-      <div class="letters-row" id="submissionLetters">
-        <div class="submission-placeholder" id="submissionPlaceholder">Tap letters above to build your answer</div>
-      </div>
+      <div class="letters-row" id="submissionLetters"></div>
     </div>
 
     <!-- Available Letters (Scrambled) -->
@@ -538,7 +525,7 @@
 <script>
 /* ============================================
    ANAGRAM SOLVER — PLACEMENT TRAINER
-   Tap-to-select version
+   Tap-to-select, no-rearrange version
    ============================================ */
 
 const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
@@ -619,6 +606,7 @@ let shuffledCases = [];
 // Tap-to-select state
 let availableLetters = []; // {char, id, used}
 let selectedLetters = [];  // {char, id}
+let tileRefs = {};         // id -> DOM element (persistent per case)
 
 /* ============================================
    INITIALIZATION
@@ -679,13 +667,8 @@ function loadCase() {
   }
 
   const caseData = shuffledCases[currentCaseIdx];
-  const scrambled = scrambleWord(caseData.word);
 
-  // Reset tap state
-  availableLetters = scrambled.split("").map((char, idx) => ({ char, id: idx, used: false }));
-  selectedLetters = [];
-
-  // Reset case-specific counters
+  // Reset counters
   caseCorrectTaps = 0;
   caseWrongTaps = 0;
   caseStartTime = Date.now();
@@ -707,7 +690,8 @@ function loadCase() {
   badge.textContent = caseData.category;
   badge.className = "category-badge cat-" + caseData.category;
 
-  renderLetters();
+  // Build tiles once — they persist for the entire case
+  initCaseTiles();
 
   const progress = ((currentCaseIdx) / shuffledCases.length) * 100;
   document.getElementById("progressFill").style.width = progress + "%";
@@ -733,60 +717,103 @@ function shuffleArray(arr) {
 }
 
 /* ============================================
-   RENDER LETTERS
+   TILE MANAGEMENT (no re-render, no re-arrange)
    ============================================ */
 
-function renderLetters() {
-  const availableContainer = document.getElementById("availableLetters");
-  const submissionContainer = document.getElementById("submissionLetters");
-  const subBox = document.getElementById("submissionBox");
+function initCaseTiles() {
+  const caseData = shuffledCases[currentCaseIdx];
+  const scrambled = scrambleWord(caseData.word);
 
-  // Available letters
-  availableContainer.innerHTML = "";
-  availableLetters.forEach((item, idx) => {
-    if (item.used) return;
+  availableLetters = scrambled.split("").map((char, idx) => ({ char, id: idx, used: false }));
+  selectedLetters = [];
+  tileRefs = {};
+
+  const availContainer = document.getElementById("availableLetters");
+  const subContainer = document.getElementById("submissionLetters");
+
+  availContainer.innerHTML = "";
+  subContainer.innerHTML = "";
+
+  // Placeholder
+  const placeholder = document.createElement("div");
+  placeholder.className = "submission-placeholder";
+  placeholder.id = "submissionPlaceholder";
+  placeholder.textContent = "Tap letters above to build your answer";
+  subContainer.appendChild(placeholder);
+
+  // Create tiles in available pool
+  availableLetters.forEach((item) => {
     const tile = document.createElement("div");
     tile.className = "letter-tile";
     tile.textContent = item.char;
-    tile.style.animationDelay = (idx * 0.05) + "s";
-    tile.onclick = () => selectLetter(idx);
-    availableContainer.appendChild(tile);
+    tile.dataset.id = item.id;
+    tile.onclick = () => selectLetter(item.id);
+    availContainer.appendChild(tile);
+    tileRefs[item.id] = tile;
   });
+}
 
-  // Selected letters in submission box
-  submissionContainer.innerHTML = "";
+function selectLetter(id) {
+  const item = availableLetters.find(a => a.id === id);
+  if (!item || item.used) return;
+
+  item.used = true;
+  selectedLetters.push({ char: item.char, id: item.id });
+
+  const tile = tileRefs[id];
+  const availContainer = document.getElementById("availableLetters");
+  const subContainer = document.getElementById("submissionLetters");
+
+  // Remove placeholder
+  const placeholder = document.getElementById("submissionPlaceholder");
+  if (placeholder) placeholder.remove();
+
+  // Move tile to submission (instant, no animation)
+  availContainer.removeChild(tile);
+  subContainer.appendChild(tile);
+  tile.onclick = () => unselectLetter(id);
+
+  document.getElementById("submissionBox").classList.add("has-letters");
+}
+
+function unselectLetter(id) {
+  const idx = selectedLetters.findIndex(s => s.id === id);
+  if (idx === -1) return;
+
+  const item = availableLetters.find(a => a.id === id);
+  if (item) item.used = false;
+  selectedLetters.splice(idx, 1);
+
+  const tile = tileRefs[id];
+  const availContainer = document.getElementById("availableLetters");
+  const subContainer = document.getElementById("submissionLetters");
+
+  // Move tile back to available pool in original position
+  subContainer.removeChild(tile);
+
+  let inserted = false;
+  for (let i = id + 1; i < availableLetters.length; i++) {
+    const nextTile = tileRefs[i];
+    if (nextTile && nextTile.parentNode === availContainer) {
+      availContainer.insertBefore(tile, nextTile);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) {
+    availContainer.appendChild(tile);
+  }
+
+  tile.onclick = () => selectLetter(id);
+
   if (selectedLetters.length === 0) {
     const placeholder = document.createElement("div");
     placeholder.className = "submission-placeholder";
+    placeholder.id = "submissionPlaceholder";
     placeholder.textContent = "Tap letters above to build your answer";
-    submissionContainer.appendChild(placeholder);
-    subBox.classList.remove("has-letters");
-  } else {
-    subBox.classList.add("has-letters");
-    selectedLetters.forEach((item, idx) => {
-      const tile = document.createElement("div");
-      tile.className = "letter-tile";
-      tile.textContent = item.char;
-      tile.onclick = () => unselectLetter(idx);
-      submissionContainer.appendChild(tile);
-    });
+    subContainer.appendChild(placeholder);
+    document.getElementById("submissionBox").classList.remove("has-letters");
   }
-}
-
-function selectLetter(idx) {
-  if (availableLetters[idx].used) return;
-  availableLetters[idx].used = true;
-  selectedLetters.push({ char: availableLetters[idx].char, id: availableLetters[idx].id });
-  renderLetters();
-}
-
-function unselectLetter(idx) {
-  const item = selectedLetters[idx];
-  // Find the original and mark unused
-  const original = availableLetters.find(a => a.id === item.id && a.used);
-  if (original) original.used = false;
-  selectedLetters.splice(idx, 1);
-  renderLetters();
 }
 
 /* ============================================
@@ -843,7 +870,6 @@ function submitAnswer() {
   const correctWord = caseData.word.toUpperCase();
 
   if (input === correctWord) {
-    // Correct!
     clearInterval(timerInterval);
     caseCorrectTaps++;
     correctTaps++;
@@ -852,9 +878,7 @@ function submitAnswer() {
     const points = (difficulty === "easy" ? 10 : difficulty === "medium" ? 20 : 30) + timeBonus;
     score += points;
 
-    const subBox = document.getElementById("submissionBox");
-    subBox.className = "submission-section correct";
-
+    document.getElementById("submissionBox").className = "submission-section correct";
     showFeedback("✅ Correct! +" + points + " points", "success");
     caseHistory.push({ word: caseData.word, status: "correct" });
 
@@ -869,13 +893,11 @@ function submitAnswer() {
     }, 1500);
 
   } else {
-    // Wrong!
     caseWrongTaps++;
     wrongTaps++;
 
     const subBox = document.getElementById("submissionBox");
     subBox.className = "submission-section wrong";
-
     showFeedback("❌ Incorrect! Try again", "error");
 
     setTimeout(() => {
