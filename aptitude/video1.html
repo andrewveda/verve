@@ -6,7 +6,7 @@
 <title>Career Catalyst Thon | Hyper-Kinetic Stream</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800;900&family=JetBrains+Mono:wght@800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --cream-bg: #F9F5EC;
@@ -29,7 +29,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 
   .stage {
@@ -80,8 +80,11 @@
 
   .act {
     position: absolute;
-    inset: 0;
-    padding: 1rem 0.8rem;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 34%; /* <-- BOTTOM THIRD LEFT EMPTY FOR VIDEO OVERLAY */
+    padding: 1.2rem 0.9rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -90,6 +93,7 @@
     pointer-events: none;
     z-index: 5;
     animation: actSequence 90s infinite ease-in-out;
+    overflow: hidden;
   }
 
   .a1 { animation-delay: 0s; }
@@ -109,19 +113,20 @@
   }
 
   .slam-title {
+    font-family: 'Inter', sans-serif;
     font-weight: 900;
     text-transform: uppercase;
-    line-height: 0.88;
-    letter-spacing: -0.04em;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
     color: var(--ink);
     text-align: center;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.9rem;
     animation: titleSlam 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
     will-change: transform, opacity, filter;
   }
-  .slam-xl { font-size: 3.2rem; }
-  .slam-lg { font-size: 2.6rem; }
-  .slam-md { font-size: 2.1rem; }
+  .slam-xl { font-size: 2.9rem; }
+  .slam-lg { font-size: 2.4rem; }
+  .slam-md { font-size: 1.9rem; }
 
   @keyframes titleSlam {
     0% { transform: scale(3.5) translateY(-120px); opacity: 0; filter: blur(14px) brightness(2); }
@@ -130,31 +135,32 @@
     100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px) brightness(1); }
   }
 
+  /* Two-column grid for mobile */
   .dense-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
     width: 100%;
-    max-height: 68%;
     perspective: 900px;
     transform-style: preserve-3d;
   }
 
   .point {
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 900;
-    font-size: 0.72rem;
+    font-weight: 800;
+    font-size: 0.62rem;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 0.4rem 0.65rem;
+    letter-spacing: 0.02em;
+    padding: 0.4rem 0.4rem;
     border-radius: 6px;
     border: 2px solid var(--ink);
     box-shadow: 3px 3px 0px var(--ink);
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 0.3rem;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    gap: 0.2rem;
     opacity: 0;
     transform-origin: 50% -40%;
     backface-visibility: hidden;
@@ -186,7 +192,7 @@
 
   @keyframes floatWave {
     0% { transform: translateY(0px) rotate(0deg) scale(1); }
-    100% { transform: translateY(-6px) rotate(2deg) scale(1.04); }
+    100% { transform: translateY(-5px) rotate(1.5deg) scale(1.03); }
   }
 
   .c-gold   { background: var(--gold); color: #000; }
@@ -197,8 +203,7 @@
   .c-yellow { background: var(--yellow); color: #000; }
   .c-white  { background: #FFFFFF; color: #000; }
 
-  /* ===== ACT-SPECIFIC STAGGER DELAYS (offset by act start time) ===== */
-  /* a1 offsets (base +0s) */
+  /* ===== ACT-SPECIFIC STAGGER DELAYS ===== */
   .a1 .s-01 { animation-delay: 0.20s, 0.80s; }
   .a1 .s-02 { animation-delay: 0.50s, 1.10s; }
   .a1 .s-03 { animation-delay: 0.80s, 1.40s; }
@@ -213,7 +218,6 @@
   .a1 .s-12 { animation-delay: 3.50s, 4.10s; }
   .a1 .news-badge { animation-delay: 4.20s; }
 
-  /* a2 offsets (base +10s) */
   .a2 .s-01 { animation-delay: 10.20s, 10.80s; }
   .a2 .s-02 { animation-delay: 10.50s, 11.10s; }
   .a2 .s-03 { animation-delay: 10.80s, 11.40s; }
@@ -228,7 +232,6 @@
   .a2 .s-12 { animation-delay: 13.50s, 14.10s; }
   .a2 .news-badge { animation-delay: 14.20s; }
 
-  /* a3 offsets (base +20s) */
   .a3 .s-01 { animation-delay: 20.20s, 20.80s; }
   .a3 .s-02 { animation-delay: 20.50s, 21.10s; }
   .a3 .s-03 { animation-delay: 20.80s, 21.40s; }
@@ -243,7 +246,6 @@
   .a3 .s-12 { animation-delay: 23.50s, 24.10s; }
   .a3 .news-badge { animation-delay: 24.20s; }
 
-  /* a4 offsets (base +30s) */
   .a4 .s-01 { animation-delay: 30.20s, 30.80s; }
   .a4 .s-02 { animation-delay: 30.50s, 31.10s; }
   .a4 .s-03 { animation-delay: 30.80s, 31.40s; }
@@ -258,7 +260,6 @@
   .a4 .s-12 { animation-delay: 33.50s, 34.10s; }
   .a4 .news-badge { animation-delay: 34.20s; }
 
-  /* a5 offsets (base +40s) */
   .a5 .s-01 { animation-delay: 40.20s, 40.80s; }
   .a5 .s-02 { animation-delay: 40.50s, 41.10s; }
   .a5 .s-03 { animation-delay: 40.80s, 41.40s; }
@@ -273,7 +274,6 @@
   .a5 .s-12 { animation-delay: 43.50s, 44.10s; }
   .a5 .news-badge { animation-delay: 44.20s; }
 
-  /* a6 offsets (base +50s) */
   .a6 .s-01 { animation-delay: 50.20s, 50.80s; }
   .a6 .s-02 { animation-delay: 50.50s, 51.10s; }
   .a6 .s-03 { animation-delay: 50.80s, 51.40s; }
@@ -288,7 +288,6 @@
   .a6 .s-12 { animation-delay: 53.50s, 54.10s; }
   .a6 .news-badge { animation-delay: 54.20s; }
 
-  /* a7 offsets (base +60s) */
   .a7 .s-01 { animation-delay: 60.20s, 60.80s; }
   .a7 .s-02 { animation-delay: 60.50s, 61.10s; }
   .a7 .s-03 { animation-delay: 60.80s, 61.40s; }
@@ -303,7 +302,6 @@
   .a7 .s-12 { animation-delay: 63.50s, 64.10s; }
   .a7 .news-badge { animation-delay: 64.20s; }
 
-  /* a8 offsets (base +70s) */
   .a8 .s-01 { animation-delay: 70.20s, 70.80s; }
   .a8 .s-02 { animation-delay: 70.50s, 71.10s; }
   .a8 .s-03 { animation-delay: 70.80s, 71.40s; }
@@ -318,7 +316,6 @@
   .a8 .s-12 { animation-delay: 73.50s, 74.10s; }
   .a8 .news-badge { animation-delay: 74.20s; }
 
-  /* a9 offsets (base +80s) */
   .a9 .s-01 { animation-delay: 80.20s, 80.80s; }
   .a9 .s-02 { animation-delay: 80.50s, 81.10s; }
   .a9 .s-03 { animation-delay: 80.80s, 81.40s; }
@@ -335,8 +332,8 @@
 
   .news-badge {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    font-weight: 900;
+    font-size: 0.58rem;
+    font-weight: 800;
     padding: 0.3rem 0.6rem;
     background: #000;
     color: var(--yellow);
@@ -366,7 +363,7 @@
     transform: translate(-50%, -50%) rotate(-10deg);
     background: var(--blush);
     color: #fff;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 900;
     padding: 0.1rem 0.7rem;
     border: 2px solid #000;
@@ -550,7 +547,7 @@
   <div class="act a9">
     <div class="slam-title slam-lg" style="color:var(--gold);">CAREER<br>CATALYST<br>THON</div>
     <div class="dense-cloud">
-      <div class="point c-yellow s-01" style="font-size:0.95rem; padding:0.6rem 1rem;"><strong>STRONGEST BRAINS WIN!</strong></div>
+      <div class="point c-yellow s-01" style="font-size:0.85rem; padding:0.55rem 0.8rem;"><strong>STRONGEST BRAINS WIN!</strong></div>
       <div class="point c-mint s-02"><strong>&#x26A1; TRAIN YOUR BRAIN</strong></div>
       <div class="point c-blush s-03"><strong>&#x26A1; TRANSFORM YOUR CAREER</strong></div>
       <div class="point c-sky s-04"><strong>&#x26A1; REAL-TIME LEADERBOARD</strong></div>
