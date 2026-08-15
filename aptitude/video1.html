@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Career Catalyst Thon | Hyper-Kinetic Stream</title>
+<title>Career Catalyst Thon | Fun Equation Stream</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --cream-bg: #F9F5EC;
@@ -83,7 +83,7 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: 34%; /* <-- BOTTOM THIRD LEFT EMPTY FOR VIDEO OVERLAY */
+    bottom: 34%; /* BOTTOM THIRD EMPTY FOR VIDEO OVERLAY */
     padding: 1.2rem 0.9rem;
     display: flex;
     flex-direction: column;
@@ -107,92 +107,89 @@
   .a9 { animation-delay: 80s; }
 
   @keyframes actSequence {
-    0% { opacity: 0; transform: scale(0.85); filter: brightness(2); }
+    0% { opacity: 0; transform: scale(0.9); filter: brightness(2); }
     1%, 9.6% { opacity: 1; transform: scale(1); filter: brightness(1); }
-    10.8%, 100% { opacity: 0; transform: scale(1.15) translateY(-30px); filter: brightness(0.5); }
+    10.8%, 100% { opacity: 0; transform: scale(1.1) translateY(-20px); filter: brightness(0.5); }
   }
 
   .slam-title {
     font-family: 'Inter', sans-serif;
     font-weight: 900;
     text-transform: uppercase;
-    line-height: 0.9;
-    letter-spacing: -0.03em;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
     color: var(--ink);
     text-align: center;
-    margin-bottom: 0.9rem;
-    animation: titleSlam 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
-    will-change: transform, opacity, filter;
+    margin-bottom: 1rem;
+    animation: titleBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    will-change: transform, opacity;
   }
-  .slam-xl { font-size: 2.9rem; }
-  .slam-lg { font-size: 2.4rem; }
+  .slam-xl { font-size: 2.8rem; }
+  .slam-lg { font-size: 2.3rem; }
   .slam-md { font-size: 1.9rem; }
 
-  @keyframes titleSlam {
-    0% { transform: scale(3.5) translateY(-120px); opacity: 0; filter: blur(14px) brightness(2); }
-    55% { transform: scale(0.88) translateY(12px); opacity: 1; filter: blur(0px) brightness(1); }
-    75% { transform: scale(1.1) translateY(-6px); }
-    100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px) brightness(1); }
+  @keyframes titleBounce {
+    0% { transform: scale(0) translateY(40px); opacity: 0; filter: blur(10px); }
+    55% { transform: scale(1.2) translateY(-8px); opacity: 1; filter: blur(0px); }
+    75% { transform: scale(0.95) translateY(3px); }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
   }
 
-  /* Two-column grid for mobile */
+  /* Two-column tight grid */
   .dense-cloud {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.4rem;
+    gap: 0.45rem;
     width: 100%;
-    perspective: 900px;
-    transform-style: preserve-3d;
+    perspective: 800px;
   }
 
+  /* Fun equation-style zoom + scroll up */
   .point {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', sans-serif;
     font-weight: 800;
-    font-size: 0.62rem;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
-    padding: 0.4rem 0.4rem;
-    border-radius: 6px;
-    border: 2px solid var(--ink);
+    letter-spacing: 0.01em;
+    padding: 0.55rem 0.4rem;
+    border-radius: 8px;
+    border: 2.5px solid var(--ink);
     box-shadow: 3px 3px 0px var(--ink);
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     width: 100%;
-    gap: 0.2rem;
+    min-height: 2.6rem;
     opacity: 0;
-    transform-origin: 50% -40%;
+    transform-origin: center center;
     backface-visibility: hidden;
-    animation: flipPop 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards,
-               floatWave 3s ease-in-out infinite alternate;
+    animation: scrollZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+               floaty 2.2s ease-in-out infinite alternate;
     will-change: transform, opacity, filter;
   }
 
-  @keyframes flipPop {
+  @keyframes scrollZoom {
     0% {
       opacity: 0;
-      transform: perspective(700px) rotateX(-85deg) translateY(80px) scale(0.5);
-      filter: blur(10px) brightness(3);
+      transform: translateY(50px) scale(0.3) rotate(-5deg);
+      filter: blur(8px) brightness(3);
     }
-    45% {
+    50% {
       opacity: 1;
-      transform: perspective(700px) rotateX(12deg) translateY(-10px) scale(1.2);
-      filter: blur(0px) brightness(1.1);
-    }
-    70% {
-      transform: perspective(700px) rotateX(-4deg) translateY(3px) scale(0.96);
+      transform: translateY(-6px) scale(1.15) rotate(2deg);
+      filter: blur(0px) brightness(1.2);
     }
     100% {
       opacity: 1;
-      transform: perspective(700px) rotateX(0deg) translateY(0) scale(1);
+      transform: translateY(0) scale(1) rotate(0deg);
       filter: blur(0px) brightness(1);
     }
   }
 
-  @keyframes floatWave {
-    0% { transform: translateY(0px) rotate(0deg) scale(1); }
-    100% { transform: translateY(-5px) rotate(1.5deg) scale(1.03); }
+  @keyframes floaty {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-5px) scale(1.03); }
   }
 
   .c-gold   { background: var(--gold); color: #000; }
@@ -203,152 +200,152 @@
   .c-yellow { background: var(--yellow); color: #000; }
   .c-white  { background: #FFFFFF; color: #000; }
 
-  /* ===== ACT-SPECIFIC STAGGER DELAYS ===== */
-  .a1 .s-01 { animation-delay: 0.20s, 0.80s; }
-  .a1 .s-02 { animation-delay: 0.50s, 1.10s; }
-  .a1 .s-03 { animation-delay: 0.80s, 1.40s; }
-  .a1 .s-04 { animation-delay: 1.10s, 1.70s; }
-  .a1 .s-05 { animation-delay: 1.40s, 2.00s; }
-  .a1 .s-06 { animation-delay: 1.70s, 2.30s; }
-  .a1 .s-07 { animation-delay: 2.00s, 2.60s; }
-  .a1 .s-08 { animation-delay: 2.30s, 2.90s; }
-  .a1 .s-09 { animation-delay: 2.60s, 3.20s; }
-  .a1 .s-10 { animation-delay: 2.90s, 3.50s; }
-  .a1 .s-11 { animation-delay: 3.20s, 3.80s; }
-  .a1 .s-12 { animation-delay: 3.50s, 4.10s; }
-  .a1 .news-badge { animation-delay: 4.20s; }
+  /* ===== ACT-SPECIFIC STAGGER DELAYS (0.22s apart) ===== */
+  .a1 .s-01 { animation-delay: 0.20s, 0.70s; }
+  .a1 .s-02 { animation-delay: 0.42s, 0.92s; }
+  .a1 .s-03 { animation-delay: 0.64s, 1.14s; }
+  .a1 .s-04 { animation-delay: 0.86s, 1.36s; }
+  .a1 .s-05 { animation-delay: 1.08s, 1.58s; }
+  .a1 .s-06 { animation-delay: 1.30s, 1.80s; }
+  .a1 .s-07 { animation-delay: 1.52s, 2.02s; }
+  .a1 .s-08 { animation-delay: 1.74s, 2.24s; }
+  .a1 .s-09 { animation-delay: 1.96s, 2.46s; }
+  .a1 .s-10 { animation-delay: 2.18s, 2.68s; }
+  .a1 .s-11 { animation-delay: 2.40s, 2.90s; }
+  .a1 .s-12 { animation-delay: 2.62s, 3.12s; }
+  .a1 .news-badge { animation-delay: 3.30s; }
 
-  .a2 .s-01 { animation-delay: 10.20s, 10.80s; }
-  .a2 .s-02 { animation-delay: 10.50s, 11.10s; }
-  .a2 .s-03 { animation-delay: 10.80s, 11.40s; }
-  .a2 .s-04 { animation-delay: 11.10s, 11.70s; }
-  .a2 .s-05 { animation-delay: 11.40s, 12.00s; }
-  .a2 .s-06 { animation-delay: 11.70s, 12.30s; }
-  .a2 .s-07 { animation-delay: 12.00s, 12.60s; }
-  .a2 .s-08 { animation-delay: 12.30s, 12.90s; }
-  .a2 .s-09 { animation-delay: 12.60s, 13.20s; }
-  .a2 .s-10 { animation-delay: 12.90s, 13.50s; }
-  .a2 .s-11 { animation-delay: 13.20s, 13.80s; }
-  .a2 .s-12 { animation-delay: 13.50s, 14.10s; }
-  .a2 .news-badge { animation-delay: 14.20s; }
+  .a2 .s-01 { animation-delay: 10.20s, 10.70s; }
+  .a2 .s-02 { animation-delay: 10.42s, 10.92s; }
+  .a2 .s-03 { animation-delay: 10.64s, 11.14s; }
+  .a2 .s-04 { animation-delay: 10.86s, 11.36s; }
+  .a2 .s-05 { animation-delay: 11.08s, 11.58s; }
+  .a2 .s-06 { animation-delay: 11.30s, 11.80s; }
+  .a2 .s-07 { animation-delay: 11.52s, 12.02s; }
+  .a2 .s-08 { animation-delay: 11.74s, 12.24s; }
+  .a2 .s-09 { animation-delay: 11.96s, 12.46s; }
+  .a2 .s-10 { animation-delay: 12.18s, 12.68s; }
+  .a2 .s-11 { animation-delay: 12.40s, 12.90s; }
+  .a2 .s-12 { animation-delay: 12.62s, 13.12s; }
+  .a2 .news-badge { animation-delay: 13.30s; }
 
-  .a3 .s-01 { animation-delay: 20.20s, 20.80s; }
-  .a3 .s-02 { animation-delay: 20.50s, 21.10s; }
-  .a3 .s-03 { animation-delay: 20.80s, 21.40s; }
-  .a3 .s-04 { animation-delay: 21.10s, 21.70s; }
-  .a3 .s-05 { animation-delay: 21.40s, 22.00s; }
-  .a3 .s-06 { animation-delay: 21.70s, 22.30s; }
-  .a3 .s-07 { animation-delay: 22.00s, 22.60s; }
-  .a3 .s-08 { animation-delay: 22.30s, 22.90s; }
-  .a3 .s-09 { animation-delay: 22.60s, 23.20s; }
-  .a3 .s-10 { animation-delay: 22.90s, 23.50s; }
-  .a3 .s-11 { animation-delay: 23.20s, 23.80s; }
-  .a3 .s-12 { animation-delay: 23.50s, 24.10s; }
-  .a3 .news-badge { animation-delay: 24.20s; }
+  .a3 .s-01 { animation-delay: 20.20s, 20.70s; }
+  .a3 .s-02 { animation-delay: 20.42s, 20.92s; }
+  .a3 .s-03 { animation-delay: 20.64s, 21.14s; }
+  .a3 .s-04 { animation-delay: 20.86s, 21.36s; }
+  .a3 .s-05 { animation-delay: 21.08s, 21.58s; }
+  .a3 .s-06 { animation-delay: 21.30s, 21.80s; }
+  .a3 .s-07 { animation-delay: 21.52s, 22.02s; }
+  .a3 .s-08 { animation-delay: 21.74s, 22.24s; }
+  .a3 .s-09 { animation-delay: 21.96s, 22.46s; }
+  .a3 .s-10 { animation-delay: 22.18s, 22.68s; }
+  .a3 .s-11 { animation-delay: 22.40s, 22.90s; }
+  .a3 .s-12 { animation-delay: 22.62s, 23.12s; }
+  .a3 .news-badge { animation-delay: 23.30s; }
 
-  .a4 .s-01 { animation-delay: 30.20s, 30.80s; }
-  .a4 .s-02 { animation-delay: 30.50s, 31.10s; }
-  .a4 .s-03 { animation-delay: 30.80s, 31.40s; }
-  .a4 .s-04 { animation-delay: 31.10s, 31.70s; }
-  .a4 .s-05 { animation-delay: 31.40s, 32.00s; }
-  .a4 .s-06 { animation-delay: 31.70s, 32.30s; }
-  .a4 .s-07 { animation-delay: 32.00s, 32.60s; }
-  .a4 .s-08 { animation-delay: 32.30s, 32.90s; }
-  .a4 .s-09 { animation-delay: 32.60s, 33.20s; }
-  .a4 .s-10 { animation-delay: 32.90s, 33.50s; }
-  .a4 .s-11 { animation-delay: 33.20s, 33.80s; }
-  .a4 .s-12 { animation-delay: 33.50s, 34.10s; }
-  .a4 .news-badge { animation-delay: 34.20s; }
+  .a4 .s-01 { animation-delay: 30.20s, 30.70s; }
+  .a4 .s-02 { animation-delay: 30.42s, 30.92s; }
+  .a4 .s-03 { animation-delay: 30.64s, 31.14s; }
+  .a4 .s-04 { animation-delay: 30.86s, 31.36s; }
+  .a4 .s-05 { animation-delay: 31.08s, 31.58s; }
+  .a4 .s-06 { animation-delay: 31.30s, 31.80s; }
+  .a4 .s-07 { animation-delay: 31.52s, 32.02s; }
+  .a4 .s-08 { animation-delay: 31.74s, 32.24s; }
+  .a4 .s-09 { animation-delay: 31.96s, 32.46s; }
+  .a4 .s-10 { animation-delay: 32.18s, 32.68s; }
+  .a4 .s-11 { animation-delay: 32.40s, 32.90s; }
+  .a4 .s-12 { animation-delay: 32.62s, 33.12s; }
+  .a4 .news-badge { animation-delay: 33.30s; }
 
-  .a5 .s-01 { animation-delay: 40.20s, 40.80s; }
-  .a5 .s-02 { animation-delay: 40.50s, 41.10s; }
-  .a5 .s-03 { animation-delay: 40.80s, 41.40s; }
-  .a5 .s-04 { animation-delay: 41.10s, 41.70s; }
-  .a5 .s-05 { animation-delay: 41.40s, 42.00s; }
-  .a5 .s-06 { animation-delay: 41.70s, 42.30s; }
-  .a5 .s-07 { animation-delay: 42.00s, 42.60s; }
-  .a5 .s-08 { animation-delay: 42.30s, 42.90s; }
-  .a5 .s-09 { animation-delay: 42.60s, 43.20s; }
-  .a5 .s-10 { animation-delay: 42.90s, 43.50s; }
-  .a5 .s-11 { animation-delay: 43.20s, 43.80s; }
-  .a5 .s-12 { animation-delay: 43.50s, 44.10s; }
-  .a5 .news-badge { animation-delay: 44.20s; }
+  .a5 .s-01 { animation-delay: 40.20s, 40.70s; }
+  .a5 .s-02 { animation-delay: 40.42s, 40.92s; }
+  .a5 .s-03 { animation-delay: 40.64s, 41.14s; }
+  .a5 .s-04 { animation-delay: 40.86s, 41.36s; }
+  .a5 .s-05 { animation-delay: 41.08s, 41.58s; }
+  .a5 .s-06 { animation-delay: 41.30s, 41.80s; }
+  .a5 .s-07 { animation-delay: 41.52s, 42.02s; }
+  .a5 .s-08 { animation-delay: 41.74s, 42.24s; }
+  .a5 .s-09 { animation-delay: 41.96s, 42.46s; }
+  .a5 .s-10 { animation-delay: 42.18s, 42.68s; }
+  .a5 .s-11 { animation-delay: 42.40s, 42.90s; }
+  .a5 .s-12 { animation-delay: 42.62s, 43.12s; }
+  .a5 .news-badge { animation-delay: 43.30s; }
 
-  .a6 .s-01 { animation-delay: 50.20s, 50.80s; }
-  .a6 .s-02 { animation-delay: 50.50s, 51.10s; }
-  .a6 .s-03 { animation-delay: 50.80s, 51.40s; }
-  .a6 .s-04 { animation-delay: 51.10s, 51.70s; }
-  .a6 .s-05 { animation-delay: 51.40s, 52.00s; }
-  .a6 .s-06 { animation-delay: 51.70s, 52.30s; }
-  .a6 .s-07 { animation-delay: 52.00s, 52.60s; }
-  .a6 .s-08 { animation-delay: 52.30s, 52.90s; }
-  .a6 .s-09 { animation-delay: 52.60s, 53.20s; }
-  .a6 .s-10 { animation-delay: 52.90s, 53.50s; }
-  .a6 .s-11 { animation-delay: 53.20s, 53.80s; }
-  .a6 .s-12 { animation-delay: 53.50s, 54.10s; }
-  .a6 .news-badge { animation-delay: 54.20s; }
+  .a6 .s-01 { animation-delay: 50.20s, 50.70s; }
+  .a6 .s-02 { animation-delay: 50.42s, 50.92s; }
+  .a6 .s-03 { animation-delay: 50.64s, 51.14s; }
+  .a6 .s-04 { animation-delay: 50.86s, 51.36s; }
+  .a6 .s-05 { animation-delay: 51.08s, 51.58s; }
+  .a6 .s-06 { animation-delay: 51.30s, 51.80s; }
+  .a6 .s-07 { animation-delay: 51.52s, 52.02s; }
+  .a6 .s-08 { animation-delay: 51.74s, 52.24s; }
+  .a6 .s-09 { animation-delay: 51.96s, 52.46s; }
+  .a6 .s-10 { animation-delay: 52.18s, 52.68s; }
+  .a6 .s-11 { animation-delay: 52.40s, 52.90s; }
+  .a6 .s-12 { animation-delay: 52.62s, 53.12s; }
+  .a6 .news-badge { animation-delay: 53.30s; }
 
-  .a7 .s-01 { animation-delay: 60.20s, 60.80s; }
-  .a7 .s-02 { animation-delay: 60.50s, 61.10s; }
-  .a7 .s-03 { animation-delay: 60.80s, 61.40s; }
-  .a7 .s-04 { animation-delay: 61.10s, 61.70s; }
-  .a7 .s-05 { animation-delay: 61.40s, 62.00s; }
-  .a7 .s-06 { animation-delay: 61.70s, 62.30s; }
-  .a7 .s-07 { animation-delay: 62.00s, 62.60s; }
-  .a7 .s-08 { animation-delay: 62.30s, 62.90s; }
-  .a7 .s-09 { animation-delay: 62.60s, 63.20s; }
-  .a7 .s-10 { animation-delay: 62.90s, 63.50s; }
-  .a7 .s-11 { animation-delay: 63.20s, 63.80s; }
-  .a7 .s-12 { animation-delay: 63.50s, 64.10s; }
-  .a7 .news-badge { animation-delay: 64.20s; }
+  .a7 .s-01 { animation-delay: 60.20s, 60.70s; }
+  .a7 .s-02 { animation-delay: 60.42s, 60.92s; }
+  .a7 .s-03 { animation-delay: 60.64s, 61.14s; }
+  .a7 .s-04 { animation-delay: 60.86s, 61.36s; }
+  .a7 .s-05 { animation-delay: 61.08s, 61.58s; }
+  .a7 .s-06 { animation-delay: 61.30s, 61.80s; }
+  .a7 .s-07 { animation-delay: 61.52s, 62.02s; }
+  .a7 .s-08 { animation-delay: 61.74s, 62.24s; }
+  .a7 .s-09 { animation-delay: 61.96s, 62.46s; }
+  .a7 .s-10 { animation-delay: 62.18s, 62.68s; }
+  .a7 .s-11 { animation-delay: 62.40s, 62.90s; }
+  .a7 .s-12 { animation-delay: 62.62s, 63.12s; }
+  .a7 .news-badge { animation-delay: 63.30s; }
 
-  .a8 .s-01 { animation-delay: 70.20s, 70.80s; }
-  .a8 .s-02 { animation-delay: 70.50s, 71.10s; }
-  .a8 .s-03 { animation-delay: 70.80s, 71.40s; }
-  .a8 .s-04 { animation-delay: 71.10s, 71.70s; }
-  .a8 .s-05 { animation-delay: 71.40s, 72.00s; }
-  .a8 .s-06 { animation-delay: 71.70s, 72.30s; }
-  .a8 .s-07 { animation-delay: 72.00s, 72.60s; }
-  .a8 .s-08 { animation-delay: 72.30s, 72.90s; }
-  .a8 .s-09 { animation-delay: 72.60s, 73.20s; }
-  .a8 .s-10 { animation-delay: 72.90s, 73.50s; }
-  .a8 .s-11 { animation-delay: 73.20s, 73.80s; }
-  .a8 .s-12 { animation-delay: 73.50s, 74.10s; }
-  .a8 .news-badge { animation-delay: 74.20s; }
+  .a8 .s-01 { animation-delay: 70.20s, 70.70s; }
+  .a8 .s-02 { animation-delay: 70.42s, 70.92s; }
+  .a8 .s-03 { animation-delay: 70.64s, 71.14s; }
+  .a8 .s-04 { animation-delay: 70.86s, 71.36s; }
+  .a8 .s-05 { animation-delay: 71.08s, 71.58s; }
+  .a8 .s-06 { animation-delay: 71.30s, 71.80s; }
+  .a8 .s-07 { animation-delay: 71.52s, 72.02s; }
+  .a8 .s-08 { animation-delay: 71.74s, 72.24s; }
+  .a8 .s-09 { animation-delay: 71.96s, 72.46s; }
+  .a8 .s-10 { animation-delay: 72.18s, 72.68s; }
+  .a8 .s-11 { animation-delay: 72.40s, 72.90s; }
+  .a8 .s-12 { animation-delay: 72.62s, 73.12s; }
+  .a8 .news-badge { animation-delay: 73.30s; }
 
-  .a9 .s-01 { animation-delay: 80.20s, 80.80s; }
-  .a9 .s-02 { animation-delay: 80.50s, 81.10s; }
-  .a9 .s-03 { animation-delay: 80.80s, 81.40s; }
-  .a9 .s-04 { animation-delay: 81.10s, 81.70s; }
-  .a9 .s-05 { animation-delay: 81.40s, 82.00s; }
-  .a9 .s-06 { animation-delay: 81.70s, 82.30s; }
-  .a9 .s-07 { animation-delay: 82.00s, 82.60s; }
-  .a9 .s-08 { animation-delay: 82.30s, 82.90s; }
-  .a9 .s-09 { animation-delay: 82.60s, 83.20s; }
-  .a9 .s-10 { animation-delay: 82.90s, 83.50s; }
-  .a9 .s-11 { animation-delay: 83.20s, 83.80s; }
-  .a9 .s-12 { animation-delay: 83.50s, 84.10s; }
-  .a9 .news-badge { animation-delay: 84.20s; }
+  .a9 .s-01 { animation-delay: 80.20s, 80.70s; }
+  .a9 .s-02 { animation-delay: 80.42s, 80.92s; }
+  .a9 .s-03 { animation-delay: 80.64s, 81.14s; }
+  .a9 .s-04 { animation-delay: 80.86s, 81.36s; }
+  .a9 .s-05 { animation-delay: 81.08s, 81.58s; }
+  .a9 .s-06 { animation-delay: 81.30s, 81.80s; }
+  .a9 .s-07 { animation-delay: 81.52s, 82.02s; }
+  .a9 .s-08 { animation-delay: 81.74s, 82.24s; }
+  .a9 .s-09 { animation-delay: 81.96s, 82.46s; }
+  .a9 .s-10 { animation-delay: 82.18s, 82.68s; }
+  .a9 .s-11 { animation-delay: 82.40s, 82.90s; }
+  .a9 .s-12 { animation-delay: 82.62s, 83.12s; }
+  .a9 .news-badge { animation-delay: 83.30s; }
 
   .news-badge {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.58rem;
     font-weight: 800;
-    padding: 0.3rem 0.6rem;
+    padding: 0.35rem 0.7rem;
     background: #000;
     color: var(--yellow);
     border: 2px solid var(--blush);
     box-shadow: 3px 3px 0px var(--blush);
-    margin-top: 0.8rem;
+    margin-top: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     opacity: 0;
-    animation: stampNews 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-    will-change: transform, opacity, filter;
+    animation: badgePop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    will-change: transform, opacity;
   }
-  @keyframes stampNews {
-    0% { transform: scale(5) rotate(-20deg) translateY(30px); opacity: 0; filter: blur(8px); }
-    100% { transform: scale(1) rotate(0deg) translateY(0); opacity: 1; filter: blur(0px); }
+  @keyframes badgePop {
+    0% { transform: scale(0) translateY(20px); opacity: 0; filter: blur(6px); }
+    100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px); }
   }
 
   .strike-stamp {
@@ -356,7 +353,7 @@
     display: inline-block;
   }
   .strike-stamp::after {
-    content: "FALSE";
+    content: "NOPE";
     position: absolute;
     left: 50%;
     top: 50%;
@@ -366,13 +363,13 @@
     font-size: 1.1rem;
     font-weight: 900;
     padding: 0.1rem 0.7rem;
-    border: 2px solid #000;
+    border: 2.5px solid #000;
     box-shadow: 3px 3px 0px #000;
-    animation: stampFalse 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0.5s both;
+    animation: stampPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
     will-change: transform, opacity;
   }
-  @keyframes stampFalse {
-    0% { transform: translate(-50%, -50%) scale(4) rotate(-45deg); opacity: 0; filter: blur(4px); }
+  @keyframes stampPop {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-30deg); opacity: 0; filter: blur(4px); }
     100% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity: 1; filter: blur(0px); }
   }
 </style>
@@ -383,180 +380,180 @@
   <div class="grid-warp"></div>
   <div class="pulse-core"></div>
 
-  <!-- 0:00 - 0:10 | ACT 1: HIDDEN INTERVIEW -->
+  <!-- 0:00 - 0:10 | ACT 1: NOT JUST A GAME -->
   <div class="act a1">
     <div class="slam-title slam-xl"><span class="strike-stamp">JUST A GAME</span><br><strong style="color:var(--blush);">IT ISN'T</strong></div>
     <div class="dense-cloud">
-      <div class="point c-gold s-01"><strong>&#x26A1; HIDDEN INTERVIEW</strong></div>
-      <div class="point c-yellow s-02"><strong>&#x26A1; 100S OF DECISIONS/SEC</strong></div>
-      <div class="point c-blush s-03"><strong>&#x26A1; REAL-TIME TELEMETRY</strong></div>
-      <div class="point c-sky s-04"><strong>&#x26A1; MICRO-BEHAVIOR LOGGING</strong></div>
-      <div class="point c-mint s-05"><strong>&#x26A1; SPEED OF RESOLUTION</strong></div>
-      <div class="point c-lilac s-06"><strong>&#x26A1; LATENT ABILITY TEST</strong></div>
-      <div class="point c-white s-07"><strong>&#x26A1; COGNITIVE TRACE CAPTURE</strong></div>
-      <div class="point c-gold s-08"><strong>&#x26A1; NEURAL PULSE INTENSITY</strong></div>
-      <div class="point c-sky s-09"><strong>&#x26A1; UNCONSCIOUS HABITS</strong></div>
-      <div class="point c-blush s-10"><strong>&#x26A1; BIOMETRIC BRAIN AGILITY</strong></div>
-      <div class="point c-mint s-11"><strong>&#x26A1; STRATEGY EXTRACTION</strong></div>
-      <div class="point c-yellow s-12"><strong>&#x26A1; CANDIDATE SIGNAL GAIN</strong></div>
+      <div class="point c-gold s-01">SECRET TEST</div>
+      <div class="point c-yellow s-02">FAST BRAIN</div>
+      <div class="point c-blush s-03">QUICK PICKS</div>
+      <div class="point c-sky s-04">REAL DATA</div>
+      <div class="point c-mint s-05">YOUR MOVES</div>
+      <div class="point c-lilac s-06">SMART CHOICES</div>
+      <div class="point c-white s-07">BRAIN POWER</div>
+      <div class="point c-gold s-08">SKILL CHECK</div>
+      <div class="point c-sky s-09">HIDDEN SCORE</div>
+      <div class="point c-blush s-10">LEVEL UP</div>
+      <div class="point c-mint s-11">MIND GAME</div>
+      <div class="point c-yellow s-12">YOU GOT THIS</div>
     </div>
-    <div class="news-badge">SOURCE: HARVARD BUSINESS REVIEW // GAMIFIED HIRING LABS</div>
+    <div class="news-badge">HARVARD // GAMIFIED HIRING</div>
   </div>
 
-  <!-- 0:10 - 0:20 | ACT 2: PATTERNS & WORKING MEMORY -->
+  <!-- 0:10 - 0:20 | ACT 2: SPOT THE PATTERN -->
   <div class="act a2">
-    <div class="slam-title slam-lg">SPOT THE <strong style="color:var(--sky);">PATTERN</strong><br>OUTPACE ALL</div>
+    <div class="slam-title slam-lg">SPOT THE <strong style="color:var(--sky);">PATTERN</strong></div>
     <div class="dense-cloud">
-      <div class="point c-mint s-01"><strong>&#x25B6; RAPID RECOGNITION</strong></div>
-      <div class="point c-yellow s-02"><strong>&#x25B6; ACTIVE MEMORY BUFFER</strong></div>
-      <div class="point c-blush s-03"><strong>&#x25B6; INSTANT SYNTHESIS</strong></div>
-      <div class="point c-sky s-04"><strong>&#x25B6; DETECT ANOMALIES</strong></div>
-      <div class="point c-lilac s-05"><strong>&#x25B6; BUILD NOVEL SOLUTIONS</strong></div>
-      <div class="point c-white s-06"><strong>&#x25B6; WORKING MEMORY (WMC)</strong></div>
-      <div class="point c-gold s-07"><strong>&#x25B6; SUB-SECOND RECALL</strong></div>
-      <div class="point c-mint s-08"><strong>&#x25B6; SIGNAL DISTILLATION</strong></div>
-      <div class="point c-sky s-09"><strong>&#x25B6; FLUID INTELLIGENCE (Gf)</strong></div>
-      <div class="point c-blush s-10"><strong>&#x25B6; VISUAL-SPATIAL SPAN</strong></div>
-      <div class="point c-yellow s-11"><strong>&#x25B6; INFORMATION RETENTION</strong></div>
-      <div class="point c-lilac s-12"><strong>&#x25B6; PARALLEL PROCESSING</strong></div>
+      <div class="point c-mint s-01">FIND IT</div>
+      <div class="point c-yellow s-02">MATCH THIS</div>
+      <div class="point c-blush s-03">REMEMBER</div>
+      <div class="point c-sky s-04">CONNECT</div>
+      <div class="point c-lilac s-05">SEE IT?</div>
+      <div class="point c-white s-06">PATTERN UP</div>
+      <div class="point c-gold s-07">BRAIN MATCH</div>
+      <div class="point c-mint s-08">QUICK EYES</div>
+      <div class="point c-sky s-09">SPOT ON</div>
+      <div class="point c-blush s-10">THINK FAST</div>
+      <div class="point c-yellow s-11">LINK IT</div>
+      <div class="point c-lilac s-12">WIN IT</div>
     </div>
-    <div class="news-badge">NATURE NEUROSCIENCE // FLUID REASONING PROTOCOLS</div>
+    <div class="news-badge">NATURE // BRAIN SCIENCE</div>
   </div>
 
-  <!-- 0:20 - 0:30 | ACT 3: ABANDON BAD IDEAS -->
+  <!-- 0:20 - 0:30 | ACT 3: KILL BAD IDEAS -->
   <div class="act a3">
-    <div class="slam-title slam-lg">KILL <span style="background:var(--blush); color:#fff; padding:0 0.4rem;">BAD IDEAS</span><br>PIVOT FAST</div>
+    <div class="slam-title slam-lg">KILL <span style="background:var(--blush); color:#fff; padding:0 0.4rem;">BAD IDEAS</span></div>
     <div class="dense-cloud">
-      <div class="point c-blush s-01"><strong>&#x2716; ZERO SUNK COST FALLACY</strong></div>
-      <div class="point c-yellow s-02"><strong>&#x2714; INSTANT PIVOT</strong></div>
-      <div class="point c-sky s-03"><strong>&#x2714; PROCESSING SPEED</strong></div>
-      <div class="point c-mint s-04"><strong>&#x2714; TACTICAL FLEXIBILITY</strong></div>
-      <div class="point c-lilac s-05"><strong>&#x2714; ABANDON WRONG PATHS</strong></div>
-      <div class="point c-white s-06"><strong>&#x2714; DYNAMIC RE-ROUTING</strong></div>
-      <div class="point c-gold s-07"><strong>&#x2714; EXECUTIVE INHIBITION</strong></div>
-      <div class="point c-blush s-08"><strong>&#x2714; SHED COGNITIVE DRAG</strong></div>
-      <div class="point c-mint s-09"><strong>&#x2714; RAPID ERROR OVERRIDE</strong></div>
-      <div class="point c-sky s-10"><strong>&#x2714; SPEED OF ADJUSTMENT</strong></div>
-      <div class="point c-yellow s-11"><strong>&#x2714; DISCARD SUB-OPTIMAL</strong></div>
-      <div class="point c-lilac s-12"><strong>&#x2714; TARGET LOCK ACQUIRED</strong></div>
+      <div class="point c-blush s-01">DROP IT</div>
+      <div class="point c-yellow s-02">SWITCH UP</div>
+      <div class="point c-sky s-03">NEW PLAN</div>
+      <div class="point c-mint s-04">LET GO</div>
+      <div class="point c-lilac s-05">PIVOT NOW</div>
+      <div class="point c-white s-06">TRY AGAIN</div>
+      <div class="point c-gold s-07">MOVE ON</div>
+      <div class="point c-blush s-08">FRESH START</div>
+      <div class="point c-mint s-09">NO FEAR</div>
+      <div class="point c-sky s-10">CHANGE IT</div>
+      <div class="point c-yellow s-11">BETTER WAY</div>
+      <div class="point c-lilac s-12">SMART MOVE</div>
     </div>
-    <div class="news-badge">STANFORD COGNITIVE LABS // VELOCITY OF ATTENTION</div>
+    <div class="news-badge">STANFORD // COGNITIVE LAB</div>
   </div>
 
-  <!-- 0:30 - 0:40 | ACT 4: SCIENCE OF PROBLEM SOLVING -->
+  <!-- 0:30 - 0:40 | ACT 4: SOLVE IT -->
   <div class="act a4">
-    <div class="slam-title slam-md">SCIENCE OF<br><strong style="color:var(--gold);">PROBLEM SOLVING</strong></div>
+    <div class="slam-title slam-md">SCIENCE OF <strong style="color:var(--gold);">SOLVING</strong></div>
     <div class="dense-cloud">
-      <div class="point c-gold s-01"><strong>&#x25C6; COGNITIVE FLEXIBILITY</strong></div>
-      <div class="point c-mint s-02"><strong>&#x25C6; HEURISTIC OPTIMIZATION</strong></div>
-      <div class="point c-sky s-03"><strong>&#x25C6; LATERAL THINKING</strong></div>
-      <div class="point c-blush s-04"><strong>&#x25C6; NON-LINEAR STRATEGY</strong></div>
-      <div class="point c-yellow s-05"><strong>&#x25C6; HIGH DECISION VELOCITY</strong></div>
-      <div class="point c-lilac s-06"><strong>&#x25C6; SCHEMA ADAPTATION</strong></div>
-      <div class="point c-white s-07"><strong>&#x25C6; COMPUTATIONAL LOGIC</strong></div>
-      <div class="point c-mint s-08"><strong>&#x25C6; HYPOTHESIS TESTING</strong></div>
-      <div class="point c-sky s-09"><strong>&#x25C6; SYSTEMATIC DECONSTRUCTION</strong></div>
-      <div class="point c-gold s-10"><strong>&#x25C6; METABOLIC BRAIN PEAK</strong></div>
-      <div class="point c-blush s-11"><strong>&#x25C6; HIGH-ORDER ABSTRACTION</strong></div>
-      <div class="point c-yellow s-12"><strong>&#x25C6; UNSTRUCTURED MASTERY</strong></div>
+      <div class="point c-gold s-01">FIGURE OUT</div>
+      <div class="point c-mint s-02">SMART FIX</div>
+      <div class="point c-sky s-03">WORK IT</div>
+      <div class="point c-blush s-04">BRAIN ON</div>
+      <div class="point c-yellow s-05">FIND HOW</div>
+      <div class="point c-lilac s-06">MAKE IT</div>
+      <div class="point c-white s-07">THINK UP</div>
+      <div class="point c-mint s-08">CRACK IT</div>
+      <div class="point c-sky s-09">YES!</div>
+      <div class="point c-gold s-10">GOT IT</div>
+      <div class="point c-blush s-11">NICE ONE</div>
+      <div class="point c-yellow s-12">SOLVED</div>
     </div>
-    <div class="news-badge">WORLD ECONOMIC FORUM // #1 CRITICAL WORKFORCE DEMAND</div>
+    <div class="news-badge">WEF // TOP SKILL 2026</div>
   </div>
 
-  <!-- 0:40 - 0:50 | ACT 5: THE GLOBAL EMPLOYERS -->
+  <!-- 0:40 - 0:50 | ACT 5: BIG NAMES -->
   <div class="act a5">
-    <div class="slam-title slam-md">TOP FIRMS<br><strong style="color:var(--mint);">TEST YOUR MIND</strong></div>
+    <div class="slam-title slam-md">BIG NAMES <strong style="color:var(--mint);">WANT YOU</strong></div>
     <div class="dense-cloud">
-      <div class="point c-sky s-01"><strong>&#x2605; GOOGLE</strong></div>
-      <div class="point c-blush s-02"><strong>&#x2605; MICROSOFT</strong></div>
-      <div class="point c-lilac s-03"><strong>&#x2605; ACCENTURE</strong></div>
-      <div class="point c-mint s-04"><strong>&#x2605; DELOITTE</strong></div>
-      <div class="point c-yellow s-05"><strong>&#x2605; EY</strong></div>
-      <div class="point c-white s-06"><strong>&#x2605; PWC</strong></div>
-      <div class="point c-sky s-07"><strong>&#x2605; JPMORGAN CHASE</strong></div>
-      <div class="point c-gold s-08"><strong>&#x2605; MCKINSEY & CO.</strong></div>
-      <div class="point c-blush s-09"><strong>&#x2605; GOLDMAN SACHS</strong></div>
-      <div class="point c-mint s-10"><strong>&#x2605; BOSTON CONSULTING</strong></div>
-      <div class="point c-yellow s-11"><strong>&#x2605; AMAZON APPS</strong></div>
-      <div class="point c-lilac s-12"><strong>&#x2605; BAIN & COMPANY</strong></div>
+      <div class="point c-sky s-01">GOOGLE</div>
+      <div class="point c-blush s-02">MICROSOFT</div>
+      <div class="point c-lilac s-03">AMAZON</div>
+      <div class="point c-mint s-04">DELOITTE</div>
+      <div class="point c-yellow s-05">McKINSEY</div>
+      <div class="point c-white s-06">GOLDMAN</div>
+      <div class="point c-sky s-07">JPMORGAN</div>
+      <div class="point c-gold s-08">BAIN</div>
+      <div class="point c-blush s-09">BCG</div>
+      <div class="point c-mint s-10">ACCENTURE</div>
+      <div class="point c-yellow s-11">EY</div>
+      <div class="point c-lilac s-12">PwC</div>
     </div>
-    <div class="news-badge">WALL STREET JOURNAL // GAMIFIED PSYCHOMETRIC RECRUITING</div>
+    <div class="news-badge">WSJ // GAMIFIED HIRING</div>
   </div>
 
   <!-- 0:50 - 1:00 | ACT 6: HOW YOU THINK -->
   <div class="act a6">
     <div class="slam-title slam-lg"><span class="strike-stamp">MEMORIZED</span><br><strong style="color:var(--blush);">HOW YOU THINK</strong></div>
     <div class="dense-cloud">
-      <div class="point c-white s-01"><strong>&#x27A4; ZERO ROTE LEARNING</strong></div>
-      <div class="point c-mint s-02"><strong>&#x27A4; DETECT RAW SIGNALS</strong></div>
-      <div class="point c-sky s-03"><strong>&#x27A4; REWIRE THE STRATEGY</strong></div>
-      <div class="point c-yellow s-04"><strong>&#x27A4; ADAPT IN REAL-TIME</strong></div>
-      <div class="point c-lilac s-05"><strong>&#x27A4; NO FORMULA REPEATS</strong></div>
-      <div class="point c-gold s-06"><strong>&#x27A4; LIVE TACTICAL SHIFTS</strong></div>
-      <div class="point c-blush s-07"><strong>&#x27A4; UNSTRUCTURED SOLVING</strong></div>
-      <div class="point c-mint s-08"><strong>&#x27A4; INSTINCTIVE MASTERY</strong></div>
-      <div class="point c-sky s-09"><strong>&#x27A4; INTUITIVE LOGIC</strong></div>
-      <div class="point c-white s-10"><strong>&#x27A4; AMBIGUITY RESOLUTION</strong></div>
-      <div class="point c-yellow s-11"><strong>&#x27A4; DYNAMIC GAME THEORY</strong></div>
-      <div class="point c-gold s-12"><strong>&#x27A4; FLUID ARCHITECTURE</strong></div>
+      <div class="point c-white s-01">NO ROTE</div>
+      <div class="point c-mint s-02">REAL THINK</div>
+      <div class="point c-sky s-03">USE BRAIN</div>
+      <div class="point c-yellow s-04">BE SMART</div>
+      <div class="point c-lilac s-05">NOT BOOKS</div>
+      <div class="point c-gold s-06">LIVE WIRE</div>
+      <div class="point c-blush s-07">ADAPT NOW</div>
+      <div class="point c-mint s-08">FLOW STATE</div>
+      <div class="point c-sky s-09">INTUITION</div>
+      <div class="point c-white s-10">GUT FEEL</div>
+      <div class="point c-yellow s-11">WING IT</div>
+      <div class="point c-gold s-12">OWN IT</div>
     </div>
-    <div class="news-badge">FORBES TECH // WHY STANDARD CODING INTERVIEWS ARE DEAD</div>
+    <div class="news-badge">FORBES // OLD TESTS ARE DEAD</div>
   </div>
 
-  <!-- 1:00 - 1:10 | ACT 7: FEEDBACK LOOP -->
+  <!-- 1:00 - 1:10 | ACT 7: LEARN FROM MISTAKES -->
   <div class="act a7">
-    <div class="slam-title slam-md">MISTAKE = <strong style="color:var(--blush);">FEEDBACK</strong><br>BUILD MUSCLE</div>
+    <div class="slam-title slam-md">OOPS = <strong style="color:var(--blush);">LEARN</strong></div>
     <div class="dense-cloud">
-      <div class="point c-mint s-01"><strong>&#x2022; REASONING MUSCLE</strong></div>
-      <div class="point c-gold s-02"><strong>&#x2022; DECISION SPEED</strong></div>
-      <div class="point c-lilac s-03"><strong>&#x2022; BOUNDLESS CREATIVITY</strong></div>
-      <div class="point c-sky s-04"><strong>&#x2022; NEURAL PLASTICITY</strong></div>
-      <div class="point c-yellow s-05"><strong>&#x2022; HIGH ADAPTABILITY</strong></div>
-      <div class="point c-blush s-06"><strong>&#x2022; INSTANT SELF-CORRECT</strong></div>
-      <div class="point c-white s-07"><strong>&#x2022; STRESS RESILIENCE</strong></div>
-      <div class="point c-mint s-08"><strong>&#x2022; ERROR-DRIVEN GROWTH</strong></div>
-      <div class="point c-sky s-09"><strong>&#x2022; SYNAPTIC STRENGTHENING</strong></div>
-      <div class="point c-gold s-10"><strong>&#x2022; PRESSURE TESTING</strong></div>
-      <div class="point c-yellow s-11"><strong>&#x2022; APPLIED INGENUITY</strong></div>
-      <div class="point c-lilac s-12"><strong>&#x2022; PEAK COGNITIVE TONING</strong></div>
+      <div class="point c-mint s-01">OOPS!</div>
+      <div class="point c-gold s-02">TRY AGAIN</div>
+      <div class="point c-lilac s-03">GET UP</div>
+      <div class="point c-sky s-04">STRONGER</div>
+      <div class="point c-yellow s-05">LEVEL UP</div>
+      <div class="point c-blush s-06">MUSCLE UP</div>
+      <div class="point c-white s-07">BRAIN GYM</div>
+      <div class="point c-mint s-08">PUSH IT</div>
+      <div class="point c-sky s-09">BOUNCE BACK</div>
+      <div class="point c-gold s-10">GROWTH</div>
+      <div class="point c-yellow s-11">POWER UP</div>
+      <div class="point c-lilac s-12">KEEP GOING</div>
     </div>
-    <div class="news-badge">MIT TECHNOLOGY REVIEW // NEURAL STRENGTHENING LOOPS</div>
+    <div class="news-badge">MIT // LEARNING LOOPS</div>
   </div>
 
   <!-- 1:10 - 1:20 | ACT 8: THINK BETTER -->
   <div class="act a8">
     <div class="slam-title slam-xl"><span class="strike-stamp">KNOW MORE</span><br><strong style="color:var(--sky);">THINK BETTER</strong></div>
     <div class="dense-cloud">
-      <div class="point c-yellow s-01"><strong>&#x2605; UNBEATABLE PLACEMENT EDGE</strong></div>
-      <div class="point c-mint s-02"><strong>&#x2605; ULTRA-FAST SYNAPSES</strong></div>
-      <div class="point c-blush s-03"><strong>&#x2605; SHARPER MENTAL MODELS</strong></div>
-      <div class="point c-sky s-04"><strong>&#x2605; CRUSH THE COMPETITION</strong></div>
-      <div class="point c-gold s-05"><strong>&#x2605; ACCELERATED LOGIC</strong></div>
-      <div class="point c-lilac s-06"><strong>&#x2605; RAPID LATERAL SHIFTS</strong></div>
-      <div class="point c-white s-07"><strong>&#x2605; TOP TIER PERCENTILE</strong></div>
-      <div class="point c-yellow s-08"><strong>&#x2605; ELITE PROBLEM SOLVER</strong></div>
-      <div class="point c-mint s-09"><strong>&#x2605; OUTTHINK EVERY METRIC</strong></div>
-      <div class="point c-sky s-10"><strong>&#x2605; DAY-ONE JOB READINESS</strong></div>
-      <div class="point c-blush s-11"><strong>&#x2605; HIGH-IMPACT CLARITY</strong></div>
-      <div class="point c-gold s-12"><strong>&#x2605; PURE COGNITIVE POWER</strong></div>
+      <div class="point c-yellow s-01">BE SHARP</div>
+      <div class="point c-mint s-02">TOP 1%</div>
+      <div class="point c-blush s-03">CRUSH IT</div>
+      <div class="point c-sky s-04">ELITE MODE</div>
+      <div class="point c-gold s-05">FAST LANE</div>
+      <div class="point c-lilac s-06">BIG BRAIN</div>
+      <div class="point c-white s-07">OUT SMART</div>
+      <div class="point c-yellow s-08">JOB READY</div>
+      <div class="point c-mint s-09">HIGH SCORE</div>
+      <div class="point c-sky s-10">UNSTOPPABLE</div>
+      <div class="point c-blush s-11">WINNER</div>
+      <div class="point c-gold s-12">CHAMP</div>
     </div>
-    <div class="news-badge">CAMPUS RECRUITMENT BENCHMARK // TOP 1% COGNITIVE PERFORMANCE</div>
+    <div class="news-badge">CAMPUS // TOP 1% MINDS</div>
   </div>
 
-  <!-- 1:20 - 1:30 | ACT 9: CAREER CATALYST THON -->
+  <!-- 1:20 - 1:30 | ACT 9: CAREER CATALYST -->
   <div class="act a9">
     <div class="slam-title slam-lg" style="color:var(--gold);">CAREER<br>CATALYST<br>THON</div>
     <div class="dense-cloud">
-      <div class="point c-yellow s-01" style="font-size:0.85rem; padding:0.55rem 0.8rem;"><strong>STRONGEST BRAINS WIN!</strong></div>
-      <div class="point c-mint s-02"><strong>&#x26A1; TRAIN YOUR BRAIN</strong></div>
-      <div class="point c-blush s-03"><strong>&#x26A1; TRANSFORM YOUR CAREER</strong></div>
-      <div class="point c-sky s-04"><strong>&#x26A1; REAL-TIME LEADERBOARD</strong></div>
-      <div class="point c-lilac s-05"><strong>&#x26A1; NEXT-GEN RECRUITMENT</strong></div>
-      <div class="point c-white s-06"><strong>&#x26A1; UNLOCK YOUR POTENTIAL</strong></div>
-      <div class="point c-gold s-07"><strong>&#x26A1; THE ULTIMATE ARENA</strong></div>
-      <div class="point c-mint s-08"><strong>&#x26A1; REGISTER NOW</strong></div>
+      <div class="point c-yellow s-01" style="font-size:0.9rem; padding:0.6rem;">STRONGEST WINS!</div>
+      <div class="point c-mint s-02">TRAIN BRAIN</div>
+      <div class="point c-blush s-03">CHANGE LIFE</div>
+      <div class="point c-sky s-04">LIVE BOARD</div>
+      <div class="point c-lilac s-05">NEW HIRING</div>
+      <div class="point c-white s-06">UNLOCK YOU</div>
+      <div class="point c-gold s-07">THE ARENA</div>
+      <div class="point c-mint s-08">JOIN NOW</div>
     </div>
-    <div class="news-badge" style="background:var(--blush); color:#fff; border-color:#000;">THE ARENA IS LIVE // GO COMPETE</div>
+    <div class="news-badge" style="background:var(--blush); color:#fff; border-color:#000;">ARENA IS LIVE // GO!</div>
   </div>
 
 </div>
