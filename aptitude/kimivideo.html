@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Career Catalyst Thon | Kinetic Presentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F9F5EC;
+    --ink: #18120B;
+    --gold: #F4B942;
+    --mint: #38B072;
+    --blush: #E85D43;
+    --sky: #2B8BEA;
+    --lilac: #8E54E9;
+    --yellow: #FFE600;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%; width: 100%; overflow: hidden;
+    background: #0D0905;
+    display: flex; justify-content: center; align-items: center;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .stage {
+    position: relative;
+    width: 100%; height: 100%;
+    max-width: 480px; max-height: 880px;
+    background: var(--cream);
+    overflow: hidden;
+    box-shadow: 0 0 100px rgba(244,185,66,0.35);
+  }
+
+  /* ===== CONTINUOUS BACKGROUND MOTION ===== */
+  .grid-warp {
+    position: absolute; inset: -40px;
+    background-image:
+      linear-gradient(rgba(24,18,11,0.06) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, rgba(24,18,11,0.06) 1.5px, transparent 1.5px);
+    background-size: 28px 28px;
+    pointer-events: none; z-index: 1;
+    animation: gridPan 12s linear infinite;
+  }
+  @keyframes gridPan {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-28px, -28px) rotate(0.5deg); }
+  }
+
+  .orbital-ring {
+    position: absolute; top: 50%; left: 50%;
+    width: 300px; height: 300px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px dashed rgba(244,185,66,0.2);
+    pointer-events: none; z-index: 1;
+    animation: orbitSpin 15s linear infinite;
+  }
+  .orbital-ring::before {
+    content: ''; position: absolute; inset: -40px;
+    border-radius: 50%;
+    border: 2px dashed rgba(56,176,114,0.15);
+    animation: orbitSpin 22s linear infinite reverse;
+  }
+  .orbital-ring::after {
+    content: ''; position: absolute; inset: 30px;
+    border-radius: 50%;
+    border: 2px dashed rgba(232,93,67,0.15);
+    animation: orbitSpin 10s linear infinite;
+  }
+  @keyframes orbitSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Floating particles */
+  .particles {
+    position: absolute; inset: 0; z-index: 2;
+    pointer-events: none; overflow: hidden;
+  }
+  .particle {
+    position: absolute; border-radius: 50%;
+    opacity: 0.4;
+    animation: particleFloat linear infinite;
+  }
+  @keyframes particleFloat {
+    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    10% { opacity: 0.5; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-20vh) scale(1); opacity: 0; }
+  }
+
+  /* ===== ACT SYSTEM ===== */
+  .act {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    padding: 1.2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+    animation: actSequence 90s infinite ease-in-out;
+    overflow: hidden;
+  }
+
+  .a1 { animation-delay: 0s; }
+  .a2 { animation-delay: 10s; }
+  .a3 { animation-delay: 20s; }
+  .a4 { animation-delay: 30s; }
+  .a5 { animation-delay: 40s; }
+  .a6 { animation-delay: 50s; }
+  .a7 { animation-delay: 60s; }
+  .a8 { animation-delay: 70s; }
+  .a9 { animation-delay: 80s; }
+
+  @keyframes actSequence {
+    0% { opacity: 0; transform: scale(0.95); filter: brightness(1.5) blur(4px); }
+    0.5%, 10.5% { opacity: 1; transform: scale(1); filter: brightness(1) blur(0px); }
+    11%, 100% { opacity: 0; transform: scale(1.05) translateY(-20px); filter: brightness(0.4) blur(6px); }
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  .kinetic-line {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--ink);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    max-width: 100%;
+    opacity: 0;
+    will-change: transform, opacity, filter;
+  }
+  .k-xl { font-size: 2.6rem; }
+  .k-lg { font-size: 2.1rem; }
+  .k-md { font-size: 1.7rem; }
+  .k-sm { font-size: 1.3rem; }
+
+  /* ===== STRIKE STAMP ===== */
+  .strike-stamp {
+    position: relative; display: inline-block;
+  }
+  .strike-stamp::after {
+    content: attr(data-stamp);
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg) scale(0);
+    background: var(--blush); color: #fff;
+    font-size: 0.9rem; font-weight: 900;
+    padding: 0.15rem 0.7rem;
+    border: 2.5px solid #000;
+    box-shadow: 3px 3px 0px #000;
+    opacity: 0;
+    animation: stampHit 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    white-space: nowrap;
+  }
+  @keyframes stampHit {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-25deg); opacity: 0; filter: blur(4px); }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(-12deg); opacity: 1; filter: blur(0px); }
+  }
+
+  /* ===== COUNTER ===== */
+  .counter-box {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 4rem; font-weight: 800;
+    color: var(--blush);
+    text-shadow: 4px 4px 0px var(--ink);
+    line-height: 1;
+    margin: 0.5rem 0;
+    opacity: 0;
+    animation: counterAppear 0.4s ease forwards;
+  }
+  @keyframes counterAppear {
+    0% { transform: scale(0) rotate(-10deg); opacity: 0; filter: blur(10px); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; filter: blur(0px); }
+  }
+
+  /* ===== WORD TILES ===== */
+  .tile-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem;
+    width: 100%;
+    margin-top: 0.6rem;
+    perspective: 600px;
+  }
+  .tile {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding: 0.5rem 0.5rem;
+    border-radius: 6px;
+    border: 2.5px solid var(--ink);
+    box-shadow: 3px 3px 0px var(--ink);
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    text-align: center;
+    opacity: 0;
+    will-change: transform, opacity, filter;
+    line-height: 1.1;
+  }
+
+  .t-gold   { background: var(--gold); color: #000; }
+  .t-mint   { background: var(--mint); color: #fff; }
+  .t-blush  { background: var(--blush); color: #fff; }
+  .t-sky    { background: var(--sky); color: #fff; }
+  .t-lilac  { background: var(--lilac); color: #fff; }
+  .t-yellow { background: var(--yellow); color: #000; }
+  .t-white  { background: #fff; color: #000; }
+  .t-ink    { background: var(--ink); color: var(--yellow); }
+
+  /* ===== ANIMATION KEYFRAMES ===== */
+  @keyframes slamBounce {
+    0% { transform: scale(0) translateY(50px); opacity: 0; filter: blur(14px) brightness(2); }
+    60% { transform: scale(1.2) translateY(-8px); opacity: 1; filter: blur(0px) brightness(1); }
+    100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px) brightness(1); }
+  }
+  @keyframes slideLeft {
+    0% { transform: translateX(-100px) rotate(-5deg); opacity: 0; filter: blur(10px); }
+    100% { transform: translateX(0) rotate(0deg); opacity: 1; filter: blur(0px); }
+  }
+  @keyframes slideRight {
+    0% { transform: translateX(100px) rotate(5deg); opacity: 0; filter: blur(10px); }
+    100% { transform: translateX(0) rotate(0deg); opacity: 1; filter: blur(0px); }
+  }
+  @keyframes dropElastic {
+    0% { transform: translateY(-80px) scale(0.4); opacity: 0; filter: blur(12px) brightness(2); }
+    55% { transform: translateY(10px) scale(1.15); opacity: 1; filter: blur(0px) brightness(1); }
+    80% { transform: translateY(-4px) scale(0.97); }
+    100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0px) brightness(1); }
+  }
+  @keyframes flipReveal {
+    0% { transform: perspective(800px) rotateX(-90deg) translateY(40px); opacity: 0; filter: blur(8px); }
+    60% { transform: perspective(800px) rotateX(8deg) translateY(-4px); opacity: 1; filter: blur(0px); }
+    100% { transform: perspective(800px) rotateX(0deg) translateY(0); opacity: 1; }
+  }
+  @keyframes popScale {
+    0% { transform: scale(0) rotate(-10deg); opacity: 0; filter: blur(8px); }
+    70% { transform: scale(1.2) rotate(3deg); opacity: 1; filter: blur(0px); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  @keyframes typewriter {
+    0% { width: 0; opacity: 1; }
+    100% { width: 100%; opacity: 1; }
+  }
+  @keyframes fadeUp {
+    0% { transform: translateY(30px); opacity: 0; filter: blur(6px); }
+    100% { transform: translateY(0); opacity: 1; filter: blur(0px); }
+  }
+  @keyframes glitchIn {
+    0% { transform: translateX(-10px) skewX(-20deg); opacity: 0; filter: blur(4px); }
+    20% { transform: translateX(8px) skewX(10deg); opacity: 0.8; }
+    40% { transform: translateX(-4px) skewX(-5deg); opacity: 1; }
+    100% { transform: translateX(0) skewX(0deg); opacity: 1; filter: blur(0px); }
+  }
+  @keyframes morphIn {
+    0% { transform: scale(0.3) rotate(-180deg); opacity: 0; filter: blur(12px); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; filter: blur(0px); }
+  }
+  @keyframes badgePop {
+    0% { transform: scale(0) translateY(20px); opacity: 0; filter: blur(6px); }
+    100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px); }
+  }
+  @keyframes floaty {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0px rgba(244,185,66,0); }
+    50% { box-shadow: 0 0 20px rgba(244,185,66,0.4); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px) rotate(-1deg); }
+    75% { transform: translateX(3px) rotate(1deg); }
+  }
+  @keyframes scanReveal {
+    0% { clip-path: inset(0 100% 0 0); opacity: 1; }
+    100% { clip-path: inset(0 0% 0 0); opacity: 1; }
+  }
+  @keyframes orbitEntry {
+    0% { transform: rotate(-180deg) translateX(80px) rotate(180deg) scale(0); opacity: 0; }
+    100% { transform: rotate(0deg) translateX(0) rotate(0deg) scale(1); opacity: 1; }
+  }
+  @keyframes explodeIn {
+    0% { transform: scale(3) rotate(20deg); opacity: 0; filter: blur(20px) brightness(3); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; filter: blur(0px) brightness(1); }
+  }
+
+  /* ===== ACT 1: "Looks like a game... hundreds" ===== */
+  .a1 .l1 { animation: slamBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both; }
+  .a1 .l2 { animation: glitchIn 0.5s ease 1.0s both; }
+  .a1 .l3 { animation: fadeUp 0.6s ease 1.8s both; }
+  .a1 .l4 { animation: fadeUp 0.5s ease 2.6s both; }
+  .a1 .counter-box { animation: counterAppear 0.4s ease 3.4s both; }
+  .a1 .l5 { animation: slamBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 5.0s both; }
+  .a1 .tile { animation: popScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, floaty 2s ease-in-out infinite alternate; }
+  .a1 .t1 { animation-delay: 5.4s, 6.0s; }
+  .a1 .t2 { animation-delay: 5.6s, 6.2s; }
+  .a1 .t3 { animation-delay: 5.8s, 6.4s; }
+  .a1 .t4 { animation-delay: 6.0s, 6.6s; }
+  .a1 .t5 { animation-delay: 6.2s, 6.8s; }
+  .a1 .t6 { animation-delay: 6.4s, 7.0s; }
+  .a1 .t7 { animation-delay: 6.6s, 7.2s; }
+  .a1 .t8 { animation-delay: 6.8s, 7.4s; }
+  .a1 .badge { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 7.8s both; }
+
+  /* ===== ACT 2: "Can you spot a pattern..." ===== */
+  .a2 .l1 { animation: slideLeft 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both; }
+  .a2 .l2 { animation: slideRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) 1.2s both; }
+  .a2 .pattern-dots {
+    display: flex; gap: 0.5rem; justify-content: center; margin: 1rem 0;
+    opacity: 0; animation: fadeUp 0.5s ease 2.0s both;
+  }
+  .p-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2.5px solid var(--ink);
+    box-shadow: 2px 2px 0 var(--ink);
+    animation: pulseGlow 1s ease-in-out infinite;
+  }
+  .a2 .tile { animation: flipReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, floaty 2s ease-in-out infinite alternate; }
+  .a2 .t1 { animation-delay: 3.0s, 3.6s; }
+  .a2 .t2 { animation-delay: 3.2s, 3.8s; }
+  .a2 .t3 { animation-delay: 3.4s, 4.0s; }
+  .a2 .t4 { animation-delay: 3.6s, 4.2s; }
+  .a2 .t5 { animation-delay: 3.8s, 4.4s; }
+  .a2 .t6 { animation-delay: 4.0s, 4.6s; }
+  .a2 .badge { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 5.0s both; }
+
+  /* ===== ACT 3: "Can you abandon a bad idea..." ===== */
+  .a3 .l1 { animation: slamBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both; }
+  .a3 .l2 { animation: glitchIn 0.5s ease 1.5s both; }
+  .a3 .l3 { animation: fadeUp 0.5s ease 2.5s both; }
+  .a3 .l4 { animation: dropElastic 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 3.5s both; }
+  .a3 .l5 { animation: dropElastic 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 4.5s both; }
+  .a3 .tile { animation: morphIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, floaty 2s ease-in-out infinite alternate; }
+  .a3 .t1 { animation-delay: 5.2s, 5.8s; }
+  .a3 .t2 { animation-delay: 5.4s, 6.0s; }
+  .a3 .t3 { animation-delay: 5.6s, 6.2s; }
+  .a3 .t4 { animation-delay: 5.8s, 6.4s; }
+  .a3 .t5 { animation-delay: 6.0s, 6.6s; }
+  .a3 .t6 { animation-delay: 6.2s, 6.8s; }
+  .a3 .badge { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 7.2s both; }
+
+  /* ===== ACT 4: "That is cognitive flexibility..." ===== */
+  .a4 .l1 { animation: flipReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both; }
+  .a4 .l2 { animation: slideLeft 0.6s ease 1.3s both; }
+  .a4 .l3 { animation: fadeUp 0.5s ease 2.3s both; }
+  .a4 .company-orbit {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem;
+    margin-top: 0.8rem; perspective: 500px;
+  }
+  .a4 .tile { animation: orbitEntry 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, floaty 2s ease-in-out infinite alternate; }
+  .a4 .t1 { animation-delay: 3.0s, 3.7s; }
+  .a4 .t2 { animation-delay: 3.2s, 3.9s; }
+  .a4 .t3 { animation-delay: 3.4s, 4.1s; }
+  .a4 .t4 { animation-delay: 3.6s, 4.3s; }
+  .a4 .t5 { animation-delay: 3.8s, 4.5s; }
+  .a4 .t6 { animation-delay: 4.0s, 4.7s; }
+  .a4 .badge { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 5.2s both; }
+
+  /* ===== ACT 5: Company cascade ===== */
+  .a5 .l1 { animation: scanReveal 0.8s ease 0.3s both; white-space: nowrap; overflow: hidden; }
+  .a5 .company-cascade {
+    display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+    margin-top: 0.6rem;
+  }
+  .a5 .c-row {
+    display: flex; gap: 0.3rem; justify-content: center;
+  }
+  .a5 .tile { animation: dropElastic 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, floaty 2s ease-in-out infinite alternate; }
+  .a5 .r1 .t1 { animation-delay: 1.0s, 1.6s; }
+  .a5 .r1 .t2 { animation-delay: 1.15s, 1.75s; }
+  .a5 .r1 .t3 { animation-delay: 1.3s, 1.9s; }
+  .a5 .r2 .t1 { animation-delay: 1.8s, 2.4s; }
+  .a5 .r2 .t2 { animation-delay: 1.95s, 2.55s; }
+  .a5 .r2 .t3 { animation-delay: 2.1s, 2.7s; }
+  .a5 .r3 .t1 { animation-delay: 2.6s, 3.2s; }
+  .a5 .r3 .t2 { animation-delay: 2.75s, 3.35s; }
+  .a5 .r3 .t3 { animation-delay: 2.9s, 3.5s; }
+  .a5 .r4 .t1 { animation-delay: 3.4s, 4.0s; }
+  .a5 .r4 .t2 { animation-delay: 3.55s, 4.15s; }
+  .a5 .r4 .t3 { animation-delay: 3.7s, 4.3s; }
+  .a5 .badge { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 5.0s both; }
+
+  /* ===== ACT 6: "beyond memorized answers..." ===== */
+  .a6 .l1 { animation: glitchIn 0.5s ease 0.3s both; }
+  .a6 .l2 { animation: slideRight 0.6s ease 1.5s both; }
+  .a6 .brain-wire {
+    width: 120px; height: 120px; margin: 0.8rem 0;
+    opacity: 0; animation: morphIn 0.6s ease 2.5s both;
+  }
+  .a6 .tile { animation: popScale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, floaty 2s ease-in-out infinite alternate; }
+  .a6 .t1 { animation-delay: 3.5s, 4.0s; }
+  .a6 .t2 { animation-delay: 3.7s, 4.2s; }
+  .a6 .t3 { animation-delay: 3.9s, 4.4s; }
+  .a6 .t4 { animation-delay: 4.1s, 4.6s; }
+  .a6 .t5 { animation-delay: 4.3s, 4.8s; }
+  .a6 .t6 { animation-delay: 4.5s, 5.0s; }
+  .a6 .badge { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 5.5s both; }
+
+  /* ===== ACT 7: "Every mistake becomes feedback..." ===== */
+  .a7 .l1 { animation: slamBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both; }
+  .a7 .l2 { animation: slideLeft 0.6s ease 1.3s both; }
+  .a7 .l3 { animation: fadeUp 0.5s ease 2.3s both; }
+  .a7 .muscle-bars {
+    display: flex; gap: 0.4rem; justify-content: center; align-items: flex-end;
+    height: 60px; margin: 0.8rem 0;
+  }
+  .m-bar {
+    width: 18px; border-radius: 4px; border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+    opacity: 0; animation: dropElastic 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .a7 .b1 { height: 20px; background: var(--blush); animation-delay: 3.0s; }
+  .a7 .b2 { height: 35px; background: var(--gold); animation-delay: 3.2s; }
+  .a7 .b3 { height: 50px; background: var(--mint); animation-delay: 3.4s; }
+  .a7 .b4 { height: 40px; background: var(--sky); animation-delay: 3.6s; }
+  .a7 .b5 { height: 55px; background: var(--lilac); animation-delay: 3.8s; }
+  .a7 .tile { animation: flipReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, floaty 2s ease-in-out infinite alternate; }
+  .a7 .t1 { animation-delay: 4.2s, 4.8s; }
+  .a7 .t2 { animation-delay: 4.4s, 5.0s; }
+  .a7 .t3 { animation-delay: 4.6s, 5.2s; }
+  .a7 .t4 { animation-delay: 4.8s, 5.4s; }
+  .a7 .t5 { animation-delay: 5.0s, 5.6s; }
+  .a7 .t6 { animation-delay: 5.2s, 5.8s; }
+  .a7 .badge { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 6.2s both; }
+
+  /* ===== ACT 8: "you won't just know more..." ===== */
+  .a8 .l1 { animation: fadeUp 0.5s ease 0.3s both; }
+  .a8 .l2 { animation: glitchIn 0.5s ease 1.5s both; }
+  .a8 .l3 { animation: slamBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.8s both; }
+  .a8 .growth-arrow {
+    font-size: 3rem; color: var(--mint); margin: 0.5rem 0;
+    opacity: 0; animation: dropElastic 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 3.8s both;
+    text-shadow: 3px 3px 0 var(--ink);
+    line-height: 1;
+  }
+  .a8 .tile { animation: slideLeft 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards, floaty 2s ease-in-out infinite alternate; }
+  .a8 .t1 { animation-delay: 4.5s, 5.1s; }
+  .a8 .t2 { animation-delay: 4.7s, 5.3s; }
+  .a8 .t3 { animation-delay: 4.9s, 5.5s; }
+  .a8 .t4 { animation-delay: 5.1s, 5.7s; }
+  .a8 .t5 { animation-delay: 5.3s, 5.9s; }
+  .a8 .t6 { animation-delay: 5.5s, 6.1s; }
+  .a8 .badge { animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 6.5s both; }
+
+  /* ===== ACT 9: Title card ===== */
+  .a9 .title-wrap {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; text-align: center;
+  }
+  .a9 .title-main {
+    font-size: 3rem; font-weight: 900; color: var(--ink);
+    line-height: 0.95; letter-spacing: -0.03em; text-transform: uppercase;
+    opacity: 0; animation: explodeIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+  }
+  .a9 .title-line {
+    width: 60px; height: 5px; background: var(--blush); margin: 0.8rem 0;
+    opacity: 0; animation: scanReveal 0.4s ease 1.0s both;
+  }
+  .a9 .title-sub {
+    font-size: 0.9rem; font-weight: 700; color: var(--ink);
+    opacity: 0; line-height: 1.5;
+  }
+  .a9 .ts1 { animation: fadeUp 0.5s ease 1.3s both; }
+  .a9 .ts2 { animation: fadeUp 0.5s ease 1.6s both; }
+  .a9 .title-date {
+    font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 800;
+    color: var(--blush); margin-top: 0.6rem;
+    opacity: 0; animation: dropElastic 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.0s both;
+  }
+  .a9 .title-tag {
+    font-size: 1.1rem; font-weight: 900; color: var(--gold);
+    margin-top: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;
+    opacity: 0; animation: slamBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.5s both;
+    text-shadow: 2px 2px 0 var(--ink);
+  }
+
+  /* ===== BADGE ===== */
+  .badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; font-weight: 800;
+    padding: 0.3rem 0.7rem; background: #000; color: var(--yellow);
+    border: 2px solid var(--blush); box-shadow: 3px 3px 0px var(--blush);
+    margin-top: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;
+    opacity: 0; will-change: transform, opacity;
+  }
+
+  /* ===== CONTINUOUS DECORATIVE ELEMENTS ===== */
+  .corner-accent {
+    position: absolute; width: 40px; height: 40px;
+    border: 3px solid rgba(24,18,11,0.15); z-index: 3;
+    pointer-events: none;
+  }
+  .ca-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+  .ca-tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+  .ca-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+  .ca-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+  .scan-line {
+    position: absolute; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(244,185,66,0.4), transparent);
+    z-index: 4; pointer-events: none;
+    animation: scanMove 4s ease-in-out infinite;
+  }
+  @keyframes scanMove {
+    0% { top: 10%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 90%; opacity: 0; }
+  }
+
+  /* SVG Brain icon styling */
+  .brain-icon { width: 100px; height: 100px; margin: 0.5rem 0; }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="stage">
+  <div class="grid-warp"></div>
+  <div class="orbital-ring"></div>
+  <div class="scan-line"></div>
+  <div class="corner-accent ca-tl"></div>
+  <div class="corner-accent ca-tr"></div>
+  <div class="corner-accent ca-bl"></div>
+  <div class="corner-accent ca-br"></div>
+
+  <!-- Floating particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ACT 1 | 0:00–0:10 | "Looks like a game... hundreds of decisions" -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="act a1">
+    <div class="kinetic-line k-lg l1">Looks like a game.</div>
+    <div class="kinetic-line k-md l2" style="color:var(--sky);">doesn't it?</div>
+    <div class="kinetic-line k-xl l3"><span class="strike-stamp" data-stamp="NOPE">It isn't.</span></div>
+    <div class="kinetic-line k-sm l4" style="margin-top:0.6rem;">Every puzzle is a<br><strong style="color:var(--blush);">hidden interview</strong></div>
+    <div class="kinetic-line k-sm l5">Every second your brain<br>is making</div>
+    <div class="counter-box" id="counter1">0</div>
+    <div class="tile-grid">
+      <div class="tile t-gold t1">DECISIONS</div>
+      <div class="tile t-blush t2">PER SECOND</div>
+      <div class="tile t-sky t3">PROCESSING</div>
+      <div class="tile t-mint t4">SPEED</div>
+      <div class="tile t-lilac t5">WORKING</div>
+      <div class="tile t-yellow t6">MEMORY</div>
+      <div class="tile t-white t7">ATTENTION</div>
+      <div class="tile t-gold t8">CONTROL</div>
+    </div>
+    <div class="badge">COGNITIVE SCIENCE × MODERN HIRING</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ACT 2 | 0:10–0:20 | "Can you spot a pattern..." -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="act a2">
+    <div class="kinetic-line k-md l1">Can you <strong style="color:var(--gold);">spot a pattern</strong></div>
+    <div class="kinetic-line k-md l2">before everyone else?</div>
+    <div class="pattern-dots">
+      <div class="p-dot" style="background:var(--gold);animation-delay:0s;"></div>
+      <div class="p-dot" style="background:var(--gold);animation-delay:0.15s;"></div>
+      <div class="p-dot" style="background:var(--blush);animation-delay:0.3s;"></div>
+      <div class="p-dot" style="background:var(--gold);animation-delay:0.45s;"></div>
+      <div class="p-dot" style="background:var(--gold);animation-delay:0.6s;"></div>
+      <div class="p-dot" style="background:var(--sky);animation-delay:0.75s;"></div>
+      <div class="p-dot" style="background:var(--gold);animation-delay:0.9s;"></div>
+    </div>
+    <div class="kinetic-line k-sm l3" style="margin-top:0.4rem;">Can you <strong style="color:var(--mint);">hold information</strong></div>
+    <div class="kinetic-line k-sm l4">in your mind while</div>
+    <div class="kinetic-line k-lg l5">making something <strong style="color:var(--lilac);">new?</strong></div>
+    <div class="tile-grid">
+      <div class="tile t-mint t1">PATTERN</div>
+      <div class="tile t-yellow t2">RECOGNITION</div>
+      <div class="tile t-sky t3">WORKING</div>
+      <div class="tile t-lilac t4">MEMORY</div>
+      <div class="tile t-gold t5">VISUAL</div>
+      <div class="tile t-blush t6">GROUPING</div>
+    </div>
+    <div class="badge">SPOT THE PATTERN = HIGH PERFORMANCE</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ACT 3 | 0:20–0:30 | "Can you abandon a bad idea..." -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="act a3">
+    <div class="kinetic-line k-md l1">Can you <strong style="color:var(--blush);">abandon</strong></div>
+    <div class="kinetic-line k-md l2">a <span class="strike-stamp" data-stamp="DROP IT">bad idea</span></div>
+    <div class="kinetic-line k-md l3">to find a <strong style="color:var(--mint);">better one?</strong></div>
+    <div class="kinetic-line k-sm l4" style="margin-top:0.8rem;">That is <strong style="color:var(--sky);">processing speed</strong></div>
+    <div class="kinetic-line k-sm l5">That is <strong style="color:var(--gold);">working memory</strong></div>
+    <div class="tile-grid">
+      <div class="tile t-blush t1">FLEXIBLE</div>
+      <div class="tile t-yellow t2">THINKING</div>
+      <div class="tile t-sky t3">ERROR</div>
+      <div class="tile t-mint t4">CORRECTION</div>
+      <div class="tile t-lilac t5">STRATEGIC</div>
+      <div class="tile t-white t6">PIVOT</div>
+    </div>
+    <div class="badge">COGNITIVE FLEXIBILITY MATTERS</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ACT 4 | 0:30–0:40 | "That is cognitive flexibility... Google" -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="act a4">
+    <div class="kinetic-line k-md l1">That is <strong style="color:var(--lilac);">cognitive flexibility</strong></div>
+    <div class="kinetic-line k-md l2">That is the <strong style="color:var(--sky);">science of</strong></div>
+    <div class="kinetic-line k-lg l3"><strong style="color:var(--mint);">problem solving</strong></div>
+    <div class="kinetic-line k-sm" style="margin-top:0.6rem;opacity:0;animation:fadeUp 0.5s ease 3.0s both;">And it is exactly why the world's<br><strong>leading employers</strong> from</div>
+    <div class="company-orbit">
+      <div class="tile t-sky t1">GOOGLE</div>
+      <div class="tile t-blush t2">MICROSOFT</div>
+      <div class="tile t-mint t3">AMAZON</div>
+      <div class="tile t-yellow t4">ACCENTURE</div>
+      <div class="tile t-lilac t5">DELOITTE</div>
+      <div class="tile t-gold t6">EY</div>
+    </div>
+    <div class="badge">GAMIFIED ASSESSMENTS ARE THE NEW NORMAL</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ACT 5 | 0:40–0:50 | Company cascade + "increasingly looking" -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="act a5">
+    <div class="kinetic-line k-md l1">PwC · JP MORGAN CHASE · MCKINSEY</div>
+    <div class="kinetic-line k-sm" style="margin-top:0.6rem;opacity:0;animation:fadeUp 0.5s ease 1.0s both;">are <strong style="color:var(--blush);">increasingly looking</strong></div>
+    <div class="company-cascade">
+      <div class="c-row r1">
+        <div class="tile t-sky t1">GOOGLE</div>
+        <div class="tile t-blush t2">MICROSOFT</div>
+        <div class="tile t-mint t3">AMAZON</div>
+      </div>
+      <div class="c-row r2">
+        <div class="tile t-yellow t1">ACCENTURE</div>
+        <div class="tile t-lilac t2">DELOITTE</div>
+        <div class="tile t-gold t3">EY</div>
+      </div>
+      <div class="c-row r3">
+        <div class="tile t-sky t1">PwC</div>
+        <div class="tile t-blush t2">JP MORGAN</div>
+        <div class="tile t-mint t3">MCKINSEY</div>
+      </div>
+      <div class="c-row r4">
+        <div class="tile t-yellow t1">BCG</div>
+        <div class="tile t-lilac t2">BAIN</div>
+        <div class="tile t-gold t3">GOLDMAN</div>
+      </div>
+    </div>
+    <div class="badge">THE WORLD'S BEST WANT YOUR MIND</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ACT 6 | 0:50–1:00 | "beyond memorized answers... rewires" -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="act a6">
+    <div class="kinetic-line k-md l1">beyond <span class="strike-stamp" data-stamp="OLD">memorized answers</span></div>
+    <div class="kinetic-line k-md l2">and evaluating <strong style="color:var(--sky);">how you think</strong></div>
+    <svg class="brain-wire" viewBox="0 0 100 100" style="opacity:0;animation:morphIn 0.6s ease 2.5s both;">
+      <circle cx="50" cy="35" r="22" fill="none" stroke="var(--ink)" stroke-width="3"/>
+      <circle cx="35" cy="55" r="18" fill="none" stroke="var(--ink)" stroke-width="3"/>
+      <circle cx="65" cy="55" r="18" fill="none" stroke="var(--ink)" stroke-width="3"/>
+      <line x1="50" y1="13" x2="50" y2="5" stroke="var(--blush)" stroke-width="3" stroke-linecap="round"/>
+      <line x1="50" y1="57" x2="50" y2="75" stroke="var(--mint)" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="50" cy="5" r="4" fill="var(--blush)"/>
+      <circle cx="50" cy="75" r="4" fill="var(--mint)"/>
+      <path d="M30 35 Q50 20 70 35" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="4,3">
+        <animate attributeName="stroke-dashoffset" from="0" to="28" dur="1s" repeatCount="indefinite"/>
+      </path>
+      <path d="M25 55 Q50 70 75 55" fill="none" stroke="var(--sky)" stroke-width="2.5" stroke-dasharray="4,3">
+        <animate attributeName="stroke-dashoffset" from="28" to="0" dur="1s" repeatCount="indefinite"/>
+      </path>
+    </svg>
+    <div class="kinetic-line k-lg" style="opacity:0;animation:slamBounce 0.5s cubic-bezier(0.34,1.56,0.64,1) 3.2s both;">Every clue <strong style="color:var(--gold);">rewires</strong></div>
+    <div class="kinetic-line k-md" style="opacity:0;animation:fadeUp 0.5s ease 3.8s both;">your <strong style="color:var(--lilac);">strategy</strong></div>
+    <div class="tile-grid">
+      <div class="tile t-white t1">COGNITIVE</div>
+      <div class="tile t-mint t2">AGILITY</div>
+      <div class="tile t-sky t3">FLUID</div>
+      <div class="tile t-yellow t4">INTELLIGENCE</div>
+      <div class="tile t-lilac t5">NOVEL</div>
+      <div class="tile t-gold t6">PROBLEMS</div>
+    </div>
+    <div class="badge">HOW YOU THINK > WHAT YOU KNOW</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ACT 7 | 1:00–1:10 | "Every mistake becomes feedback..." -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="act a7">
+    <div class="kinetic-line k-md l1">Every <strong style="color:var(--blush);">mistake</strong></div>
+    <div class="kinetic-line k-md l2">becomes <strong style="color:var(--mint);">feedback</strong></div>
+    <div class="muscle-bars">
+      <div class="m-bar b1"></div>
+      <div class="m-bar b2"></div>
+      <div class="m-bar b3"></div>
+      <div class="m-bar b4"></div>
+      <div class="m-bar b5"></div>
+    </div>
+    <div class="kinetic-line k-sm l3">Every puzzle <strong style="color:var(--gold);">strengthens</strong></div>
+    <div class="kinetic-line k-sm">the mental muscles behind</div>
+    <div class="tile-grid">
+      <div class="tile t-blush t1">REASONING</div>
+      <div class="tile t-sky t2">DECISION</div>
+      <div class="tile t-mint t3">MAKING</div>
+      <div class="tile t-lilac t4">CREATIVITY</div>
+      <div class="tile t-yellow t5">NEUROPLASTICITY</div>
+      <div class="tile t-gold t6">GROWTH</div>
+    </div>
+    <div class="badge">LEARNING IS ITERATION</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ACT 8 | 1:10–1:20 | "you won't just know more..." -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="act a8">
+    <div class="kinetic-line k-sm l1">So when placements begin,</div>
+    <div class="kinetic-line k-md l2">you won't just <span class="strike-stamp" data-stamp="BYE">know more</span></div>
+    <div class="kinetic-line k-xl l3">you will <strong style="color:var(--mint);">think better</strong></div>
+    <div class="growth-arrow">↗</div>
+    <div class="tile-grid">
+      <div class="tile t-mint t1">SHARPER</div>
+      <div class="tile t-sky t2">FOCUS</div>
+      <div class="tile t-gold t3">FASTER</div>
+      <div class="tile t-blush t4">RECALL</div>
+      <div class="tile t-lilac t5">BETTER</div>
+      <div class="tile t-yellow t6">DECISIONS</div>
+    </div>
+    <div class="badge">COGNITIVE FITNESS IS TRAINABLE</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ACT 9 | 1:20–1:30 | Title card finale -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div class="act a9">
+    <div class="title-wrap">
+      <div class="title-main">Career<br>Catalyst<br>Thon</div>
+      <div class="title-line"></div>
+      <div class="title-sub ts1">Department of English</div>
+      <div class="title-sub ts2">SRM Valliammai Engineering College</div>
+      <div class="title-date">17 August 2026</div>
+      <div class="title-tag">The strongest brains win!</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Generate floating particles
+  const particlesContainer = document.getElementById('particles');
+  const colors = ['#F4B942', '#38B072', '#E85D43', '#2B8BEA', '#8E54E9', '#FFE600'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.width = (Math.random() * 6 + 2) + 'px';
+    p.style.height = p.style.width;
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (Math.random() * 6 + 4) + 's';
+    p.style.animationDelay = (Math.random() * 8) + 's';
+    particlesContainer.appendChild(p);
+  }
+
+  // Counter animation for Act 1
+  const counterEl = document.getElementById('counter1');
+  let count = 0;
+  const target = 100;
+  let counterStarted = false;
+
+  function startCounter() {
+    if (counterStarted) return;
+    counterStarted = true;
+    const interval = setInterval(() => {
+      count += Math.ceil((target - count) / 8) + 1;
+      if (count >= target) {
+        count = target;
+        clearInterval(interval);
+        setTimeout(() => {
+          counterEl.textContent = 'HUNDREDS';
+          counterEl.style.transition = 'all 0.3s ease';
+          counterEl.style.transform = 'scale(1.1)';
+          setTimeout(() => counterEl.style.transform = 'scale(1)', 150);
+        }, 400);
+      }
+      counterEl.textContent = count;
+    }, 60);
+  }
+
+  // Use animation timing to trigger counter
+  setTimeout(startCounter, 3400);
+  // Restart counter logic every 90s loop
+  setInterval(() => {
+    count = 0;
+    counterStarted = false;
+    counterEl.textContent = '0';
+    setTimeout(startCounter, 3400);
+  }, 90000);
+</script>
+
+</body>
+</html>
