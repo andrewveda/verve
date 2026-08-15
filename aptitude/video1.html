@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Career Catalyst Thon | Hyper-Kinetic Stream</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;800;900&family=JetBrains+Mono:wght@800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream-bg: #F9F5EC;
+    --ink: #18120B;
+    --gold: #F4B942;
+    --mint: #38B072;
+    --blush: #E85D43;
+    --sky: #2B8BEA;
+    --lilac: #8E54E9;
+    --yellow: #FFE600;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #0D0905;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 480px;
+    max-height: 880px;
+    background: var(--cream-bg);
+    overflow: hidden;
+    box-shadow: 0 0 100px rgba(244,185,66,0.35);
+  }
+
+  /* Global Constant Grid Warp */
+  .grid-warp {
+    position: absolute;
+    inset: -20px;
+    background-image: 
+      linear-gradient(rgba(24,18,11,0.07) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, rgba(24,18,11,0.07) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+    pointer-events: none;
+    z-index: 1;
+    animation: gridPan 18s linear infinite;
+  }
+  @keyframes gridPan {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-24px, -24px); }
+  }
+
+  /* Pulse Ring Background */
+  .pulse-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    height: 320px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 3px dashed rgba(244,185,66,0.25);
+    pointer-events: none;
+    z-index: 1;
+    animation: spinRings 20s linear infinite;
+  }
+  @keyframes spinRings {
+    0% { transform: translate(-50%, -50%) rotate(0deg) scale(0.85); }
+    50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.2); }
+    100% { transform: translate(-50%, -50%) rotate(360deg) scale(0.85); }
+  }
+
+  /* Acts: 9 Acts synced to 90 seconds (10s each) */
+  .act {
+    position: absolute;
+    inset: 0;
+    padding: 1rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+    animation: actSequence 90s infinite ease-in-out;
+  }
+
+  .a1 { animation-delay: 0s; }
+  .a2 { animation-delay: 10s; }
+  .a3 { animation-delay: 20s; }
+  .a4 { animation-delay: 30s; }
+  .a5 { animation-delay: 40s; }
+  .a6 { animation-delay: 50s; }
+  .a7 { animation-delay: 60s; }
+  .a8 { animation-delay: 70s; }
+  .a9 { animation-delay: 80s; }
+
+  @keyframes actSequence {
+    0% { opacity: 0; transform: scale(0.85); filter: brightness(2); }
+    1%, 9.6% { opacity: 1; transform: scale(1); filter: brightness(1); }
+    10.8%, 100% { opacity: 0; transform: scale(1.15) translateY(-30px); filter: brightness(0.5); }
+  }
+
+  /* Kinetic Giant Headings */
+  .slam-title {
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.88;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    text-align: center;
+    margin-bottom: 0.8rem;
+    animation: titleSlam 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+    will-change: transform, opacity, filter;
+  }
+  .slam-xl { font-size: 3.2rem; }
+  .slam-lg { font-size: 2.6rem; }
+  .slam-md { font-size: 2.1rem; }
+
+  @keyframes titleSlam {
+    0% { transform: scale(3.5) translateY(-120px); opacity: 0; filter: blur(14px) brightness(2); }
+    55% { transform: scale(0.88) translateY(12px); opacity: 1; filter: blur(0px) brightness(1); }
+    75% { transform: scale(1.1) translateY(-6px); }
+    100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px) brightness(1); }
+  }
+
+  /* Rapid-Fire Tag Cloud Grid */
+  .dense-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-height: 68%;
+    perspective: 900px;
+    transform-style: preserve-3d;
+  }
+
+  /* Step-by-Step Punchy Flash Points — ONE BY ONE */
+  .point {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 900;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.4rem 0.65rem;
+    border-radius: 6px;
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0px var(--ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    opacity: 0;
+    transform-origin: 50% -40%;
+    backface-visibility: hidden;
+    animation: flipPop 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards,
+               floatWave 3s ease-in-out infinite alternate;
+    will-change: transform, opacity, filter;
+  }
+
+  @keyframes flipPop {
+    0% {
+      opacity: 0;
+      transform: perspective(700px) rotateX(-85deg) translateY(80px) scale(0.5);
+      filter: blur(10px) brightness(3);
+    }
+    45% {
+      opacity: 1;
+      transform: perspective(700px) rotateX(12deg) translateY(-10px) scale(1.2);
+      filter: blur(0px) brightness(1.1);
+    }
+    70% {
+      transform: perspective(700px) rotateX(-4deg) translateY(3px) scale(0.96);
+    }
+    100% {
+      opacity: 1;
+      transform: perspective(700px) rotateX(0deg) translateY(0) scale(1);
+      filter: blur(0px) brightness(1);
+    }
+  }
+
+  @keyframes floatWave {
+    0% { transform: translateY(0px) rotate(0deg) scale(1); }
+    100% { transform: translateY(-6px) rotate(2deg) scale(1.04); }
+  }
+
+  /* Color Variations */
+  .c-gold   { background: var(--gold); color: #000; }
+  .c-mint   { background: var(--mint); color: #fff; }
+  .c-blush  { background: var(--blush); color: #fff; }
+  .c-sky    { background: var(--sky); color: #fff; }
+  .c-lilac  { background: var(--lilac); color: #fff; }
+  .c-yellow { background: var(--yellow); color: #000; }
+  .c-white  { background: #FFFFFF; color: #000; }
+
+  /* Precise Step-by-Step Stagger Timings — 0.3s apart, float starts after pop lands */
+  .s-01 { animation-delay: 0.20s, 0.80s; }
+  .s-02 { animation-delay: 0.50s, 1.10s; }
+  .s-03 { animation-delay: 0.80s, 1.40s; }
+  .s-04 { animation-delay: 1.10s, 1.70s; }
+  .s-05 { animation-delay: 1.40s, 2.00s; }
+  .s-06 { animation-delay: 1.70s, 2.30s; }
+  .s-07 { animation-delay: 2.00s, 2.60s; }
+  .s-08 { animation-delay: 2.30s, 2.90s; }
+  .s-09 { animation-delay: 2.60s, 3.20s; }
+  .s-10 { animation-delay: 2.90s, 3.50s; }
+  .s-11 { animation-delay: 3.20s, 3.80s; }
+  .s-12 { animation-delay: 3.50s, 4.10s; }
+
+  /* News Banner Ticker (Flash-Stamp) */
+  .news-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 900;
+    padding: 0.3rem 0.6rem;
+    background: #000;
+    color: var(--yellow);
+    border: 2px solid var(--blush);
+    box-shadow: 3px 3px 0px var(--blush);
+    margin-top: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0;
+    animation: stampNews 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 4.2s forwards;
+    will-change: transform, opacity, filter;
+  }
+  @keyframes stampNews {
+    0% { transform: scale(5) rotate(-20deg) translateY(30px); opacity: 0; filter: blur(8px); }
+    100% { transform: scale(1) rotate(0deg) translateY(0); opacity: 1; filter: blur(0px); }
+  }
+
+  .strike-stamp {
+    position: relative;
+    display: inline-block;
+  }
+  .strike-stamp::after {
+    content: "FALSE";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(-10deg);
+    background: var(--blush);
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 900;
+    padding: 0.1rem 0.7rem;
+    border: 2px solid #000;
+    box-shadow: 3px 3px 0px #000;
+    animation: stampFalse 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28) 0.5s both;
+    will-change: transform, opacity;
+  }
+  @keyframes stampFalse {
+    0% { transform: translate(-50%, -50%) scale(4) rotate(-45deg); opacity: 0; filter: blur(4px); }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(-10deg); opacity: 1; filter: blur(0px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="grid-warp"></div>
+  <div class="pulse-core"></div>
+
+  <!-- 0:00 - 0:10 | ACT 1: HIDDEN INTERVIEW -->
+  <div class="act a1">
+    <div class="slam-title slam-xl"><span class="strike-stamp">JUST A GAME</span><br><strong style="color:var(--blush);">IT ISN'T</strong></div>
+    <div class="dense-cloud">
+      <div class="point c-gold s-01"><strong>&#x26A1; HIDDEN INTERVIEW</strong></div>
+      <div class="point c-yellow s-02"><strong>&#x26A1; 100S OF DECISIONS/SEC</strong></div>
+      <div class="point c-blush s-03"><strong>&#x26A1; REAL-TIME TELEMETRY</strong></div>
+      <div class="point c-sky s-04"><strong>&#x26A1; MICRO-BEHAVIOR LOGGING</strong></div>
+      <div class="point c-mint s-05"><strong>&#x26A1; SPEED OF RESOLUTION</strong></div>
+      <div class="point c-lilac s-06"><strong>&#x26A1; LATENT ABILITY TEST</strong></div>
+      <div class="point c-white s-07"><strong>&#x26A1; COGNITIVE TRACE CAPTURE</strong></div>
+      <div class="point c-gold s-08"><strong>&#x26A1; NEURAL PULSE INTENSITY</strong></div>
+      <div class="point c-sky s-09"><strong>&#x26A1; UNCONSCIOUS HABITS</strong></div>
+      <div class="point c-blush s-10"><strong>&#x26A1; BIOMETRIC BRAIN AGILITY</strong></div>
+      <div class="point c-mint s-11"><strong>&#x26A1; STRATEGY EXTRACTION</strong></div>
+      <div class="point c-yellow s-12"><strong>&#x26A1; CANDIDATE SIGNAL GAIN</strong></div>
+    </div>
+    <div class="news-badge">SOURCE: HARVARD BUSINESS REVIEW // GAMIFIED HIRING LABS</div>
+  </div>
+
+  <!-- 0:10 - 0:20 | ACT 2: PATTERNS & WORKING MEMORY -->
+  <div class="act a2">
+    <div class="slam-title slam-lg">SPOT THE <strong style="color:var(--sky);">PATTERN</strong><br>OUTPACE ALL</div>
+    <div class="dense-cloud">
+      <div class="point c-mint s-01"><strong>&#x25B6; RAPID RECOGNITION</strong></div>
+      <div class="point c-yellow s-02"><strong>&#x25B6; ACTIVE MEMORY BUFFER</strong></div>
+      <div class="point c-blush s-03"><strong>&#x25B6; INSTANT SYNTHESIS</strong></div>
+      <div class="point c-sky s-04"><strong>&#x25B6; DETECT ANOMALIES</strong></div>
+      <div class="point c-lilac s-05"><strong>&#x25B6; BUILD NOVEL SOLUTIONS</strong></div>
+      <div class="point c-white s-06"><strong>&#x25B6; WORKING MEMORY (WMC)</strong></div>
+      <div class="point c-gold s-07"><strong>&#x25B6; SUB-SECOND RECALL</strong></div>
+      <div class="point c-mint s-08"><strong>&#x25B6; SIGNAL DISTILLATION</strong></div>
+      <div class="point c-sky s-09"><strong>&#x25B6; FLUID INTELLIGENCE (Gf)</strong></div>
+      <div class="point c-blush s-10"><strong>&#x25B6; VISUAL-SPATIAL SPAN</strong></div>
+      <div class="point c-yellow s-11"><strong>&#x25B6; INFORMATION RETENTION</strong></div>
+      <div class="point c-lilac s-12"><strong>&#x25B6; PARALLEL PROCESSING</strong></div>
+    </div>
+    <div class="news-badge">NATURE NEUROSCIENCE // FLUID REASONING PROTOCOLS</div>
+  </div>
+
+  <!-- 0:20 - 0:30 | ACT 3: ABANDON BAD IDEAS -->
+  <div class="act a3">
+    <div class="slam-title slam-lg">KILL <span style="background:var(--blush); color:#fff; padding:0 0.4rem;">BAD IDEAS</span><br>PIVOT FAST</div>
+    <div class="dense-cloud">
+      <div class="point c-blush s-01"><strong>&#x2716; ZERO SUNK COST FALLACY</strong></div>
+      <div class="point c-yellow s-02"><strong>&#x2714; INSTANT PIVOT</strong></div>
+      <div class="point c-sky s-03"><strong>&#x2714; PROCESSING SPEED</strong></div>
+      <div class="point c-mint s-04"><strong>&#x2714; TACTICAL FLEXIBILITY</strong></div>
+      <div class="point c-lilac s-05"><strong>&#x2714; ABANDON WRONG PATHS</strong></div>
+      <div class="point c-white s-06"><strong>&#x2714; DYNAMIC RE-ROUTING</strong></div>
+      <div class="point c-gold s-07"><strong>&#x2714; EXECUTIVE INHIBITION</strong></div>
+      <div class="point c-blush s-08"><strong>&#x2714; SHED COGNITIVE DRAG</strong></div>
+      <div class="point c-mint s-09"><strong>&#x2714; RAPID ERROR OVERRIDE</strong></div>
+      <div class="point c-sky s-10"><strong>&#x2714; SPEED OF ADJUSTMENT</strong></div>
+      <div class="point c-yellow s-11"><strong>&#x2714; DISCARD SUB-OPTIMAL</strong></div>
+      <div class="point c-lilac s-12"><strong>&#x2714; TARGET LOCK ACQUIRED</strong></div>
+    </div>
+    <div class="news-badge">STANFORD COGNITIVE LABS // VELOCITY OF ATTENTION</div>
+  </div>
+
+  <!-- 0:30 - 0:40 | ACT 4: SCIENCE OF PROBLEM SOLVING -->
+  <div class="act a4">
+    <div class="slam-title slam-md">SCIENCE OF<br><strong style="color:var(--gold);">PROBLEM SOLVING</strong></div>
+    <div class="dense-cloud">
+      <div class="point c-gold s-01"><strong>&#x25C6; COGNITIVE FLEXIBILITY</strong></div>
+      <div class="point c-mint s-02"><strong>&#x25C6; HEURISTIC OPTIMIZATION</strong></div>
+      <div class="point c-sky s-03"><strong>&#x25C6; LATERAL THINKING</strong></div>
+      <div class="point c-blush s-04"><strong>&#x25C6; NON-LINEAR STRATEGY</strong></div>
+      <div class="point c-yellow s-05"><strong>&#x25C6; HIGH DECISION VELOCITY</strong></div>
+      <div class="point c-lilac s-06"><strong>&#x25C6; SCHEMA ADAPTATION</strong></div>
+      <div class="point c-white s-07"><strong>&#x25C6; COMPUTATIONAL LOGIC</strong></div>
+      <div class="point c-mint s-08"><strong>&#x25C6; HYPOTHESIS TESTING</strong></div>
+      <div class="point c-sky s-09"><strong>&#x25C6; SYSTEMATIC DECONSTRUCTION</strong></div>
+      <div class="point c-gold s-10"><strong>&#x25C6; METABOLIC BRAIN PEAK</strong></div>
+      <div class="point c-blush s-11"><strong>&#x25C6; HIGH-ORDER ABSTRACTION</strong></div>
+      <div class="point c-yellow s-12"><strong>&#x25C6; UNSTRUCTURED MASTERY</strong></div>
+    </div>
+    <div class="news-badge">WORLD ECONOMIC FORUM // #1 CRITICAL WORKFORCE DEMAND</div>
+  </div>
+
+  <!-- 0:40 - 0:50 | ACT 5: THE GLOBAL EMPLOYERS -->
+  <div class="act a5">
+    <div class="slam-title slam-md">TOP FIRMS<br><strong style="color:var(--mint);">TEST YOUR MIND</strong></div>
+    <div class="dense-cloud">
+      <div class="point c-sky s-01"><strong>&#x2605; GOOGLE</strong></div>
+      <div class="point c-blush s-02"><strong>&#x2605; MICROSOFT</strong></div>
+      <div class="point c-lilac s-03"><strong>&#x2605; ACCENTURE</strong></div>
+      <div class="point c-mint s-04"><strong>&#x2605; DELOITTE</strong></div>
+      <div class="point c-yellow s-05"><strong>&#x2605; EY</strong></div>
+      <div class="point c-white s-06"><strong>&#x2605; PWC</strong></div>
+      <div class="point c-sky s-07"><strong>&#x2605; JPMORGAN CHASE</strong></div>
+      <div class="point c-gold s-08"><strong>&#x2605; MCKINSEY & CO.</strong></div>
+      <div class="point c-blush s-09"><strong>&#x2605; GOLDMAN SACHS</strong></div>
+      <div class="point c-mint s-10"><strong>&#x2605; BOSTON CONSULTING</strong></div>
+      <div class="point c-yellow s-11"><strong>&#x2605; AMAZON APPS</strong></div>
+      <div class="point c-lilac s-12"><strong>&#x2605; BAIN & COMPANY</strong></div>
+    </div>
+    <div class="news-badge">WALL STREET JOURNAL // GAMIFIED PSYCHOMETRIC RECRUITING</div>
+  </div>
+
+  <!-- 0:50 - 1:00 | ACT 6: HOW YOU THINK -->
+  <div class="act a6">
+    <div class="slam-title slam-lg"><span class="strike-stamp">MEMORIZED</span><br><strong style="color:var(--blush);">HOW YOU THINK</strong></div>
+    <div class="dense-cloud">
+      <div class="point c-white s-01"><strong>&#x27A4; ZERO ROTE LEARNING</strong></div>
+      <div class="point c-mint s-02"><strong>&#x27A4; DETECT RAW SIGNALS</strong></div>
+      <div class="point c-sky s-03"><strong>&#x27A4; REWIRE THE STRATEGY</strong></div>
+      <div class="point c-yellow s-04"><strong>&#x27A4; ADAPT IN REAL-TIME</strong></div>
+      <div class="point c-lilac s-05"><strong>&#x27A4; NO FORMULA REPEATS</strong></div>
+      <div class="point c-gold s-06"><strong>&#x27A4; LIVE TACTICAL SHIFTS</strong></div>
+      <div class="point c-blush s-07"><strong>&#x27A4; UNSTRUCTURED SOLVING</strong></div>
+      <div class="point c-mint s-08"><strong>&#x27A4; INSTINCTIVE MASTERY</strong></div>
+      <div class="point c-sky s-09"><strong>&#x27A4; INTUITIVE LOGIC</strong></div>
+      <div class="point c-white s-10"><strong>&#x27A4; AMBIGUITY RESOLUTION</strong></div>
+      <div class="point c-yellow s-11"><strong>&#x27A4; DYNAMIC GAME THEORY</strong></div>
+      <div class="point c-gold s-12"><strong>&#x27A4; FLUID ARCHITECTURE</strong></div>
+    </div>
+    <div class="news-badge">FORBES TECH // WHY STANDARD CODING INTERVIEWS ARE DEAD</div>
+  </div>
+
+  <!-- 1:00 - 1:10 | ACT 7: FEEDBACK LOOP -->
+  <div class="act a7">
+    <div class="slam-title slam-md">MISTAKE = <strong style="color:var(--blush);">FEEDBACK</strong><br>BUILD MUSCLE</div>
+    <div class="dense-cloud">
+      <div class="point c-mint s-01"><strong>&#x2022; REASONING MUSCLE</strong></div>
+      <div class="point c-gold s-02"><strong>&#x2022; DECISION SPEED</strong></div>
+      <div class="point c-lilac s-03"><strong>&#x2022; BOUNDLESS CREATIVITY</strong></div>
+      <div class="point c-sky s-04"><strong>&#x2022; NEURAL PLASTICITY</strong></div>
+      <div class="point c-yellow s-05"><strong>&#x2022; HIGH ADAPTABILITY</strong></div>
+      <div class="point c-blush s-06"><strong>&#x2022; INSTANT SELF-CORRECT</strong></div>
+      <div class="point c-white s-07"><strong>&#x2022; STRESS RESILIENCE</strong></div>
+      <div class="point c-mint s-08"><strong>&#x2022; ERROR-DRIVEN GROWTH</strong></div>
+      <div class="point c-sky s-09"><strong>&#x2022; SYNAPTIC STRENGTHENING</strong></div>
+      <div class="point c-gold s-10"><strong>&#x2022; PRESSURE TESTING</strong></div>
+      <div class="point c-yellow s-11"><strong>&#x2022; APPLIED INGENUITY</strong></div>
+      <div class="point c-lilac s-12"><strong>&#x2022; PEAK COGNITIVE TONING</strong></div>
+    </div>
+    <div class="news-badge">MIT TECHNOLOGY REVIEW // NEURAL STRENGTHENING LOOPS</div>
+  </div>
+
+  <!-- 1:10 - 1:20 | ACT 8: THINK BETTER -->
+  <div class="act a8">
+    <div class="slam-title slam-xl"><span class="strike-stamp">KNOW MORE</span><br><strong style="color:var(--sky);">THINK BETTER</strong></div>
+    <div class="dense-cloud">
+      <div class="point c-yellow s-01"><strong>&#x2605; UNBEATABLE PLACEMENT EDGE</strong></div>
+      <div class="point c-mint s-02"><strong>&#x2605; ULTRA-FAST SYNAPSES</strong></div>
+      <div class="point c-blush s-03"><strong>&#x2605; SHARPER MENTAL MODELS</strong></div>
+      <div class="point c-sky s-04"><strong>&#x2605; CRUSH THE COMPETITION</strong></div>
+      <div class="point c-gold s-05"><strong>&#x2605; ACCELERATED LOGIC</strong></div>
+      <div class="point c-lilac s-06"><strong>&#x2605; RAPID LATERAL SHIFTS</strong></div>
+      <div class="point c-white s-07"><strong>&#x2605; TOP TIER PERCENTILE</strong></div>
+      <div class="point c-yellow s-08"><strong>&#x2605; ELITE PROBLEM SOLVER</strong></div>
+      <div class="point c-mint s-09"><strong>&#x2605; OUTTHINK EVERY METRIC</strong></div>
+      <div class="point c-sky s-10"><strong>&#x2605; DAY-ONE JOB READINESS</strong></div>
+      <div class="point c-blush s-11"><strong>&#x2605; HIGH-IMPACT CLARITY</strong></div>
+      <div class="point c-gold s-12"><strong>&#x2605; PURE COGNITIVE POWER</strong></div>
+    </div>
+    <div class="news-badge">CAMPUS RECRUITMENT BENCHMARK // TOP 1% COGNITIVE PERFORMANCE</div>
+  </div>
+
+  <!-- 1:20 - 1:30 | ACT 9: CAREER CATALYST THON -->
+  <div class="act a9">
+    <div class="slam-title slam-lg" style="color:var(--gold);">CAREER<br>CATALYST<br>THON</div>
+    <div class="dense-cloud">
+      <div class="point c-yellow s-01" style="font-size:0.95rem; padding:0.6rem 1rem;"><strong>STRONGEST BRAINS WIN!</strong></div>
+      <div class="point c-mint s-02"><strong>&#x26A1; TRAIN YOUR BRAIN</strong></div>
+      <div class="point c-blush s-03"><strong>&#x26A1; TRANSFORM YOUR CAREER</strong></div>
+      <div class="point c-sky s-04"><strong>&#x26A1; REAL-TIME LEADERBOARD</strong></div>
+      <div class="point c-lilac s-05"><strong>&#x26A1; NEXT-GEN RECRUITMENT</strong></div>
+      <div class="point c-white s-06"><strong>&#x26A1; UNLOCK YOUR POTENTIAL</strong></div>
+      <div class="point c-gold s-07"><strong>&#x26A1; THE ULTIMATE ARENA</strong></div>
+      <div class="point c-mint s-08"><strong>&#x26A1; REGISTER NOW</strong></div>
+    </div>
+    <div class="news-badge" style="background:var(--blush); color:#fff; border-color:#000;">THE ARENA IS LIVE // GO COMPETE</div>
+  </div>
+
+</div>
+
+</body>
+</html>
