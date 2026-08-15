@@ -43,7 +43,6 @@
     box-shadow: 0 0 100px rgba(244,185,66,0.35);
   }
 
-  /* Global Constant Grid Warp */
   .grid-warp {
     position: absolute;
     inset: -20px;
@@ -60,7 +59,6 @@
     100% { transform: translate(-24px, -24px); }
   }
 
-  /* Pulse Ring Background */
   .pulse-core {
     position: absolute;
     top: 50%;
@@ -80,7 +78,6 @@
     100% { transform: translate(-50%, -50%) rotate(360deg) scale(0.85); }
   }
 
-  /* Acts: 9 Acts synced to 90 seconds (10s each) */
   .act {
     position: absolute;
     inset: 0;
@@ -111,7 +108,6 @@
     10.8%, 100% { opacity: 0; transform: scale(1.15) translateY(-30px); filter: brightness(0.5); }
   }
 
-  /* Kinetic Giant Headings */
   .slam-title {
     font-weight: 900;
     text-transform: uppercase;
@@ -134,7 +130,6 @@
     100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0px) brightness(1); }
   }
 
-  /* Rapid-Fire Tag Cloud Grid */
   .dense-cloud {
     display: flex;
     flex-wrap: wrap;
@@ -147,7 +142,6 @@
     transform-style: preserve-3d;
   }
 
-  /* Step-by-Step Punchy Flash Points — ONE BY ONE */
   .point {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 900;
@@ -195,7 +189,6 @@
     100% { transform: translateY(-6px) rotate(2deg) scale(1.04); }
   }
 
-  /* Color Variations */
   .c-gold   { background: var(--gold); color: #000; }
   .c-mint   { background: var(--mint); color: #fff; }
   .c-blush  { background: var(--blush); color: #fff; }
@@ -204,21 +197,142 @@
   .c-yellow { background: var(--yellow); color: #000; }
   .c-white  { background: #FFFFFF; color: #000; }
 
-  /* Precise Step-by-Step Stagger Timings — 0.3s apart, float starts after pop lands */
-  .s-01 { animation-delay: 0.20s, 0.80s; }
-  .s-02 { animation-delay: 0.50s, 1.10s; }
-  .s-03 { animation-delay: 0.80s, 1.40s; }
-  .s-04 { animation-delay: 1.10s, 1.70s; }
-  .s-05 { animation-delay: 1.40s, 2.00s; }
-  .s-06 { animation-delay: 1.70s, 2.30s; }
-  .s-07 { animation-delay: 2.00s, 2.60s; }
-  .s-08 { animation-delay: 2.30s, 2.90s; }
-  .s-09 { animation-delay: 2.60s, 3.20s; }
-  .s-10 { animation-delay: 2.90s, 3.50s; }
-  .s-11 { animation-delay: 3.20s, 3.80s; }
-  .s-12 { animation-delay: 3.50s, 4.10s; }
+  /* ===== ACT-SPECIFIC STAGGER DELAYS (offset by act start time) ===== */
+  /* a1 offsets (base +0s) */
+  .a1 .s-01 { animation-delay: 0.20s, 0.80s; }
+  .a1 .s-02 { animation-delay: 0.50s, 1.10s; }
+  .a1 .s-03 { animation-delay: 0.80s, 1.40s; }
+  .a1 .s-04 { animation-delay: 1.10s, 1.70s; }
+  .a1 .s-05 { animation-delay: 1.40s, 2.00s; }
+  .a1 .s-06 { animation-delay: 1.70s, 2.30s; }
+  .a1 .s-07 { animation-delay: 2.00s, 2.60s; }
+  .a1 .s-08 { animation-delay: 2.30s, 2.90s; }
+  .a1 .s-09 { animation-delay: 2.60s, 3.20s; }
+  .a1 .s-10 { animation-delay: 2.90s, 3.50s; }
+  .a1 .s-11 { animation-delay: 3.20s, 3.80s; }
+  .a1 .s-12 { animation-delay: 3.50s, 4.10s; }
+  .a1 .news-badge { animation-delay: 4.20s; }
 
-  /* News Banner Ticker (Flash-Stamp) */
+  /* a2 offsets (base +10s) */
+  .a2 .s-01 { animation-delay: 10.20s, 10.80s; }
+  .a2 .s-02 { animation-delay: 10.50s, 11.10s; }
+  .a2 .s-03 { animation-delay: 10.80s, 11.40s; }
+  .a2 .s-04 { animation-delay: 11.10s, 11.70s; }
+  .a2 .s-05 { animation-delay: 11.40s, 12.00s; }
+  .a2 .s-06 { animation-delay: 11.70s, 12.30s; }
+  .a2 .s-07 { animation-delay: 12.00s, 12.60s; }
+  .a2 .s-08 { animation-delay: 12.30s, 12.90s; }
+  .a2 .s-09 { animation-delay: 12.60s, 13.20s; }
+  .a2 .s-10 { animation-delay: 12.90s, 13.50s; }
+  .a2 .s-11 { animation-delay: 13.20s, 13.80s; }
+  .a2 .s-12 { animation-delay: 13.50s, 14.10s; }
+  .a2 .news-badge { animation-delay: 14.20s; }
+
+  /* a3 offsets (base +20s) */
+  .a3 .s-01 { animation-delay: 20.20s, 20.80s; }
+  .a3 .s-02 { animation-delay: 20.50s, 21.10s; }
+  .a3 .s-03 { animation-delay: 20.80s, 21.40s; }
+  .a3 .s-04 { animation-delay: 21.10s, 21.70s; }
+  .a3 .s-05 { animation-delay: 21.40s, 22.00s; }
+  .a3 .s-06 { animation-delay: 21.70s, 22.30s; }
+  .a3 .s-07 { animation-delay: 22.00s, 22.60s; }
+  .a3 .s-08 { animation-delay: 22.30s, 22.90s; }
+  .a3 .s-09 { animation-delay: 22.60s, 23.20s; }
+  .a3 .s-10 { animation-delay: 22.90s, 23.50s; }
+  .a3 .s-11 { animation-delay: 23.20s, 23.80s; }
+  .a3 .s-12 { animation-delay: 23.50s, 24.10s; }
+  .a3 .news-badge { animation-delay: 24.20s; }
+
+  /* a4 offsets (base +30s) */
+  .a4 .s-01 { animation-delay: 30.20s, 30.80s; }
+  .a4 .s-02 { animation-delay: 30.50s, 31.10s; }
+  .a4 .s-03 { animation-delay: 30.80s, 31.40s; }
+  .a4 .s-04 { animation-delay: 31.10s, 31.70s; }
+  .a4 .s-05 { animation-delay: 31.40s, 32.00s; }
+  .a4 .s-06 { animation-delay: 31.70s, 32.30s; }
+  .a4 .s-07 { animation-delay: 32.00s, 32.60s; }
+  .a4 .s-08 { animation-delay: 32.30s, 32.90s; }
+  .a4 .s-09 { animation-delay: 32.60s, 33.20s; }
+  .a4 .s-10 { animation-delay: 32.90s, 33.50s; }
+  .a4 .s-11 { animation-delay: 33.20s, 33.80s; }
+  .a4 .s-12 { animation-delay: 33.50s, 34.10s; }
+  .a4 .news-badge { animation-delay: 34.20s; }
+
+  /* a5 offsets (base +40s) */
+  .a5 .s-01 { animation-delay: 40.20s, 40.80s; }
+  .a5 .s-02 { animation-delay: 40.50s, 41.10s; }
+  .a5 .s-03 { animation-delay: 40.80s, 41.40s; }
+  .a5 .s-04 { animation-delay: 41.10s, 41.70s; }
+  .a5 .s-05 { animation-delay: 41.40s, 42.00s; }
+  .a5 .s-06 { animation-delay: 41.70s, 42.30s; }
+  .a5 .s-07 { animation-delay: 42.00s, 42.60s; }
+  .a5 .s-08 { animation-delay: 42.30s, 42.90s; }
+  .a5 .s-09 { animation-delay: 42.60s, 43.20s; }
+  .a5 .s-10 { animation-delay: 42.90s, 43.50s; }
+  .a5 .s-11 { animation-delay: 43.20s, 43.80s; }
+  .a5 .s-12 { animation-delay: 43.50s, 44.10s; }
+  .a5 .news-badge { animation-delay: 44.20s; }
+
+  /* a6 offsets (base +50s) */
+  .a6 .s-01 { animation-delay: 50.20s, 50.80s; }
+  .a6 .s-02 { animation-delay: 50.50s, 51.10s; }
+  .a6 .s-03 { animation-delay: 50.80s, 51.40s; }
+  .a6 .s-04 { animation-delay: 51.10s, 51.70s; }
+  .a6 .s-05 { animation-delay: 51.40s, 52.00s; }
+  .a6 .s-06 { animation-delay: 51.70s, 52.30s; }
+  .a6 .s-07 { animation-delay: 52.00s, 52.60s; }
+  .a6 .s-08 { animation-delay: 52.30s, 52.90s; }
+  .a6 .s-09 { animation-delay: 52.60s, 53.20s; }
+  .a6 .s-10 { animation-delay: 52.90s, 53.50s; }
+  .a6 .s-11 { animation-delay: 53.20s, 53.80s; }
+  .a6 .s-12 { animation-delay: 53.50s, 54.10s; }
+  .a6 .news-badge { animation-delay: 54.20s; }
+
+  /* a7 offsets (base +60s) */
+  .a7 .s-01 { animation-delay: 60.20s, 60.80s; }
+  .a7 .s-02 { animation-delay: 60.50s, 61.10s; }
+  .a7 .s-03 { animation-delay: 60.80s, 61.40s; }
+  .a7 .s-04 { animation-delay: 61.10s, 61.70s; }
+  .a7 .s-05 { animation-delay: 61.40s, 62.00s; }
+  .a7 .s-06 { animation-delay: 61.70s, 62.30s; }
+  .a7 .s-07 { animation-delay: 62.00s, 62.60s; }
+  .a7 .s-08 { animation-delay: 62.30s, 62.90s; }
+  .a7 .s-09 { animation-delay: 62.60s, 63.20s; }
+  .a7 .s-10 { animation-delay: 62.90s, 63.50s; }
+  .a7 .s-11 { animation-delay: 63.20s, 63.80s; }
+  .a7 .s-12 { animation-delay: 63.50s, 64.10s; }
+  .a7 .news-badge { animation-delay: 64.20s; }
+
+  /* a8 offsets (base +70s) */
+  .a8 .s-01 { animation-delay: 70.20s, 70.80s; }
+  .a8 .s-02 { animation-delay: 70.50s, 71.10s; }
+  .a8 .s-03 { animation-delay: 70.80s, 71.40s; }
+  .a8 .s-04 { animation-delay: 71.10s, 71.70s; }
+  .a8 .s-05 { animation-delay: 71.40s, 72.00s; }
+  .a8 .s-06 { animation-delay: 71.70s, 72.30s; }
+  .a8 .s-07 { animation-delay: 72.00s, 72.60s; }
+  .a8 .s-08 { animation-delay: 72.30s, 72.90s; }
+  .a8 .s-09 { animation-delay: 72.60s, 73.20s; }
+  .a8 .s-10 { animation-delay: 72.90s, 73.50s; }
+  .a8 .s-11 { animation-delay: 73.20s, 73.80s; }
+  .a8 .s-12 { animation-delay: 73.50s, 74.10s; }
+  .a8 .news-badge { animation-delay: 74.20s; }
+
+  /* a9 offsets (base +80s) */
+  .a9 .s-01 { animation-delay: 80.20s, 80.80s; }
+  .a9 .s-02 { animation-delay: 80.50s, 81.10s; }
+  .a9 .s-03 { animation-delay: 80.80s, 81.40s; }
+  .a9 .s-04 { animation-delay: 81.10s, 81.70s; }
+  .a9 .s-05 { animation-delay: 81.40s, 82.00s; }
+  .a9 .s-06 { animation-delay: 81.70s, 82.30s; }
+  .a9 .s-07 { animation-delay: 82.00s, 82.60s; }
+  .a9 .s-08 { animation-delay: 82.30s, 82.90s; }
+  .a9 .s-09 { animation-delay: 82.60s, 83.20s; }
+  .a9 .s-10 { animation-delay: 82.90s, 83.50s; }
+  .a9 .s-11 { animation-delay: 83.20s, 83.80s; }
+  .a9 .s-12 { animation-delay: 83.50s, 84.10s; }
+  .a9 .news-badge { animation-delay: 84.20s; }
+
   .news-badge {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.6rem;
@@ -232,7 +346,7 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     opacity: 0;
-    animation: stampNews 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) 4.2s forwards;
+    animation: stampNews 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
     will-change: transform, opacity, filter;
   }
   @keyframes stampNews {
