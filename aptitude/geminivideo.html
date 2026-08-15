@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Career Catalyst Thon | Cognitive Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&family=JetBrains+Mono:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream-bg: #F9F5EC;
+    --ink: #18120B;
+    --gold: #F4B942;
+    --mint: #38B072;
+    --blush: #E85D43;
+    --sky: #2B8BEA;
+    --lilac: #8E54E9;
+    --yellow: #FFE600;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #0D0905;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 480px;
+    max-height: 880px;
+    background: var(--cream-bg);
+    overflow: hidden;
+    box-shadow: 0 0 100px rgba(244,185,66,0.35);
+  }
+
+  /* Kinetic Background Warp */
+  .grid-warp {
+    position: absolute;
+    inset: -40px;
+    background-image: 
+      linear-gradient(rgba(24,18,11,0.06) 1.5px, transparent 1.5px),
+      linear-gradient(90deg, rgba(24,18,11,0.06) 1.5px, transparent 1.5px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 1;
+    animation: gridPan 12s linear infinite;
+  }
+  @keyframes gridPan {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-28px, -28px); }
+  }
+
+  .pulse-orbit {
+    position: absolute;
+    top: 33%;
+    left: 50%;
+    width: 380px;
+    height: 380px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px dashed rgba(24,18,11,0.12);
+    pointer-events: none;
+    z-index: 1;
+    animation: orbitRotate 16s linear infinite;
+  }
+  @keyframes orbitRotate {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  /* Act Setup (Top 66% viewport reserved for presentation) */
+  .act {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 34%;
+    padding: 1.2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+    animation: actSequence 90s infinite ease-in-out;
+    overflow: hidden;
+  }
+
+  .a1 { animation-delay: 0s; }
+  .a2 { animation-delay: 10s; }
+  .a3 { animation-delay: 20s; }
+  .a4 { animation-delay: 30s; }
+  .a5 { animation-delay: 40s; }
+  .a6 { animation-delay: 50s; }
+  .a7 { animation-delay: 60s; }
+  .a8 { animation-delay: 70s; }
+  .a9 { animation-delay: 80s; }
+
+  @keyframes actSequence {
+    0% { opacity: 0; transform: scale(0.94) translateY(20px); filter: brightness(1.8); }
+    1%, 9.6% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
+    10.8%, 100% { opacity: 0; transform: scale(1.05) translateY(-20px); filter: brightness(0.6); }
+  }
+
+  /* Neo-Brutalist Utility */
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 0.3rem 0.7rem;
+    background: #000;
+    color: var(--yellow);
+    border: 2px solid var(--blush);
+    box-shadow: 3px 3px 0px var(--blush);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .pill {
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    border: 2.5px solid var(--ink);
+    box-shadow: 3.5px 3.5px 0px var(--ink);
+    text-align: center;
+  }
+
+  /* ===================================================
+     ACT 1: JUST A GAME? -> HUNDREDS OF DECISIONS
+     =================================================== */
+  .a1-title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    text-align: center;
+    color: var(--ink);
+    line-height: 1.05;
+    margin-bottom: 0.8rem;
+  }
+  .strike-box {
+    position: relative;
+    display: inline-block;
+  }
+  .strike-box::after {
+    content: "IT ISN'T.";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-8deg);
+    background: var(--blush);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 900;
+    padding: 0.2rem 0.8rem;
+    border: 2.5px solid #000;
+    box-shadow: 4px 4px 0 #000;
+    animation: slamStamp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s both;
+  }
+  @keyframes slamStamp {
+    0% { transform: translate(-50%, -50%) scale(2) rotate(-25deg); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(-8deg); opacity: 1; }
+  }
+
+  .counter-hero {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.4rem;
+    margin: 0.6rem 0;
+  }
+  .counter-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 3.8rem;
+    font-weight: 900;
+    color: var(--blush);
+    line-height: 1;
+    animation: countUp 2.8s steps(15) 3.5s both, glowPulse 1.5s ease-in-out infinite alternate;
+  }
+  @keyframes countUp {
+    0% { opacity: 0; transform: scale(0.6); }
+    20% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes glowPulse {
+    0% { text-shadow: 0 0 0 rgba(232,93,67,0); }
+    100% { text-shadow: 0 0 20px rgba(232,93,67,0.6); }
+  }
+
+  /* ===================================================
+     ACT 2: PATTERN DETECTION & WORKING MEMORY
+     =================================================== */
+  .pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 320px;
+    margin: 0.8rem 0;
+  }
+  .p-cell {
+    aspect-ratio: 1;
+    border: 2.5px solid var(--ink);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 3px 3px 0 #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.1rem;
+    animation: patternWave 2.5s infinite ease-in-out;
+  }
+  .p-cell:nth-child(1) { animation-delay: 0.1s; }
+  .p-cell:nth-child(2) { animation-delay: 0.2s; }
+  .p-cell:nth-child(3) { animation-delay: 0.3s; }
+  .p-cell:nth-child(4) { animation-delay: 0.4s; }
+  .p-cell:nth-child(5) { animation-delay: 0.5s; }
+  .p-cell:nth-child(6) { animation-delay: 0.6s; background: var(--gold); }
+  .p-cell:nth-child(7) { animation-delay: 0.7s; }
+  .p-cell:nth-child(8) { animation-delay: 0.8s; }
+  .p-cell:nth-child(9) { animation-delay: 0.9s; }
+  .p-cell:nth-child(10) { animation-delay: 1.0s; }
+  .p-cell:nth-child(11) { animation-delay: 1.1s; background: var(--mint); }
+  .p-cell:nth-child(12) { animation-delay: 1.2s; }
+
+  @keyframes patternWave {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12) rotate(4deg); background: var(--sky); color: #fff; }
+  }
+
+  /* ===================================================
+     ACT 3: ABANDON BAD IDEAS -> PIVOT
+     =================================================== */
+  .pivot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    width: 100%;
+    align-items: center;
+    margin: 0.6rem 0;
+  }
+  .bad-idea {
+    background: #fff;
+    color: #999;
+    border: 2px dashed #999;
+    padding: 0.6rem 1.2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    position: relative;
+    animation: discardIdea 2.5s infinite ease-in-out;
+  }
+  @keyframes discardIdea {
+    0%, 30% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50%, 100% { transform: translateX(90px) rotate(20deg) scale(0.6); opacity: 0; filter: blur(6px); }
+  }
+  .good-idea {
+    background: var(--mint);
+    color: #fff;
+    border: 2.5px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    padding: 0.7rem 1.4rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+    animation: appearHero 2.5s infinite cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes appearHero {
+    0%, 40% { transform: scale(0) translateY(30px); opacity: 0; }
+    65%, 100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  /* ===================================================
+     ACT 4: COGNITIVE METERS (PROCESSING SPEED / MEMORY)
+     =================================================== */
+  .meter-stack {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin: 0.6rem 0;
+  }
+  .meter-row {
+    background: #fff;
+    border: 2.5px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+    border-radius: 8px;
+    padding: 0.5rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .meter-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+  .meter-bar {
+    height: 12px;
+    background: #eee;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .meter-fill {
+    height: 100%;
+    background: var(--blush);
+    animation: barFill 1.8s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .m-speed .meter-fill { background: var(--gold); animation-delay: 0.2s; }
+  .m-memory .meter-fill { background: var(--sky); animation-delay: 0.5s; }
+  .m-flex .meter-fill { background: var(--mint); animation-delay: 0.8s; }
+
+  @keyframes barFill {
+    0% { width: 10%; }
+    100% { width: 100%; }
+  }
+
+  /* ===================================================
+     ACT 5: INFINITE COMPANY LOGO TICKER
+     =================================================== */
+  .ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+    border: 2.5px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--blush);
+    padding: 0.6rem 0;
+    margin: 0.8rem 0;
+    transform: rotate(-2deg);
+  }
+  .ticker-track {
+    display: flex;
+    gap: 1rem;
+    width: max-content;
+    animation: marquee 6s linear infinite;
+  }
+  .ticker-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .ticker-item::after {
+    content: "★";
+    color: var(--blush);
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ===================================================
+     ACT 6: HOW YOU THINK (BRAIN SCANNER)
+     =================================================== */
+  .radar-hud {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    border: 3px solid var(--ink);
+    background: #fff;
+    box-shadow: 4px 4px 0 var(--ink);
+    margin: 0.6rem 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .radar-sweep {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: conic-gradient(from 0deg at 50% 50%, rgba(56,176,114,0.6) 0deg, transparent 90deg, transparent 360deg);
+    animation: sweep 2s linear infinite;
+  }
+  .radar-center {
+    position: relative;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-align: center;
+    color: var(--ink);
+    z-index: 2;
+    text-transform: uppercase;
+  }
+  @keyframes sweep {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* ===================================================
+     ACT 7: SYNAPSE REWIRE (NEURAL FEEDBACK)
+     =================================================== */
+  .synapse-arena {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0.6rem 0;
+  }
+  .synapse-node {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    border: 2.5px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: center;
+    box-shadow: 3px 3px 0 var(--ink);
+    animation: bouncePop 1.2s infinite alternate ease-in-out;
+  }
+  .node-1 { background: var(--blush); color: #fff; animation-delay: 0s; }
+  .node-2 { background: var(--yellow); color: #000; animation-delay: 0.3s; }
+  .node-3 { background: var(--mint); color: #fff; animation-delay: 0.6s; }
+
+  @keyframes bouncePop {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-12px) scale(1.1); box-shadow: 5px 8px 0 var(--ink); }
+  }
+
+  /* ===================================================
+     ACT 8: THINK BETTER (POWER GLOW)
+     =================================================== */
+  .duo-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    width: 100%;
+    margin: 0.6rem 0;
+  }
+  .comp-card {
+    border: 2.5px solid var(--ink);
+    border-radius: 8px;
+    padding: 0.8rem 0.4rem;
+    text-align: center;
+    box-shadow: 3px 3px 0 var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+  }
+  .card-old {
+    background: #E5E5E5;
+    color: #666;
+    text-decoration: line-through;
+    opacity: 0.7;
+    animation: fadeGlitch 1.5s infinite alternate;
+  }
+  .card-new {
+    background: var(--gold);
+    color: #000;
+    font-weight: 900;
+    transform: scale(1.05);
+    animation: pulseVictory 1s infinite alternate ease-in-out;
+  }
+  @keyframes pulseVictory {
+    0% { transform: scale(1.02); box-shadow: 3px 3px 0 var(--ink); }
+    100% { transform: scale(1.08) rotate(1deg); box-shadow: 6px 6px 0 var(--blush); }
+  }
+  @keyframes fadeGlitch {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(-2px, 2px); }
+  }
+
+  /* ===================================================
+     ACT 9: TITLE CARD
+     =================================================== */
+  .title-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: finalSlam 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes finalSlam {
+    0% { transform: scale(0.4) translateY(60px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .title-main {
+    font-size: 2.6rem;
+    font-weight: 900;
+    color: var(--ink);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  .title-line {
+    width: 60px;
+    height: 5px;
+    background: var(--blush);
+    margin: 0.6rem 0;
+    border: 1.5px solid #000;
+  }
+  .title-sub {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .title-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--blush);
+    margin-top: 0.4rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="grid-warp"></div>
+  <div class="pulse-orbit"></div>
+
+  <!-- 0:00–0:10 | ACT 1: HIDDEN INTERVIEW & HUNDREDS OF DECISIONS -->
+  <div class="act a1">
+    <div class="a1-title"><span class="strike-box">LOOKS LIKE A GAME?</span></div>
+    <div class="pill" style="background:var(--yellow); font-size:0.85rem; margin-bottom:0.4rem;">
+      EVERY PUZZLE IS A HIDDEN INTERVIEW
+    </div>
+    <div class="counter-hero">
+      <div class="counter-num">500+</div>
+      <div style="font-weight:900; font-size:0.9rem; text-transform:uppercase;">Decisions / Sec</div>
+    </div>
+    <div class="badge">COGNITIVE ENGINE ONLINE</div>
+  </div>
+
+  <!-- 0:10–0:20 | ACT 2: SPOT THE PATTERN -->
+  <div class="act a2">
+    <div class="a1-title" style="font-size:1.5rem;">CAN YOU <strong style="color:var(--sky);">SPOT THE PATTERN?</strong></div>
+    <div class="pattern-grid">
+      <div class="p-cell">▲</div>
+      <div class="p-cell">■</div>
+      <div class="p-cell">●</div>
+      <div class="p-cell">▲</div>
+      <div class="p-cell">●</div>
+      <div class="p-cell">★</div>
+      <div class="p-cell">■</div>
+      <div class="p-cell">●</div>
+      <div class="p-cell">▲</div>
+      <div class="p-cell">■</div>
+      <div class="p-cell">★</div>
+      <div class="p-cell">▲</div>
+    </div>
+    <div class="badge">WORKING MEMORY IN MOTION</div>
+  </div>
+
+  <!-- 0:20–0:30 | ACT 3: ABANDON BAD IDEAS -->
+  <div class="act a3">
+    <div class="a1-title" style="font-size:1.4rem;">CAN YOU <strong style="color:var(--blush);">ABANDON A BAD IDEA?</strong></div>
+    <div class="pivot-container">
+      <div class="bad-idea">✖ STUBBORN ASSUMPTION</div>
+      <div style="font-weight:900; font-size:1.2rem;">↓ PIVOT ↓</div>
+      <div class="good-idea">✔ BREAKTHROUGH SOLUTION</div>
+    </div>
+    <div class="badge">COGNITIVE FLEXIBILITY</div>
+  </div>
+
+  <!-- 0:30–0:40 | ACT 4: THE SCIENCE OF PROBLEM SOLVING -->
+  <div class="act a4">
+    <div class="a1-title" style="font-size:1.4rem;">THE SCIENCE OF <strong style="color:var(--gold);">PROBLEM SOLVING</strong></div>
+    <div class="meter-stack">
+      <div class="meter-row m-speed">
+        <div class="meter-label"><span>Processing Speed</span><span>98%</span></div>
+        <div class="meter-bar"><div class="meter-fill"></div></div>
+      </div>
+      <div class="meter-row m-memory">
+        <div class="meter-label"><span>Working Memory</span><span>94%</span></div>
+        <div class="meter-bar"><div class="meter-fill"></div></div>
+      </div>
+      <div class="meter-row m-flex">
+        <div class="meter-label"><span>Cognitive Agility</span><span>99%</span></div>
+        <div class="meter-bar"><div class="meter-fill"></div></div>
+      </div>
+    </div>
+    <div class="badge">NOT GAMING • PURE SCIENCE</div>
+  </div>
+
+  <!-- 0:40–0:50 | ACT 5: TOP EMPLOYERS TICKER -->
+  <div class="act a5">
+    <div class="a1-title" style="font-size:1.4rem;">WHY <strong style="color:var(--mint);">TOP EMPLOYERS</strong> TEST THIS</div>
+    <div class="ticker-wrap">
+      <div class="ticker-track">
+        <div class="ticker-item">GOOGLE</div>
+        <div class="ticker-item">MICROSOFT</div>
+        <div class="ticker-item">ACCENTURE</div>
+        <div class="ticker-item">DELOITTE</div>
+        <div class="ticker-item">EY</div>
+        <div class="ticker-item">PWC</div>
+        <div class="ticker-item">JPMORGAN CHASE</div>
+        <div class="ticker-item">MCKINSEY</div>
+        <!-- Cloned for smooth loop -->
+        <div class="ticker-item">GOOGLE</div>
+        <div class="ticker-item">MICROSOFT</div>
+        <div class="ticker-item">ACCENTURE</div>
+        <div class="ticker-item">DELOITTE</div>
+        <div class="ticker-item">EY</div>
+        <div class="ticker-item">PWC</div>
+        <div class="ticker-item">JPMORGAN CHASE</div>
+        <div class="ticker-item">MCKINSEY</div>
+      </div>
+    </div>
+    <div class="badge">GAMIFIED HIRING BENCHMARK</div>
+  </div>
+
+  <!-- 0:50–1:00 | ACT 6: BEYOND MEMORIZATION -> EVALUATING HOW YOU THINK -->
+  <div class="act a6">
+    <div class="a1-title" style="font-size:1.35rem;"><span class="strike-box">MEMORIZED ANSWERS</span><br><strong style="color:var(--blush);">THEY EVALUATE HOW YOU THINK</strong></div>
+    <div class="radar-hud">
+      <div class="radar-sweep"></div>
+      <div class="radar-center">LIVE<br>NEURAL<br>SCAN</div>
+    </div>
+    <div class="badge">DYNAMIC REASONING PROFILED</div>
+  </div>
+
+  <!-- 1:00–1:10 | ACT 7: REWIRE & STRENGTHEN -->
+  <div class="act a7">
+    <div class="a1-title" style="font-size:1.35rem;">EVERY MISTAKE <strong style="color:var(--mint);">BECOMES FEEDBACK</strong></div>
+    <div class="synapse-arena">
+      <div class="synapse-node node-1">REWIRE<br>STRATEGY</div>
+      <div class="synapse-node node-2">BUILD<br>MUSCLE</div>
+      <div class="synapse-node node-3">CREATE<br>NEW PATH</div>
+    </div>
+    <div class="badge">NEUROPLASTICITY IN REAL TIME</div>
+  </div>
+
+  <!-- 1:10–1:20 | ACT 8: THINK BETTER FOR PLACEMENTS -->
+  <div class="act a8">
+    <div class="a1-title" style="font-size:1.35rem;">PLACEMENTS BEGIN:<br><strong style="color:var(--sky);">DON'T JUST KNOW MORE</strong></div>
+    <div class="duo-compare">
+      <div class="comp-card card-old">
+        <div style="font-size:0.8rem; font-weight:800;">ROTE MEMORY</div>
+        <div style="font-size:0.65rem; margin-top:4px;">OBSOLETE</div>
+      </div>
+      <div class="comp-card card-new">
+        <div style="font-size:0.95rem; font-weight:900;">THINK BETTER</div>
+        <div style="font-size:0.65rem; margin-top:4px;">COGNITIVE EDGE</div>
+      </div>
+    </div>
+    <div class="badge">UNFAIR ADVANTAGE UNLOCKED</div>
+  </div>
+
+  <!-- 1:20–1:30 | ACT 9: FINALE / TITLE CARD -->
+  <div class="act a9">
+    <div class="title-card">
+      <div class="badge" style="margin-bottom:0.6rem;">BECAUSE THE STRONGEST BRAINS WIN</div>
+      <div class="title-main">Career<br>Catalyst<br>Thon</div>
+      <div class="title-line"></div>
+      <div class="title-sub">Department of English</div>
+      <div class="title-sub">SRM Valliammai Engineering College</div>
+      <div class="title-date">17 August 2026</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
