@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Career Catalyst Thon | Master Motion Graphics Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=JetBrains+Mono:wght@700;800;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #050508;
+    --gold-foil: #D4AF37;
+    --gold-light: #FFF0BA;
+    --gold-deep: #8F721A;
+    --cream: #F8F4EE;
+    --emerald: #10B981;
+    --ruby: #E11D48;
+    --sapphire: #38BDF8;
+    --border-gold: rgba(212, 175, 55, 0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #020203;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Cinzel', serif;
+  }
+
+  /* 9:16 Mobile Canvas */
+  .stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 440px;
+    max-height: 860px;
+    background: radial-gradient(circle at 50% 20%, #161324 0%, #0A0812 60%, #030205 100%);
+    overflow: hidden;
+    box-shadow: 0 0 100px rgba(0,0,0,0.95), 0 0 40px rgba(212,175,55,0.15);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+  }
+
+  /* Animated High-Tech Damask Grid */
+  .damask-bg {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.08) 1.2px, transparent 1.2px),
+      linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+    background-size: 28px 28px, 14px 14px, 14px 14px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .royal-frame {
+    position: absolute;
+    inset: 8px;
+    border: 1px solid var(--border-gold);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .royal-frame::before {
+    content: "✦";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--gold-foil);
+    font-size: 0.75rem;
+    text-shadow: 0 0 10px rgba(212,175,55,0.8);
+  }
+
+  /* ========================================================
+     MASTER TOP MOTION GRAPHICS THEATER (65% Height)
+     ======================================================== */
+  .theater {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 65%;
+    padding: 0.9rem 1rem 0.2rem 1rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .act {
+    position: absolute;
+    inset: 0.8rem 1rem 0.3rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    animation: masterActCycle 60s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  /* 9 Acts Mapped Across Exact 60s */
+  .act-1 { animation-delay: 0.0s; }   /* 0.0s - 6.5s */
+  .act-2 { animation-delay: 6.5s; }   /* 6.5s - 13.5s */
+  .act-3 { animation-delay: 13.5s; }  /* 13.5s - 20.0s */
+  .act-4 { animation-delay: 20.0s; }  /* 20.0s - 27.0s */
+  .act-5 { animation-delay: 27.0s; }  /* 27.0s - 35.0s */
+  .act-6 { animation-delay: 35.0s; }  /* 35.0s - 43.0s */
+  .act-7 { animation-delay: 43.0s; }  /* 43.0s - 50.0s */
+  .act-8 { animation-delay: 50.0s; }  /* 50.0s - 55.5s */
+  .act-9 { animation-delay: 55.5s; }  /* 55.5s - 60.0s */
+
+  @keyframes masterActCycle {
+    0% { opacity: 0; transform: translateY(14px) scale(0.94); filter: blur(5px); }
+    1.8%, 9.8% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    11.4%, 100% { opacity: 0; transform: translateY(-14px) scale(1.04); filter: blur(5px); }
+  }
+
+  .gold-foil {
+    background: linear-gradient(135deg, #FFF6D1 0%, #D4AF37 50%, #8F721A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+    text-shadow: 0 0 24px rgba(212,175,55,0.35);
+  }
+  .act-heading {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 1.4rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+  }
+  .act-subheading {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: rgba(248, 244, 238, 0.85);
+  }
+
+  /* ========================================================
+     FUNCTIONAL BRAINSTORM ANIMATIONS (1 to 11)
+     ======================================================== */
+
+  /* 1. Trophy vs Dossier Morph + UV Wireframe Scan */
+  .dossier-morph-card {
+    position: relative;
+    width: 140px;
+    height: 80px;
+    background: rgba(14, 14, 22, 0.85);
+    border: 1.5px solid var(--gold-foil);
+    box-shadow: 0 0 20px rgba(212,175,55,0.25);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 0.4rem 0.6rem;
+    margin: 0.35rem 0;
+    overflow: hidden;
+  }
+  .dossier-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.52rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 900;
+    color: var(--gold-light);
+    border-bottom: 1px dashed var(--border-gold);
+    padding-bottom: 2px;
+  }
+  .dossier-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: #ccc;
+  }
+  .dossier-check { color: var(--emerald); font-weight: 900; }
+  .uv-laser {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--sapphire);
+    box-shadow: 0 0 12px var(--sapphire);
+    animation: uvScan 2s infinite ease-in-out alternate;
+  }
+  @keyframes uvScan { 0% { left: 0%; } 100% { left: 98%; } }
+  .slam-tag {
+    background: linear-gradient(135deg, #E11D48 0%, #9F1239 100%);
+    color: #FFF;
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 1.25rem;
+    font-weight: 900;
+    padding: 0.15rem 0.9rem;
+    border: 2px solid #FFF0BA;
+    box-shadow: 0 0 25px rgba(225,29,72,0.7);
+    transform: rotate(-5deg);
+    margin-top: 0.25rem;
+    animation: slamPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+  @keyframes slamPop {
+    0% { transform: scale(2.5) rotate(-25deg); opacity: 0; }
+    100% { transform: scale(1) rotate(-5deg); opacity: 1; }
+  }
+
+  /* 2. Real-Time Odometer Counter + Synaptic Burst */
+  .odometer-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.3rem;
+  }
+  .odometer-box {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid var(--border-gold);
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .odometer-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    text-shadow: 0 0 14px rgba(212,175,55,0.7);
+    line-height: 1;
+  }
+  .odometer-num::before {
+    content: "500+";
+    animation: odoCount 1.8s steps(6) infinite alternate;
+  }
+  @keyframes odoCount {
+    0% { content: "128"; color: #888; }
+    33% { content: "294"; color: var(--sapphire); }
+    66% { content: "410"; color: var(--emerald); }
+    100% { content: "500+"; color: var(--gold-light); }
+  }
+
+  /* 3. Matrix Sequence Solver with Moving Reticle */
+  .pattern-solver-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 0.3rem;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border-gold);
+    border-radius: 4px;
+  }
+  .ps-cell {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 900;
+    border: 1px solid rgba(212,175,55,0.25);
+    background: rgba(212,175,55,0.05);
+  }
+  .cell-match {
+    background: rgba(16,185,129,0.3) !important;
+    border-color: var(--emerald) !important;
+    color: var(--emerald);
+    box-shadow: 0 0 10px var(--emerald);
+    animation: matchBlink 1s infinite alternate;
+  }
+  @keyframes matchBlink { 0% { filter: brightness(1); } 100% { filter: brightness(1.6); } }
+  .solver-reticle {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--gold-light);
+    box-shadow: 0 0 10px var(--gold-light);
+    pointer-events: none;
+    animation: reticleMove 2.2s infinite ease-in-out alternate;
+  }
+  @keyframes reticleMove {
+    0% { top: 4px; left: 4px; }
+    50% { top: 4px; left: 64px; }
+    100% { top: 34px; left: 34px; border-color: var(--emerald); }
+  }
+
+  /* 4. Dual-Buffer RAM Forge & Tree Pruning */
+  .buffer-forge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.3rem 0;
+  }
+  .ram-buffer {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--sapphire);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--sapphire);
+    animation: ramOrbit 6s linear infinite;
+  }
+  @keyframes ramOrbit { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  .forge-arrow { font-size: 0.8rem; color: var(--gold-foil); }
+  .synthesis-poly {
+    width: 65px;
+    height: 65px;
+    border: 1.5px solid var(--gold-foil);
+    background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%);
+    box-shadow: 0 0 15px rgba(212,175,55,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: var(--gold-light);
+    transform: rotate(45deg);
+    animation: polyPulse 2s infinite alternate ease-in-out;
+  }
+  .synthesis-poly span { transform: rotate(-45deg); text-align: center; }
+  @keyframes polyPulse { 0% { transform: rotate(45deg) scale(0.95); } 100% { transform: rotate(45deg) scale(1.08); box-shadow: 0 0 20px var(--gold-foil); } }
+
+  /* 5. Tree Pruning & Pivot */
+  .prune-track {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.2rem;
+  }
+  .bad-branch {
+    font-size: 0.55rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ruby);
+    text-decoration: line-through;
+    padding: 2px 6px;
+    border: 1px dashed var(--ruby);
+    border-radius: 3px;
+    animation: pruneDecay 2.5s infinite ease-in-out;
+  }
+  @keyframes pruneDecay {
+    0%, 30% { opacity: 1; transform: scale(1); }
+    60%, 100% { opacity: 0; transform: translateX(20px); }
+  }
+  .good-branch {
+    font-size: 0.58rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 900;
+    color: var(--emerald);
+    padding: 2px 8px;
+    border: 1px solid var(--emerald);
+    background: rgba(16,185,129,0.15);
+    border-radius: 3px;
+  }
+
+  /* 6. Dynamic Tri-Gauge Dashboard (Speed, Memory, Agility) */
+  .telemetry-stack {
+    width: 100%;
+    max-width: 270px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin: 0.3rem 0;
+  }
+  .tele-row {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--border-gold);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .tele-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+  .tele-val { font-weight: 900; color: var(--gold-light); }
+  .tele-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .tele-fill {
+    height: 100%;
+    border-radius: 2px;
+    animation: liveGauge 2s infinite alternate ease-in-out;
+  }
+  .tf-speed { background: linear-gradient(90deg, var(--gold-deep), var(--gold-light)); width: 98%; animation-delay: 0s; }
+  .tf-mem { background: linear-gradient(90deg, #1E40AF, var(--sapphire)); width: 95%; animation-delay: 0.3s; }
+  .tf-flex { background: linear-gradient(90deg, #065F46, var(--emerald)); width: 99%; animation-delay: 0.6s; }
+  @keyframes liveGauge {
+    0% { transform: scaleX(0.2); transform-origin: left; }
+    100% { transform: scaleX(1); transform-origin: left; }
+  }
+
+  /* 7. Employer Ribbon */
+  .employer-ribbon {
+    width: 100%;
+    overflow: hidden;
+    padding: 0.35rem 0;
+    border-top: 1px solid var(--border-gold);
+    border-bottom: 1px solid var(--border-gold);
+    background: rgba(212,175,55,0.05);
+    margin: 0.35rem 0;
+  }
+  .employer-stream { display: flex; gap: 1.2rem; width: max-content; animation: ribbonScroll 7s linear infinite; }
+  .emp-crest { font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em; color: var(--gold-light); }
+  .emp-crest::after { content: " ✦ "; color: var(--gold-foil); margin-left: 1.2rem; }
+  @keyframes ribbonScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  /* 8. Active Dynamic Graph Rewiring */
+  .graph-rewire-box {
+    position: relative;
+    width: 100%;
+    max-width: 260px;
+    height: 130px;
+    border: 1px solid var(--border-gold);
+    border-radius: 6px;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    margin: 0.35rem 0;
+    overflow: hidden;
+  }
+  .g-lines { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .g-line {
+    stroke: var(--gold-foil);
+    stroke-width: 1.4;
+    stroke-dasharray: 5 5;
+    opacity: 0.55;
+    animation: lineFlow 2.6s linear infinite;
+  }
+  @keyframes lineFlow { to { stroke-dashoffset: -20; } }
+  .g-node {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--gold-foil);
+    box-shadow: 0 0 8px var(--gold-foil);
+    animation: nodeShift 3s infinite alternate ease-in-out;
+  }
+  .gn-1 { top: 18px; left: 12%; }
+  .gn-2 { top: 55px; left: 44%; animation-delay: 0.4s; }
+  .gn-3 { top: 14px; left: 82%; animation-delay: 0.8s; }
+  .gn-4 { top: 90px; left: 24%; animation-delay: 1.2s; }
+  .gn-5 { top: 96px; left: 68%; animation-delay: 1.6s; }
+  @keyframes nodeShift {
+    0% { transform: translate(0, 0); background: var(--gold-foil); }
+    100% { transform: translate(5px, -4px); background: var(--emerald); }
+  }
+
+  /* 9. Closed-Loop Synaptic Dynamo */
+  .feedback-circuit {
+    position: relative;
+    width: 140px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.25rem 0;
+  }
+  .circuit-node {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold-foil);
+    background: radial-gradient(circle, rgba(212,175,55,0.3) 0%, #000 80%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.48rem;
+    font-weight: 800;
+    color: var(--gold-light);
+    box-shadow: 0 0 10px rgba(212,175,55,0.4);
+    z-index: 2;
+  }
+  .circuit-path {
+    position: absolute;
+    inset: 8px 12px;
+    border: 1.5px dashed var(--border-gold);
+    border-radius: 20px;
+    animation: loopSpin 4s linear infinite;
+  }
+  @keyframes loopSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  .pulse-spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 10px var(--emerald);
+    animation: sparkTrack 3s infinite linear;
+  }
+  @keyframes sparkTrack {
+    0% { top: 8px; left: 12px; }
+    25% { top: 8px; left: 118px; }
+    50% { top: 50px; left: 118px; }
+    75% { top: 50px; left: 12px; }
+    100% { top: 8px; left: 12px; }
+  }
+
+  /* 10. Cognitive Headstart Gap */
+  .pedigree-split { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; max-width: 270px; margin: 0.3rem 0; }
+  .ped-card { border: 1px solid var(--border-gold); padding: 0.4rem 0.25rem; text-align: center; }
+  .pc-rote { opacity: 0.4; text-decoration: line-through; }
+  .pc-intellect { border-color: var(--gold-foil); background: rgba(212,175,55,0.12); box-shadow: 0 0 16px rgba(212,175,55,0.25); }
+
+  /* Growth-curve proof chart: plateau vs exponential, draws itself in on every act cycle */
+  .growth-chart { width: 100%; max-width: 270px; margin-top: 0.4rem; }
+  .growth-chart svg { width: 100%; height: auto; display: block; }
+  .chart-flat {
+    fill: none; stroke: var(--ruby); stroke-width: 2; opacity: 0.6;
+    stroke-dasharray: 260; stroke-dashoffset: 260;
+    animation: drawChartLine 7s ease infinite;
+  }
+  .chart-exp {
+    fill: none; stroke: var(--emerald); stroke-width: 2.5;
+    filter: drop-shadow(0 0 4px rgba(16,185,129,0.7));
+    stroke-dasharray: 260; stroke-dashoffset: 260;
+    animation: drawChartLine 7s ease infinite 0.3s;
+  }
+  @keyframes drawChartLine { 0% { stroke-dashoffset: 260; } 35%, 100% { stroke-dashoffset: 0; } }
+
+  /* 11. Grand Sovereign Trophy & Neural Crown */
+  .royal-crown { font-size: 1.7rem; color: var(--gold-foil); text-shadow: 0 0 20px rgba(212,175,55,0.9); animation: crownFloat 2s infinite alternate ease-in-out; }
+  @keyframes crownFloat { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(-5px) scale(1.08); } }
+  .royal-laurel-divider { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-foil), transparent); margin: 0.3rem 0; }
+
+  /* ========================================================
+     LOWER THIRD: 1:1 SQUARE BOX & CENTERED FLANKING CAPTIONS
+     ======================================================== */
+  .lower-dock {
+    position: absolute;
+    bottom: 0.8rem;
+    left: 0.25rem;
+    right: 0.25rem;
+    height: 205px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem; /* Tightened from 0.8rem to give each wing more usable width */
+    z-index: 30;
+  }
+
+  /* Centered Flanking Wings */
+  .caption-wing {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .wing-left { text-align: center; }
+  .wing-right { text-align: center; }
+
+  .wing-phrase {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.22rem;
+    opacity: 0;
+    pointer-events: none;
+    animation: wingGroupCycle 60s linear infinite;
+  }
+
+  .wp1 { animation-delay: 0.0s; }   /* 0.0s - 6.5s */
+  .wp2 { animation-delay: 6.5s; }   /* 6.5s - 13.5s */
+  .wp3 { animation-delay: 13.5s; }  /* 13.5s - 20.0s */
+  .wp4 { animation-delay: 20.0s; }  /* 20.0s - 27.0s */
+  .wp5 { animation-delay: 27.0s; }  /* 27.0s - 35.0s */
+  .wp6 { animation-delay: 35.0s; }  /* 35.0s - 43.0s */
+  .wp7 { animation-delay: 43.0s; }  /* 43.0s - 50.0s */
+  .wp8 { animation-delay: 50.0s; }  /* 50.0s - 55.5s */
+  .wp9 { animation-delay: 55.5s; }  /* 55.5s - 60.0s */
+
+  @keyframes wingGroupCycle {
+    0%, 0.5% { opacity: 0; }
+    1.2%, 10.5% { opacity: 1; }
+    11.4%, 100% { opacity: 0; }
+  }
+
+  /* Word-by-Word Sequential Reveal (Starts Invisible) */
+  .w {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+    filter: blur(3px);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.64rem, 3.2vw, 0.86rem);
+    line-height: 1.15;
+    max-width: 108px; /* forces long words to wrap onto a 2nd line instead of being clipped */
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-align: center;
+    animation: wordCascade 60s infinite cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes wordCascade {
+    0%, 0.1% { opacity: 0; transform: translateY(6px) scale(0.9); filter: blur(3px); }
+    0.4% { opacity: 1; transform: translateY(-1px) scale(1.06); filter: blur(0); }
+    0.9%, 10.8% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    11.5%, 100% { opacity: 0; transform: translateY(-6px); filter: blur(3px); }
+  }
+
+  .w-gold {
+    font-family: 'Cinzel', serif !important;
+    color: var(--gold-light) !important;
+    font-weight: 800;
+    text-shadow: 0 0 10px rgba(212,175,55,0.6);
+  }
+  .w-italic { font-family: 'Playfair Display', serif !important; font-style: italic; }
+  .w-bold { font-weight: 900; font-size: clamp(0.68rem, 3.5vw, 0.92rem); }
+
+  /* 136 Exact Word Timing Offsets */
+  .w1 { animation-delay: 0.00s; } .w2 { animation-delay: 0.40s; } .w3 { animation-delay: 0.80s; } .w4 { animation-delay: 1.20s; }
+  .w5 { animation-delay: 1.65s; } .w6 { animation-delay: 2.10s; } .w7 { animation-delay: 2.70s; } .w8 { animation-delay: 3.20s; }
+  .w9 { animation-delay: 3.80s; } .w10 { animation-delay: 4.30s; } .w11 { animation-delay: 4.80s; } .w12 { animation-delay: 5.30s; }
+  .w13 { animation-delay: 5.80s; } .w14 { animation-delay: 6.30s; }
+
+  .w15 { animation-delay: 6.50s; } .w16 { animation-delay: 6.90s; } .w17 { animation-delay: 7.30s; } .w18 { animation-delay: 7.75s; }
+  .w19 { animation-delay: 8.20s; } .w20 { animation-delay: 8.65s; } .w21 { animation-delay: 9.10s; } .w22 { animation-delay: 9.55s; }
+  .w23 { animation-delay: 10.00s; } .w24 { animation-delay: 10.45s; } .w25 { animation-delay: 10.90s; } .w26 { animation-delay: 11.35s; }
+  .w27 { animation-delay: 11.80s; } .w28 { animation-delay: 12.25s; } .w29 { animation-delay: 12.70s; } .w30 { animation-delay: 13.15s; }
+
+  .w31 { animation-delay: 13.50s; } .w32 { animation-delay: 13.90s; } .w33 { animation-delay: 14.30s; } .w34 { animation-delay: 14.70s; }
+  .w35 { animation-delay: 15.15s; } .w36 { animation-delay: 15.60s; } .w37 { animation-delay: 16.05s; } .w38 { animation-delay: 16.50s; }
+  .w39 { animation-delay: 16.95s; } .w40 { animation-delay: 17.40s; } .w41 { animation-delay: 17.85s; } .w42 { animation-delay: 18.30s; }
+  .w43 { animation-delay: 18.75s; } .w44 { animation-delay: 19.20s; } .w45 { animation-delay: 19.65s; }
+
+  .w46 { animation-delay: 20.00s; } .w47 { animation-delay: 20.45s; } .w48 { animation-delay: 20.90s; } .w49 { animation-delay: 21.35s; }
+  .w50 { animation-delay: 21.80s; } .w51 { animation-delay: 22.25s; } .w52 { animation-delay: 22.70s; } .w53 { animation-delay: 23.15s; }
+  .w54 { animation-delay: 23.60s; } .w55 { animation-delay: 24.10s; } .w56 { animation-delay: 24.60s; } .w57 { animation-delay: 25.10s; }
+  .w58 { animation-delay: 25.60s; } .w59 { animation-delay: 26.10s; } .w60 { animation-delay: 26.60s; }
+
+  .w61 { animation-delay: 27.00s; } .w62 { animation-delay: 27.35s; } .w63 { animation-delay: 27.70s; } .w64 { animation-delay: 28.05s; }
+  .w65 { animation-delay: 28.40s; } .w66 { animation-delay: 28.80s; } .w67 { animation-delay: 29.20s; } .w68 { animation-delay: 29.60s; }
+  .w69 { animation-delay: 30.00s; } .w70 { animation-delay: 30.40s; } .w71 { animation-delay: 30.80s; } .w72 { animation-delay: 31.20s; }
+  .w73 { animation-delay: 31.60s; } .w74 { animation-delay: 32.00s; } .w75 { animation-delay: 32.40s; } .w76 { animation-delay: 32.80s; }
+  .w77 { animation-delay: 33.20s; } .w78 { animation-delay: 33.65s; } .w79 { animation-delay: 34.10s; } .w80 { animation-delay: 34.55s; }
+
+  .w81 { animation-delay: 35.00s; } .w82 { animation-delay: 35.45s; } .w83 { animation-delay: 35.90s; } .w84 { animation-delay: 36.35s; }
+  .w85 { animation-delay: 36.80s; } .w86 { animation-delay: 37.30s; } .w87 { animation-delay: 37.80s; } .w88 { animation-delay: 38.30s; }
+  .w89 { animation-delay: 38.80s; } .w90 { animation-delay: 39.30s; } .w91 { animation-delay: 39.80s; } .w92 { animation-delay: 40.30s; }
+  .w93 { animation-delay: 40.80s; } .w94 { animation-delay: 41.30s; } .w95 { animation-delay: 41.80s; } .w96 { animation-delay: 42.40s; }
+
+  .w97 { animation-delay: 43.00s; } .w98 { animation-delay: 43.40s; } .w99 { animation-delay: 43.80s; } .w100 { animation-delay: 44.20s; }
+  .w101 { animation-delay: 44.65s; } .w102 { animation-delay: 45.10s; } .w103 { animation-delay: 45.55s; } .w104 { animation-delay: 46.00s; }
+  .w105 { animation-delay: 46.50s; } .w106 { animation-delay: 47.00s; } .w107 { animation-delay: 47.50s; } .w108 { animation-delay: 48.00s; }
+  .w109 { animation-delay: 48.50s; } .w110 { animation-delay: 49.00s; } .w111 { animation-delay: 49.50s; }
+
+  .w112 { animation-delay: 50.00s; } .w113 { animation-delay: 50.35s; } .w114 { animation-delay: 50.70s; } .w115 { animation-delay: 51.10s; }
+  .w116 { animation-delay: 51.50s; } .w117 { animation-delay: 51.90s; } .w118 { animation-delay: 52.30s; } .w119 { animation-delay: 52.70s; }
+  .w120 { animation-delay: 53.10s; } .w121 { animation-delay: 53.50s; } .w122 { animation-delay: 53.95s; } .w123 { animation-delay: 54.40s; }
+  .w124 { animation-delay: 54.90s; } .w125 { animation-delay: 55.30s; }
+
+  .w126 { animation-delay: 55.50s; } .w127 { animation-delay: 55.95s; } .w128 { animation-delay: 56.40s; } .w129 { animation-delay: 56.85s; }
+  .w130 { animation-delay: 57.30s; } .w131 { animation-delay: 57.75s; } .w132 { animation-delay: 58.20s; } .w133 { animation-delay: 58.70s; }
+  .w134 { animation-delay: 59.15s; } .w135 { animation-delay: 59.55s; } .w136 { animation-delay: 59.85s; }
+
+  /* 1:1 SQUARE PRESENTER OVERLAY BOX */
+  .presenter-square {
+    width: 168px;
+    height: 168px;
+    background: rgba(14, 14, 20, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--gold-foil);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.85), 0 0 25px rgba(212,175,55,0.18);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .regal-corner {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-color: var(--gold-foil);
+    border-style: solid;
+    pointer-events: none;
+  }
+  .rc-tl { top: 5px; left: 5px; border-width: 1.5px 0 0 1.5px; }
+  .rc-tr { top: 5px; right: 5px; border-width: 1.5px 1.5px 0 0; }
+  .rc-bl { bottom: 5px; left: 5px; border-width: 0 0 1.5px 1.5px; }
+  .rc-br { bottom: 5px; right: 5px; border-width: 0 1.5px 1.5px 0; }
+
+  .overlay-reticle {
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(212,175,55,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+    animation: reticlePulse 2s infinite ease-in-out;
+  }
+  @keyframes reticlePulse {
+    0%, 100% { transform: scale(1); border-color: rgba(212,175,55,0.4); }
+    50% { transform: scale(1.12); border-color: var(--gold-light); box-shadow: 0 0 12px rgba(212,175,55,0.5); }
+  }
+  .overlay-reticle::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--gold-foil); }
+  .overlay-tag { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.15em; color: var(--gold-light); font-weight: 700; }
+  .overlay-sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 0.55rem; color: rgba(248, 244, 238, 0.5); }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="damask-bg"></div>
+  <div class="royal-frame"></div>
+
+  <!-- ================= MASTER TOP MOTION GRAPHICS THEATER (65% HEIGHT) ================= -->
+  <div class="theater">
+
+    <!-- 0.0s - 6.5s | ACT 1: DOSSIER MORPH & UV WIREFRAME SCAN -->
+    <div class="act act-1">
+      <div class="act-subheading">Candidate Evaluation Protocol</div>
+      <div class="act-heading gold-foil">HIDDEN INTERVIEW</div>
+      <div class="dossier-morph-card">
+        <div class="uv-laser"></div>
+        <div class="dossier-header"><span>HR_METRICS</span><span>CONFIDENTIAL</span></div>
+        <div class="dossier-row"><span>NEURAL PROFILE</span><span class="dossier-check">MATCH [✓]</span></div>
+        <div class="dossier-row"><span>COGNITIVE MATRIX</span><span class="dossier-check">99.4% [✓]</span></div>
+      </div>
+      <div class="slam-tag">IT ISN'T.</div>
+    </div>
+
+    <!-- 6.5s - 13.5s | ACT 2: ODOMETER + PATTERN SOLVER -->
+    <div class="act act-2">
+      <div class="odometer-row">
+        <div class="odometer-box">
+          <div class="odometer-num"></div>
+          <div style="font-size:0.5rem; font-family:'JetBrains Mono'; color:#aaa;">DECISIONS / SEC</div>
+        </div>
+        <div class="pattern-solver-grid">
+          <div class="solver-reticle"></div>
+          <div class="ps-cell">▲</div>
+          <div class="ps-cell">■</div>
+          <div class="ps-cell">●</div>
+          <div class="ps-cell">✦</div>
+          <div class="ps-cell cell-match">★</div>
+          <div class="ps-cell">▲</div>
+        </div>
+      </div>
+      <div class="act-heading gold-foil" style="font-size:1.15rem;">SPOT THE PATTERN</div>
+    </div>
+
+    <!-- 13.5s - 20.0s | ACT 3: DUAL-BUFFER RAM FORGE & TREE PRUNING -->
+    <div class="act act-3">
+      <div class="act-subheading">Working Memory & Adaptation</div>
+      <div class="buffer-forge-wrap">
+        <div class="ram-buffer">RAM<br>BUFFER</div>
+        <div class="forge-arrow">➔</div>
+        <div class="synthesis-poly"><span>NEW<br>IDEA</span></div>
+      </div>
+      <div class="prune-track">
+        <div class="bad-branch">✖ ABANDON DEAD END</div>
+        <div class="good-branch">✔ OPTIMAL SOLUTION</div>
+      </div>
+    </div>
+
+    <!-- 20.0s - 27.0s | ACT 4: DYNAMIC TRI-GAUGE DASHBOARD -->
+    <div class="act act-4">
+      <div class="act-subheading">Cognitive Architecture</div>
+      <div class="act-heading gold-foil" style="font-size:1.25rem;">THE SCIENCE OF SOLVING</div>
+      <div class="telemetry-stack">
+        <div class="tele-row">
+          <div class="tele-header"><span>Processing Speed</span><span class="tele-val">98%</span></div>
+          <div class="tele-track"><div class="tele-fill tf-speed"></div></div>
+        </div>
+        <div class="tele-row">
+          <div class="tele-header"><span>Working Memory</span><span class="tele-val">95%</span></div>
+          <div class="tele-track"><div class="tele-fill tf-mem"></div></div>
+        </div>
+        <div class="tele-row">
+          <div class="tele-header"><span>Cognitive Flexibility</span><span class="tele-val">99%</span></div>
+          <div class="tele-track"><div class="tele-fill tf-flex"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 27.0s - 35.0s | ACT 5: SOVEREIGN EMPLOYER BENCHMARK -->
+    <div class="act act-5">
+      <div class="act-subheading">The Global Vanguard Benchmark</div>
+      <div class="act-heading gold-foil">WORLD-CLASS EMPLOYERS</div>
+      <div class="employer-ribbon">
+        <div class="employer-stream">
+          <span class="emp-crest">GOOGLE</span>
+          <span class="emp-crest">MICROSOFT</span>
+          <span class="emp-crest">ACCENTURE</span>
+          <span class="emp-crest">DELOITTE</span>
+          <span class="emp-crest">EY</span>
+          <span class="emp-crest">PWC</span>
+          <span class="emp-crest">JP MORGAN CHASE</span>
+          <span class="emp-crest">MCKENZIE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 35.0s - 43.0s | ACT 6: DYNAMIC NETWORK GRAPH REWIRING -->
+    <div class="act act-6">
+      <div class="act-subheading" style="text-decoration:line-through; opacity:0.5;">Rote Memorization</div>
+      <div class="act-heading gold-foil" style="font-size:1.25rem;">HOW YOU THINK</div>
+      <div class="graph-rewire-box">
+        <svg class="g-lines" viewBox="0 0 260 130" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <line class="g-line" x1="31" y1="23" x2="114" y2="60"></line>
+          <line class="g-line" x1="114" y1="60" x2="213" y2="19"></line>
+          <line class="g-line" x1="31" y1="23" x2="62" y2="95"></line>
+          <line class="g-line" x1="62" y1="95" x2="177" y2="101"></line>
+          <line class="g-line" x1="177" y1="101" x2="213" y2="19"></line>
+          <line class="g-line" x1="114" y1="60" x2="177" y2="101"></line>
+        </svg>
+        <div class="g-node gn-1"></div>
+        <div class="g-node gn-2"></div>
+        <div class="g-node gn-3"></div>
+        <div class="g-node gn-4"></div>
+        <div class="g-node gn-5"></div>
+        <div style="position:absolute; bottom:6px; font-size:0.55rem; font-family:'JetBrains Mono'; color:var(--gold-light); font-weight:800; letter-spacing:0.04em;">REWIRE_GRAPH</div>
+      </div>
+    </div>
+
+    <!-- 43.0s - 50.0s | ACT 7: CLOSED-LOOP SYNAPTIC DYNAMO -->
+    <div class="act act-7">
+      <div class="act-subheading">Continuous Dynamo Loop</div>
+      <div class="act-heading gold-foil" style="font-size:1.2rem;">MISTAKES = FEEDBACK</div>
+      <div class="feedback-circuit">
+        <div class="circuit-path"></div>
+        <div class="pulse-spark"></div>
+        <div class="circuit-node">REASON</div>
+        <div class="circuit-node">DECIDE</div>
+        <div class="circuit-node">CREATE</div>
+      </div>
+    </div>
+
+    <!-- 50.0s - 55.5s | ACT 8: PEDIGREE ADVANTAGE GAP -->
+    <div class="act act-8">
+      <div class="act-subheading">When Placements Begin</div>
+      <div class="act-heading gold-foil">THE COGNITIVE EDGE</div>
+      <div class="pedigree-split">
+        <div class="ped-card pc-rote">
+          <div style="font-size:0.65rem;">ROTE MEMORY</div>
+          <div style="font-size:0.5rem; font-style:italic;">Plateau</div>
+        </div>
+        <div class="ped-card pc-intellect">
+          <div style="font-size:0.7rem; color:var(--gold-light); font-weight:800;">THINK BETTER</div>
+          <div style="font-size:0.5rem; color:var(--gold-foil);">Exponential</div>
+        </div>
+      </div>
+      <div class="growth-chart">
+        <svg viewBox="0 0 260 90" xmlns="http://www.w3.org/2000/svg">
+          <line x1="8" y1="80" x2="252" y2="80" stroke="rgba(212,175,55,0.25)" stroke-width="1"></line>
+          <path class="chart-flat" d="M8,66 L252,58"></path>
+          <path class="chart-exp" d="M8,78 C100,74 170,42 252,8"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 55.5s - 60.0s | ACT 9: GRAND SOVEREIGN TROPHY & CROWN -->
+    <div class="act act-9">
+      <div class="royal-crown">♔</div>
+      <div class="act-heading gold-foil" style="font-size:1.55rem; margin-top:0.2rem;">CAREER CATALYST THON</div>
+      <div class="royal-laurel-divider"></div>
+      <div class="act-subheading" style="color:var(--gold-light); font-size:1.05rem; font-weight:700;">STRONGEST BRAINS WIN!</div>
+    </div>
+
+  </div>
+
+  <!-- ================= LOWER THIRD: 1:1 BOX & CENTERED FLANKING CAPTIONS ================= -->
+  <div class="lower-dock">
+
+    <!-- LEFT WING CENTERED VERBATIM STREAM -->
+    <div class="caption-wing wing-left">
+      
+      <!-- 0.0s - 6.5s -->
+      <div class="wing-phrase wp1">
+        <span class="w w1 w-italic">Looks</span>
+        <span class="w w2 w-italic">like</span>
+        <span class="w w3 w-italic">a</span>
+        <span class="w w4 w-italic">game.</span>
+        <span class="w w5">doesn't</span>
+        <span class="w w6">it?</span>
+        <span class="w w7 w-gold w-bold">It</span>
+        <span class="w w8 w-gold w-bold">isn't.</span>
+      </div>
+
+      <!-- 6.5s - 13.5s -->
+      <div class="wing-phrase wp2">
+        <span class="w w15">Every</span>
+        <span class="w w16">second</span>
+        <span class="w w17">your</span>
+        <span class="w w18 w-gold">brain</span>
+        <span class="w w19">is</span>
+        <span class="w w20">making</span>
+        <span class="w w21 w-bold">hundreds</span>
+        <span class="w w22">of</span>
+      </div>
+
+      <!-- 13.5s - 20.0s -->
+      <div class="wing-phrase wp3">
+        <span class="w w31">Can</span>
+        <span class="w w32">you</span>
+        <span class="w w33 w-gold">hold</span>
+        <span class="w w34 w-gold">information</span>
+        <span class="w w35">in</span>
+        <span class="w w36">your</span>
+        <span class="w w37">mind</span>
+        <span class="w w38">while</span>
+      </div>
+
+      <!-- 20.0s - 27.0s -->
+      <div class="wing-phrase wp4">
+        <span class="w w46">That</span>
+        <span class="w w47">is</span>
+        <span class="w w48 w-italic">not</span>
+        <span class="w w49 w-italic">gaming.</span>
+        <span class="w w50">That</span>
+        <span class="w w51">is</span>
+        <span class="w w52 w-gold">processing</span>
+        <span class="w w53 w-gold">speed.</span>
+      </div>
+
+      <!-- 27.0s - 35.0s -->
+      <div class="wing-phrase wp5">
+        <span class="w w61">And</span>
+        <span class="w w62">it</span>
+        <span class="w w63">is</span>
+        <span class="w w64">exactly</span>
+        <span class="w w65">why</span>
+        <span class="w w66">the</span>
+        <span class="w w67 w-gold">World's</span>
+        <span class="w w68 w-gold">leading</span>
+        <span class="w w69 w-gold">employers</span>
+        <span class="w w70">from</span>
+      </div>
+
+      <!-- 35.0s - 43.0s -->
+      <div class="wing-phrase wp6">
+        <span class="w w81">JP</span>
+        <span class="w w82">Morgan</span>
+        <span class="w w83">Chase,</span>
+        <span class="w w84">and</span>
+        <span class="w w85">McKenzie,</span>
+        <span class="w w86">are</span>
+        <span class="w w87">increasingly</span>
+        <span class="w w88">looking</span>
+      </div>
+
+      <!-- 43.0s - 50.0s -->
+      <div class="wing-phrase wp7">
+        <span class="w w97">Every</span>
+        <span class="w w98">clue</span>
+        <span class="w w99 w-gold">rewires</span>
+        <span class="w w100">your</span>
+        <span class="w w101 w-gold">strategy</span>
+        <span class="w w102">Every</span>
+        <span class="w w103">mistake</span>
+        <span class="w w104">becomes</span>
+      </div>
+
+      <!-- 50.0s - 55.5s -->
+      <div class="wing-phrase wp8">
+        <span class="w w112">and</span>
+        <span class="w w113 w-gold">creativity</span>
+        <span class="w w114">so,</span>
+        <span class="w w115">when</span>
+        <span class="w w116">placements</span>
+        <span class="w w117">begin,</span>
+        <span class="w w118">you</span>
+        <span class="w w119">won't</span>
+      </div>
+
+      <!-- 55.5s - 60.0s -->
+      <div class="wing-phrase wp9">
+        <span class="w w126 w-gold w-bold">Career</span>
+        <span class="w w127 w-gold w-bold">Catalyst</span>
+        <span class="w w128 w-gold w-bold">Thon</span>
+        <span class="w w129">because</span>
+        <span class="w w130">the</span>
+      </div>
+
+    </div>
+
+    <!-- CENTER 1:1 SQUARE PRESENTER OVERLAY BOX -->
+    <div class="presenter-square">
+      <div class="regal-corner rc-tl"></div>
+      <div class="regal-corner rc-tr"></div>
+      <div class="regal-corner rc-bl"></div>
+      <div class="regal-corner rc-br"></div>
+
+      <div class="overlay-reticle"></div>
+      <div class="overlay-tag">PRESENTER OVERLAY</div>
+      <div class="overlay-sub">[ 1:1 Video Box ]</div>
+    </div>
+
+    <!-- RIGHT WING CENTERED VERBATIM STREAM -->
+    <div class="caption-wing wing-right">
+      
+      <!-- 0.0s - 6.5s -->
+      <div class="wing-phrase wp1">
+        <span class="w w9">Every</span>
+        <span class="w w10">puzzle</span>
+        <span class="w w11">is</span>
+        <span class="w w12">a</span>
+        <span class="w w13 w-gold">hidden</span>
+        <span class="w w14 w-gold">interview.</span>
+      </div>
+
+      <!-- 6.5s - 13.5s -->
+      <div class="wing-phrase wp2">
+        <span class="w w23">decisions.</span>
+        <span class="w w24">Can</span>
+        <span class="w w25">you</span>
+        <span class="w w26 w-gold">spot</span>
+        <span class="w w27">a</span>
+        <span class="w w28 w-gold">pattern</span>
+        <span class="w w29">before</span>
+        <span class="w w30">everyone else?</span>
+      </div>
+
+      <!-- 13.5s - 20.0s -->
+      <div class="wing-phrase wp3">
+        <span class="w w39">making</span>
+        <span class="w w40">something</span>
+        <span class="w w41">new?</span>
+        <span class="w w42">Can</span>
+        <span class="w w43">you</span>
+        <span class="w w44 w-italic">abandon</span>
+        <span class="w w45">a bad idea...</span>
+      </div>
+
+      <!-- 20.0s - 27.0s -->
+      <div class="wing-phrase wp4">
+        <span class="w w54">That</span>
+        <span class="w w55">is</span>
+        <span class="w w56 w-gold">working</span>
+        <span class="w w57 w-gold">memory.</span>
+        <span class="w w58">That</span>
+        <span class="w w59">is</span>
+        <span class="w w60 w-gold w-bold">cognitive</span>
+        <span class="w w-gold w-bold" style="animation-delay:26.95s;">flexibility.</span>
+      </div>
+
+      <!-- 27.0s - 35.0s -->
+      <div class="wing-phrase wp5">
+        <span class="w w71 w-gold">Google</span>
+        <span class="w w72">and</span>
+        <span class="w w73 w-gold">Microsoft</span>
+        <span class="w w74">to</span>
+        <span class="w w75 w-gold">Accenture,</span>
+        <span class="w w76 w-gold">Deloitte,</span>
+        <span class="w w77 w-gold">EY,</span>
+        <span class="w w78 w-gold">PWC,</span>
+      </div>
+
+      <!-- 35.0s - 43.0s -->
+      <div class="wing-phrase wp6">
+        <span class="w w89 w-italic" style="text-decoration:line-through; opacity:0.4;">beyond</span>
+        <span class="w w-italic" style="text-decoration:line-through; opacity:0.4; animation-delay:39.15s;">memorized</span>
+        <span class="w w90 w-italic" style="text-decoration:line-through; opacity:0.4;">answers</span>
+        <span class="w w91">and</span>
+        <span class="w w92">evaluating</span>
+        <span class="w w93 w-gold w-bold">how</span>
+        <span class="w w94 w-gold w-bold">you</span>
+        <span class="w w95 w-gold w-bold">think.</span>
+      </div>
+
+      <!-- 43.0s - 50.0s -->
+      <div class="wing-phrase wp7">
+        <span class="w w105 w-gold w-bold">feedback.</span>
+        <span class="w w106">Every</span>
+        <span class="w w107">puzzle</span>
+        <span class="w w108">strengthens</span>
+        <span class="w w109">the</span>
+        <span class="w w110 w-gold">mental</span>
+        <span class="w w111 w-gold">muscles...</span>
+      </div>
+
+      <!-- 50.0s - 55.5s -->
+      <div class="wing-phrase wp8">
+        <span class="w w120">just</span>
+        <span class="w w121">know</span>
+        <span class="w w122">more,</span>
+        <span class="w w123">you</span>
+        <span class="w w124">will</span>
+        <span class="w w125 w-gold w-bold">think better</span>
+      </div>
+
+      <!-- 55.5s - 60.0s -->
+      <div class="wing-phrase wp9">
+        <span class="w w131 w-gold w-bold">strongest</span>
+        <span class="w w132 w-gold w-bold">brains</span>
+        <span class="w w133 w-gold w-bold">win!</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
