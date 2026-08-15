@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>Paragraphs with Verve — Para Jumble Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --paper:#efe9da; --card:#fffdf6; --card-line:#ddcda3;
+  --ink:#20262e; --ink-muted:#736b5b;
+  --navy:#1f3a5f; --navy-dark:#132840; --steel:#5c7fa0;
+  --amber:#c68a2e; --red:#a83a2c; --mint:#3f7d5c;
+  --l1:#3f7d5c; --l2:#c68a2e; --l3:#a83a2c;
+  --shadow-sm:0 1px 2px rgba(32,38,46,.08),0 3px 8px rgba(32,38,46,.06);
+  --shadow-md:0 2px 6px rgba(32,38,46,.10),0 12px 28px rgba(32,38,46,.14);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+html,body{min-height:100%;overscroll-behavior-x:none;}
+body{
+  font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink);
+  min-height:100dvh; display:flex; flex-direction:column; align-items:center;
+  background-image:
+    radial-gradient(ellipse 65% 45% at 10% 6%, rgba(31,58,95,.10) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 40% at 94% 90%, rgba(198,138,46,.12) 0%, transparent 60%);
+}
+.screen{display:none;flex-direction:column;align-items:center;width:100%;min-height:100dvh;}
+.screen.active{display:flex;}
+#gameScreen{align-items:stretch;}
+.col{
+  display:flex;flex-direction:column;width:100%;min-height:100%;max-width:540px;margin:0 auto;
+  padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
+  gap:clamp(9px,1.3dvh,13px);
+}
+
+/* ═══ Gate ═══ */
+#nameForm{align-items:center;justify-content:center;padding:24px;gap:0;}
+.gate-card{
+  width:100%;max-width:420px;background:var(--card);border:1.5px solid var(--card-line);
+  border-radius:16px;padding:34px 26px 28px;box-shadow:0 20px 60px rgba(32,38,46,.16);
+  display:flex;flex-direction:column;align-items:stretch;gap:14px;
+  animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;
+  position:relative;
+}
+.gate-card::before{
+  content:'CONFIDENTIAL';position:absolute;top:14px;right:-32px;background:var(--red);color:#fff;
+  font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:700;letter-spacing:.12em;
+  padding:3px 40px;transform:rotate(28deg);box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+.hero-quote{text-align:center;margin-bottom:8px;}
+.hero-text{font-family:'Spectral',serif;font-weight:800;font-size:1.7rem;color:var(--navy);letter-spacing:-.5px;}
+.hero-sub{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);margin-top:5px;}
+.gate-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);margin:6px 0 -2px;}
+.identity-row{display:flex;align-items:center;gap:12px;padding:10px 2px 4px;}
+.identity-avatar{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--card-line);flex:0 0 auto;}
+.identity-info{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.identity-name{font-family:'Spectral',serif;font-weight:700;font-size:1.02rem;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.identity-tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--mint);text-transform:uppercase;letter-spacing:.05em;}
+#gateError{color:var(--red);font-size:.78rem;font-family:'JetBrains Mono',monospace;text-align:center;min-height:1em;}
+.btn-start{
+  margin-top:6px;padding:15px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,var(--navy),var(--steel));color:#fff;
+  font-family:'Inter',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.03em;
+  text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(31,58,95,.28);
+  transition:transform .15s;
+}
+.btn-start:active{transform:scale(.97);}
+.gate-hint{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--ink-muted);letter-spacing:.03em;margin-top:2px;}
+
+/* Top Bar */
+.top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.top-actions{display:flex;gap:6px;}
+.icon-btn{
+  width:38px;height:38px;border-radius:8px;border:1.5px solid var(--card-line);background:var(--card);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-muted);
+  box-shadow:var(--shadow-sm);transition:all .18s var(--ease);
+}
+.icon-btn svg{width:46%;height:46%;}
+.icon-btn:hover{background:#f6ecd6;color:var(--red);}
+.icon-btn:active{transform:scale(.9);}
+.brand{text-align:center;}
+.brand h1{font-family:'Spectral',serif;font-weight:700;font-size:clamp(1.05rem,3.2dvh,1.4rem);letter-spacing:-.3px;color:var(--navy);}
+.brand .sub{font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-top:1px;}
+.timer-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--card-line);border-radius:99px;padding:6px 13px;box-shadow:var(--shadow-sm);}
+.timer-text{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:var(--navy);white-space:nowrap;}
+.timer-pill.low{border-color:rgba(168,58,44,.55);}
+.timer-pill.low .timer-text{color:var(--red);}
+
+/* Stats */
+.counter-strip{display:flex;gap:10px;}
+.counter-box{flex:1;background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:9px 14px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:10px;transition:transform .15s var(--ease);}
+.counter-box.pulse{animation:counterPulse .35s var(--ease);}
+@keyframes counterPulse{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+.counter-box.correct{border-color:rgba(63,125,92,.5);}
+.counter-box.incorrect{border-color:rgba(168,58,44,.5);}
+.counter-icon{font-size:1.3rem;line-height:1;}
+.counter-text{display:flex;flex-direction:column;gap:1px;}
+.counter-label{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);}
+.counter-num{font-family:'Spectral',serif;font-weight:800;font-size:1.4rem;line-height:1;}
+.counter-box.correct .counter-num{color:var(--mint);}
+.counter-box.incorrect .counter-num{color:var(--red);}
+
+/* Brief card */
+.brief-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:11px 15px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;}
+.brief-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.brief-topic{font-family:'Spectral',serif;font-weight:700;font-size:.94rem;color:var(--navy);}
+.brief-badges{display:flex;gap:5px;flex-wrap:wrap;}
+.diff-pill{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:700;letter-spacing:.05em;padding:3px 9px;border-radius:99px;color:#fff;white-space:nowrap;}
+.diff-pill.l1{background:var(--l1);} .diff-pill.l2{background:var(--l2);} .diff-pill.l3{background:var(--l3);}
+.format-pill{font-family:'JetBrains Mono',monospace;font-size:.56rem;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:99px;color:var(--navy);background:#e9eef4;border:1px solid #cdd8e4;white-space:nowrap;}
+
+/* Sequence track */
+.seq-wrap{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:11px 15px 9px;box-shadow:var(--shadow-sm);}
+.seq-label{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px;}
+.seq-track{display:flex;align-items:center;justify-content:center;gap:0;}
+.seq-node{display:flex;align-items:center;}
+.seq-circle{
+  width:24px;height:24px;border-radius:50%;border:2px solid #d8c69a;background:#fffdf6;
+  display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;
+  font-size:.62rem;font-weight:700;color:var(--ink-muted);flex-shrink:0;transition:all .3s var(--ease);position:relative;
+}
+.seq-circle.filled{background:var(--navy);border-color:var(--navy);color:#fff;}
+.seq-circle.current{border-color:var(--amber);color:var(--amber);box-shadow:0 0 0 3px rgba(198,138,46,.18);}
+.seq-circle.current::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--amber);opacity:.6;animation:pulseRing 1.4s ease infinite;}
+@keyframes pulseRing{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.5);opacity:0}}
+.seq-line{width:clamp(8px,4vw,18px);height:2px;background:#d8c69a;flex-shrink:0;}
+.seq-line.filled{background:var(--navy);}
+
+/* Mount */
+.mount{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:14px 15px 12px;box-shadow:var(--shadow-md);position:relative;}
+.mount.error{animation:shake .35s ease;}
+.mount.success{animation:pop .4s var(--ease);}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.015)}100%{transform:scale(1)}}
+.mount-caption{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-muted);margin-bottom:9px;letter-spacing:.03em;}
+.slots{display:flex;flex-direction:column;gap:7px;}
+.sslot{display:flex;align-items:flex-start;gap:9px;border-radius:9px;padding:8px 10px;background:#faf5e6;border:1.5px dashed #e0d3ab;min-height:20px;transition:all .2s var(--ease);}
+.sslot.filled{background:#fffdf6;border-style:solid;border-color:#e2d4b0;animation:slotIn .25s cubic-bezier(.2,1.5,.4,1);}
+.sslot.given{background:#eef3ee;border-color:#c9dccb;}
+@keyframes slotIn{from{transform:translateY(4px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.snum{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;color:var(--steel);flex-shrink:0;width:16px;padding-top:1px;}
+.sslot.filled .snum{color:var(--navy);}
+.stext{font-family:'Spectral',serif;font-size:.9rem;line-height:1.44;color:var(--ink);flex:1;}
+.stext.placeholder{color:#c2b696;font-style:italic;font-size:.82rem;}
+.sletter{font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:700;color:#fff;background:var(--mint);border-radius:5px;padding:1px 6px;flex-shrink:0;margin-top:2px;}
+
+/* Stamp */
+.stamp{
+  position:absolute;top:40%;left:50%;transform:translate(-50%,-50%) rotate(-10deg) scale(2.6);
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.3rem;letter-spacing:.06em;
+  padding:10px 22px;border:4px solid; border-radius:10px; pointer-events:none; opacity:0; z-index:5;
+  text-transform:uppercase;background:rgba(255,253,246,.92);
+}
+.stamp.mastered{color:var(--mint);border-color:var(--mint);}
+.stamp.practiced{color:var(--amber);border-color:var(--amber);}
+.stamp.show{animation:stampSlam .9s cubic-bezier(.2,1.4,.4,1) forwards;}
+@keyframes stampSlam{
+  0%{opacity:0;transform:translate(-50%,-50%) rotate(-10deg) scale(2.6);}
+  35%{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(.92);}
+  45%{transform:translate(-50%,-50%) rotate(-8deg) scale(1.05);}
+  55%{transform:translate(-50%,-50%) rotate(-8deg) scale(1);}
+  80%{opacity:1;}
+  100%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(1);}
+}
+
+/* Tray */
+.tray{display:flex;flex-direction:column;gap:8px;}
+.tile{
+  display:flex;align-items:flex-start;gap:9px;padding:10px 12px;border-radius:9px;
+  background:#fffdf7;border:1.5px solid var(--card-line);cursor:pointer;user-select:none;
+  box-shadow:var(--shadow-sm);transition:transform .15s var(--ease),box-shadow .15s,visibility 0s,opacity .15s;
+  animation:tileSpawn .22s cubic-bezier(.2,1.5,.4,1);
+}
+.tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--steel);}
+.tile:active{transform:scale(.97);}
+.tile.wrong{animation:tileShake .4s ease;border-color:var(--red);}
+.tile.used{visibility:hidden;pointer-events:none;}
+@keyframes tileShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+@keyframes tileSpawn{from{transform:scale(.94) translateY(4px);opacity:0}to{transform:none;opacity:1}}
+.tile .ttext{font-family:'Spectral',serif;font-size:.87rem;line-height:1.42;color:var(--ink);flex:1;}
+
+.toast{
+  position:fixed;bottom:calc(env(safe-area-inset-bottom) + 24px);left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;
+  padding:9px 20px;border-radius:12px;font-size:.83rem;font-weight:500;z-index:200;pointer-events:none;
+  transition:transform .35s var(--ease),opacity .35s;opacity:0;max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.good{background:linear-gradient(135deg,var(--navy),var(--steel));}
+.toast.bad{background:linear-gradient(135deg,var(--red),#c0503f);}
+
+/* End Screen */
+#endScreen{justify-content:flex-start;padding:30px 16px 50px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.end-card{
+  background:var(--card);border:1.5px solid var(--card-line);border-radius:18px;padding:32px 26px;max-width:540px;
+  width:100%;box-shadow:0 20px 60px rgba(32,38,46,.16);animation:cardIn .55s cubic-bezier(.34,1.4,.64,1) forwards;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+.end-title{font-family:'Spectral',serif;font-size:1.9rem;font-weight:800;text-align:center;color:var(--navy);margin-bottom:4px;}
+.end-subtitle{text-align:center;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px;}
+.end-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px;}
+.stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;text-align:center;border:1.5px solid var(--card-line);}
+.stat-num{font-family:'Spectral',serif;font-size:1.6rem;font-weight:700;color:var(--navy);line-height:1;}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+.end-sentences-title{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;}
+.end-specimen-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:10px;padding:10px 12px;margin-bottom:8px;animation:pop-in .35s cubic-bezier(.2,1.5,.4,1) backwards;}
+.end-specimen-card .arc-topic{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--navy);text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+.end-specimen-card .arc-line{font-family:'Spectral',serif;font-size:.82rem;color:var(--ink);line-height:1.6;}
+@keyframes pop-in{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.end-btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.btn-end{
+  flex:1;padding:13px 10px;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:.86rem;font-weight:700;
+  letter-spacing:.03em;cursor:pointer;transition:transform .15s;text-transform:uppercase;min-width:90px;
+}
+.btn-end:hover{transform:scale(1.03);}
+.btn-end-primary{background:linear-gradient(135deg,var(--navy),var(--steel));color:#fff;box-shadow:0 4px 16px rgba(31,58,95,.28);}
+.btn-end-share{background:linear-gradient(135deg,#128c7e,#25d366);color:#fff;}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ═══ Identity Gate ═══ -->
+<div class="screen active" id="nameForm">
+  <div class="gate-card">
+    <div class="hero-quote">
+      <div class="hero-text">Paragraphs <span style="color:var(--amber)">with Verve</span></div>
+      <div class="hero-sub">Para Jumble Trainer · Placement Prep</div>
+    </div>
+    <div class="gate-label">Investigator</div>
+    <div class="identity-row" id="identityRow">
+      <img id="identityAvatar" class="identity-avatar" src="" alt="avatar">
+      <div class="identity-info">
+        <div class="identity-name" id="identityName">—</div>
+        <div class="identity-tag">Signed in with GitHub</div>
+      </div>
+    </div>
+    <div id="gateError"></div>
+    <button class="btn-start" onclick="beginQuiz()">📁 Open Case File</button>
+    <div class="gate-hint">12 paragraphs · 5:00 on the clock · scored automatically</div>
+  </div>
+</div>
+
+<div class="screen" id="gameScreen">
+  <div class="col">
+    <div class="top-bar">
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-end-game" aria-label="Close case">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5v-15Z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-new" aria-label="New round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+        </button>
+      </div>
+      <div class="brand"><h1>Paragraphs</h1><div class="sub">with Verve</div></div>
+      <div class="timer-pill" id="timerPill"><div class="timer-text" id="timerText">05:00</div></div>
+    </div>
+
+    <div class="counter-strip">
+      <div class="counter-box correct" id="correct-box">
+        <span class="counter-icon">✅</span>
+        <span class="counter-text"><span class="counter-label">Correct, 1st try</span><span class="counter-num" id="correct-count">0</span></span>
+      </div>
+      <div class="counter-box incorrect" id="incorrect-box">
+        <span class="counter-icon">❌</span>
+        <span class="counter-text"><span class="counter-label">Incorrect</span><span class="counter-num" id="incorrect-count">0</span></span>
+      </div>
+    </div>
+
+    <div class="brief-card">
+      <div class="brief-top">
+        <span class="brief-topic" id="brief-topic">Case topic</span>
+        <div class="brief-badges">
+          <span class="diff-pill" id="diff-pill">L1</span>
+          <span class="format-pill" id="format-pill">Standard</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="seq-wrap">
+      <div class="seq-label">Case <span id="case-num">1</span>/12 · Sequence Progress</div>
+      <div class="seq-track" id="seq-track"></div>
+    </div>
+
+    <div class="mount" id="mount">
+      <div class="mount-caption" id="mount-caption">tap statements in the order the paragraph should read</div>
+      <div class="slots" id="slots"></div>
+      <div class="stamp" id="stamp">FILED</div>
+    </div>
+
+    <div class="tray" id="tray"></div>
+  </div>
+</div>
+
+<div class="screen" id="endScreen">
+  <div class="end-card">
+    <div class="end-title" id="endTitle">📁 Investigation Closed</div>
+    <div class="end-subtitle" id="endSubtitle">Paragraphs with Verve</div>
+    <div class="end-stats">
+      <div class="stat-box"><div class="stat-num" id="endCorrect" style="color:var(--mint);">0</div><div class="stat-lbl">✅ Correct</div></div>
+      <div class="stat-box"><div class="stat-num" id="endIncorrect" style="color:var(--red);">0</div><div class="stat-lbl">❌ Incorrect</div></div>
+      <div class="stat-box"><div class="stat-num" id="endSentences">0</div><div class="stat-lbl">Cases Closed</div></div>
+    </div>
+    <div class="end-sentences-title">Your Case Files</div>
+    <div id="endSentencesList"></div>
+    <div class="end-btn-row">
+      <button class="btn-end btn-end-primary" id="btnPlayAgain">📁 New Round</button>
+      <button class="btn-end btn-end-share" id="btnShare">📲 Share</button>
+    </div>
+  </div>
+</div>
+
+<script src="../auth-guard.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CASE BANK — 12 original placement-prep paragraphs, 4/5/6
+   sentences, tagged by difficulty (L1/L2/L3). Some have
+   fixedFirst:true, mirroring the real "opening sentence given"
+   exam format.
+   ═══════════════════════════════════════════════════════════════ */
+const CASES = [
+  { id:'C01', topic:'Renewable Energy Adoption', diff:'l1', fixedFirst:false,
+    sentences:[
+      "Solar power has become one of the fastest-growing sources of electricity across the world.",
+      "This is largely because the cost of solar panels has fallen sharply over the past decade.",
+      "As a result, many households now find it affordable to install rooftop solar systems.",
+      "Governments have further encouraged this shift by offering subsidies and tax benefits to new adopters."
+    ] },
+
+  { id:'C02', topic:'Remote Work Policies', diff:'l1', fixedFirst:true,
+    sentences:[
+      "Many companies allowed employees to work from home during the pandemic.",
+      "Over time, several organizations noticed that productivity did not drop as expected.",
+      "Encouraged by this outcome, many firms decided to continue hybrid work policies even afterward.",
+      "Today, flexible work arrangements are considered a standard benefit rather than an exception."
+    ] },
+
+  { id:'C03', topic:'Running Effective Meetings', diff:'l1', fixedFirst:false,
+    sentences:[
+      "Effective meetings begin with a clear agenda shared in advance.",
+      "Without this preparation, discussions tend to drift and waste valuable time.",
+      "A good facilitator keeps the conversation focused on the listed items.",
+      "Meetings that follow this structure usually end with clear action points for everyone."
+    ] },
+
+  { id:'C04', topic:'Prioritising a Daily Task List', diff:'l1', fixedFirst:false,
+    sentences:[
+      "Most professionals struggle to complete every task on their daily list.",
+      "One reason is that they treat all tasks as equally urgent.",
+      "A better approach is to rank tasks by their actual impact before starting the day.",
+      "Following this method, even a busy schedule starts to feel more manageable."
+    ] },
+
+  { id:'C05', topic:'Supply Chain Disruption', diff:'l2', fixedFirst:false,
+    sentences:[
+      "A single factory shutdown can ripple through an entire global supply chain.",
+      "When one supplier fails to deliver on time, manufacturers further down the chain face delays too.",
+      "These delays often force companies to look for alternate suppliers on short notice.",
+      "However, switching suppliers quickly can raise costs and lower quality control.",
+      "For this reason, many businesses now keep backup supplier relationships ready in advance."
+    ] },
+
+  { id:'C06', topic:'AI in Hiring Screens', diff:'l2', fixedFirst:true,
+    sentences:[
+      "Companies increasingly use software to screen job applications before a human ever sees them.",
+      "These tools scan resumes for keywords that match the job description.",
+      "Critics argue that this process can unfairly reject qualified candidates who phrase their skills differently.",
+      "In response, some companies now ask a human recruiter to review borderline cases manually.",
+      "This hybrid approach aims to combine the speed of automation with the judgment of a person."
+    ] },
+
+  { id:'C07', topic:'Phishing & Cybersecurity Training', diff:'l2', fixedFirst:false,
+    sentences:[
+      "Most successful cyberattacks on companies begin with a simple email.",
+      "An employee is tricked into clicking a link that looks like it comes from a trusted source.",
+      "Once clicked, the link can install software that quietly steals company data.",
+      "Because of this risk, many firms now run regular phishing simulations to train staff.",
+      "Employees who recognize the warning signs are far less likely to fall for a real attack."
+    ] },
+
+  { id:'C08', topic:'Financial Literacy for New Graduates', diff:'l2', fixedFirst:false,
+    sentences:[
+      "Many new graduates receive their first salary without any real plan for managing it.",
+      "A common mistake is spending based on take-home pay rather than a written budget.",
+      "Financial advisors recommend setting aside savings before any discretionary spending begins.",
+      "Even a small percentage saved consistently each month can grow significantly over several years.",
+      "Building this habit early makes larger financial goals, like buying a home, far more achievable."
+    ] },
+
+  { id:'C09', topic:'Entrepreneurship and Failure', diff:'l3', fixedFirst:false,
+    sentences:[
+      "Public discussions of entrepreneurship often focus heavily on dramatic success stories.",
+      "This focus can create the false impression that most new ventures succeed quickly.",
+      "In reality, a majority of startups fail within their first few years of operation.",
+      "Yet many experienced founders describe these early failures as essential learning experiences.",
+      "The lessons drawn from a failed venture often shape the strategy of the next one.",
+      "This pattern explains why serial entrepreneurs are frequently more successful on later attempts."
+    ] },
+
+  { id:'C10', topic:'Automation and the Nature of Work', diff:'l3', fixedFirst:true,
+    sentences:[
+      "Automation has historically eliminated certain categories of manual jobs.",
+      "At the same time, it has consistently created new categories of work that did not exist before.",
+      "Economists point to bank tellers as a classic example, since ATMs did not eliminate the role but changed it.",
+      "The concern with today's wave of automation is the speed at which these changes are happening.",
+      "Workers now have far less time to retrain before their existing skills become less relevant.",
+      "This is why many governments are investing heavily in reskilling programs."
+    ] },
+
+  { id:'C11', topic:'Global Data Privacy Regulation', diff:'l3', fixedFirst:false,
+    sentences:[
+      "Governments around the world have introduced stricter data privacy laws in recent years.",
+      "These laws generally require companies to explain clearly how they collect and use personal data.",
+      "For global businesses, complying with different rules in every country can be complex and expensive.",
+      "Some companies have responded by simply applying the strictest available standard everywhere they operate.",
+      "This strategy reduces legal risk, even in regions where the stricter standard is not required.",
+      "Critics note, however, that smaller companies often lack the resources to adopt this approach."
+    ] },
+
+  { id:'C12', topic:'Cross-Functional Team Communication', diff:'l3', fixedFirst:false,
+    sentences:[
+      "Large projects usually require close cooperation between teams with very different areas of expertise.",
+      "Engineers, designers, and marketers often use specialized vocabulary that is unfamiliar to the other groups.",
+      "Miscommunication caused by this vocabulary gap can lead to costly delays later in a project.",
+      "Some organizations now assign a dedicated coordinator to translate updates between teams.",
+      "This role does not replace expertise in any one area but bridges the gaps between them.",
+      "Projects with this kind of coordination tend to catch misunderstandings earlier, when they are still cheap to fix."
+    ] }
+];
+
+const DIFF_LABEL = {l1:'L1', l2:'L2', l3:'L3'};
+
+/* ═══ Supabase logging ═══ */
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+// quest_id = "Case N" (mastered — solved with zero mistakes) or "Cases N" (practiced — needed a retry),
+// where N is the case's fixed position (1-12) in CASES, not shuffle order.
+
+let playerName = '', playerDept = '', githubUsername = '';
+let deck = [];
+let currentCaseIdx = null;
+let currentCase = null;
+let retainedIndices = [];
+let placedCount = 0;
+let currentMistakes = 0;
+let caseStartTime = 0;
+let trayTiles = [];
+let tileIdCounter = 0;
+let tileElements = {};
+
+let completedCount = 0;
+let correctCount = 0;   // ✅ correct placements, first try only, across the whole round
+let incorrectCount = 0; // ❌ every wrong tap, across the whole round
+let completedList = [];
+let caseArchive = [];
+
+let gameActive = true;
+let caseCorrectTaps = 0, caseWrongTaps = 0;
+let failedPositions = new Set(); // slot indices that have had at least one wrong tap this case
+
+/* ═══ Session countdown: 5:00 total, autosubmits on timeout ═══ */
+const SESSION_SECONDS = 300;
+let sessionSecondsLeft = SESSION_SECONDS;
+let timerInterval = null;
+
+function formatMMSS(totalSeconds){
+  const m = Math.floor(totalSeconds/60), s = totalSeconds%60;
+  return (m<10?'0'+m:m)+':'+(s<10?'0'+s:s);
+}
+function updateTimerDisplay(){
+  document.getElementById('timerText').textContent = formatMMSS(Math.max(0, sessionSecondsLeft));
+  document.getElementById('timerPill').classList.toggle('low', sessionSecondsLeft <= 20);
+}
+function startCountdown(){
+  clearInterval(timerInterval);
+  sessionSecondsLeft = SESSION_SECONDS;
+  updateTimerDisplay();
+  timerInterval = setInterval(()=>{
+    if(!gameActive) return;
+    sessionSecondsLeft--;
+    if(sessionSecondsLeft <= 0){
+      sessionSecondsLeft = 0;
+      updateTimerDisplay();
+      clearInterval(timerInterval);
+      endGame();
+      return;
+    }
+    updateTimerDisplay();
+  }, 1000);
+}
+
+/* ═══ Identity (from GitHub auth, via auth-guard.js) ═══ */
+function populateIdentity(){
+  if(!window.GH || !window.GH.loggedIn){
+    // auth-guard.js should already have redirected; this is just a safety net.
+    window.location.href = '../auth.html';
+    return;
+  }
+  playerName = window.GH.name || window.GH.username || "Candidate";
+  playerDept = window.GH.dept || "";
+  githubUsername = window.GH.username || "";
+
+  document.getElementById('identityAvatar').src = window.GH.avatar || "";
+  document.getElementById('identityName').textContent = playerName;
+}
+document.addEventListener("DOMContentLoaded", populateIdentity);
+
+/* ═══ Gate ═══ */
+function beginQuiz(){
+  document.getElementById('nameForm').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame();
+}
+
+function shuffledDeck(){
+  const idx = CASES.map((_,i)=>i);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  return idx;
+}
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+
+function newGame(){
+  clearInterval(timerInterval);
+  deck = shuffledDeck();
+  completedCount=0; correctCount=0; incorrectCount=0;
+  completedList=[]; caseArchive=[]; gameActive=true;
+  updateCounters();
+  loadCase();
+  startCountdown();
+}
+
+function loadCase(){
+  if(!deck.length) return;
+  currentCaseIdx = deck.pop();
+  currentCase = CASES[currentCaseIdx];
+  const n = currentCase.sentences.length;
+  retainedIndices = currentCase.fixedFirst ? [0] : [];
+  placedCount = retainedIndices.length;
+  currentMistakes = 0;
+  caseStartTime = Date.now();
+  caseCorrectTaps = 0; caseWrongTaps = 0;
+  failedPositions = new Set();
+
+  trayTiles = [];
+  currentCase.sentences.forEach((text, idx)=>{
+    if(!retainedIndices.includes(idx)){
+      trayTiles.push({ id: tileIdCounter++, text, targetIdx: idx, used:false });
+    }
+  });
+  shuffleArray(trayTiles);
+
+  renderSlots(); renderTray(); renderBrief(); renderSeqTrack();
+
+  const neededCount = n - retainedIndices.length;
+  document.getElementById('mount-caption').textContent =
+    neededCount > 0
+      ? `tap the ${neededCount} statement${neededCount>1?'s':''} to reconstruct the paragraph`
+      : 'case filed!';
+}
+
+function renderBrief(){
+  document.getElementById('brief-topic').textContent = currentCase.topic;
+  const pill = document.getElementById('diff-pill');
+  pill.textContent = DIFF_LABEL[currentCase.diff];
+  pill.className = 'diff-pill ' + currentCase.diff;
+  document.getElementById('format-pill').textContent = currentCase.fixedFirst ? 'Opening Given' : 'Standard';
+  document.getElementById('case-num').textContent = (caseArchive.length + 1);
+}
+
+function renderSeqTrack(){
+  const n = currentCase.sentences.length;
+  const wrap = document.getElementById('seq-track');
+  wrap.innerHTML = '';
+  for(let i=0;i<n;i++){
+    if(i>0){
+      const line = document.createElement('div');
+      line.className = 'seq-line' + (i <= placedCount-1 ? ' filled' : '');
+      line.id = 'seqline-'+i;
+      wrap.appendChild(line);
+    }
+    const node = document.createElement('div');
+    node.className = 'seq-node';
+    const circ = document.createElement('div');
+    circ.className = 'seq-circle' + (i < placedCount ? ' filled' : (i === placedCount ? ' current' : ''));
+    circ.textContent = i+1;
+    circ.id = 'seqc-'+i;
+    node.appendChild(circ);
+    wrap.appendChild(node);
+  }
+}
+
+function updateSeqTrack(){
+  const n = currentCase.sentences.length;
+  for(let i=0;i<n;i++){
+    const c = document.getElementById('seqc-'+i);
+    if(!c) continue;
+    c.className = 'seq-circle' + (i < placedCount ? ' filled' : (i === placedCount ? ' current' : ''));
+    if(i>0){
+      const l = document.getElementById('seqline-'+i);
+      if(l) l.className = 'seq-line' + (i <= placedCount-1 ? ' filled' : '');
+    }
+  }
+}
+
+function renderSlots(){
+  const wrap = document.getElementById('slots');
+  wrap.innerHTML = '';
+  const n = currentCase.sentences.length;
+  for(let i=0;i<n;i++){
+    const slot = document.createElement('div');
+    const isGiven = retainedIndices.includes(i);
+    slot.className = 'sslot' + (i < placedCount ? ' filled' : '') + (isGiven ? ' given' : '');
+    const numEl = `<span class="snum">${i+1}.</span>`;
+    if(i < placedCount){
+      const text = currentCase.sentences[i];
+      const tag = isGiven ? `<span class="sletter">GIVEN</span>` : '';
+      slot.innerHTML = `${numEl}<span class="stext">${text}</span>${tag}`;
+    } else {
+      slot.innerHTML = `${numEl}<span class="stext placeholder">tap the next statement below…</span>`;
+    }
+    wrap.appendChild(slot);
+  }
+}
+
+function renderTray(){
+  const wrap = document.getElementById('tray');
+  wrap.innerHTML = '';
+  tileElements = {};
+  trayTiles.forEach(t=>{
+    const el = document.createElement('div');
+    el.className = 'tile' + (t.used ? ' used' : '');
+    el.innerHTML = `<span class="ttext">${t.text}</span>`;
+    el.onclick = () => tapTile(t.id, el);
+    tileElements[t.id] = el;
+    wrap.appendChild(el);
+  });
+}
+
+function tapTile(id, el){
+  if(!gameActive) return;
+  const tile = trayTiles.find(t=>t.id===id);
+  if(!tile || tile.used) return;
+
+  while(retainedIndices.includes(placedCount)) placedCount++;
+
+  if(tile.targetIdx === placedCount){
+    tile.used = true;
+    el.classList.add('used');
+    if(!failedPositions.has(placedCount)){
+      correctCount++; caseCorrectTaps++;
+    }
+    placedCount++;
+    while(retainedIndices.includes(placedCount) && placedCount < currentCase.sentences.length) placedCount++;
+
+    renderSlots(); updateSeqTrack(); updateCounters();
+    document.getElementById('mount').classList.remove('error');
+    if(placedCount >= currentCase.sentences.length){
+      completeCase();
+    }
+  } else {
+    incorrectCount++; caseWrongTaps++; currentMistakes++;
+    failedPositions.add(placedCount);
+    el.classList.add('wrong');
+    setTimeout(()=>el.classList.remove('wrong'),400);
+    document.getElementById('mount').classList.add('error');
+    setTimeout(()=>document.getElementById('mount').classList.remove('error'),350);
+    updateCounters();
+    if(navigator.vibrate) navigator.vibrate(15);
+  }
+}
+
+function completeCase(){
+  if(!gameActive) return;
+  const elapsedSec = (Date.now()-caseStartTime)/1000;
+  completedCount++;
+
+  const status = currentMistakes===0 ? 'mastered' : 'practiced';
+
+  completedList.push({ topic: currentCase.topic, mistakes: currentMistakes, diff: DIFF_LABEL[currentCase.diff] });
+  caseArchive.push({ topic: currentCase.topic, diff: DIFF_LABEL[currentCase.diff],
+    sentences: currentCase.sentences.slice(), status });
+
+  document.getElementById('mount').classList.add('success');
+  setTimeout(()=>document.getElementById('mount').classList.remove('success'),650);
+
+  const stamp = document.getElementById('stamp');
+  stamp.textContent = status==='mastered' ? 'CLEARED ✓' : 'FILED ⚠';
+  stamp.className = 'stamp ' + status + ' show';
+  setTimeout(()=>stamp.classList.remove('show'), 950);
+
+  const msg = status==='mastered'
+    ? `✅ ${currentCase.topic} — cleared with no mistakes`
+    : `📁 ${currentCase.topic} — filed with ${currentMistakes} mistake${currentMistakes>1?'s':''}`;
+  showToast(msg, 'good');
+  if(navigator.vibrate) navigator.vibrate(status==='mastered'?[20,40,20]:18);
+
+  submitCaseToSupabase(status, elapsedSec);
+
+  setTimeout(()=>{
+    if(!gameActive) return;
+    if(deck.length){
+      loadCase();
+    } else {
+      showToast('📁 Investigation Complete! 12/12 cases closed', 'good');
+      setTimeout(endGame, 1400);
+    }
+  }, 1400);
+}
+
+function updateCounters(){
+  const cEl = document.getElementById('correct-count');
+  const iEl = document.getElementById('incorrect-count');
+  if(cEl.textContent !== String(correctCount)){
+    cEl.textContent = correctCount;
+    pulseBox('correct-box');
+  }
+  if(iEl.textContent !== String(incorrectCount)){
+    iEl.textContent = incorrectCount;
+    pulseBox('incorrect-box');
+  }
+}
+function pulseBox(id){
+  const box = document.getElementById(id);
+  box.classList.remove('pulse');
+  void box.offsetWidth;
+  box.classList.add('pulse');
+}
+
+let toastTimer;
+function showToast(msg, type=''){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show '+type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+document.getElementById('btn-new').addEventListener('click', ()=>{
+  if(confirm('Start a new round? Current progress will be lost.')) newGame();
+});
+document.getElementById('btn-end-game').addEventListener('click', ()=>{
+  if(confirm('Close this round and see results?')) endGame();
+});
+
+/* ═══ Supabase logging ═══ */
+async function sendViaEdgeFunction(payload){
+  try{
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)
+    });
+    if(!response.ok){ console.error("❌ Edge Function Error:", await response.text()); return; }
+    console.log("✅ Saved to Supabase");
+  }catch(err){ console.error("⚠️ Edge Function Error:", err); }
+}
+function submitCaseToSupabase(status, elapsedSec){
+  const caseNumber = currentCaseIdx + 1;
+  const questId = (status==='practiced' ? "Cases " : "Case ") + caseNumber;
+  const payload = {
+    student_name: playerName, department: playerDept, github_username: githubUsername,
+    correct: caseCorrectTaps, wrong: caseWrongTaps, time_spent: Math.round(elapsedSec),
+    quest_id: questId, score: correctCount - incorrectCount, sentences_pressed: completedCount
+  };
+  sendViaEdgeFunction(payload);
+}
+
+/* ═══ End Game ═══ */
+function endGame(){
+  if(!gameActive){ return; }
+  gameActive = false;
+  clearInterval(timerInterval);
+  setTimeout(showEndScreen, 250);
+}
+function showEndScreen(){
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('endScreen').classList.add('active');
+
+  const tm = [[0,'🏆 Zero-Error Case File'],[5,'📄 Clean Investigation'],[15,'💼 Solid Casework'],[Infinity,'🎓 Keep Practicing']];
+  document.getElementById('endTitle').textContent = (tm.find(([m])=>incorrectCount<=m)||tm[tm.length-1])[1];
+  document.getElementById('endSubtitle').textContent = `${playerName} · ${playerDept} · ${completedCount}/12 cases closed`;
+  document.getElementById('endCorrect').textContent = correctCount;
+  document.getElementById('endIncorrect').textContent = incorrectCount;
+  document.getElementById('endSentences').textContent = completedCount;
+
+  const list = document.getElementById('endSentencesList');
+  list.innerHTML = '';
+  if(!caseArchive.length){
+    list.innerHTML = '<span style="color:var(--ink-muted);font-size:.9rem;">No case files closed this round.</span>';
+  } else {
+    caseArchive.slice().reverse().forEach((c,i)=>{
+      const div = document.createElement('div');
+      div.className = 'end-specimen-card';
+      div.style.animationDelay = (i*0.06)+'s';
+      div.innerHTML = `<div class="arc-topic">${c.topic} · ${c.diff}</div>` +
+        c.sentences.map((s,j)=>`<div class="arc-line">${j+1}. ${s}</div>`).join('');
+      list.appendChild(div);
+    });
+  }
+
+  document.getElementById('btnPlayAgain').onclick = ()=>{
+    document.getElementById('endScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    newGame();
+  };
+  document.getElementById('btnShare').onclick = shareResult;
+}
+function shareResult(){
+  const clean = completedList.filter(s=>s.mistakes===0).map(s=>`"${s.topic}" [${s.diff}]`).join('\n');
+  const msg = `📁 Paragraphs with Verve\n${playerName} (${playerDept})\n✅ ${correctCount} correct · ❌ ${incorrectCount} incorrect · Time left: ${document.getElementById('timerText').textContent} · ${completedCount} cases closed\n${clean?'\nCleared with no mistakes:\n'+clean+'\n':''}\nCrack your own case files!`;
+  if(navigator.share){ navigator.share({title:'Paragraphs with Verve', text: msg}).catch(()=>{}); }
+  else { window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank'); }
+}
+</script>
+</body>
+</html>
