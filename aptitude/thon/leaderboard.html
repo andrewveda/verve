@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Catalyst Thon — Leaderboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg-deep:#10121B;
+    --bg-panel:#181B29;
+    --bg-panel-2:#1F2334;
+    --border:#2C3145;
+    --text-hi:#EDE9E1;
+    --text-lo:#8B90A7;
+    --text-dim:#565C74;
+    --orange:#FF7A3D;
+    --gold:#FFC24B;
+    --sage:#6FCF97;
+    --coral:#FF5C5C;
+    --violet:#B18CFF;
+    --sky:#5FB8E0;
+    --serif:'Fraunces',Georgia,serif;
+    --mono:'JetBrains Mono',monospace;
+    --sans:'Inter',sans-serif;
+    --amber:var(--gold);
+    --teal:var(--sage);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{background:var(--bg-deep);}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(227,179,65,0.07), transparent),
+      radial-gradient(ellipse 900px 500px at 90% 10%, rgba(57,210,192,0.06), transparent),
+      var(--bg-deep);
+    color:var(--text-hi);
+    font-family:var(--sans);
+    min-height:100vh;
+    padding:0 0 80px;
+  }
+  ::selection{background:rgba(227,179,65,0.3);}
+
+  /* ---------- ambient glow ---------- */
+  .scan{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(ellipse 700px 420px at 8% 0%, rgba(255,122,61,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 420px at 95% 8%, rgba(111,207,151,0.08), transparent 60%);
+  }
+
+  /* ---------- header ---------- */
+  header{
+    max-width:1280px; margin:0 auto; padding:52px 32px 28px;
+    position:relative; z-index:1;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:11.5px; color:var(--text-lo);
+    display:flex; align-items:center; gap:10px; margin-bottom:18px; letter-spacing:0.16em; text-transform:uppercase;
+  }
+  .eyebrow .livedot{width:7px; height:7px; border-radius:50%; background:var(--sage); flex-shrink:0; animation:pulse-dot 2s ease-in-out infinite;}
+  @keyframes pulse-dot{0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.45; transform:scale(0.7);}}
+  h1{
+    font-family:var(--serif); font-weight:700; font-size:clamp(34px,5.2vw,58px);
+    letter-spacing:-0.01em; line-height:1.05; color:var(--text-hi);
+  }
+  h1 em{
+    font-style:italic; font-weight:600;
+    background:linear-gradient(100deg,var(--orange),var(--gold));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .subtitle{color:var(--text-lo); font-size:15px; margin-top:12px; max-width:560px; line-height:1.6; font-family:var(--sans);}
+
+  /* ---------- signature: catalyst diagram ---------- */
+  .catalyst-diagram{
+    display:flex; align-items:center; gap:14px; margin:30px 0 6px; max-width:520px;
+    font-family:var(--mono);
+  }
+  .cd-label{font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); white-space:nowrap;}
+  .cd-label.end{color:var(--gold); font-weight:600;}
+  .cd-track{flex:1; position:relative; height:20px;}
+  .cd-line{
+    position:absolute; top:50%; left:0; right:14px; height:1.5px;
+    background:linear-gradient(90deg, var(--border), var(--orange));
+  }
+  .cd-line:after{
+    content:''; position:absolute; right:-1px; top:50%; transform:translateY(-50%);
+    width:0; height:0; border-top:5px solid transparent; border-bottom:5px solid transparent;
+    border-left:7px solid var(--orange);
+  }
+  .cd-dot{
+    position:absolute; left:calc(50% - 5px); top:calc(50% - 15px);
+    width:10px; height:10px; border-radius:50%; background:var(--gold);
+    box-shadow:0 0 0 3px rgba(255,194,75,0.15);
+  }
+  .cd-dot:after{
+    content:'CATALYST'; position:absolute; top:-16px; left:50%; transform:translateX(-50%);
+    font-size:8.5px; letter-spacing:0.12em; color:var(--gold); white-space:nowrap;
+  }
+
+  .ticker{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:1px; background:var(--border); border:1px solid var(--border); border-radius:10px;
+    overflow:hidden; margin-top:32px;
+  }
+  .tick{
+    background:var(--bg-panel); padding:16px 18px;
+  }
+  .tick .label{font-size:10.5px; text-transform:uppercase; letter-spacing:0.09em; color:var(--text-dim); font-weight:600;}
+  .tick .val{font-family:var(--mono); font-size:24px; font-weight:700; margin-top:6px; color:var(--text-hi);}
+  .tick .val.amber{color:var(--amber);}
+  .tick .val.teal{color:var(--teal);}
+  .tick .val.coral{color:var(--coral);}
+
+  /* ---------- config bar ---------- */
+  .config{
+    max-width:1280px; margin:0 auto 8px; padding:0 32px; position:relative; z-index:1;
+  }
+
+  /* ---------- section shell ---------- */
+  section{max-width:1280px; margin:0 auto; padding:36px 32px 0; position:relative; z-index:1;}
+  .sec-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:18px; flex-wrap:wrap;}
+  .sec-head h2{
+    font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:0.14em;
+    color:var(--text-lo); font-weight:700; display:flex; align-items:center; gap:10px;
+  }
+  .sec-head h2:before{content:''; width:16px; height:2px; background:var(--amber); display:inline-block;}
+  .sec-head .hint{font-size:12px; color:var(--text-dim);}
+
+  /* ---------- controls ---------- */
+  .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px;}
+  .search{
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:8px;
+    padding:9px 13px; color:var(--text-hi); font-family:var(--sans); font-size:13.5px; min-width:220px; flex:1;
+  }
+  .search::placeholder{color:var(--text-dim);}
+  .search:focus{outline:none; border-color:var(--teal);}
+  select#deptFilter{
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:8px; color:var(--text-hi);
+    font-family:var(--sans); font-size:13.5px; padding:9px 12px; cursor:pointer;
+  }
+  .toggle{
+    display:flex; align-items:center; gap:8px; background:var(--bg-panel); border:1px solid var(--border);
+    border-radius:8px; padding:8px 14px; cursor:pointer; font-size:13px; color:var(--text-lo); user-select:none;
+    transition:border-color .15s, color .15s;
+  }
+  .toggle:hover{border-color:var(--text-dim);}
+  .toggle.active{color:var(--amber); border-color:rgba(227,179,65,0.5); background:rgba(227,179,65,0.06);}
+  .toggle .arrow{font-family:var(--mono); transition:transform .2s;}
+  .toggle.active .arrow{transform:rotate(180deg);}
+
+  /* ---------- department tabs ---------- */
+  .tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
+  .tab{
+    font-family:var(--mono); font-size:12.5px; padding:9px 15px; border-radius:8px; cursor:pointer;
+    border:1px solid var(--border); color:var(--text-lo); background:var(--bg-panel); transition:all .15s;
+    display:flex; align-items:center; gap:8px;
+  }
+  .tab .dot{width:7px; height:7px; border-radius:50%;}
+  .tab:hover{color:var(--text-hi); border-color:var(--text-dim);}
+  .tab.active{color:#0D1117; font-weight:700;}
+
+  /* ---------- dept summary strip ---------- */
+  .deptstats{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:20px;
+  }
+  .dcard{
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:10px; padding:14px 16px;
+  }
+  .dcard .l{font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); font-weight:600;}
+  .dcard .v{font-family:var(--mono); font-size:20px; font-weight:700; margin-top:5px;}
+
+  /* ---------- table ---------- */
+  .tablewrap{
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:8px;
+  }
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  thead th{
+    text-align:left; padding:12px 14px; font-family:var(--mono); font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--text-lo); background:var(--bg-panel-2); border-bottom:1px solid var(--border);
+    cursor:pointer; white-space:nowrap; user-select:none; transition:color .15s;
+  }
+  thead th:hover{color:var(--amber);}
+  thead th.sorted{color:var(--amber);}
+  thead th .ind{font-size:9px; margin-left:4px; opacity:0.7;}
+  tbody td{padding:11px 14px; border-bottom:1px solid rgba(48,54,61,0.6); font-family:var(--mono); white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr{transition:background .12s;}
+  tbody tr:hover{background:rgba(255,255,255,0.025);}
+  .rank{font-weight:700;}
+  .rank.r1{color:var(--amber);}
+  .rank.r2{color:#C7CCD1;}
+  .rank.r3{color:#D8935B;}
+  .medal{display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:5px; font-size:10px; font-weight:800; margin-right:6px;}
+  .medal.r1{background:rgba(227,179,65,0.18); color:var(--amber);}
+  .medal.r2{background:rgba(199,204,209,0.15); color:#C7CCD1;}
+  .medal.r3{background:rgba(216,147,91,0.18); color:#D8935B;}
+  .student{font-family:var(--sans); font-weight:600; color:var(--text-hi);}
+  .sub{color:var(--text-dim); font-size:11px; font-family:var(--sans);}
+  .pos{color:var(--teal);}
+  .neg{color:var(--coral);}
+  .badge{
+    display:inline-block; padding:2px 8px; border-radius:20px; font-size:10.5px; font-weight:700;
+    background:rgba(188,140,255,0.15); color:var(--violet);
+  }
+  .barcell{display:flex; align-items:center; gap:8px;}
+  .miniBar{width:56px; height:6px; border-radius:4px; background:rgba(255,255,255,0.07); overflow:hidden; flex-shrink:0;}
+  .miniBar i{display:block; height:100%; background:linear-gradient(90deg,var(--teal),var(--amber)); border-radius:4px;}
+
+  /* ---------- insights ---------- */
+  .insights{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-bottom:28px;}
+  .insight{
+    background:var(--bg-panel); border:1px solid var(--border); border-left:3px solid var(--amber);
+    border-radius:8px; padding:16px 18px;
+  }
+  .insight.teal{border-left-color:var(--teal);}
+  .insight.violet{border-left-color:var(--violet);}
+  .insight.coral{border-left-color:var(--coral);}
+  .insight .tag{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); margin-bottom:6px;}
+  .insight p{font-size:13.5px; line-height:1.5; color:var(--text-hi);}
+  .insight strong{color:var(--amber);}
+  .insight.teal strong{color:var(--teal);}
+  .insight.violet strong{color:var(--violet);}
+  .insight.coral strong{color:var(--coral);}
+
+  /* ---------- charts ---------- */
+  .chartgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:16px;}
+  @media (max-width:860px){.chartgrid{grid-template-columns:1fr;}}
+  .chartcard{
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:12px; padding:18px 20px 12px;
+  }
+  .chartcard h3{font-family:var(--mono); font-size:12px; font-weight:600; color:var(--text-lo); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.06em;}
+  .chartcard .wrap{height:260px; position:relative;}
+  .chartcard.full{grid-column:1/-1;}
+
+  footer{
+    max-width:1280px; margin:40px auto 0; padding:20px 32px; text-align:center;
+    font-family:var(--mono); font-size:11px; color:var(--text-dim); position:relative; z-index:1;
+  }
+  #syncedAt{color:var(--teal);}
+
+  .loadstate{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
+    padding:120px 20px; position:relative; z-index:1;
+  }
+  .loadspin{
+    width:38px; height:38px; border-radius:50%;
+    border:3px solid var(--border); border-top-color:var(--amber);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loadtext{font-family:var(--mono); font-size:13px; color:var(--text-lo); letter-spacing:0.02em;}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+
+<header>
+  <div class="eyebrow"><span class="livedot"></span>Department of English · SRM Valliammai Engineering College</div>
+  <h1>Career Catalyst <em>Thon</em></h1>
+  <p class="subtitle">Live standings </p>
+
+  <div class="catalyst-diagram">
+    <span class="cd-label">Effort</span>
+    <span class="cd-track"><span class="cd-line"></span><span class="cd-dot"></span></span>
+    <span class="cd-label end">Achievement</span>
+  </div>
+
+  <div class="ticker" id="ticker"></div>
+</header>
+
+<div id="loadingOverlay" class="loadstate">
+  <div class="loadspin"></div>
+  <div class="loadtext">Loading standings…</div>
+</div>
+
+<div id="errorState" class="loadstate" style="display:none;">
+  <div class="loadtext">Couldn't load the leaderboard right now. Please refresh to try again.</div>
+</div>
+
+<div id="mainContent" style="display:none;">
+
+
+
+<section id="leaderboardSection">
+  <div class="sec-head">
+    <h2>Standings</h2>
+    <span class="hint">Click any column to sort · click again to reverse</span>
+  </div>
+
+  <div class="controls">
+    <input class="search" id="searchBox" placeholder="Search student or department…" />
+    <select id="deptFilter"></select>
+    <div class="toggle" id="reverseToggle"><span class="arrow">↕</span> Reverse sort</div>
+  </div>
+
+  <div class="tabs" id="deptTabs"></div>
+  <div class="deptstats" id="deptStats"></div>
+  <div class="tablewrap"><table id="lbTable"><thead></thead><tbody></tbody></table></div>
+</section>
+
+<section id="analysisSection">
+  <div class="sec-head">
+    <h2>Analysis</h2>
+    <span class="hint">Auto-generated from current data</span>
+  </div>
+  <div class="insights" id="insights"></div>
+
+  <div class="chartgrid">
+    <div class="chartcard"><h3>Average score by department</h3><div class="wrap"><canvas id="chartAvgScore"></canvas></div></div>
+    <div class="chartcard"><h3>Score distribution</h3><div class="wrap"><canvas id="chartDist"></canvas></div></div>
+    <div class="chartcard"><h3>Correct vs. wrong by department</h3><div class="wrap"><canvas id="chartAccuracy"></canvas></div></div>
+    <div class="chartcard"><h3>Fastest solve vs. score</h3><div class="wrap"><canvas id="chartSpeed"></canvas></div></div>
+    <div class="chartcard"><h3>Top 8 · time bonus earned</h3><div class="wrap"><canvas id="chartBonus"></canvas></div></div>
+    <div class="chartcard"><h3>Top 8 · longest streak</h3><div class="wrap"><canvas id="chartStreak"></canvas></div></div>
+    <div class="chartcard full"><h3>Department profile (normalized)</h3><div class="wrap"><canvas id="chartRadar"></canvas></div></div>
+  </div>
+</section>
+
+<footer>Career Catalyst Thon · Department of English, SRM Valliammai Engineering College · last updated <span id="syncedAt">just now</span></footer>
+</div>
+
+<script>
+/* ===================== DEMO DATA ===================== */
+const DEPARTMENTS = ['Web Development','Data Science','AI / ML','Cloud & DevOps','Cybersecurity','Mobile Development'];
+const DEPT_COLORS = {
+  'Web Development':'#5FB8E0','Data Science':'#FFC24B','AI / ML':'#B18CFF',
+  'Cloud & DevOps':'#6FCF97','Cybersecurity':'#FF5C5C','Mobile Development':'#FF7A3D'
+};
+const PALETTE = ['#FF7A3D','#6FCF97','#5FB8E0','#B18CFF','#FFC24B','#FF5C5C','#8FD9C4','#E08FD0'];
+function getDeptColor(name){
+  if(DEPT_COLORS[name]) return DEPT_COLORS[name];
+  let h = 0;
+  for(let i=0;i<name.length;i++){ h = (h*31 + name.charCodeAt(i)) >>> 0; }
+  return PALETTE[h % PALETTE.length];
+}
+const FIRST = ['Ava','Liam','Maya','Noah','Zara','Ethan','Priya','Kabir','Luna','Owen','Isla','Diego','Nina','Theo','Amara','Kai','Sofia','Jonas','Ren','Elle','Marcus','Yara','Felix','Hana','Leo','Chloe','Arjun','Mila','Sam','Ines'];
+const LAST = ['Chen','Okafor','Rossi','Patel','Nguyen','Kim','Alvarez','Novak','Haddad','Larsen','Cole','Fujita','Reyes','Baptiste','Voss','Iyer','Bennett','Adeyemi','Wren','Suzuki'];
+
+function seededRandom(seed){let s=seed; return ()=>{ s = (s*9301+49297)%233280; return s/233280; };}
+const rnd = seededRandom(42);
+function pick(arr){return arr[Math.floor(rnd()*arr.length)];}
+function randInt(min,max){return Math.floor(rnd()*(max-min+1))+min;}
+
+function genData(n=54){
+  const rows=[]; const usedNames = new Set();
+  for(let i=0;i<n;i++){
+    let name;
+    do{ name = pick(FIRST)+' '+pick(LAST); } while(usedNames.has(name));
+    usedNames.add(name);
+    const dept = DEPARTMENTS[i % DEPARTMENTS.length];
+    const attempts = randInt(4,14);
+    const correct = randInt(2, attempts);
+    const wrong = attempts - correct;
+    const fastest = randInt(18,240);
+    const score = Math.round(correct*38 - wrong*9 + randInt(-15,60));
+    const bonus = randInt(0,180);
+    const streak = randInt(0, Math.min(12, correct+2));
+    rows.push({
+      id:i+1, student_name:name, department:dept,
+      correct, wrong, total_attempts: attempts, score: Math.max(score,0),
+      fastest_solve_sec: fastest, total_time_bonus: bonus, longest_streak: streak
+    });
+  }
+  return rows.sort((a,b)=>b.score-a.score);
+}
+
+let DATA = genData();
+let LIVE_MODE = false;
+
+/* ===================== SUPABASE (auto-wired to report_card_today) ===================== */
+const DEFAULT_SUPABASE_URL = "https://yellow-lab-4999.andrewveda.workers.dev";
+const DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE";
+let supabaseClient = null;
+
+async function ensureSupabase(url, key){
+  const mod = await import("https://esm.sh/@supabase/supabase-js@2");
+  return mod.createClient(url, key);
+}
+
+function mapReportRow(r, i){
+  return {
+    id: r.id ?? i+1,
+    student_name: r.student_name || r.name || "Unknown",
+    department: r.department || "Unassigned",
+    correct: r.total_correct ?? r.correct ?? 0,
+    wrong: r.total_wrong ?? r.wrong ?? 0,
+    total_attempts: r.quests_completed ?? r.total_attempts ?? ((r.total_correct||0)+(r.total_wrong||0)),
+    score: r.total_score ?? r.score ?? 0,
+    fastest_solve_sec: r.fastest_solve_sec ?? 0,
+    total_time_bonus: r.total_time_bonus ?? 0,
+    longest_streak: r.best_streak ?? r.longest_streak ?? 0,
+  };
+}
+
+async function connectSupabase(url, key){
+  try{
+    supabaseClient = await ensureSupabase(url, key);
+    const { data, error } = await supabaseClient.from('report_card_today').select('*');
+    if(error) throw new Error(error.message);
+    if(!Array.isArray(data) || data.length===0) throw new Error('No rows yet');
+    DATA = data.map(mapReportRow).sort((a,b)=>b.score-a.score);
+    LIVE_MODE = true;
+    currentDept='ALL'; sortCol='score'; sortDir='desc'; globalReverse=false;
+    document.getElementById('loadingOverlay').style.display='none';
+    document.getElementById('errorState').style.display='none';
+    document.getElementById('mainContent').style.display='block';
+    render();
+  }catch(err){
+    LIVE_MODE = false;
+    document.getElementById('loadingOverlay').style.display='none';
+    document.getElementById('mainContent').style.display='none';
+    document.getElementById('errorState').style.display='flex';
+  }
+}
+
+/* ===================== STATE ===================== */
+let currentDept = 'ALL';
+let sortCol = 'score';
+let sortDir = 'desc'; // asc | desc
+let globalReverse = false;
+let searchTerm = '';
+
+const COLUMNS = [
+  {key:'rank', label:'#', sortable:false},
+  {key:'student_name', label:'Student', sortable:true},
+  {key:'department', label:'Dept', sortable:true},
+  {key:'correct', label:'Correct', sortable:true},
+  {key:'wrong', label:'Wrong', sortable:true},
+  {key:'accuracy', label:'Acc %', sortable:true},
+  {key:'score', label:'Score', sortable:true},
+  {key:'total_attempts', label:'Quests', sortable:true},
+  {key:'fastest_solve_sec', label:'Fastest', sortable:true},
+  {key:'total_time_bonus', label:'Bonus', sortable:true},
+  {key:'longest_streak', label:'Streak', sortable:true},
+];
+
+function accuracy(r){ const t=r.correct+r.wrong; return t? Math.round(r.correct/t*100) : 0; }
+
+/* ===================== RENDER: TICKER ===================== */
+function renderTicker(){
+  const total = DATA.length;
+  const totalQuests = DATA.reduce((s,r)=>s+r.total_attempts,0);
+  const avgScore = Math.round(DATA.reduce((s,r)=>s+r.score,0)/(total||1));
+  const topScore = Math.max(...DATA.map(r=>r.score),0);
+  const avgAcc = Math.round(DATA.reduce((s,r)=>s+accuracy(r),0)/(total||1));
+  const deptCount = new Set(DATA.map(r=>r.department)).size;
+  const el = document.getElementById('ticker');
+  el.innerHTML = `
+    <div class="tick"><div class="label">Students</div><div class="val">${total}</div></div>
+    <div class="tick"><div class="label">Quests logged</div><div class="val teal">${totalQuests}</div></div>
+    <div class="tick"><div class="label">Avg score</div><div class="val amber">${avgScore}</div></div>
+    <div class="tick"><div class="label">Top score</div><div class="val amber">${topScore}</div></div>
+    <div class="tick"><div class="label">Avg accuracy</div><div class="val">${avgAcc}%</div></div>
+    <div class="tick"><div class="label">Departments</div><div class="val">${deptCount}</div></div>
+  `;
+}
+
+/* ===================== RENDER: TABS ===================== */
+function renderTabs(){
+  const el = document.getElementById('deptTabs');
+  const depts = ['ALL', ...Array.from(new Set(DATA.map(r=>r.department)))];
+  el.innerHTML = depts.map(d=>{
+    const color = d==='ALL' ? '#8B90A7' : getDeptColor(d);
+    return `<div class="tab ${d===currentDept?'active':''}" data-dept="${d}" style="${d===currentDept?`background:${color};border-color:${color};`:''}">
+      <span class="dot" style="background:${color}"></span>${d==='ALL'?'All departments':d}
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.tab').forEach(t=>t.addEventListener('click', ()=>{
+    currentDept = t.dataset.dept; render();
+  }));
+
+  const sel = document.getElementById('deptFilter');
+  sel.innerHTML = `<option value="ALL">Filter: all departments</option>` + depts.slice(1).map(d=>`<option value="${d}">${d}</option>`).join('');
+  sel.value = currentDept;
+  sel.onchange = ()=>{ currentDept = sel.value; render(); };
+}
+
+/* ===================== RENDER: DEPT STATS ===================== */
+function renderDeptStats(rows){
+  const el = document.getElementById('deptStats');
+  if(rows.length===0){ el.innerHTML=''; return; }
+  const avgScore = Math.round(rows.reduce((s,r)=>s+r.score,0)/rows.length);
+  const avgAcc = Math.round(rows.reduce((s,r)=>s+accuracy(r),0)/rows.length);
+  const top = rows.reduce((a,b)=>a.score>b.score?a:b);
+  const fastest = rows.reduce((a,b)=>a.fastest_solve_sec<b.fastest_solve_sec?a:b);
+  const totalBonus = rows.reduce((s,r)=>s+r.total_time_bonus,0);
+  el.innerHTML = `
+    <div class="dcard"><div class="l">Participants</div><div class="v">${rows.length}</div></div>
+    <div class="dcard"><div class="l">Avg score</div><div class="v" style="color:var(--amber)">${avgScore}</div></div>
+    <div class="dcard"><div class="l">Avg accuracy</div><div class="v" style="color:var(--teal)">${avgAcc}%</div></div>
+    <div class="dcard"><div class="l">Top scorer</div><div class="v" style="font-size:14px;color:var(--text-hi)">${top.student_name}</div></div>
+    <div class="dcard"><div class="l">Fastest solve</div><div class="v" style="font-size:16px">${fastest.fastest_solve_sec}s</div></div>
+    <div class="dcard"><div class="l">Total bonus earned</div><div class="v" style="color:var(--violet)">${totalBonus}</div></div>
+  `;
+}
+
+/* ===================== RENDER: TABLE ===================== */
+function getFilteredSorted(){
+  let rows = DATA.slice();
+  if(currentDept!=='ALL') rows = rows.filter(r=>r.department===currentDept);
+  if(searchTerm) rows = rows.filter(r=> r.student_name.toLowerCase().includes(searchTerm) || r.department.toLowerCase().includes(searchTerm));
+
+  rows.sort((a,b)=>{
+    let av, bv;
+    if(sortCol==='accuracy'){ av=accuracy(a); bv=accuracy(b); }
+    else { av=a[sortCol]; bv=b[sortCol]; }
+    if(typeof av === 'string'){ av=av.toLowerCase(); bv=bv.toLowerCase(); }
+    let cmp = av>bv?1:av<bv?-1:0;
+    if(sortDir==='desc') cmp=-cmp;
+    if(globalReverse) cmp=-cmp;
+    return cmp;
+  });
+  return rows;
+}
+
+function renderTable(){
+  const rows = getFilteredSorted();
+  renderDeptStats(rows);
+
+  const thead = document.querySelector('#lbTable thead');
+  thead.innerHTML = '<tr>' + COLUMNS.map(c=>{
+    const isSorted = c.key===sortCol;
+    let indicator = '';
+    if(isSorted && c.sortable){
+      const dir = globalReverse ? (sortDir==='desc'?'asc':'desc') : sortDir;
+      indicator = `<span class="ind">${dir==='desc'?'▼':'▲'}</span>`;
+    }
+    return `<th data-key="${c.key}" class="${isSorted?'sorted':''}" ${c.sortable?'':'style="cursor:default"'}>${c.label}${indicator}</th>`;
+  }).join('') + '</tr>';
+
+  thead.querySelectorAll('th[data-key]').forEach(th=>{
+    const col = COLUMNS.find(c=>c.key===th.dataset.key);
+    if(!col.sortable) return;
+    th.addEventListener('click', ()=>{
+      if(sortCol===th.dataset.key){ sortDir = sortDir==='asc'?'desc':'asc'; }
+      else { sortCol = th.dataset.key; sortDir='desc'; }
+      renderTable();
+    });
+  });
+
+  const tbody = document.querySelector('#lbTable tbody');
+  const maxScore = Math.max(...rows.map(r=>r.score),1);
+  tbody.innerHTML = rows.map((r,i)=>{
+    const rank = i+1;
+    const rankClass = rank===1?'r1':rank===2?'r2':rank===3?'r3':'';
+    const medal = rank<=3 ? `<span class="medal ${rankClass}">${rank}</span>` : `<span style="color:var(--text-dim);padding-left:4px;">${rank}</span>`;
+    const acc = accuracy(r);
+    const color = getDeptColor(r.department);
+    return `<tr>
+      <td class="rank ${rankClass}">${medal}</td>
+      <td class="student">${r.student_name}</td>
+      <td><span class="badge" style="background:${color}22;color:${color}">${r.department}</span></td>
+      <td class="pos">${r.correct}</td>
+      <td class="neg">${r.wrong}</td>
+      <td>
+        <div class="barcell">${acc}%
+          <div class="miniBar"><i style="width:${acc}%"></i></div>
+        </div>
+      </td>
+      <td style="color:var(--amber);font-weight:700;">${r.score}</td>
+      <td>${r.total_attempts}</td>
+      <td>${r.fastest_solve_sec}s</td>
+      <td style="color:var(--violet)">${r.total_time_bonus}</td>
+      <td>${r.longest_streak}🔥</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="${COLUMNS.length}" style="text-align:center;color:var(--text-dim);padding:30px;">No results.</td></tr>`;
+}
+
+/* ===================== ANALYSIS ===================== */
+let charts = {};
+function destroyCharts(){ Object.values(charts).forEach(c=>c && c.destroy()); charts={}; }
+
+function byDept(){
+  const map = {};
+  DEPARTMENTS.forEach(d=>map[d]=[]);
+  DATA.forEach(r=>{ if(!map[r.department]) map[r.department]=[]; map[r.department].push(r); });
+  return map;
+}
+
+function renderInsights(){
+  const map = byDept();
+  const deptAvg = Object.entries(map).filter(([,v])=>v.length).map(([d,v])=>({d, avg:v.reduce((s,r)=>s+r.score,0)/v.length, acc:v.reduce((s,r)=>s+accuracy(r),0)/v.length, n:v.length}));
+  const topDept = deptAvg.reduce((a,b)=>a.avg>b.avg?a:b);
+  const bestAcc = deptAvg.reduce((a,b)=>a.acc>b.acc?a:b);
+  const fastest = DATA.reduce((a,b)=>a.fastest_solve_sec<b.fastest_solve_sec?a:b);
+  const streakLeader = DATA.reduce((a,b)=>a.longest_streak>b.longest_streak?a:b);
+  const bonusLeader = DATA.reduce((a,b)=>a.total_time_bonus>b.total_time_bonus?a:b);
+  const scores = DATA.map(r=>r.score);
+  const mean = scores.reduce((a,b)=>a+b,0)/scores.length;
+  const variance = scores.reduce((s,x)=>s+Math.pow(x-mean,2),0)/scores.length;
+  const stdev = Math.round(Math.sqrt(variance));
+  const mostActive = deptAvg.reduce((a,b)=> DATA.filter(r=>r.department===a.d).length >= DATA.filter(r=>r.department===b.d).length ? a : b);
+  const mostActiveCount = DATA.filter(r=>r.department===mostActive.d).length;
+
+  const cards = [
+    {cls:'', tag:'Leading department', html:`<strong>${topDept.d}</strong> leads with an average score of <strong>${Math.round(topDept.avg)}</strong> across ${topDept.n} students.`},
+    {cls:'teal', tag:'Sharpest accuracy', html:`<strong>${bestAcc.d}</strong> posts the highest accuracy at <strong>${Math.round(bestAcc.acc)}%</strong> correct-to-total.`},
+    {cls:'violet', tag:'Speed record', html:`<strong>${fastest.student_name}</strong> logged the fastest solve overall at <strong>${fastest.fastest_solve_sec}s</strong> in ${fastest.department}.`},
+    {cls:'coral', tag:'Longest streak', html:`<strong>${streakLeader.student_name}</strong> is riding a <strong>${streakLeader.longest_streak}-quest</strong> streak, the longest active run.`},
+    {cls:'', tag:'Score spread', html:`Scores cluster around <strong>${Math.round(mean)}</strong> with a standard deviation of <strong>${stdev}</strong> — ${stdev>40?'a wide spread, worth a look at outliers':'a fairly tight, consistent field'}.`},
+    {cls:'teal', tag:'Most active department', html:`<strong>${mostActive.d}</strong> has the most students logged today (<strong>${mostActiveCount}</strong>); top time-bonus earner overall is <strong>${bonusLeader.student_name}</strong> with <strong>${bonusLeader.total_time_bonus}</strong> bonus points.`},
+  ];
+  document.getElementById('insights').innerHTML = cards.map(c=>`
+    <div class="insight ${c.cls}"><div class="tag">${c.tag}</div><p>${c.html}</p></div>
+  `).join('');
+}
+
+function renderCharts(){
+  destroyCharts();
+  const map = byDept();
+  const depts = Object.keys(map).filter(d=>map[d].length);
+  const colors = depts.map(d=>getDeptColor(d));
+  Chart.defaults.color = '#8B949E';
+  Chart.defaults.font.family = "'JetBrains Mono', monospace";
+  Chart.defaults.font.size = 11;
+  const gridColor = 'rgba(255,255,255,0.05)';
+
+  // Avg score by dept
+  charts.avg = new Chart(document.getElementById('chartAvgScore'), {
+    type:'bar',
+    data:{ labels:depts, datasets:[{ data:depts.map(d=>Math.round(map[d].reduce((s,r)=>s+r.score,0)/map[d].length)), backgroundColor:colors, borderRadius:6 }]},
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} }, maintainAspectRatio:false }
+  });
+
+  // Score distribution histogram
+  const buckets = [0,50,100,150,200,250,300,400];
+  const bucketLabels = buckets.slice(0,-1).map((b,i)=>`${b}-${buckets[i+1]}`);
+  const bucketCounts = bucketLabels.map((_,i)=>DATA.filter(r=>r.score>=buckets[i] && r.score<buckets[i+1]).length);
+  charts.dist = new Chart(document.getElementById('chartDist'), {
+    type:'bar',
+    data:{ labels:bucketLabels, datasets:[{ data:bucketCounts, backgroundColor:'#E3B341', borderRadius:6 }]},
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} }, maintainAspectRatio:false }
+  });
+
+  // Accuracy stacked
+  charts.acc = new Chart(document.getElementById('chartAccuracy'), {
+    type:'bar',
+    data:{ labels:depts,
+      datasets:[
+        { label:'Correct', data:depts.map(d=>map[d].reduce((s,r)=>s+r.correct,0)), backgroundColor:'#39D2C0', borderRadius:4 },
+        { label:'Wrong', data:depts.map(d=>map[d].reduce((s,r)=>s+r.wrong,0)), backgroundColor:'#F85149', borderRadius:4 },
+      ]},
+    options:{ plugins:{legend:{labels:{boxWidth:10}}}, scales:{ x:{stacked:true, grid:{display:false}}, y:{stacked:true, grid:{color:gridColor}} }, maintainAspectRatio:false }
+  });
+
+  // Speed vs score scatter
+  charts.speed = new Chart(document.getElementById('chartSpeed'), {
+    type:'scatter',
+    data:{ datasets: depts.map(d=>({
+      label:d, backgroundColor:getDeptColor(d), data: map[d].map(r=>({x:r.fastest_solve_sec, y:r.score}))
+    }))},
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{title:{display:true,text:'Fastest solve (s)'}, grid:{color:gridColor}}, y:{title:{display:true,text:'Score'}, grid:{color:gridColor}} }, maintainAspectRatio:false }
+  });
+
+  // Top 8 bonus
+  const topBonus = DATA.slice().sort((a,b)=>b.total_time_bonus-a.total_time_bonus).slice(0,8);
+  charts.bonus = new Chart(document.getElementById('chartBonus'), {
+    type:'bar',
+    data:{ labels:topBonus.map(r=>r.student_name), datasets:[{ data:topBonus.map(r=>r.total_time_bonus), backgroundColor:'#BC8CFF', borderRadius:6 }]},
+    options:{ indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{grid:{color:gridColor}}, y:{grid:{display:false}} }, maintainAspectRatio:false }
+  });
+
+  // Top 8 streak
+  const topStreak = DATA.slice().sort((a,b)=>b.longest_streak-a.longest_streak).slice(0,8);
+  charts.streak = new Chart(document.getElementById('chartStreak'), {
+    type:'bar',
+    data:{ labels:topStreak.map(r=>r.student_name), datasets:[{ data:topStreak.map(r=>r.longest_streak), backgroundColor:'#58C4DC', borderRadius:6 }]},
+    options:{ indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{grid:{color:gridColor}}, y:{grid:{display:false}} }, maintainAspectRatio:false }
+  });
+
+  // Radar: normalized department profile
+  const metrics = ['avg score','avg accuracy','avg bonus','avg streak','avg quests'];
+  function norm(vals){ const max=Math.max(...vals,1); return vals.map(v=>Math.round(v/max*100)); }
+  const avgScoreArr = depts.map(d=>map[d].reduce((s,r)=>s+r.score,0)/map[d].length);
+  const avgAccArr = depts.map(d=>map[d].reduce((s,r)=>s+accuracy(r),0)/map[d].length);
+  const avgBonusArr = depts.map(d=>map[d].reduce((s,r)=>s+r.total_time_bonus,0)/map[d].length);
+  const avgStreakArr = depts.map(d=>map[d].reduce((s,r)=>s+r.longest_streak,0)/map[d].length);
+  const avgQuestsArr = depts.map(d=>map[d].reduce((s,r)=>s+r.total_attempts,0)/map[d].length);
+  const normScore=norm(avgScoreArr), normAcc=norm(avgAccArr), normBonus=norm(avgBonusArr), normStreak=norm(avgStreakArr), normQuests=norm(avgQuestsArr);
+
+  charts.radar = new Chart(document.getElementById('chartRadar'), {
+    type:'radar',
+    data:{ labels:metrics,
+      datasets: depts.map((d,i)=>({
+        label:d, data:[normScore[i],normAcc[i],normBonus[i],normStreak[i],normQuests[i]],
+        borderColor:getDeptColor(d), backgroundColor:getDeptColor(d)+'22', pointBackgroundColor:getDeptColor(d), borderWidth:2
+      }))},
+    options:{ plugins:{legend:{position:'bottom', labels:{boxWidth:10}}}, scales:{ r:{ grid:{color:gridColor}, angleLines:{color:gridColor}, ticks:{display:false}, pointLabels:{color:'#8B949E'} } }, maintainAspectRatio:false }
+  });
+}
+
+/* ===================== MASTER RENDER ===================== */
+function render(){
+  renderTicker();
+  renderTabs();
+  renderTable();
+  renderInsights();
+  renderCharts();
+  document.getElementById('syncedAt').textContent = new Date().toLocaleTimeString();
+}
+
+/* ===================== EVENTS ===================== */
+document.getElementById('searchBox').addEventListener('input', e=>{
+  searchTerm = e.target.value.toLowerCase(); renderTable();
+});
+document.getElementById('reverseToggle').addEventListener('click', function(){
+  globalReverse = !globalReverse;
+  this.classList.toggle('active', globalReverse);
+  renderTable();
+});
+
+/* ===================== BOOT ===================== */
+connectSupabase(DEFAULT_SUPABASE_URL, DEFAULT_SUPABASE_KEY);
+</script>
+</body>
+</html>
