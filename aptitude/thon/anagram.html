@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Catalyst Thon | Access Portal</title>
+  
+  <!-- Premium Google Fonts: Cormorant Garamond (Headings) & Montserrat (Body/Accents) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-cream: #FAF7F2;
+      --card-bg: rgba(255, 255, 255, 0.72);
+      --card-border: rgba(197, 168, 128, 0.35);
+      --card-border-hover: #B89758;
+      --text-main: #2A2421;
+      --text-muted: #736B66;
+      --gold-accent: #9E7D3B;
+      --gold-light: #C5A880;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      font-family: 'Montserrat', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow-x: hidden;
+      padding: 2.5rem 1.25rem 2rem;
+    }
+
+    /* Subtle Faint Geometric Pattern Background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: 
+        radial-gradient(var(--gold-light) 0.75px, transparent 0.75px),
+        linear-gradient(45deg, transparent 48%, rgba(197, 168, 128, 0.08) 50%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(197, 168, 128, 0.08) 50%, transparent 52%);
+      background-size: 32px 32px, 64px 64px, 64px 64px;
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header Styling */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .institution {
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+
+    .department {
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold-accent);
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+    }
+
+    .divider {
+      width: 44px;
+      height: 1px;
+      background-color: var(--gold-accent);
+      margin: 0 auto 1.2rem;
+      opacity: 0.6;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.1rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      color: var(--text-main);
+      margin-bottom: 0.35rem;
+    }
+
+    .sub-round {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--gold-accent);
+      letter-spacing: 0.08em;
+    }
+
+    /* Portal Views Container */
+    .view-container {
+      position: relative;
+      transition: opacity 0.3s ease;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Authentication Gate Card */
+    .auth-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 8px 24px rgba(42, 36, 33, 0.04);
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .puzzle-prompt {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.45;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      color: var(--text-main);
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .auth-input:focus {
+      border-color: var(--gold-accent);
+      box-shadow: 0 0 0 3px rgba(158, 125, 59, 0.12);
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 0.9rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--text-main);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .auth-btn:active {
+      transform: scale(0.98);
+      background: var(--gold-accent);
+    }
+
+    .error-msg {
+      font-size: 0.78rem;
+      color: #B23B3B;
+      margin-top: 0.6rem;
+      min-height: 1.2rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* Explanation Overlay / Card */
+    .explanation-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 8px 24px rgba(42, 36, 33, 0.04);
+      margin-bottom: 2.5rem;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .explanation-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--gold-accent);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .explanation-content {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .explanation-content p span.highlight {
+      color: var(--gold-accent);
+      font-weight: 600;
+    }
+
+    .tap-hint {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* Single Link Directory */
+    .link-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .link-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.05rem 1.35rem;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      text-decoration: none;
+      color: var(--text-main);
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 18px rgba(42, 36, 33, 0.025);
+    }
+
+    .link-card:active {
+      transform: scale(0.985);
+      background: #FFFFFF;
+      border-color: var(--card-border-hover);
+    }
+
+    .link-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .link-index {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem;
+      color: var(--gold-accent);
+      font-style: italic;
+      min-width: 18px;
+    }
+
+    .link-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .arrow-icon {
+      width: 14px;
+      height: 14px;
+      stroke: var(--gold-accent);
+      stroke-width: 1.5;
+      fill: none;
+      transition: transform 0.2s ease;
+    }
+
+    .link-card:hover .arrow-icon,
+    .link-card:active .arrow-icon {
+      transform: translateX(3px);
+    }
+
+    /* Footer Styling */
+    footer {
+      text-align: center;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(197, 168, 128, 0.2);
+    }
+
+    .footer-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.15rem;
+      letter-spacing: 0.08em;
+      color: var(--gold-accent);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="institution">SRM Valliammai Engineering College</div>
+      <div class="department">Department of English</div>
+      <div class="divider"></div>
+      <h1>Career Catalyst Thon</h1>
+      <div class="sub-round">Aptitude Round</div>
+    </header>
+
+    <div class="view-container">
+      <!-- Password Gate View -->
+      <div id="auth-view" class="auth-card">
+        <p class="puzzle-prompt">Mr Keshanth Sathya heard her report eradiating (5,6)</p>
+        <div class="input-group">
+          <input type="text" id="password-input" class="auth-input" placeholder="Enter the 11-letter password..." autocomplete="off" spellcheck="false">
+          <button type="button" id="unlock-btn" class="auth-btn">Unlock Portal</button>
+        </div>
+        <div id="error-message" class="error-msg"></div>
+      </div>
+
+      <!-- Explanation View (Shown immediately after correct password) -->
+      <div id="explanation-view" class="explanation-card hidden">
+        <h3 class="explanation-title">Solution Breakdown</h3>
+        <div class="explanation-content">
+          <p><strong>Definition:</strong> Literary character / Boy Wizard $\rightarrow$ <span class="highlight">Harry Potter</span>.</p>
+          <p><strong>Wordplay Indicator:</strong> <span class="highlight">heard</span> points towards a homophone (auditory) clue.</p>
+          <p><strong>Sound-Alike Breakdown:</strong> The phrase <span class="highlight">"her report er"</span> combined with <span class="highlight">"adiating"</span> is spoken aloud to sound identical to <span class="highlight">"Harry Potter"</span>.</p>
+          <p>The introduction of Mr Keshanth Sathya ties the thematic context of the puzzle directly into the clue.</p>
+        </div>
+        <div class="tap-hint">Tap anywhere to proceed to the portal</div>
+      </div>
+
+      <!-- Protected Directory View (Shown after explanation is dismissed) -->
+      <main id="directory-view" class="link-list hidden">
+        <a href="https://andrewveda.com/verve/aptitude/anagram3" class="link-card" target="_blank" rel="noopener noreferrer">
+          <div class="link-info">
+            <span class="link-index">I.</span>
+            <span class="link-title">Anagram 3</span>
+          </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </main>
+    </div>
+
+    <footer>
+      <p class="footer-quote">"Live long and Prosper!"</p>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const authView = document.getElementById('auth-view');
+      const explanationView = document.getElementById('explanation-view');
+      const directoryView = document.getElementById('directory-view');
+      const passwordInput = document.getElementById('password-input');
+      const unlockBtn = document.getElementById('unlock-btn');
+      const errorMessage = document.getElementById('error-message');
+
+      function handleUnlock() {
+        const userInput = passwordInput.value.trim().toLowerCase();
+        const normalizedInput = userInput.replace(/\s+/g, '');
+        
+        if (normalizedInput === 'harrypotter') {
+          errorMessage.textContent = '';
+          authView.classList.add('hidden');
+          explanationView.classList.remove('hidden');
+        } else {
+          errorMessage.textContent = 'Incorrect password. Listen closer to the sound-alike!';
+          passwordInput.style.borderColor = '#B23B3B';
+          setTimeout(() => {
+            passwordInput.style.borderColor = '';
+          }, 1200);
+        }
+      }
+
+      unlockBtn.addEventListener('click', handleUnlock);
+      passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          handleUnlock();
+        }
+      });
+
+      // Tap to dismiss explanation and show the directory link
+      explanationView.addEventListener('click', () => {
+        explanationView.classList.add('hidden');
+        directoryView.classList.remove('hidden');
+      });
+    });
+  </script>
+</body>
+</html>
