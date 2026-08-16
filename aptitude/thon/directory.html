@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Career Catalyst Thon | Aptitude Round</title>
+  <title>Career Catalyst Thon | Access Portal</title>
   
   <!-- Premium Google Fonts: Cormorant Garamond (Headings) & Montserrat (Body/Accents) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -115,6 +115,93 @@
       letter-spacing: 0.08em;
     }
 
+    /* Portal Views Container */
+    .view-container {
+      position: relative;
+      transition: opacity 0.3s ease;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Authentication Gate Card */
+    .auth-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 8px 24px rgba(42, 36, 33, 0.04);
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .puzzle-prompt {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      background: #FFFFFF;
+      border: 1px solid var(--card-border);
+      border-radius: 4px;
+      color: var(--text-main);
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .auth-input:focus {
+      border-color: var(--gold-accent);
+      box-shadow: 0 0 0 3px rgba(158, 125, 59, 0.12);
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 0.9rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--text-main);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .auth-btn:active {
+      transform: scale(0.98);
+      background: var(--gold-accent);
+    }
+
+    .error-msg {
+      font-size: 0.78rem;
+      color: #B23B3B;
+      margin-top: 0.6rem;
+      min-height: 1.2rem;
+      letter-spacing: 0.02em;
+    }
+
     /* Links Directory Grid */
     .link-list {
       display: flex;
@@ -207,68 +294,115 @@
       <div class="sub-round">Aptitude Round</div>
     </header>
 
-    <main class="link-list">
-      <a href="https://andrewveda.com/verve/aptitude/thon/blossom" class="link-card" target="_blank" rel="noopener noreferrer">
-        <div class="link-info">
-          <span class="link-index">I.</span>
-          <span class="link-title">Blossom</span>
+    <div class="view-container">
+      <!-- Password Gate View -->
+      <div id="auth-view" class="auth-card">
+        <p class="puzzle-prompt">"Sharp eyes. Sharp memory. Miss Sunanda has shown the way!"</p>
+        <div class="input-group">
+          <input type="text" id="password-input" class="auth-input" placeholder="Enter the password..." autocomplete="off" spellcheck="false">
+          <button type="button" id="unlock-btn" class="auth-btn">Unlock Directory</button>
         </div>
-        <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
+        <div id="error-message" class="error-msg"></div>
+      </div>
 
-      <a href="https://andrewveda.com/verve/aptitude/thon/wordleblitz" class="link-card" target="_blank" rel="noopener noreferrer">
-        <div class="link-info">
-          <span class="link-index">II.</span>
-          <span class="link-title">Wordle Blitz</span>
-        </div>
-        <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
+      <!-- Protected Directory View -->
+      <main id="directory-view" class="link-list hidden">
+        <a href="https://andrewveda.com/verve/aptitude/thon/blossom" class="link-card" target="_blank" rel="noopener noreferrer">
+          <div class="link-info">
+            <span class="link-index">I.</span>
+            <span class="link-title">Blossom</span>
+          </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
 
-      <a href="https://andrewveda.com/verve/aptitude/thon/wordrush" class="link-card" target="_blank" rel="noopener noreferrer">
-        <div class="link-info">
-          <span class="link-index">III.</span>
-          <span class="link-title">WordRush</span>
-        </div>
-        <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
+        <a href="https://andrewveda.com/verve/aptitude/thon/wordleblitz" class="link-card" target="_blank" rel="noopener noreferrer">
+          <div class="link-info">
+            <span class="link-index">II.</span>
+            <span class="link-title">Wordle Blitz</span>
+          </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
 
-      <a href="https://andrewveda.com/verve/aptitude/thon/sentencesnap" class="link-card" target="_blank" rel="noopener noreferrer">
-        <div class="link-info">
-          <span class="link-index">IV.</span>
-          <span class="link-title">Sentence Snap</span>
-        </div>
-        <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
+        <a href="https://andrewveda.com/verve/aptitude/thon/wordrush" class="link-card" target="_blank" rel="noopener noreferrer">
+          <div class="link-info">
+            <span class="link-index">III.</span>
+            <span class="link-title">WordRush</span>
+          </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
 
-      <a href="https://andrewveda.com/verve/aptitude/thon/jigsaw" class="link-card" target="_blank" rel="noopener noreferrer">
-        <div class="link-info">
-          <span class="link-index">V.</span>
-          <span class="link-title">Jigsaw</span>
-        </div>
-        <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
+        <a href="https://andrewveda.com/verve/aptitude/thon/sentencesnap" class="link-card" target="_blank" rel="noopener noreferrer">
+          <div class="link-info">
+            <span class="link-index">IV.</span>
+            <span class="link-title">Sentence Snap</span>
+          </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
 
-      <a href="https://andrewveda.com/verve/aptitude/thon/anagram" class="link-card" target="_blank" rel="noopener noreferrer">
-        <div class="link-info">
-          <span class="link-index">VI.</span>
-          <span class="link-title">Anagram</span>
-        </div>
-        <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
+        <a href="https://andrewveda.com/verve/aptitude/thon/jigsaw" class="link-card" target="_blank" rel="noopener noreferrer">
+          <div class="link-info">
+            <span class="link-index">V.</span>
+            <span class="link-title">Jigsaw</span>
+          </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
 
-      <a href="https://andrewveda.com/verve/aptitude/thon/mcq" class="link-card" target="_blank" rel="noopener noreferrer">
-        <div class="link-info">
-          <span class="link-index">VII.</span>
-          <span class="link-title">MCQ</span>
-        </div>
-        <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-    </main>
+        <a href="https://andrewveda.com/verve/aptitude/thon/anagram" class="link-card" target="_blank" rel="noopener noreferrer">
+          <div class="link-info">
+            <span class="link-index">VI.</span>
+            <span class="link-title">Anagram</span>
+          </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+
+        <a href="https://andrewveda.com/verve/aptitude/thon/mcq" class="link-card" target="_blank" rel="noopener noreferrer">
+          <div class="link-info">
+            <span class="link-index">VII.</span>
+            <span class="link-title">MCQ</span>
+          </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </main>
+    </div>
 
     <footer>
       <p class="footer-quote">"Live long and Prosper!"</p>
     </footer>
   </div>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const authView = document.getElementById('auth-view');
+      const directoryView = document.getElementById('directory-view');
+      const passwordInput = document.getElementById('password-input');
+      const unlockBtn = document.getElementById('unlock-btn');
+      const errorMessage = document.getElementById('error-message');
+
+      function handleUnlock() {
+        const userInput = passwordInput.value.trim().toLowerCase();
+        // Target answer: "sherlock holmes" (case-insensitive & extra space resilient)
+        const normalizedInput = userInput.replace(/\s+/g, ' ');
+        
+        if (normalizedInput === 'sherlock holmes') {
+          errorMessage.textContent = '';
+          authView.classList.add('hidden');
+          directoryView.classList.remove('hidden');
+        } else {
+          errorMessage.textContent = 'Incorrect answer. Observe more closely!';
+          passwordInput.style.borderColor = '#B23B3B';
+          setTimeout(() => {
+            passwordInput.style.borderColor = '';
+          }, 1200);
+        }
+      }
+
+      unlockBtn.addEventListener('click', handleUnlock);
+      passwordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          handleUnlock();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
