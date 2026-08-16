@@ -136,6 +136,11 @@
         .toast.cheat { background: var(--cheat); }
         .swipe-hint { text-align: center; color: var(--text-light); font-size: 0.75rem; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
         @media (min-width: 640px) { .welcome-card, .results-card { padding: 36px; } .question-card { padding: 28px; } }
+ .password-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.password-modal.show { display: flex; }
+.password-box { background: var(--card); padding: 24px; border-radius: 20px; width: 90%; max-width: 360px; text-align: center; box-shadow: var(--shadow-lg); }
+.password-box h3 { margin-bottom: 10px; font-size: 1.1rem; }
+.password-box input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--border); margin-bottom: 14px; font-size: 1rem; text-align: center; }
     </style>
 <base target="_blank">
 </head>
@@ -352,17 +357,30 @@ function resumeTest() {
 }
 
 function startTest() {
-    document.getElementById('welcomeScreen').style.display = 'none';
-    document.getElementById('testScreen').style.display = 'block';
-    document.getElementById('totalQ').textContent = questions.length;
-    startTime = Date.now();
-    renderQuestion();
-    startTimer();
-    renderPalette();
-    setupSwipe();
-    initAntiCheat();
+    // Show password modal instead of starting immediately
+    document.getElementById('passwordModal').classList.add('show');
 }
 
+function verifyTestPassword() {
+    const inputPass = document.getElementById('testPasswordInput').value;
+    const SECRET_PASSCODE = "VEC2026"; // Change this to whatever password you want
+
+    if (inputPass === SECRET_PASSCODE) {
+        document.getElementById('passwordModal').classList.remove('show');
+        document.getElementById('welcomeScreen').style.display = 'none';
+        document.getElementById('testScreen').style.display = 'block';
+        document.getElementById('totalQ').textContent = questions.length;
+        startTime = Date.now();
+        renderQuestion();
+        startTimer();
+        renderPalette();
+        setupSwipe();
+        initAntiCheat();
+    } else {
+        alert('Incorrect password. Please try again.');
+        document.getElementById('testPasswordInput').value = '';
+    }
+}
 function startTimer() {
     timerInterval = setInterval(() => {
         if (isPaused) return;
@@ -519,5 +537,13 @@ function showToast(msg, isCheat) {
 }
 </script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"14ed74a8395a4caaabc04f8e17f83022","r":1}' crossorigin="anonymous"></script>
+<div class="password-modal" id="passwordModal">
+    <div class="password-box">
+        <h3>Enter Test Password</h3>
+        <p style="font-size:0.8rem; color:var(--text-light); margin-bottom:12px;">Get the passcode from your instructor to begin.</p>
+        <input type="password" id="testPasswordInput" placeholder="Enter passcode">
+        <button class="btn btn-primary" onclick="verifyTestPassword()">Unlock Test</button>
+    </div>
+</div>
 </body>
 </html>
