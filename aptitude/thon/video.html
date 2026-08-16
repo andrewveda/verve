@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Career Catalyst Thon – 60-Second Campus Placement Aptitude</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            --bg-cream: #F8F5F0;
+            --text-main: #1C1917;
+            --accent-gold: #C5A059;
+            --accent-bronze: #A3704C;
+            --card-border: rgba(197, 160, 89, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-cream);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            position: fixed;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ANIMATED MESH BACKGROUND - Always Moving */
+        .bg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .mesh-gradient {
+            position: absolute;
+            width: 300%;
+            height: 300%;
+            top: -100%;
+            left: -100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(197, 160, 89, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(163, 112, 76, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(197, 160, 89, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 30% 70%, rgba(163, 112, 76, 0.1) 0%, transparent 45%);
+            animation: rotateMesh 20s linear infinite;
+        }
+
+        @keyframes rotateMesh {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        /* FLOATING PARTICLES */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* TINY CIRCULAR VIDEO ORB */
+        #videoOrb {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            z-index: 100;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(28, 25, 23, 0.2);
+            border: 2px solid var(--accent-gold);
+            background: #1C1917;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: orbPulse 3s ease-in-out infinite;
+        }
+
+        #videoOrb video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        #videoOrb .orb-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Cinzel', serif;
+            font-size: 7px;
+            letter-spacing: 1px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            font-weight: 700;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        @keyframes orbPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(197, 160, 89, 0.3); transform: scale(1); }
+            50% { box-shadow: 0 4px 30px rgba(197, 160, 89, 0.5); transform: scale(1.05); }
+        }
+
+        /* FULL SCREEN STAGE */
+        .main-stage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            pointer-events: none;
+        }
+
+        /* KINETIC BADGE - Always floating */
+        .posh-badge {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(10px, 2.5vw, 13px);
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: var(--accent-bronze);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            border: 1.5px solid var(--accent-gold);
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            animation: badgeFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes badgeFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* MAIN CONTENT GRID - FILLS SCREEN */
+        .content-grid {
+            width: 100%;
+            max-width: 900px;
+            height: 75vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 12px;
+            position: relative;
+        }
+
+        /* KINETIC TITLE */
+        .kinetic-title {
+            grid-column: 1 / -1;
+            font-family: 'Cinzel', serif;
+            font-size: clamp(14px, 3vw, 22px);
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(197, 160, 89, 0.1); }
+            50% { box-shadow: 0 0 40px rgba(197, 160, 89, 0.25); }
+        }
+
+        /* LEFT PANEL - BULLETS & INFOGRAPHICS */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        /* RIGHT PANEL - CHARTS & STATS */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        /* ANIMATED CARD */
+        .anim-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 8px 24px rgba(197, 160, 89, 0.1);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .anim-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(197, 160, 89, 0.05) 50%, transparent 70%);
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(0deg); }
+            100% { transform: translateX(100%) rotate(0deg); }
+        }
+
+        /* FLOATING BULLETS */
+        .bullet-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bullet-item {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(11px, 2vw, 14px);
+            font-weight: 600;
+            color: var(--text-main);
+            padding: 8px 12px;
+            background: rgba(197, 160, 89, 0.1);
+            border-radius: 10px;
+            border-left: 3px solid var(--accent-gold);
+            transform: translateX(-20px);
+            opacity: 0;
+            animation: bulletSlide 0.6s ease forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bullet-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.2), transparent);
+            animation: bulletShine 3s ease-in-out infinite;
+        }
+
+        @keyframes bulletSlide {
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes bulletShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* KINETIC STAT NUMBERS */
+        .stat-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(36px, 8vw, 64px);
+            font-weight: 700;
+            color: var(--accent-bronze);
+            line-height: 1;
+            text-align: center;
+            animation: numberPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes numberPulse {
+            0%, 100% { transform: scale(1); text-shadow: 0 0 20px rgba(197, 160, 89, 0.2); }
+            50% { transform: scale(1.05); text-shadow: 0 0 40px rgba(197, 160, 89, 0.4); }
+        }
+
+        .stat-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(10px, 2vw, 13px);
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: center;
+            margin-top: 4px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* ANIMATED GRAPH BARS */
+        .graph-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .graph-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .graph-label {
+            font-size: clamp(9px, 1.8vw, 12px);
+            font-weight: 600;
+            color: var(--text-main);
+            min-width: 80px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .graph-bar-bg {
+            flex-grow: 1;
+            height: 10px;
+            background: rgba(197, 160, 89, 0.15);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .graph-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-bronze), var(--accent-gold), var(--accent-bronze));
+            background-size: 200% 100%;
+            border-radius: 5px;
+            width: 0%;
+            animation: barShimmer 2s linear infinite;
+            position: relative;
+        }
+
+        @keyframes barShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .graph-value {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(10px, 2vw, 13px);
+            font-weight: 700;
+            color: var(--accent-gold);
+            min-width: 40px;
+        }
+
+        /* TABLE STYLE */
+        .info-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 6px;
+            font-size: clamp(10px, 1.8vw, 13px);
+        }
+
+        .info-table tr {
+            background: rgba(197, 160, 89, 0.08);
+            border-radius: 8px;
+            animation: tableRowSlide 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .info-table td {
+            padding: 8px 12px;
+            font-weight: 500;
+        }
+
+        .info-table td:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .info-table td:last-child {
+            border-radius: 0 8px 8px 0;
+            text-align: right;
+            font-weight: 700;
+            color: var(--accent-bronze);
+            font-family: 'Cinzel', serif;
+        }
+
+        @keyframes tableRowSlide {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BOTTOM KARAOKE - FULL WIDTH */
+        .karaoke-stage {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 10px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .karaoke-stage::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+            animation: karaokeLine 2s ease-in-out infinite;
+        }
+
+        @keyframes karaokeLine {
+            0%, 100% { opacity: 0.3; transform: scaleX(0.5); }
+            50% { opacity: 1; transform: scaleX(1); }
+        }
+
+        .karaoke-word {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 700;
+            font-size: clamp(20px, 5vw, 36px);
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+            color: var(--text-main);
+            text-shadow: 0 4px 20px rgba(197, 160, 89, 0.25);
+            will-change: transform, opacity;
+        }
+
+        /* FLOATING DECORATIVE ELEMENTS */
+        .float-orb {
+            position: absolute;
+            border-radius: 50%;
+            border: 1.5px solid var(--accent-gold);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .float-orb-1 { width: 80px; height: 80px; top: 10%; left: 5%; animation: floatOrbit1 15s linear infinite; }
+        .float-orb-2 { width: 40px; height: 40px; top: 60%; left: 8%; animation: floatOrbit2 12s linear infinite; }
+        .float-orb-3 { width: 60px; height: 60px; top: 20%; right: 5%; animation: floatOrbit3 18s linear infinite; }
+        .float-orb-4 { width: 30px; height: 30px; bottom: 20%; right: 10%; animation: floatOrbit4 10s linear infinite; }
+
+        @keyframes floatOrbit1 {
+            0% { transform: rotate(0deg) translateX(30px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(30px) rotate(-360deg); }
+        }
+
+        @keyframes floatOrbit2 {
+            0% { transform: rotate(0deg) translateX(20px) rotate(0deg); }
+            100% { transform: rotate(-360deg) translateX(20px) rotate(360deg); }
+        }
+
+        @keyframes floatOrbit3 {
+            0% { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
+        }
+
+        @keyframes floatOrbit4 {
+            0% { transform: rotate(0deg) translateX(25px) rotate(0deg); }
+            100% { transform: rotate(-360deg) translateX(25px) rotate(360deg); }
+        }
+
+        /* HUD */
+        .hud {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            display: flex;
+            gap: 8px;
+            background: rgba(28, 25, 23, 0.9);
+            backdrop-filter: blur(12px);
+            padding: 6px 14px;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .hud button {
+            background: transparent;
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            color: #F8F5F0;
+            font-family: 'Cinzel', serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .hud button:hover {
+            background: rgba(197, 160, 89, 0.2);
+            border-color: var(--accent-gold);
+        }
+
+        .hud button:active { background: rgba(255, 255, 255, 0.2); }
+
+        .progress-bar-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(0,0,0,0.05);
+            z-index: 999;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-bronze), var(--accent-gold));
+            background-size: 200% 100%;
+            animation: progressShimmer 2s linear infinite;
+            transition: width 0.1s linear;
+        }
+
+        @keyframes progressShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* SCENE TRANSITION OVERLAY */
+        .transition-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-gold);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* RESPONSIVE SINGLE COLUMN ON SMALL SCREENS */
+        @media (max-width: 600px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
+                height: 80vh;
+            }
+            .karaoke-stage { grid-row: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="transition-flash" id="transitionFlash"></div>
+
+    <!-- Background -->
+    <div class="bg-canvas">
+        <div class="mesh-gradient"></div>
+    </div>
+
+    <!-- Floating Particles Container -->
+    <div id="particlesContainer"></div>
+
+    <!-- Floating Orbs -->
+    <div class="float-orb float-orb-1"></div>
+    <div class="float-orb float-orb-2"></div>
+    <div class="float-orb float-orb-3"></div>
+    <div class="float-orb float-orb-4"></div>
+
+    <!-- Tiny Circular Video Orb -->
+    <div id="videoOrb">
+        <span class="orb-label">Video</span>
+        <video src="" muted loop playsinline></video>
+    </div>
+
+    <!-- MAIN FULL-SCREEN STAGE -->
+    <div class="main-stage" id="mainStage">
+        <div class="content-grid" id="contentGrid">
+            
+            <!-- Kinetic Title -->
+            <div class="kinetic-title" id="kineticTitle">Placement Aptitude</div>
+
+            <!-- Left Panel: Bullets & Infographics -->
+            <div class="left-panel" id="leftPanel">
+                <div class="anim-card" id="leftCard">
+                    <div id="leftContent"></div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Charts & Stats -->
+            <div class="right-panel" id="rightPanel">
+                <div class="anim-card" id="rightCard">
+                    <div id="rightContent"></div>
+                </div>
+            </div>
+
+            <!-- Bottom Karaoke -->
+            <div class="karaoke-stage" id="karaokeStage">
+                <div class="karaoke-word" id="wordDisplay">Begin...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HUD -->
+    <div class="hud">
+        <button id="playBtn">PAUSE</button>
+        <button id="replayBtn">REPLAY</button>
+        <button id="fullscreenBtn">FULL</button>
+    </div>
+
+    <script>
+        // Scene data with rich visual content
+        const sceneData = [
+            {
+                id: 1, duration: 4.0,
+                badge: "Scene 1",
+                title: "The Setup",
+                leftType: "bullets",
+                leftData: ["Mastered DSA", "Great CGPA", "Practised Questions", "Ready to Impress"],
+                rightType: "stat",
+                rightData: { number: "100%", label: "Preparation Complete" },
+                words: ["Have", "you", "ever", "imagined", "this?"]
+            },
+            {
+                id: 2, duration: 6.5,
+                badge: "Scene 2",
+                title: "High Expectations",
+                leftType: "bullets",
+                leftData: ["Resume Shortlisted", "Interview Prep Done", "Confidence High", "Set for Success"],
+                rightType: "graph",
+                rightData: [
+                    { label: "Confidence", value: "95%" },
+                    { label: "Readiness", value: "90%" },
+                    { label: "Skill", value: "88%" }
+                ],
+                words: ["You've", "mastered", "DSA.", "Your", "CGPA", "is", "great.", "You've", "practised", "every", "interview", "question.", "You're", "ready", "to", "impress", "the", "recruiter..."]
+            },
+            {
+                id: 3, duration: 5.0,
+                badge: "Scene 3",
+                title: "The Reality Check",
+                leftType: "stat",
+                leftData: { number: "Round 1", label: "Eliminated Here" },
+                rightType: "bullets",
+                rightData: ["Aptitude Questions", "Pattern Puzzles", "Word Games", "Logic Traps"],
+                words: ["...and", "then", "you're", "eliminated", "because", "you", "couldn't", "solve", "a", "few", "aptitude", "questions", "in", "Round", "One."]
+            },
+            {
+                id: 4, duration: 2.2,
+                badge: "Scene 4",
+                title: "Game Over",
+                leftType: "stat",
+                leftData: { number: "0%", label: "Chance Given" },
+                rightType: "stat",
+                rightData: { number: "END", label: "Before It Began" },
+                words: ["Game", "over."]
+            },
+            {
+                id: 5, duration: 6.5,
+                badge: "Scene 5",
+                title: "The Gateway",
+                leftType: "bullets",
+                leftData: ["Unlock Next Level", "Aptitude Round First", "Show Technical Skills Later", "Cross the Threshold"],
+                rightType: "graph",
+                rightData: [
+                    { label: "Aptitude", value: "100%" },
+                    { label: "Technical", value: "0%" },
+                    { label: "Interview", value: "0%" }
+                ],
+                words: ["That's", "the", "reality", "of", "campus", "placements.", "Before", "you", "can", "show", "off", "your", "technical", "knowledge,", "you", "first", "have", "to", "unlock", "the", "next", "level—the", "aptitude", "round."]
+            },
+            {
+                id: 6, duration: 4.5,
+                badge: "Scene 6",
+                title: "Modern Assessments",
+                leftType: "table",
+                leftData: [
+                    ["Word Games & Para Jumbles", "Active"],
+                    ["Cryptic Crosswords", "Verified"],
+                    ["Game-Based Tests", "Tested"]
+                ],
+                rightType: "bullets",
+                rightData: ["Pattern Recognition", "Anagram Solving", "Sentence Rearrangement", "Logic Puzzles"],
+                words: ["And", "companies", "are", "making", "these", "rounds", "far", "more", "interesting", "than", "just", "maths", "and", "multiple-choice", "questions."]
+            },
+            {
+                id: 7, duration: 5.5,
+                badge: "Scene 7",
+                title: "Top Recruiters",
+                leftType: "bullets",
+                leftData: ["Google & McKinsey", "Jane Street & GCHQ", "Deloitte & JPMorgan", "IBM & Capgemini"],
+                rightType: "stat",
+                rightData: { number: "50+", label: "Top Companies" },
+                words: ["Today", "you'll", "find", "word", "games,", "para", "jumbles,", "sentence", "rearrangement,", "anagrams,", "cryptic", "crosswords,", "pattern", "puzzles,", "and", "even", "game-based", "assessments."]
+            },
+            {
+                id: 8, duration: 6.0,
+                badge: "Scene 8",
+                title: "Assessing Thinking",
+                leftType: "graph",
+                leftData: [
+                    { label: "How You Think", value: "98%" },
+                    { label: "What You Know", value: "85%" },
+                    { label: "Problem Solving", value: "95%" }
+                ],
+                rightType: "bullets",
+                rightData: ["Cognitive Speed", "Creative Logic", "Pattern Recognition", "Decision Making"],
+                words: ["Companies", "like", "Google,", "McKinsey,", "Jane", "Street,", "GCHQ,", "Deloitte,", "JPMorgan", "Chase,", "IBM,", "Capgemini", "and", "many", "others", "are", "looking", "at", "how", "you", "think,", "not", "just", "what", "you", "know."]
+            },
+            {
+                id: 9, duration: 3.5,
+                badge: "Scene 9",
+                title: "No Memorisation",
+                leftType: "bullets",
+                leftData: ["Zero Rote Learning", "Pure Thinking", "Quick Adaptability", "Natural Instincts"],
+                rightType: "stat",
+                rightData: { number: "0", label: "Formulas Needed" },
+                words: ["The", "best", "part?", "You", "don't", "have", "to", "memorise", "anything."]
+            },
+            {
+                id: 10, duration: 5.5,
+                badge: "Scene 10",
+                title: "10 Minutes A Day",
+                leftType: "bullets",
+                leftData: ["Wordle-Style Games", "Anagrams", "Cryptic Clues", "Sentence Rearrangement"],
+                rightType: "graph",
+                rightData: [
+                    { label: "Week 1", value: "20%" },
+                    { label: "Week 4", value: "60%" },
+                    { label: "Week 12", value: "95%" }
+                ],
+                words: ["Spend", "just", "ten", "minutes", "a", "day", "solving", "Wordle-style", "games,", "anagrams,", "cryptic", "clues,", "sentence", "rearrangement,", "and", "other", "word", "puzzles."]
+            },
+            {
+                id: 11, duration: 4.8,
+                badge: "Scene 11",
+                title: "Secret Advantage",
+                leftType: "stat",
+                leftData: { number: "10", label: "Minutes Daily" },
+                rightType: "bullets",
+                rightData: ["Builds Vocabulary", "Trains Speed", "Develops Logic", "Hones Creativity"],
+                words: ["It", "feels", "like", "play—but", "you're", "secretly", "training", "your", "vocabulary,", "speed,", "logic,", "creativity,", "and", "decision-making."]
+            },
+            {
+                id: 12, duration: 3.8,
+                badge: "Scene 12",
+                title: "Timing Is Everything",
+                leftType: "bullets",
+                leftData: ["Don't Wait", "Prepare Early", "Build Consistency", "Own the Season"],
+                rightType: "stat",
+                rightData: { number: "NOW", label: "Start Today" },
+                words: ["So", "don't", "wait", "until", "placement", "season", "to", "prepare."]
+            },
+            {
+                id: 13, duration: 3.0,
+                badge: "Scene 13",
+                title: "Daily Habit",
+                leftType: "stat",
+                leftData: { number: "Daily", label: "Brain Training" },
+                rightType: "bullets",
+                rightData: ["Train Brain", "Build Focus", "Win Daily", "Level Up"],
+                words: ["Train", "your", "brain", "every", "day."]
+            },
+            {
+                id: 14, duration: 3.8,
+                badge: "Scene 14",
+                title: "Technical Skills",
+                leftType: "bullets",
+                leftData: ["Coding Mastery", "System Design", "Projects Done", "DSA Expert"],
+                rightType: "stat",
+                rightData: { number: "Stage 2", label: "Interview Round" },
+                words: ["Because", "in", "placements,", "your", "technical", "skills", "might", "win", "the", "interview..."]
+            },
+            {
+                id: 15, duration: 3.5,
+                badge: "Scene 15",
+                title: "Aptitude Skills",
+                leftType: "stat",
+                leftData: { number: "Stage 1", label: "The Invitation" },
+                rightType: "bullets",
+                rightData: ["Earn the Entry", "Pass the Gate", "Get the Call", "Show Your Worth"],
+                words: ["...but", "your", "aptitude", "skills", "earn", "you", "the", "invitation!"]
+            }
+        ];
+
+        let currentSceneIndex = 0;
+        let isPlaying = true;
+        let currentTimeline = null;
+        let sceneTimeout = null;
+        let particleInterval = null;
+
+        const kineticTitle = document.getElementById('kineticTitle');
+        const leftContent = document.getElementById('leftContent');
+        const rightContent = document.getElementById('rightContent');
+        const wordDisplay = document.getElementById('wordDisplay');
+        const playBtn = document.getElementById('playBtn');
+        const replayBtn = document.getElementById('replayBtn');
+        const progressBar = document.getElementById('progressBar');
+        const transitionFlash = document.getElementById('transitionFlash');
+
+        const totalDuration = sceneData.reduce((acc, curr) => acc + curr.duration, 0);
+
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particlesContainer');
+            for (let i = 0; i < 20; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 6 + 2;
+                p.style.width = size + 'px';
+                p.style.height = size + 'px';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.top = Math.random() * 100 + '%';
+                p.style.animation = `floatOrbit${(i % 4) + 1} ${10 + Math.random() * 20}s linear infinite`;
+                p.style.animationDelay = `-${Math.random() * 10}s`;
+                container.appendChild(p);
+            }
+        }
+
+        function renderContent(container, type, data) {
+            container.innerHTML = '';
+            
+            if (type === 'bullets') {
+                const ul = document.createElement('ul');
+                ul.className = 'bullet-list';
+                data.forEach((item, i) => {
+                    const li = document.createElement('li');
+                    li.className = 'bullet-item';
+                    li.textContent = item;
+                    li.style.animationDelay = `${i * 0.15}s`;
+                    ul.appendChild(li);
+                });
+                container.appendChild(ul);
+            } else if (type === 'stat') {
+                const num = document.createElement('div');
+                num.className = 'stat-number';
+                num.textContent = data.number;
+                container.appendChild(num);
+                const lbl = document.createElement('div');
+                lbl.className = 'stat-label';
+                lbl.textContent = data.label;
+                container.appendChild(lbl);
+            } else if (type === 'graph') {
+                const graphContainer = document.createElement('div');
+                graphContainer.className = 'graph-container';
+                data.forEach((item, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'graph-row';
+                    row.innerHTML = `
+                        <span class="graph-label">${item.label}</span>
+                        <div class="graph-bar-bg">
+                            <div class="graph-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <span class="graph-value">${item.value}</span>
+                    `;
+                    graphContainer.appendChild(row);
+                });
+                container.appendChild(graphContainer);
+                // Animate bars
+                setTimeout(() => {
+                    const fills = container.querySelectorAll('.graph-bar-fill');
+                    fills.forEach((fill, i) => {
+                        fill.style.width = data[i].value;
+                        fill.style.transition = 'width 1s cubic-bezier(0.1, 1, 0.1, 1)';
+                    });
+                }, 100);
+            } else if (type === 'table') {
+                const table = document.createElement('table');
+                table.className = 'info-table';
+                data.forEach((row, i) => {
+                    const tr = document.createElement('tr');
+                    tr.style.animationDelay = `${i * 0.2}s`;
+                    tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td>`;
+                    table.appendChild(tr);
+                });
+                container.appendChild(table);
+            }
+        }
+
+        function triggerTransitionFlash() {
+            gsap.fromTo(transitionFlash, 
+                { opacity: 0.3 },
+                { opacity: 0, duration: 0.6, ease: "power2.out" }
+            );
+        }
+
+        function renderScene(index) {
+            if (index >= sceneData.length) {
+                currentSceneIndex = sceneData.length - 1;
+                isPlaying = false;
+                playBtn.textContent = "PLAY";
+                return;
+            }
+
+            if (currentTimeline) currentTimeline.kill();
+            if (sceneTimeout) clearTimeout(sceneTimeout);
+
+            const data = sceneData[index];
+            const words = data.words;
+
+            // Flash transition
+            triggerTransitionFlash();
+
+            // Update title with animation
+            kineticTitle.textContent = data.title;
+            gsap.fromTo(kineticTitle,
+                { scale: 0.9, opacity: 0, y: -20 },
+                { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" }
+            );
+
+            // Render left and right panels
+            renderContent(leftContent, data.leftType, data.leftData);
+            renderContent(rightContent, data.rightType, data.rightData);
+
+            // Animate cards entrance
+            gsap.fromTo("#leftCard",
+                { x: -50, opacity: 0, rotation: -3 },
+                { x: 0, opacity: 1, rotation: 0, duration: 0.5, ease: "power3.out", delay: 0.1 }
+            );
+            gsap.fromTo("#rightCard",
+                { x: 50, opacity: 0, rotation: 3 },
+                { x: 0, opacity: 1, rotation: 0, duration: 0.5, ease: "power3.out", delay: 0.2 }
+            );
+
+            // Continuous floating animation on cards
+            gsap.to("#leftCard", {
+                y: -5,
+                duration: 2,
+                ease: "sine.inOut",
+                yoyo: true,
+                repeat: -1,
+                delay: 0.5
+            });
+            gsap.to("#rightCard", {
+                y: -5,
+                duration: 2.5,
+                ease: "sine.inOut",
+                yoyo: true,
+                repeat: -1,
+                delay: 0.7
+            });
+
+            // Karaoke timeline
+            currentTimeline = gsap.timeline();
+            const wordWindow = data.duration * 0.85;
+            const timePerWord = wordWindow / words.length;
+
+            words.forEach((word, i) => {
+                const startTime = i * timePerWord;
+                currentTimeline.call(() => {
+                    wordDisplay.textContent = word;
+                    gsap.fromTo(wordDisplay,
+                        { opacity: 0, y: 15, scale: 0.9, rotation: (Math.random() * 4 - 2) },
+                        { opacity: 1, y: 0, scale: 1, rotation: 0, duration: 0.2, ease: "power2.out", overwrite: "auto" }
+                    );
+                }, null, startTime);
+            });
+
+            // Progress bar
+            let pastDuration = 0;
+            for (let i = 0; i < index; i++) pastDuration += sceneData[i].duration;
+
+            gsap.to(progressBar, {
+                duration: data.duration,
+                width: `${((pastDuration + data.duration) / totalDuration) * 100}%`,
+                ease: "linear"
+            });
+
+            // Schedule next scene
+            if (isPlaying) {
+                sceneTimeout = setTimeout(() => {
+                    currentSceneIndex++;
+                    renderScene(currentSceneIndex);
+                }, data.duration * 1000);
+            }
+        }
+
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                playBtn.textContent = "PAUSE";
+                renderScene(currentSceneIndex);
+            } else {
+                playBtn.textContent = "PLAY";
+                if (sceneTimeout) clearTimeout(sceneTimeout);
+                if (currentTimeline) currentTimeline.pause();
+                gsap.globalTimeline.pause();
+            }
+        });
+
+        replayBtn.addEventListener('click', () => {
+            if (sceneTimeout) clearTimeout(sceneTimeout);
+            if (currentTimeline) currentTimeline.kill();
+            gsap.globalTimeline.restart();
+            currentSceneIndex = 0;
+            isPlaying = true;
+            playBtn.textContent = "PAUSE";
+            renderScene(currentSceneIndex);
+        });
+
+        document.getElementById('fullscreenBtn').addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            createParticles();
+            renderScene(currentSceneIndex);
+        });
+    </script>
+</body>
+</html>
