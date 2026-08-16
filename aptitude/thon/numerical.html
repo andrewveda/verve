@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pre-Placement Assessment Programme - Aptitude Training | SRM Valliammai Engineering College</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Auth Guard to protect and load user session -->
+    <script src="../../auth-guard.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --cheat: #dc2626;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        input[type="text"] { -webkit-user-select: text; user-select: text; }
+        .cheat-overlay { display: none; position: fixed; inset: 0; background: rgba(220, 38, 38, 0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; color: white; }
+        .cheat-overlay.show { display: flex; }
+        .cheat-overlay h2 { font-size: 1.5rem; margin-bottom: 12px; }
+        .cheat-overlay p { font-size: 1rem; opacity: 0.9; margin-bottom: 24px; }
+        .cheat-overlay .btn { background: white; color: var(--cheat); width: auto; padding: 14px 32px; }
+        .security-badge { position: fixed; top: 50%; right: -40px; transform: rotate(90deg) translateX(-50%); background: var(--cheat); color: white; padding: 6px 16px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; z-index: 50; border-radius: 4px 4px 0 0; opacity: 0.8; pointer-events: none; }
+        .welcome-screen { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #1e40af 100%); text-align: center; }
+        .welcome-card { background: var(--card); border-radius: 24px; padding: 28px 22px; max-width: 420px; width: 100%; box-shadow: var(--shadow-lg); animation: slideUp 0.6s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .welcome-card h1 { font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; color: var(--text-light); }
+        .welcome-card .college { font-size: 1.35rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; line-height: 1.25; letter-spacing: -0.01em; }
+        .welcome-card .subtitle { color: var(--text-light); font-size: 0.85rem; margin-bottom: 20px; }
+        .test-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .info-item { background: var(--bg); padding: 14px 8px; border-radius: 16px; text-align: center; }
+        .info-item .number { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+        .info-item .label { font-size: 0.65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+        .topic-list { text-align: left; margin-bottom: 20px; font-size: 0.8rem; }
+        .topic-list li { padding: 5px 0; color: var(--text-light); list-style: none; display: flex; align-items: center; gap: 8px; }
+        .topic-list li::before { content: "✓"; color: var(--success); font-weight: 700; font-size: 0.7rem; }
+        .topic-weight { margin-left: auto; font-size: 0.7rem; background: var(--bg); padding: 2px 8px; border-radius: 10px; color: var(--text-light); font-weight: 600; }
+        .security-notice { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 12px; margin-bottom: 20px; font-size: 0.75rem; color: var(--cheat); text-align: left; }
+        .security-notice strong { display: block; margin-bottom: 4px; font-size: 0.8rem; }
+        .candidate-chip { background: var(--bg); border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; text-align: left; font-size: 0.85rem; color: var(--text); display: flex; align-items: center; gap: 12px; }
+        .candidate-chip img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px 24px; border: none; border-radius: 16px; font-size: 1rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.2s; touch-action: manipulation; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); }
+        .btn-primary:active { transform: scale(0.98); background: var(--primary-dark); }
+        .btn-secondary { background: var(--bg); color: var(--text); border: 2px solid var(--border); }
+        .btn-secondary:active { background: var(--border); }
+        .test-screen { display: none; min-height: 100vh; padding-bottom: 100px; }
+        .header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); border-bottom: 1px solid var(--border); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
+        .timer { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 1rem; color: var(--text); }
+        .timer.warning { color: var(--danger); }
+        .timer.danger { color: var(--cheat); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .timer-icon { width: 18px; height: 18px; }
+        .progress-text { font-size: 0.8rem; color: var(--text-light); font-weight: 500; }
+        .cheat-counter { display: flex; align-items: center; gap: 4px; background: #fef2f2; color: var(--cheat); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; border: 1px solid #fecaca; }
+        .cheat-counter.active { background: var(--cheat); color: white; animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        .question-container { padding: 14px; max-width: 600px; margin: 0 auto; }
+        .topic-badge { display: inline-block; background: linear-gradient(135deg, #1e3a8a, #3730a3); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+        .question-card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 14px; }
+        .question-number { font-size: 0.8rem; color: var(--text-light); font-weight: 600; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .question-text { font-size: 1rem; font-weight: 600; line-height: 1.6; margin-bottom: 16px; color: var(--text); }
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        .option { display: flex; align-items: flex-start; gap: 10px; padding: 14px; background: var(--bg); border: 2px solid transparent; border-radius: 14px; cursor: pointer; transition: all 0.15s; text-align: left; font-family: inherit; font-size: 0.9rem; color: var(--text); width: 100%; touch-action: manipulation; }
+        .option:active { transform: scale(0.99); }
+        .option.selected { border-color: var(--primary); background: rgba(37, 99, 235, 0.05); }
+        .option.correct { border-color: var(--success); background: rgba(16, 185, 129, 0.08); }
+        .option.wrong { border-color: var(--danger); background: rgba(239, 68, 68, 0.08); }
+        .option-letter { min-width: 26px; height: 26px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; }
+        .option.selected .option-letter { background: var(--primary); color: white; }
+        .option.correct .option-letter { background: var(--success); color: white; }
+        .option.wrong .option-letter { background: var(--danger); color: white; }
+        .option-text { flex: 1; line-height: 1.5; }
+        .explanation { display: none; margin-top: 14px; padding: 14px; background: #f0f9ff; border-radius: 12px; border-left: 4px solid var(--primary); font-size: 0.85rem; color: var(--text); line-height: 1.6; }
+        .explanation.show { display: block; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); border-top: 1px solid var(--border); padding: 10px 14px; display: flex; gap: 8px; z-index: 100; backdrop-filter: blur(10px); }
+        .bottom-nav .btn { width: auto; flex: 1; padding: 12px; font-size: 0.85rem; border-radius: 12px; }
+        .btn-submit { background: var(--success); color: white; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
+        .btn-submit:active { background: #059669; }
+        .palette-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; backdrop-filter: blur(4px); }
+        .palette-overlay.show { display: block; }
+        .palette-panel { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-radius: 24px 24px 0 0; padding: 20px; z-index: 201; max-height: 70vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
+        .palette-overlay.show .palette-panel { transform: translateY(0); }
+        .palette-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .palette-header h3 { font-size: 1rem; }
+        .close-palette { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--bg); font-size: 1.1rem; cursor: pointer; }
+        .palette-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+        .palette-item { aspect-ratio: 1; border-radius: 10px; border: 2px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+        .palette-item.answered { background: var(--primary); color: white; border-color: var(--primary); }
+        .palette-item.current { border-color: var(--warning); border-width: 3px; }
+        .palette-legend { display: flex; gap: 12px; margin-top: 14px; font-size: 0.7rem; color: var(--text-light); }
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+        .results-screen { display: none; min-height: 100vh; padding: 20px; background: var(--bg); }
+        .results-card { background: var(--card); border-radius: 24px; padding: 28px 20px; max-width: 500px; margin: 0 auto; box-shadow: var(--shadow-lg); text-align: center; }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--success) calc(var(--score) * 1%), var(--border) 0); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .score-circle::before { content: ""; position: absolute; inset: 8px; background: var(--card); border-radius: 50%; }
+        .score-text { position: relative; font-size: 1.8rem; font-weight: 800; color: var(--text); }
+        .result-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+        .result-subtitle { color: var(--text-light); font-size: 0.85rem; margin-bottom: 8px; }
+        .result-candidate { color: var(--text-light); font-size: 0.78rem; margin-bottom: 18px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-item { padding: 14px; background: var(--bg); border-radius: 14px; }
+        .stat-value { font-size: 1.4rem; font-weight: 800; }
+        .stat-value.correct { color: var(--success); }
+        .stat-value.wrong { color: var(--danger); }
+        .stat-value.time { color: var(--primary); }
+        .stat-label { font-size: 0.65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+        .cheat-report { background: #fef2f2; border: 1px solid #fecaca; border-radius: 14px; padding: 14px; margin-bottom: 20px; text-align: left; }
+        .cheat-report h4 { color: var(--cheat); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        .cheat-report ul { list-style: none; font-size: 0.8rem; color: var(--text-light); }
+        .cheat-report li { padding: 3px 0; display: flex; align-items: center; gap: 6px; }
+        .cheat-report li::before { content: "⚠"; color: var(--warning); font-size: 0.7rem; }
+        .topic-breakdown { text-align: left; margin-bottom: 20px; }
+        .topic-breakdown h4 { font-size: 0.8rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+        .breakdown-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        .breakdown-bar { width: 50px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .breakdown-fill { height: 100%; background: var(--success); border-radius: 3px; }
+        .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 300; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+        .loading-overlay.show { display: flex; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-120px); background: var(--text); color: white; padding: 12px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 500; z-index: 400; transition: transform 0.3s ease; box-shadow: var(--shadow-lg); max-width: 90vw; text-align: center; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.cheat { background: var(--cheat); }
+        .swipe-hint { text-align: center; color: var(--text-light); font-size: 0.75rem; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        @media (min-width: 640px) { .welcome-card, .results-card { padding: 36px; } .question-card { padding: 28px; } }
+    </style>
+<base target="_blank">
+</head>
+<body oncontextmenu="return false;">
+    <div class="security-badge">Secure Mode Active</div>
+    <div class="cheat-overlay" id="cheatOverlay">
+        <h2>⚠ Security Alert</h2>
+        <p id="cheatMessage">Suspicious activity detected. Please return to the test immediately.</p>
+        <button class="btn" onclick="resumeTest()">I Understand — Resume Test</button>
+    </div>
+
+    <!-- Candidate details loaded from GitHub Auth -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-card">
+            <div class="college">SRM Valliammai Engineering College</div>
+            <h1>Pre-Placement Assessment Programme</h1>
+            <p class="subtitle">Aptitude Training — Reasoning Ability</p>
+            <div class="candidate-chip" id="candidateChip">
+                <img id="candidateAvatar" src="" alt="Avatar">
+                <div>
+                    <strong id="candidateName">Loading...</strong><br>
+                    <span id="candidateDept" style="color:var(--text-light);font-size:0.75rem;">Department: ...</span>
+                </div>
+            </div>
+            <div class="test-info">
+                <div class="info-item"><div class="number">20</div><div class="label">Questions</div></div>
+                <div class="info-item"><div class="number">20</div><div class="label">Minutes</div></div>
+                <div class="info-item"><div class="number">1</div><div class="label">Mark/Q</div></div>
+            </div>
+            <ul class="topic-list">
+             <li>Syllogism <span class="topic-weight">2 Qs</span></li>
+<li>Blood Relations <span class="topic-weight">2 Qs</span></li>
+<li>Direction Sense <span class="topic-weight">2 Qs</span></li>
+<li>Coding-Decoding <span class="topic-weight">3 Qs</span></li>
+<li>Verbal Ability <span class="topic-weight">4 Qs</span></li>
+<li>Order & Ranking <span class="topic-weight">1 Q</span></li>
+<li>Linear Seating <span class="topic-weight">1 Q</span></li>
+<li>Word Formation <span class="topic-weight">2 Qs</span></li>
+<li>Puzzles (Day/Month) <span class="topic-weight">3 Qs</span></li>
+            </ul>
+            <div class="security-notice">
+                <strong>🔒 Secure Test Environment</strong>
+                This test is monitored. Switching tabs, minimizing the window, opening developer tools, or attempting to copy content will be recorded and flagged.
+            </div>
+            <button class="btn btn-primary" onclick="startTest()"><span>Start Test</span><span>→</span></button>
+        </div>
+    </div>
+
+    <div class="test-screen" id="testScreen">
+        <div class="header">
+            <div class="timer" id="timer">
+                <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6l4 2"/></svg>
+                <span id="timerText">20:00</span>
+            </div>
+            <div class="progress-text"><span id="currentQ">1</span> / <span id="totalQ">20</span></div>
+            <div class="cheat-counter" id="cheatCounter"><span>🛡</span><span id="cheatCount">0</span></div>
+            <button class="btn btn-secondary" style="width:auto;padding:6px 12px;font-size:0.75rem;" onclick="togglePalette()">☰</button>
+        </div>
+        <div class="question-container" id="questionContainer"></div>
+        <div class="swipe-hint"><span>←</span> Swipe or use buttons <span>→</span></div>
+        <div class="bottom-nav">
+            <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()">← Prev</button>
+            <button class="btn btn-submit" onclick="submitTest()">Submit</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+        </div>
+    </div>
+    <div class="palette-overlay" id="paletteOverlay" onclick="togglePalette()">
+        <div class="palette-panel" onclick="event.stopPropagation()">
+            <div class="palette-header"><h3>Question Palette</h3><button class="close-palette" onclick="togglePalette()">×</button></div>
+            <div class="palette-grid" id="paletteGrid"></div>
+            <div class="palette-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:var(--primary)"></div><span>Answered</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div><span>Unanswered</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--warning);border:2px solid var(--warning)"></div><span>Current</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="results-screen" id="resultsScreen">
+        <div class="results-card">
+            <div class="score-circle" id="scoreCircle" style="--score:0"><div class="score-text" id="scoreText">0/20</div></div>
+            <div class="result-title" id="resultTitle">Test Completed!</div>
+            <div class="result-subtitle" id="resultSubtitle">Review your performance below.</div>
+            <div class="result-candidate" id="resultCandidate"></div>
+            <div class="stats-grid">
+                <div class="stat-item"><div class="stat-value correct" id="correctCount">0</div><div class="stat-label">Correct</div></div>
+                <div class="stat-item"><div class="stat-value wrong" id="wrongCount">0</div><div class="stat-label">Wrong</div></div>
+                <div class="stat-item"><div class="stat-value time" id="timeTaken">0m</div><div class="stat-label">Time</div></div>
+            </div>
+            <div class="cheat-report" id="cheatReport">
+                <h4>Security Report</h4>
+                <ul id="cheatList"></ul>
+            </div>
+            <div class="topic-breakdown"><h4>Topic Breakdown</h4><div id="breakdownContainer"></div></div>
+            <button class="btn btn-primary" onclick="reviewAnswers()" style="display:none;" disabled>Review Answers</button>
+            <button class="btn btn-secondary" style="margin-top:8px;" onclick="location.reload()">Retake Test</button>
+        </div>
+    </div>
+    <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="font-weight:600;color:var(--text-light)">Submitting results...</div></div>
+    <div class="toast" id="toast"></div>
+
+<script>
+const questions = [
+    { id: 1, topic: 'Syllogism', question: 'Statements: All rivers are streams. Some streams are lakes. All lakes are ponds.\nConclusions: I. Some ponds are rivers. II. Some lakes are rivers.', options: ['Only I follows', 'Only II follows', 'Either I or II follows', 'Neither I nor II follows', 'Both I and II follow'], correct: 3, explanation: 'Neither conclusion follows. The chain of statements never establishes a definite link between rivers and lakes/ponds.' },
+    { id: 2, topic: 'Syllogism', question: 'Statements: No cup is a plate. Some plates are bowls. All bowls are dishes.\nConclusions: I. Some dishes are plates. II. No dish is a cup.', options: ['Only I follows', 'Only II follows', 'Either I or II follows', 'Neither I nor II follows', 'Both I and II follow'], correct: 0, explanation: 'From "Some plates are bowls" and "All bowls are dishes", it follows that some plates are dishes. By valid conversion of an I-proposition, some dishes are plates — so Conclusion I follows. Conclusion II does not follow, because dishes may include objects other than bowls, so no definite relation between all dishes and cups can be established.' },
+    { id: 3, topic: 'Blood Relations', question: "Pointing to a photograph, a woman said, 'I have no sister or brother, but that woman's mother is my mother's daughter.' Whose photograph was it?", options: ["Her own", "Her daughter's", "Her mother's", "Her niece's", "Her aunt's"], correct: 1, explanation: "Since the woman has no siblings, 'my mother's daughter' refers to herself. So 'that woman's mother is me' — meaning the photograph is of her daughter." },
+    { id: 4, topic: 'Blood Relations', question: "A is B's brother. C is B's father. D is C's mother. E is D's father. How is A related to E?", options: ['Grandson', 'Great-grandson', 'Son', 'Great-grandfather', 'Nephew'], correct: 1, explanation: "A is B's brother, so A is also C's son. D is C's mother, making D A's grandmother, and E is D's father — so E is A's great-grandfather, meaning A is E's great-grandson." },
+    { id: 5, topic: 'Direction Sense', question: 'A man walks 6 km north, turns right, walks 4 km, turns right again, walks 6 km. In which direction is he from the starting point?', options: ['North', 'South', 'East', 'West', 'South-East'], correct: 2, explanation: 'Tracking coordinates: start (0,0) → 6 km North (0,6) → turn right (facing East), 4 km (4,6) → turn right (facing South), 6 km (4,0). The final point lies directly East of the start.' },
+    { id: 6, topic: 'Direction Sense', question: 'One evening before sunset, Ramesh faces a pole. The shadow of the pole falls exactly to his left. Which direction is he facing?', options: ['East', 'North', 'West', 'South', 'Data inadequate'], correct: 3, explanation: "Before sunset the sun is in the West, so shadows fall toward the East. Facing South, a person's left hand points East — so a shadow falling to Ramesh's left means he is facing South." },
+    { id: 7, topic: 'Coding-Decoding', question: 'In a certain code, TABLE is written as UBCMF. How is CHAIR written in the same code?', options: ['DIBJS', 'DIBIS', 'DIBJT', 'DHBJS', 'None'], correct: 0, explanation: 'Each letter is shifted forward by one place: C→D, H→I, A→B, I→J, R→S, giving DIBJS.' },
+    { id: 8, topic: 'Coding-Decoding', question: 'If TRAIN is coded as 12345, SMART as 67321, and PAINT as 83451, what is the code for SPRAIN?', options: ['682345', '682435', '624835', '682354', 'None of these'], correct: 0, explanation: 'From the codes: T=1, R=2, A=3, I=4, N=5, S=6, M=7, P=8. So SPRAIN = S(6) P(8) R(2) A(3) I(4) N(5) = 682345.' },
+    { id: 9, topic: 'Coding-Decoding', question: "In a certain code, 'red is danger' is written as 'pa ta na', 'danger causes fear' is written as 'na ka la', and 'fear brings red' is written as 'ka pa da'. What is the code for 'danger'?", options: ['pa', 'ta', 'na', 'ka', 'la'], correct: 2, explanation: "'na' is the word common to the codes for the first two sentences, and 'danger' is the word common to those same two original sentences — so na = danger." },
+    { id: 10, topic: 'Verbal Ability', question: 'Choose the word most similar in meaning to the word: PRUDENT', options: ['Wise', 'Foolish', 'Careless', 'Naive', 'Reckless'], correct: 0, explanation: 'Prudent means acting with care and good judgment; its closest synonym among the options is Wise.' },
+    { id: 11, topic: 'Verbal Ability', question: 'Choose the word most opposite in meaning to the word: OPTIMISTIC', options: ['Pessimistic', 'Hopeful', 'Cheerful', 'Positive', 'Confident'], correct: 0, explanation: 'Optimistic means hopeful about the future. Its direct opposite is Pessimistic, expecting the worst outcome.' },
+    { id: 12, topic: 'Verbal Ability', question: "Choose the word that means: 'A person who loves and collects books.'", options: ['Bibliophile', 'Philatelist', 'Numismatist', 'Cartographer', 'Bibliographer'], correct: 0, explanation: 'A Bibliophile is someone who loves and collects books. A Philatelist collects stamps, a Numismatist collects coins, a Cartographer makes maps, and a Bibliographer compiles lists of books — none of which match the definition given.' },
+    { id: 13, topic: 'Verbal Ability', question: 'How many seven-letter meaningful words (ending with E) can be formed from the word PERFUMELESS?', options: ['One', 'Two', 'Three', 'More than three', 'None'], correct: 4, explanation: 'Checking the available letters of PERFUMELESS (P, E, R, F, U, M, E, L, E, S, S) for every possible seven-letter combination ending in E turns up no valid, meaningful English word. So the answer is None.' },
+    { id: 14, topic: 'Order & Ranking', question: "In a row of children, Sita is 12th from the left and Gita is 15th from the right. If they interchange their positions, Sita becomes 22nd from the left. How many children are there in the row?", options: ['32', '34', '36', '38', '40'], correct: 2, explanation: "After swapping, Sita takes Gita's original position, so Gita's original position from the left is 22. Position from left = Total − position from right + 1, so 22 = Total − 15 + 1, giving Total = 36." },
+    { id: 15, topic: 'Linear Seating', question: 'Six friends P, Q, R, S, T, U sit in a row facing north. R is at the extreme left. S is to the immediate right of R. T and U occupy the two middle positions. Q is to the immediate right of P. Who is at the extreme right?', options: ['P', 'Q', 'T', 'U', 'S'], correct: 1, explanation: 'R and S occupy positions 1 and 2. Positions 3 and 4 are occupied by T and U, in either order — the clues do not fix which of them sits at 3 or 4, and it does not need to be fixed. That leaves positions 5 and 6 for P and Q, with Q immediately right of P — so P is at 5 and Q is at 6, the extreme right, regardless of how T and U are arranged.' },
+    { id: 16, topic: 'Word Formation', question: "If it is possible to make only one meaningful English word with the 2nd, 3rd, 4th and 6th letters of the word FACTOR, which of the following will be the third letter of that word (counting from the left)? If no such word can be made, give 'X' as the answer, and if more than one such word can be made, give 'Y' as the answer.", options: ['C', 'A', 'R', 'X', 'Y'], correct: 2, explanation: "F-A-C-T-O-R: the 2nd, 3rd, 4th and 6th letters are A, C, T, R. These letters form exactly one meaningful word — CART — and no other arrangement of A, C, T, R is a valid English word. Its third letter (C-A-R-T) is R." },
+    { id: 17, topic: 'Word Formation', question: "If it is possible to make only one meaningful English word with the 2nd, 3rd, 5th and 6th letters of the word GARDEN, which of the following will be the third letter of that word (counting from the left)? If no such word can be made, give 'X' as the answer, and if more than one such word can be made, give 'Y' as the answer.", options: ['N', 'E', 'A', 'X', 'Y'], correct: 4, explanation: "G-A-R-D-E-N: the 2nd, 3rd, 5th and 6th letters are A, R, E, N. These four letters can form more than one meaningful English word (e.g. NEAR and EARN). Since more than one word is possible, the answer is Y." },
+    { id: 18, topic: 'Puzzles', question: 'P, Q, R, S, T attend a workshop from Monday to Friday. Q attends on Thursday. R attends immediately before Q. P attends after S. T attends before P. S attends before T. Who attends on Friday?', options: ['P', 'Q', 'R', 'S', 'T'], correct: 0, explanation: 'R is immediately before Q (Thursday), so R is Wednesday. The remaining days Monday, Tuesday and Friday go to S, T and P. Since S is before T, and both must be before P, the only fit is S-Monday, T-Tuesday, P-Friday.' },
+    { id: 19, topic: 'Puzzles', question: 'Six friends A, B, C, D, E, F visit a park from Monday to Saturday. B visits on Tuesday. F visits immediately after A. D visits after F but before E. B visits before E. Who visits on Saturday?', options: ['A', 'B', 'D', 'E', 'F'], correct: 3, explanation: 'With B fixed on Tuesday, the only consistent arrangement satisfying "F immediately after A" and "F before D before E" is A-Wed, F-Thu, D-Fri, E-Sat, with C filling Monday. So Saturday belongs to E.' },
+    { id: 20, topic: 'Puzzles', question: 'Five seminars are scheduled from Monday to Friday. Chemistry is on Monday. Biology is immediately after Chemistry. Physics is immediately after Biology. English is before Maths. Which seminar is on Friday?', options: ['Maths', 'Physics', 'Chemistry', 'Biology', 'English'], correct: 0, explanation: 'Chemistry is Monday, Biology (immediately after) is Tuesday, and Physics (immediately after Biology) is Wednesday. That leaves Thursday and Friday for English and Maths; since English must come before Maths, English is Thursday and Maths is Friday.' }
+];
+
+let currentQuestion = 0, answers = {}, timeLeft = 1200, timerInterval, testSubmitted = false, startTime, cheatEvents = [], cheatCount = 0, isPaused = false;
+let studentName = '', studentDept = '';
+
+// Load User info from global window.GH object populated by auth-guard.js
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.GH) {
+        studentName = window.GH.name || window.GH.username;
+        studentDept = window.GH.dept || 'MCA';
+        
+        document.getElementById('candidateName').textContent = studentName;
+        document.getElementById('candidateDept').textContent = 'Department: ' + studentDept;
+        if (window.GH.avatar) {
+            document.getElementById('candidateAvatar').src = window.GH.avatar;
+        }
+    }
+});
+
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+function initAntiCheat() {
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && !testSubmitted && startTime) {
+            recordCheat('Tab switched / window minimized', 'tab');
+            showCheatOverlay('You switched tabs or minimized the window. This has been recorded.');
+        }
+    });
+    window.addEventListener('blur', () => {
+        if (!testSubmitted && startTime && !isPaused && !isMobile()) recordCheat('Window lost focus', 'focus');
+    });
+    document.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        if (!testSubmitted && startTime) { recordCheat('Right-click attempted', 'rightclick'); showToast('Right-click is disabled during the test', true); }
+    });
+    document.addEventListener('keydown', e => {
+        if (!testSubmitted && startTime) {
+            if (e.key === 'F12') { e.preventDefault(); recordCheat('F12 (DevTools) pressed', 'devtools'); showToast('Developer tools are blocked', true); }
+            if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault(); recordCheat('DevTools shortcut blocked: ' + e.key, 'shortcut'); showToast('Keyboard shortcuts are restricted', true);
+            }
+            if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'a')) { e.preventDefault(); recordCheat('System shortcut: Ctrl+' + e.key, 'shortcut'); }
+        }
+        if (document.getElementById('testScreen').style.display !== 'none') {
+            if (e.key === 'ArrowRight') nextQuestion();
+            if (e.key === 'ArrowLeft') prevQuestion();
+            if (e.key >= '1' && e.key <= '5') { const idx = parseInt(e.key) - 1; if (idx < questions[currentQuestion].options.length) selectOption(idx); }
+        }
+    });
+    document.addEventListener('copy', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Copy attempted', 'copy'); showToast('Copying is disabled', true); } });
+    document.addEventListener('paste', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Paste attempted', 'paste'); } });
+    document.addEventListener('cut', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Cut attempted', 'cut'); } });
+    if (!isMobile()) {
+        const detectConsole = () => {
+            if (testSubmitted || !startTime) return;
+            const start = performance.now(); debugger; const end = performance.now();
+            if (end - start > 100) { recordCheat('Console/Debugger accessed', 'console'); showCheatOverlay('Console access detected. This incident has been logged.'); }
+        };
+        setInterval(detectConsole, 3000);
+    }
+    document.addEventListener('keyup', e => {
+        if (e.key === 'PrintScreen' || (e.ctrlKey && e.key === 'p')) { recordCheat('Screenshot/Print attempted', 'screenshot'); showToast('Screenshots are monitored', true); }
+    });
+}
+
+function recordCheat(description, type) {
+    cheatCount++;
+    cheatEvents.push({ type, description, timestamp: new Date().toISOString(), question: currentQuestion + 1 });
+    updateCheatCounter();
+    console.warn('[SECURITY] ' + description + ' at Q' + (currentQuestion + 1));
+}
+
+function updateCheatCounter() {
+    const el = document.getElementById('cheatCount');
+    const badge = document.getElementById('cheatCounter');
+    el.textContent = cheatCount;
+    if (cheatCount > 0) { badge.classList.add('active'); setTimeout(() => badge.classList.remove('active'), 500); }
+}
+
+function showCheatOverlay(msg) {
+    isPaused = true;
+    document.getElementById('cheatMessage').textContent = msg;
+    document.getElementById('cheatOverlay').classList.add('show');
+}
+
+function resumeTest() {
+    isPaused = false;
+    document.getElementById('cheatOverlay').classList.remove('show');
+    showToast('Test resumed. Further violations will be flagged.');
+}
+
+function startTest() {
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('testScreen').style.display = 'block';
+    document.getElementById('totalQ').textContent = questions.length;
+    startTime = Date.now();
+    renderQuestion();
+    startTimer();
+    renderPalette();
+    setupSwipe();
+    initAntiCheat();
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        if (isPaused) return;
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) { clearInterval(timerInterval); showToast("Time's up! Auto-submitting...", true); setTimeout(submitTest, 2000); }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    document.getElementById('timerText').textContent = mins.toString().padStart(2,'0') + ':' + secs.toString().padStart(2,'0');
+    const timerEl = document.getElementById('timer');
+    timerEl.classList.remove('warning', 'danger');
+    if (timeLeft < 120) timerEl.classList.add('warning');
+    if (timeLeft < 60) timerEl.classList.add('danger');
+}
+
+function renderQuestion() {
+    const q = questions[currentQuestion];
+    document.getElementById('currentQ').textContent = currentQuestion + 1;
+    document.getElementById('prevBtn').disabled = currentQuestion === 0;
+    document.getElementById('nextBtn').textContent = currentQuestion === questions.length - 1 ? 'Review →' : 'Next →';
+    document.getElementById('questionContainer').innerHTML = `
+        <div class="topic-badge">${q.topic}</div>
+        <div class="question-card">
+            <div class="question-number"><span>Question ${q.id} of ${questions.length}</span><span style="color:var(--primary);font-size:0.75rem">${q.topic}</span></div>
+            <div class="question-text">${q.question.replace(/\\n/g, '<br>')}</div>
+            <div class="options" id="optionsContainer">
+                ${q.options.map((opt, idx) => `<button class="option ${answers[q.id] === idx ? 'selected' : ''}" onclick="selectOption(${idx})" data-idx="${idx}"><div class="option-letter">${String.fromCharCode(65 + idx)}</div><div class="option-text">${opt}</div></button>`).join('')}
+            </div>
+            <div class="explanation ${testSubmitted ? 'show' : ''}" id="explanation"><strong>Explanation:</strong> ${q.explanation}</div>
+        </div>`;
+    updatePalette();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectOption(idx) {
+    if (testSubmitted) return;
+    answers[questions[currentQuestion].id] = idx;
+    document.querySelectorAll('.option').forEach((el, i) => el.classList.toggle('selected', i === idx));
+    updatePalette();
+    setTimeout(() => { if (currentQuestion < questions.length - 1) nextQuestion(); }, 350);
+}
+
+function nextQuestion() { if (currentQuestion < questions.length - 1) { currentQuestion++; renderQuestion(); } else { togglePalette(); } }
+function prevQuestion() { if (currentQuestion > 0) { currentQuestion--; renderQuestion(); } }
+function goToQuestion(idx) { currentQuestion = idx; renderQuestion(); togglePalette(); }
+
+function renderPalette() {
+    document.getElementById('paletteGrid').innerHTML = questions.map((q, idx) =>
+        `<div class="palette-item ${answers[q.id] !== undefined ? 'answered' : ''} ${idx === currentQuestion ? 'current' : ''}" onclick="goToQuestion(${idx})">${idx + 1}</div>`
+    ).join('');
+}
+function updatePalette() { renderPalette(); }
+function togglePalette() { document.getElementById('paletteOverlay').classList.toggle('show'); }
+
+function setupSwipe() {
+    let touchStartX = 0;
+    document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    document.addEventListener('touchend', e => { const diff = touchStartX - e.changedTouches[0].screenX; if (Math.abs(diff) > 80) diff > 0 ? nextQuestion() : prevQuestion(); }, {passive: true});
+}
+
+function submitTest() {
+    if (testSubmitted) return;
+    const answered = Object.keys(answers).length;
+    if (answered < questions.length) { if (!confirm('You answered ' + answered + '/' + questions.length + '. Submit anyway?')) return; }
+    clearInterval(timerInterval);
+    testSubmitted = true;
+    let correct = 0, wrong = 0;
+    const topicStats = {};
+    questions.forEach(q => {
+        if (!topicStats[q.topic]) topicStats[q.topic] = { correct: 0, total: 0 };
+        topicStats[q.topic].total++;
+        if (answers[q.id] === q.correct) { correct++; topicStats[q.topic].correct++; }
+        else if (answers[q.id] !== undefined) wrong++;
+    });
+    const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+    const mins = Math.floor(timeTaken / 60);
+    const secs = timeTaken % 60;
+    document.getElementById('loadingOverlay').classList.add('show');
+    logResults({ correct, wrong, unanswered: questions.length - correct - wrong, timeSpent: timeTaken, score: correct, cheatEvents, cheatCount });
+    setTimeout(() => {
+        document.getElementById('loadingOverlay').classList.remove('show');
+        showResults({ correct, wrong, timeTaken: mins + 'm ' + secs + 's', topicStats });
+    }, 1500);
+}
+
+function logResults(data) {
+    const payload = {
+        student_name: studentName,
+        department: studentDept,
+        correct: data.correct,
+        wrong: data.wrong,
+        time_spent: data.timeSpent,
+        quest_id: "Pre-Placement Assessment Programme - Aptitude Training",
+        cheat_count: data.cheatCount,
+        cheat_events: data.cheatEvents
+    };
+    fetch('https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    }).then(r => r.json()).then(d => console.log('Logged:', d)).catch(e => console.error('Log error:', e));
+}
+
+function showResults(data) {
+    document.getElementById('testScreen').style.display = 'none';
+    document.getElementById('resultsScreen').style.display = 'block';
+    const percentage = Math.round((data.correct / questions.length) * 100);
+    document.getElementById('scoreCircle').style.setProperty('--score', percentage);
+    document.getElementById('scoreText').textContent = data.correct + '/' + questions.length;
+    let title = "Good Effort!", subtitle = "Keep practicing to improve your score.";
+    if (percentage >= 80) { title = "Excellent!"; subtitle = "Outstanding performance!"; }
+    else if (percentage >= 60) { title = "Well Done!"; subtitle = "Solid performance, room to grow."; }
+    else if (percentage >= 40) { title = "Keep Trying!"; subtitle = "Practice makes perfect."; }
+    document.getElementById('resultTitle').textContent = title;
+    document.getElementById('resultSubtitle').textContent = subtitle;
+    document.getElementById('resultCandidate').textContent = studentName + ' · ' + studentDept;
+    document.getElementById('correctCount').textContent = data.correct;
+    document.getElementById('wrongCount').textContent = data.wrong;
+    document.getElementById('timeTaken').textContent = data.timeTaken;
+    const cheatList = document.getElementById('cheatList');
+    if (cheatEvents.length === 0) { cheatList.innerHTML = '<li style="color:var(--success)">✓ No suspicious activity detected</li>'; }
+    else { cheatList.innerHTML = cheatEvents.map(e => '<li>' + e.description + ' (Q' + e.question + ')</li>').join(''); }
+    document.getElementById('breakdownContainer').innerHTML = Object.entries(data.topicStats).map(([topic, stats]) => {
+        const pct = Math.round((stats.correct / stats.total) * 100);
+        return '<div class="breakdown-item"><span>' + topic + '</span><div style="display:flex;align-items:center;gap:8px"><span style="font-weight:600;font-size:0.85rem">' + stats.correct + '/' + stats.total + '</span><div class="breakdown-bar"><div class="breakdown-fill" style="width:' + pct + '%"></div></div></div></div>';
+    }).join('');
+}
+
+function reviewAnswers() {
+    currentQuestion = 0; testSubmitted = true;
+    document.getElementById('resultsScreen').style.display = 'none';
+    document.getElementById('testScreen').style.display = 'block';
+    renderQuestion();
+    showToast("Review mode: Green = Correct, Red = Wrong");
+    setTimeout(() => {
+        const q = questions[currentQuestion];
+        document.querySelectorAll('.option').forEach((el, idx) => {
+            if (idx === q.correct) el.classList.add('correct');
+            else if (answers[q.id] === idx && idx !== q.correct) el.classList.add('wrong');
+        });
+    }, 100);
+}
+
+function showToast(msg, isCheat) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast' + (isCheat ? ' cheat' : '');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"14ed74a8395a4caaabc04f8e17f83022","r":1}' crossorigin="anonymous"></script>
+</body>
+</html>
