@@ -647,7 +647,7 @@ function startCountdown(){
 function populateIdentity(){
   if(!window.GH || !window.GH.loggedIn){
     // auth-guard.js should already have redirected; this is just a safety net.
-    window.location.href = '../auth.html';
+   window.location.href = '../../auth.html';
     return;
   }
   playerName = window.GH.name || window.GH.username || "Candidate";
