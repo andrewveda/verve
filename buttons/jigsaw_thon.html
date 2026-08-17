@@ -622,7 +622,7 @@ let pieces = [], selectedPiece = null;
 let isDragging=false, dragAnchor=null;
 let startPointerX=0, startPointerY=0, currentPointerX=0, currentPointerY=0;
 const DRAG_THRESHOLD = 7;
- let placed=0, moves=0, wrongMoves=0, startTime=null;
+let placed=0, moves=0, correctMoves=0, wrongMoves=0, startTime=null;
 let glowPiece=null, glowTimer=null;
 let locksSinceChat=0;
 
@@ -1007,10 +1007,9 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.querySelector(".vw-img-actions .dl-btn").onclick=downloadCurrentVerseWin;
 });
 
-/* PUZZLE INIT */
 function initPuzzle(){
   pieces=[];selectedPiece=null;isDragging=false;dragAnchor=null;glowPiece=null;
-  placed=0;moves=0;wrongMoves=0;startTime=null;locksSinceChat=0;
+  placed=0;moves=0;correctMoves=0;wrongMoves=0;startTime=null;locksSinceChat=0;
   document.getElementById("chatPopup").classList.remove("show");
   setChatLock(false);
   document.getElementById("progFill").style.width="0%";
@@ -1127,13 +1126,15 @@ function executeClusterMove(anchor,deltaR,deltaC){
   }
 
   moves++;
-if(newLocks===0) wrongMoves++;
-anchor.row=tr;anchor.col=tc;
+  anchor.row=tr;anchor.col=tc;
   for(const[,{piece:dp,toR,toC}]of displacedMap){dp.row=toR;dp.col=toC;}
 
   let newLocks=0;
   for(const p of pieces)if(!p.locked&&p.row===p.tr&&p.col===p.tc){p.locked=true;newLocks++;}
   placed+=newLocks;updateProgress();
+
+  if(newLocks>0) correctMoves++;
+  else wrongMoves++;
 
   if(newLocks>0){
     confetti({particleCount:20,spread:40,origin:{y:0.5},colors:["#D9BC80","#B8935A","#8C6A34"]});
@@ -1240,12 +1241,12 @@ function showVerseWin(){
   document.getElementById("verseWinScreen").style.display="flex";
   document.getElementById("verseWinScreen").scrollTop=0;
 
- sendToSupabase({
+  sendToSupabase({
   student_name: playerName,
   department: playerDept,
   time_spent: s,
   moves: moves,
-  correct_score: placed,
+  correct_score: correctMoves,
   wrong_score: wrongMoves,
   total_pieces: TOTAL(),
   quest_id: (QUEST.id || "quest") + "-p" + v.num
