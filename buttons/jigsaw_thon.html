@@ -622,7 +622,7 @@ let pieces = [], selectedPiece = null;
 let isDragging=false, dragAnchor=null;
 let startPointerX=0, startPointerY=0, currentPointerX=0, currentPointerY=0;
 const DRAG_THRESHOLD = 7;
-let placed=0, moves=0, startTime=null;
+ let placed=0, moves=0, wrongMoves=0, startTime=null;
 let glowPiece=null, glowTimer=null;
 let locksSinceChat=0;
 
@@ -1010,7 +1010,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 /* PUZZLE INIT */
 function initPuzzle(){
   pieces=[];selectedPiece=null;isDragging=false;dragAnchor=null;glowPiece=null;
-  placed=0;moves=0;startTime=null;locksSinceChat=0;
+  placed=0;moves=0;wrongMoves=0;startTime=null;locksSinceChat=0;
   document.getElementById("chatPopup").classList.remove("show");
   setChatLock(false);
   document.getElementById("progFill").style.width="0%";
@@ -1127,7 +1127,8 @@ function executeClusterMove(anchor,deltaR,deltaC){
   }
 
   moves++;
-  anchor.row=tr;anchor.col=tc;
+if(newLocks===0) wrongMoves++;
+anchor.row=tr;anchor.col=tc;
   for(const[,{piece:dp,toR,toC}]of displacedMap){dp.row=toR;dp.col=toC;}
 
   let newLocks=0;
@@ -1239,7 +1240,16 @@ function showVerseWin(){
   document.getElementById("verseWinScreen").style.display="flex";
   document.getElementById("verseWinScreen").scrollTop=0;
 
-  sendToSupabase({student_name:playerName,department:playerDept,time_spent:s,moves,quest_id:(QUEST.id||"quest")+"-p"+v.num});
+ sendToSupabase({
+  student_name: playerName,
+  department: playerDept,
+  time_spent: s,
+  moves: moves,
+  correct_score: placed,
+  wrong_score: wrongMoves,
+  total_pieces: TOTAL(),
+  quest_id: (QUEST.id || "quest") + "-p" + v.num
+});
 }
 
 function buildVerseWinActions(){
