@@ -1244,11 +1244,9 @@ function showVerseWin(){
   sendToSupabase({
   student_name: playerName,
   department: playerDept,
-  time_spent: s,
-  moves: moves,
-  correct_score: correctMoves,
-  wrong_score: wrongMoves,
-  total_pieces: TOTAL(),
+  time_spent: String(s),
+  correct: correctMoves,
+  wrong: wrongMoves,
   quest_id: (QUEST.id || "quest") + "-p" + v.num
 });
 }
