@@ -102,7 +102,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--ink);o
 
 /* ══════════════════════════════
    CHAT POPUP — "Puzzle Bot" texting trainer
-══════════════════════════════ */
+═══════════════════════════════════════════════════════ */
 #chatPopup{
   position:absolute;left:50%;bottom:14px;transform:translateX(-50%) translateY(12px);
   width:min(86%,300px);
@@ -263,7 +263,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--ink);o
   <div class="entry-verse" id="entryTagline">Piece together the mindset that keeps you moving forward.</div>
   <a class="entry-dir-link" href="directory.html">← Back to directory</a>
   <div class="form-card">
-    <div>
+    <div id="authIdentity" style="display:none;text-align:center;margin-bottom:0.6rem;">
+      <div style="font-size:0.95rem;font-weight:800;color:var(--ink);" id="authNameDisplay"></div>
+      <div style="font-size:0.68rem;color:var(--gold-deep);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:2px;" id="authDeptDisplay"></div>
+    </div>
+    <div id="nameFieldWrap">
       <label class="field-label">Your name</label>
       <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off"/>
     </div>
@@ -281,6 +285,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--ink);o
       <div class="puzzle-nav-title" id="navTitle">Puzzle Quest</div>
       <div class="puzzle-nav-sub" id="navSub">Puzzle 1 of 6</div>
     </div>
+    <button id="muteBtn" class="nav-btn" onclick="toggleMute()" title="Mute bot">🔊</button>
     <button id="nextNavBtn" class="nav-btn next-btn disabled-btn" onclick="skipToNext()">Next ›</button>
   </div>
 
@@ -377,6 +382,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--ink);o
 <div id="lightbox" onclick="closeLightbox()"><img id="lightboxImg" alt="Puzzle poster"/></div>
 <div class="copy-toast" id="copyToast"></div>
 
+<script src="../auth-guard.js"></script>
 <script src="data.js"></script>
 <script>
 /* PART 1 — QUOTE DATA now lives in data.js (shared with directory.html) */
@@ -616,7 +622,7 @@ let pieces = [], selectedPiece = null;
 let isDragging=false, dragAnchor=null;
 let startPointerX=0, startPointerY=0, currentPointerX=0, currentPointerY=0;
 const DRAG_THRESHOLD = 7;
-let placed=0, moves=0, startTime=null;
+let placed=0, moves=0, correctMoves=0, wrongMoves=0, startTime=null;
 let glowPiece=null, glowTimer=null;
 let locksSinceChat=0;
 
@@ -638,13 +644,34 @@ function saveBest(id,secs,mv){
 function getSolvedVerses(){ try{return JSON.parse(localStorage.getItem("pq_solved")||"[]");}catch(e){return[];} }
 function markVerseSolved(id){ const s=getSolvedVerses(); if(!s.includes(id)){s.push(id);localStorage.setItem("pq_solved",JSON.stringify(s));} }
 
+/* MUTE HELPERS */
+function isChatMuted(){
+  try { return localStorage.getItem('pq_chat_muted') === '1'; } catch(e){ return false; }
+}
+function toggleMute(){
+  const muted = !isChatMuted();
+  try { localStorage.setItem('pq_chat_muted', muted ? '1' : '0'); } catch(e){}
+  updateMuteBtn();
+  showToast(muted ? 'Bot muted 🔇' : 'Bot unmuted 🔊');
+}
+function updateMuteBtn(){
+  const btn = document.getElementById('muteBtn');
+  if(!btn) return;
+  btn.textContent = isChatMuted() ? '🔇' : '🔊';
+  btn.title = isChatMuted() ? 'Unmute bot' : 'Mute bot';
+}
+
 /* ENTRY */
 function enterQuest(){
-  const n = document.getElementById("nameInput").value.trim();
+  const ghName = window.GH?.name || localStorage.getItem('userName');
+  const ghDept = window.GH?.dept || localStorage.getItem('userDept');
+  const inputName = document.getElementById("nameInput").value.trim();
+
+  const n = ghName || inputName;
   if (!n) { alert("Please enter your name!"); return; }
 
   playerName = n;
-  playerDept = "Friends & Family";
+  playerDept = ghDept || "Friends & Family";
   localStorage.setItem("pq_name", n);
   localStorage.setItem("pq_dept", playerDept);
 
@@ -700,19 +727,6 @@ function elapsed(){return startTime?Math.floor((Date.now()-startTime)/1000):0;}
 /* ═══════════════════════════════
    CHAT POPUP — texting trainer
 ═══════════════════════════════ */
-/* ═══════════════════════════════════════════════════════
-   CHAT THEMES
-   Each theme is a category of compliment (Grit, Creativity,
-   Insight, etc). Every exchange inside a theme is a complete,
-   self-contained two-line unit: a compliment (varied in
-   phrasing, thesaurus-style, across entries) followed by a
-   reply written in a different response style (simple, warm,
-   crediting effort, sharing credit, modest, returning the
-   compliment, encouraging). Nothing depends on a previous or
-   following popup, so every exchange finishes on its own.
-   Popups still walk each theme's list in order and loop back
-   around, just so the same line doesn't repeat back-to-back.
-═══════════════════════════════════════════════════════ */
 const CHAT_THEMES = {
   grit: {
     label: "Grit",
@@ -865,7 +879,8 @@ function setChatLock(active){
 }
 
 function maybeShowChat(){
-  if(chatOpen)return;
+  if(chatOpen) return;
+  if(isChatMuted()) return;
   locksSinceChat++;
   const everyThird = locksSinceChat>=3;
   const randomChance = Math.random() < 0.35;
@@ -942,6 +957,22 @@ function handleChatTap(idx, word, btn, replyBubble, popup, convo){
 
 /* DOM READY */
 document.addEventListener("DOMContentLoaded",()=>{
+  /* Auth identity on entry screen */
+  const ghName = window.GH?.name || localStorage.getItem('userName');
+  const ghDept = window.GH?.dept || localStorage.getItem('userDept');
+  if (ghName) {
+    document.getElementById('authIdentity').style.display = 'block';
+    document.getElementById('authNameDisplay').textContent = ghName;
+    document.getElementById('authDeptDisplay').textContent = ghDept || '';
+    document.getElementById('nameFieldWrap').style.display = 'none';
+  } else {
+    const n = localStorage.getItem("pq_name");
+    if (n) document.getElementById("nameInput").value = n;
+  }
+
+  /* Mute button state */
+  updateMuteBtn();
+
   const questName = QUEST.tag || DIRECTORY.directoryTitle || "Puzzle Quest";
   document.title = questName;
   document.getElementById("entryTitle").textContent = questName;
@@ -972,17 +1003,13 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(!hitPiece(x,y)){selectedPiece=null;drawAll();}
   },{passive:false});
 
-  const n = localStorage.getItem("pq_name");
-  if (n) document.getElementById("nameInput").value = n;
-
   document.querySelector(".vw-img-actions .share-btn").onclick=shareCurrentVerseWin;
   document.querySelector(".vw-img-actions .dl-btn").onclick=downloadCurrentVerseWin;
 });
 
-/* PUZZLE INIT */
 function initPuzzle(){
   pieces=[];selectedPiece=null;isDragging=false;dragAnchor=null;glowPiece=null;
-  placed=0;moves=0;startTime=null;locksSinceChat=0;
+  placed=0;moves=0;correctMoves=0;wrongMoves=0;startTime=null;locksSinceChat=0;
   document.getElementById("chatPopup").classList.remove("show");
   setChatLock(false);
   document.getElementById("progFill").style.width="0%";
@@ -1106,6 +1133,9 @@ function executeClusterMove(anchor,deltaR,deltaC){
   for(const p of pieces)if(!p.locked&&p.row===p.tr&&p.col===p.tc){p.locked=true;newLocks++;}
   placed+=newLocks;updateProgress();
 
+  if(newLocks>0) correctMoves++;
+  else wrongMoves++;
+
   if(newLocks>0){
     confetti({particleCount:20,spread:40,origin:{y:0.5},colors:["#D9BC80","#B8935A","#8C6A34"]});
     const justSolved = placed===TOTAL();
@@ -1211,7 +1241,14 @@ function showVerseWin(){
   document.getElementById("verseWinScreen").style.display="flex";
   document.getElementById("verseWinScreen").scrollTop=0;
 
-  sendToSupabase({student_name:playerName,department:playerDept,time_spent:s,moves,quest_id:(QUEST.id||"quest")+"-p"+v.num});
+  sendToSupabase({
+  student_name: playerName,
+  department: playerDept,
+  time_spent: String(s),
+  correct: correctMoves,
+  wrong: wrongMoves,
+  quest_id: (QUEST.id || "quest") + "-p" + v.num
+});
 }
 
 function buildVerseWinActions(){
