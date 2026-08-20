@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faculty Orientation: Anagram Encounters</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --stage: #14171C;
+      --stage-edge: #1E232B;
+      --bg: #F8F4E8;
+      --surface: #FBF8EF;
+      --surface-alt: #F1EAD6;
+      --border: #E3D8B8;
+      --border-strong: #CBB988;
+      --ink: #201C14;
+      --muted: #756B54;
+      --accent: #1F4D3F;
+      --accent-dark: #14342A;
+      --accent-soft: #DEE9E1;
+      --good: #1F4D3F;
+      --bad: #7A2E2A;
+      --bad-soft: #F1DFD8;
+      --warn: #8C6A24;
+      --brass: #A9812F;
+      --brass-bright: #C9A84C;
+      --brass-dark: #7D5F22;
+      --brass-soft: #F1E6C4;
+      --slot-empty-bg: #E7DEBF;
+      --slot-empty-border: #BFB088;
+      --shadow-lift: 0 1px 0 rgba(255,255,255,0.6) inset, 0 10px 24px -14px rgba(20,17,10,0.35);
+
+      --tile-w: 42px;
+      --tile-h: 50px;
+      --tile-font: 1.45rem;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background:
+        radial-gradient(ellipse 1000px 600px at 50% -8%, #262C35 0%, transparent 60%),
+        linear-gradient(180deg, var(--stage) 0%, var(--stage-edge) 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 12px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 580px;
+      background: var(--surface);
+      border-radius: 24px;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.7) inset,
+        0 30px 60px -20px rgba(0,0,0,0.55),
+        0 0 0 1px rgba(169,129,47,0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .app-container::before {
+      content: "";
+      display: block;
+      height: 6px;
+      background: linear-gradient(90deg, var(--brass-dark), var(--brass-bright) 35%, var(--brass) 65%, var(--brass-dark));
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--brass-dark);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px 0 6px;
+    }
+    .eyebrow::before, .eyebrow::after {
+      content: "";
+      width: 24px;
+      height: 1px;
+      background: var(--border-strong);
+    }
+
+    h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 2.1rem;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: -0.01em;
+      padding: 2px 20px 6px;
+      color: var(--ink);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.5;
+      padding: 0 24px 16px;
+    }
+
+    .ticket-divider {
+      position: relative;
+      height: 1px;
+      background: repeating-linear-gradient(90deg, var(--border-strong) 0 6px, transparent 6px 12px);
+      margin: 6px 0 4px;
+    }
+    .ticket-divider::before, .ticket-divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      background: var(--stage-edge);
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+    .ticket-divider::before { left: -24px; }
+    .ticket-divider::after { right: -24px; }
+
+    .login-screen { display: block; padding: 0 24px 28px; }
+    .game-screen { display: none; padding-bottom: 20px; }
+    .result-screen { display: none; padding-bottom: 28px; }
+    .result-screen > .btn { width: calc(100% - 48px); margin: 0 24px; }
+
+    .identity-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 8px 0 20px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #FFFEFA, var(--surface-alt));
+      box-shadow: var(--shadow-lift);
+    }
+    .identity-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--brass-bright);
+      box-shadow: 0 0 0 3px var(--surface), 0 0 0 4px var(--border);
+      flex-shrink: 0;
+    }
+    .identity-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .identity-name {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 1.15rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .identity-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--brass-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border-radius: 14px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+    .btn-primary {
+      background: linear-gradient(180deg, #26221A, var(--ink));
+      color: #F6EFD8;
+      box-shadow: 0 10px 20px -10px rgba(0,0,0,0.5);
+    }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-success {
+      background: linear-gradient(180deg, #235945, var(--accent));
+      color: #F3F7F1;
+      box-shadow: 0 10px 20px -10px rgba(31,77,63,0.55);
+    }
+    .btn-success:hover { background: var(--accent-dark); }
+    .btn-skip {
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border-strong);
+      padding: 12px;
+      font-size: 0.9rem;
+    }
+    .btn-skip:hover { background: var(--surface-alt); color: var(--ink); border-color: var(--brass); }
+
+    .game-header {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 16px 6px 12px;
+      background: linear-gradient(180deg, #FDFAF0, var(--surface));
+    }
+    .stat-box { text-align: center; }
+    .stat-box .value {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .stat-box.time .value {
+      font-size: 1.85rem;
+      color: var(--accent);
+      transition: color 0.3s;
+    }
+    .stat-box.time .value.warn { color: var(--warn); }
+    .stat-box.time .value.bad { color: var(--bad); animation: pulse 1s infinite; }
+    .stat-box .label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .timer-rail {
+      height: 4px;
+      margin: 0 20px;
+      background: var(--border);
+      overflow: hidden;
+      border-radius: 4px;
+    }
+    .timer-rail-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brass-dark), var(--accent));
+      transition: width 0.1s linear, background 0.3s;
+    }
+    .timer-rail-fill.warn { background: var(--warn); }
+    .timer-rail-fill.bad { background: var(--bad); }
+
+    .narrative-card {
+      margin: 16px 18px 12px;
+      padding: 18px 20px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #FFFEFA, var(--surface-alt));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lift);
+      position: relative;
+    }
+    .narrative-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--brass-dark);
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+    .narrative-prose {
+      font-family: 'Fraunces', serif;
+      font-size: 1.02rem;
+      line-height: 1.55;
+      color: var(--ink);
+      font-style: italic;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      text-align: center;
+      padding: 8px 0 6px;
+    }
+
+    .word-cluster-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px 14px;
+      padding: 4px 2px;
+    }
+
+    .word-block {
+      display: inline-flex;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      align-items: center;
+      gap: 0;
+      flex-shrink: 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px -2px rgba(60,45,10,0.2);
+    }
+
+    .letter-tile {
+      width: var(--tile-w);
+      height: var(--tile-h);
+      background: linear-gradient(180deg, #FFFEFA 0%, #F7F1DE 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fraunces', serif;
+      font-size: var(--tile-font);
+      font-weight: 600;
+      color: var(--ink);
+      border: 1px solid var(--border-strong);
+      border-right: none;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
+      cursor: pointer;
+      user-select: none;
+      flex-shrink: 0;
+      transition: transform 0.1s, border-color 0.1s;
+    }
+
+    .word-block > .letter-tile:first-child {
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+    }
+    .word-block > .letter-tile:last-child {
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+      border-right: 1px solid var(--border-strong);
+    }
+
+    .letter-tile:hover {
+      transform: translateY(-2px);
+      border-color: var(--brass);
+      z-index: 2;
+    }
+    .letter-tile:active { transform: scale(0.95); }
+    .letter-tile.tile-placeholder { visibility: hidden; pointer-events: none; }
+
+    .submission-section {
+      margin: 8px 18px;
+      background: var(--surface-alt);
+      border: 2px dashed var(--border-strong);
+      border-radius: 16px;
+      padding: 12px 8px;
+      min-height: 86px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .submission-section.correct {
+      border-color: var(--good);
+      border-style: solid;
+      background: var(--accent-soft);
+    }
+    .submission-section.wrong {
+      border-color: var(--bad);
+      border-style: solid;
+      background: var(--bad-soft);
+      animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .blank-slot {
+      width: var(--tile-w);
+      height: var(--tile-h);
+      border: 1.5px solid var(--slot-empty-border);
+      border-right: none;
+      background: var(--slot-empty-bg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fraunces', serif;
+      font-size: var(--tile-font);
+      font-weight: 600;
+      color: var(--ink);
+      user-select: none;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      cursor: default;
+    }
+
+    .word-block > .blank-slot:first-child {
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+    }
+    .word-block > .blank-slot:last-child {
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+      border-right: 1.5px solid var(--slot-empty-border);
+    }
+
+    .blank-slot.is-punct {
+      border: none !important;
+      background: transparent !important;
+      width: calc(var(--tile-w) * 0.4);
+      font-size: var(--tile-font);
+      color: var(--brass-dark);
+      font-weight: 700;
+    }
+
+    .blank-slot.filled {
+      border-color: var(--border-strong);
+      background: linear-gradient(180deg, #FFFEFA 0%, #F7F1DE 100%);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
+      cursor: pointer;
+    }
+
+    .blank-slot.next-target {
+      border-color: var(--brass-bright);
+      background: #FDF9EB;
+      box-shadow: 0 0 0 2px rgba(201,168,76,0.35);
+      z-index: 1;
+    }
+
+    .feedback {
+      text-align: center;
+      margin: 10px 18px 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.94rem;
+      display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback-success { background: var(--accent-soft); color: var(--accent-dark); border: 1px solid rgba(31,77,63,0.25); }
+    .feedback-error { background: var(--bad-soft); color: var(--bad); border: 1px solid rgba(122,46,42,0.25); }
+
+    .action-stack {
+      padding: 12px 18px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .result-card {
+      background: linear-gradient(180deg, #FFFEFA, var(--surface-alt));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin: 4px 18px 20px;
+      padding: 24px 16px;
+      text-align: center;
+      box-shadow: var(--shadow-lift);
+    }
+    .result-score {
+      font-family: 'Fraunces', serif;
+      font-size: 3.5rem;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .result-score-label {
+      font-size: 0.72rem;
+      color: var(--brass-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 600;
+      padding-bottom: 16px;
+    }
+    .result-detail {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding-top: 4px;
+    }
+    .result-detail.streak-row { grid-template-columns: 1fr; margin-top: 10px; }
+    .detail-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 12px;
+    }
+    .detail-item .num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .detail-item .lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .history-list {
+      max-height: 220px;
+      overflow-y: auto;
+      margin: 0 18px 20px;
+    }
+    .history-list h3 {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      padding: 4px 4px 8px;
+    }
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .history-item .h-word { font-weight: 600; }
+    .history-item .h-status { font-weight: 600; flex-shrink: 0; }
+    .h-correct { color: var(--good); }
+    .h-wrong { color: var(--bad); }
+    .h-skipped { color: var(--warn); }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- LOGIN SCREEN -->
+  <div class="login-screen" id="loginScreen">
+    <span class="eyebrow">Department of English</span>
+    <h1>Faculty Orientation</h1>
+    <p class="subtitle">A wordplay encounter celebrating our colleagues. Read each clue story carefully and rearrange the clue letters to reveal the faculty name.</p>
+
+    <div class="ticket-divider"></div>
+
+    <div class="identity-card" id="identityCard">
+      <img class="identity-avatar" id="identityAvatar" src="" alt="avatar">
+      <div class="identity-info">
+        <div class="identity-name" id="identityName">Faculty Member</div>
+        <div class="identity-tag">Ready for Session</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="beginQuiz()">
+      Start Orientation Challenge
+    </button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="game-screen" id="gameScreen">
+    <div class="game-header">
+      <div class="stat-box time">
+        <div class="value" id="timeDisplay">03:00</div>
+        <div class="label">Time</div>
+      </div>
+      <div class="stat-box">
+        <div class="value" id="scoreDisplay">0</div>
+        <div class="label">Score</div>
+      </div>
+      <div class="stat-box">
+        <div class="value" id="streakDisplay">0</div>
+        <div class="label">Streak</div>
+      </div>
+      <div class="stat-box">
+        <div class="value" id="solvedDisplay">0</div>
+        <div class="label">Solved</div>
+      </div>
+    </div>
+
+    <div class="timer-rail">
+      <div class="timer-rail-fill" id="timerRailFill" style="width: 100%"></div>
+    </div>
+
+    <!-- Narrative Clue Card -->
+    <div class="narrative-card">
+      <span class="narrative-badge" id="categoryBadge">Orientation Tribute</span>
+      <p class="narrative-prose" id="narrativeText"></p>
+    </div>
+
+    <!-- Target Answer Tray -->
+    <div class="submission-section" id="submissionBox">
+      <div class="section-label">Faculty Name Structure</div>
+      <div class="word-cluster-container" id="targetWordsContainer"></div>
+    </div>
+
+    <!-- Clue Letters Tray -->
+    <div class="letters-section" style="padding: 0 16px;">
+      <div class="section-label">Clue phrase letters — tap to place</div>
+      <div class="word-cluster-container" id="availableLetters"></div>
+    </div>
+
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+
+    <div class="action-stack">
+      <button class="btn btn-success" id="submitBtn" onclick="submitAnswer()">Submit Name</button>
+      <button class="btn btn-skip" onclick="skipCase()">Skip Colleague</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="result-screen" id="resultScreen">
+    <span class="eyebrow">Session Complete</span>
+    <h1>Round Up!</h1>
+
+    <div class="result-card">
+      <div class="result-score" id="finalScore">0</div>
+      <div class="result-score-label">Total Score</div>
+      <div class="result-detail">
+        <div class="detail-item">
+          <div class="num" id="finalCorrect">0</div>
+          <div class="lbl">Identified</div>
+        </div>
+        <div class="detail-item">
+          <div class="num" id="finalWrong">0</div>
+          <div class="lbl">Retries</div>
+        </div>
+        <div class="detail-item">
+          <div class="num" id="finalSkipped">0</div>
+          <div class="lbl">Passed</div>
+        </div>
+        <div class="detail-item">
+          <div class="num" id="finalAccuracy">0%</div>
+          <div class="lbl">Precision</div>
+        </div>
+      </div>
+      <div class="result-detail streak-row">
+        <div class="detail-item">
+          <div class="num" id="finalBestStreak">0</div>
+          <div class="lbl">Best Streak</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="history-list" id="historyList"></div>
+
+    <div class="ticket-divider" style="margin: 4px 18px 20px;"></div>
+
+    <button class="btn btn-primary" onclick="restartQuiz()">
+      Play Again
+    </button>
+  </div>
+
+</div>
+
+<script>
+/* ============================================
+   FACULTY ORIENTATION ANAGRAM BANK
+   ============================================ */
+const SESSION_SECONDS = 180;
+
+const WORD_BANK = [
+  {
+    clue: "AVAIL JAM HI SKY",
+    answer: "VIJAYALAKSHMI",
+    story: "Children love jam and have limitless dreams. I say have some jam, enjoy the sweetness of life and the sky is yours! Avail Jam. Hi Sky!"
+  },
+  {
+    clue: "HI ART",
+    answer: "THARI",
+    story: "As Stephen Fry would say, art needs no explanation! You simply worship it and let its grace speak for itself! Hi Art!"
+  },
+  {
+    clue: "IN THY JAVA",
+    answer: "JAYANTHI V",
+    story: "Where is power? When people are feeling low and without energy, they reach for coffee. Coffee is also known as Java. So, the answer is simple: power rests in thy Java!"
+  },
+  {
+    clue: "A GAY SUN",
+    answer: "SUGANYA G",
+    story: "A cheerful radiant personality who spreads warmth and joy wherever they go. Another hint: they affectionately call her Surya!"
+  },
+  {
+    clue: "A CHARM HIT",
+    answer: "CHITHRA M",
+    story: "A musical hit quickly becomes everyone's favourite melody. A Charm Hit is someone whose warmth effortlessly makes them everyone's favourite colleague!"
+  },
+  {
+    clue: "HON BEAMS HEAD",
+    answer: "SHEEBA MANODH",
+    story: "What comes to mind when you hear 'Hon Beams'? Honeybees—tireless workers building sweetness. 'Hon' stands for Honourable; 'Beams' are rays of light glowing with joy. Industrious, radiant, and ever beaming with wisdom, warmth, and grace!"
+  },
+  {
+    clue: "NOT HARSH MAFIA",
+    answer: "FATHIMA ROSHAN",
+    story: "What comes to mind with 'mafia'? Larger-than-life presence, charisma, composure under pressure, fierce loyalty, and resilience. Strip away the harshness, and what remains is pure leadership!"
+  },
+  {
+    clue: "THE MEGA",
+    answer: "GEETHA M",
+    story: "Attach it to almost anything and it instantly conveys scale, excellence, popularity, and success. Mega is the English language's favourite prefix for 'greater than great'!"
+  },
+  {
+    clue: "PYRAMID APA",
+    answer: "PADMAPRIYA",
+    story: "The pyramid is a timeless monument to human ambition. APA is a monument to academic integrity. One preserves history in stone; the other preserves scholarship on paper!"
+  },
+  {
+    clue: "DREAM IN RAYS",
+    answer: "MARY SANDRINE",
+    story: "When daylight breaks over the campus, brilliance shines through every lecture hall. A guiding spirit weaving imagination with quiet elegance: dream in rays!"
+  },
+  {
+    clue: "A VAST HERO",
+    answer: "SHOVATARA",
+    story: "Quiet fortitude, generous guidance, and an ocean of patience in every classroom encounter. A steady pillar holding high standards: a vast hero!"
+  },
+  {
+    clue: "HE DRAWN ART",
+    answer: "ANDREW VEDA",
+    story: "Lines of clean code, acrostic Sangam verses, and kinetic typefaces brought to life on the screen. Words sculpted with precision and purpose: he drawn art!"
+  }
+];
+
+let playerName = "Faculty Colleague";
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let wrongTaps = 0;
+let correctTaps = 0;
+let completedCount = 0;
+let skippedCount = 0;
+let caseHistory = [];
+
+let wordQueue = [];
+let queuePos = 0;
+let currentWordData = null;
+
+let timeRemaining = SESSION_SECONDS;
+let timerInterval = null;
+
+let availableLetters = [];
+let targetSlots = [];
+let tileRefs = {};
+
+function beginQuiz() {
+  wordQueue = shuffledCopy(WORD_BANK);
+  queuePos = 0;
+
+  score = 0;
+  streak = 0;
+  bestStreak = 0;
+  wrongTaps = 0;
+  correctTaps = 0;
+  completedCount = 0;
+  skippedCount = 0;
+  caseHistory = [];
+  timeRemaining = SESSION_SECONDS;
+
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("gameScreen").style.display = "block";
+  document.getElementById("resultScreen").style.display = "none";
+
+  loadCase();
+  startTimer();
+}
+
+function restartQuiz() {
+  document.getElementById("loginScreen").style.display = "block";
+  document.getElementById("gameScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "none";
+}
+
+function getNextWord() {
+  if (queuePos >= wordQueue.length) {
+    const lastClue = wordQueue[wordQueue.length - 1];
+    wordQueue = shuffledCopy(WORD_BANK);
+    if (wordQueue[0].clue === lastClue.clue && wordQueue.length > 1) {
+      [wordQueue[0], wordQueue[1]] = [wordQueue[1], wordQueue[0]];
+    }
+    queuePos = 0;
+  }
+  return wordQueue[queuePos++];
+}
+
+function shuffledCopy(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function adjustDynamicTileScale() {
+  if (!currentWordData) return;
+
+  const container = document.getElementById("submissionBox");
+  const availableWidth = Math.max(280, (container ? container.clientWidth : 480) - 28);
+
+  const answerWords = currentWordData.answer.split(" ");
+  const clueWords = currentWordData.clue.split(" ");
+  const allWords = [...answerWords, ...clueWords];
+
+  let maxWordLength = 1;
+  allWords.forEach(w => {
+    const len = w.replace(/[^A-Z0-9]/gi, "").length;
+    if (len > maxWordLength) maxWordLength = len;
+  });
+
+  let computedWidth = Math.floor(availableWidth / maxWordLength);
+  computedWidth = Math.min(46, Math.max(24, computedWidth));
+
+  const computedHeight = Math.round(computedWidth * 1.18);
+  const computedFont = Math.max(0.85, (computedWidth / 46) * 1.45).toFixed(2);
+
+  document.documentElement.style.setProperty("--tile-w", computedWidth + "px");
+  document.documentElement.style.setProperty("--tile-h", computedHeight + "px");
+  document.documentElement.style.setProperty("--tile-font", computedFont + "rem");
+}
+
+function loadCase() {
+  currentWordData = getNextWord();
+  adjustDynamicTileScale();
+  updateHeaderStats();
+
+  document.getElementById("feedback").className = "feedback";
+  document.getElementById("narrativeText").textContent = `“${currentWordData.story}”`;
+
+  const subBox = document.getElementById("submissionBox");
+  subBox.className = "submission-section";
+
+  initCaseLayout();
+}
+
+function updateHeaderStats() {
+  document.getElementById("scoreDisplay").textContent = score;
+  document.getElementById("streakDisplay").textContent = streak;
+  document.getElementById("solvedDisplay").textContent = completedCount;
+}
+
+function initCaseLayout() {
+  const wordsContainer = document.getElementById("targetWordsContainer");
+  const availContainer = document.getElementById("availableLetters");
+
+  wordsContainer.innerHTML = "";
+  availContainer.innerHTML = "";
+
+  availableLetters = [];
+  targetSlots = [];
+  tileRefs = {};
+
+  const answerWords = currentWordData.answer.toUpperCase().split(" ");
+  let totalSlotCounter = 0;
+
+  answerWords.forEach((word) => {
+    const wordBlock = document.createElement("div");
+    wordBlock.className = "word-block";
+
+    const chars = word.split("");
+    chars.forEach((ch) => {
+      const slotEl = document.createElement("div");
+      const isLetter = /[A-Z0-9]/.test(ch);
+
+      if (isLetter) {
+        slotEl.className = "blank-slot";
+        const slotObj = {
+          index: totalSlotCounter,
+          isPunct: false,
+          char: ch,
+          filledByTileId: null,
+          element: slotEl
+        };
+        targetSlots.push(slotObj);
+
+        const currentSlotIndex = totalSlotCounter;
+        slotEl.onclick = () => onSlotClick(currentSlotIndex);
+        slotEl.tabIndex = 0;
+        slotEl.setAttribute("role", "button");
+        slotEl.setAttribute("aria-label", "Target letter slot");
+        slotEl.onkeydown = (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onSlotClick(currentSlotIndex);
+          }
+        };
+
+        totalSlotCounter++;
+      } else {
+        slotEl.className = "blank-slot is-punct";
+        slotEl.textContent = ch;
+      }
+      wordBlock.appendChild(slotEl);
+    });
+
+    wordsContainer.appendChild(wordBlock);
+  });
+
+  const clueWords = currentWordData.clue.toUpperCase().split(" ");
+  let letterIndex = 0;
+
+  clueWords.forEach((word) => {
+    const wordBlock = document.createElement("div");
+    wordBlock.className = "word-block";
+
+    const chars = word.split("");
+    chars.forEach((char) => {
+      if (/[A-Z0-9]/.test(char)) {
+        const item = { char, id: letterIndex, used: false, slotIdx: null };
+        availableLetters.push(item);
+
+        const tile = document.createElement("div");
+        tile.className = "letter-tile";
+        tile.textContent = char;
+        tile.dataset.id = item.id;
+        tile.tabIndex = 0;
+        tile.setAttribute("role", "button");
+        tile.setAttribute("aria-label", "Letter " + char);
+        tile.onclick = () => selectLetter(item.id);
+        tile.onkeydown = (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            selectLetter(item.id);
+          }
+        };
+        wordBlock.appendChild(tile);
+        tileRefs[item.id] = tile;
+        letterIndex++;
+      }
+    });
+
+    availContainer.appendChild(wordBlock);
+  });
+
+  highlightNextTargetSlot();
+}
+
+function highlightNextTargetSlot() {
+  targetSlots.forEach((slot) => {
+    if (!slot.isPunct) slot.element.classList.remove("next-target");
+  });
+
+  const nextOpen = targetSlots.find(s => !s.isPunct && s.filledByTileId === null);
+  if (nextOpen) {
+    nextOpen.element.classList.add("next-target");
+  }
+}
+
+function selectLetter(tileId) {
+  const item = availableLetters.find(a => a.id === tileId);
+  if (!item || item.used) return;
+
+  const nextSlot = targetSlots.find(s => !s.isPunct && s.filledByTileId === null);
+  if (!nextSlot) return;
+
+  item.used = true;
+  item.slotIdx = nextSlot.index;
+  nextSlot.filledByTileId = item.id;
+
+  const sourceTile = tileRefs[tileId];
+  sourceTile.classList.add("tile-placeholder");
+  sourceTile.tabIndex = -1;
+
+  nextSlot.element.textContent = item.char;
+  nextSlot.element.classList.add("filled");
+  nextSlot.element.setAttribute("aria-label", "Filled with " + item.char + ", tap to remove");
+
+  highlightNextTargetSlot();
+}
+
+function onSlotClick(slotIndex) {
+  const slot = targetSlots.find(s => s.index === slotIndex);
+  if (!slot || slot.isPunct || slot.filledByTileId === null) return;
+
+  const tileId = slot.filledByTileId;
+  const item = availableLetters.find(a => a.id === tileId);
+
+  if (item) {
+    item.used = false;
+    item.slotIdx = null;
+  }
+
+  slot.filledByTileId = null;
+  slot.element.textContent = "";
+  slot.element.classList.remove("filled");
+  slot.element.setAttribute("aria-label", "Blank slot");
+
+  const sourceTile = tileRefs[tileId];
+  if (sourceTile) {
+    sourceTile.classList.remove("tile-placeholder");
+    sourceTile.tabIndex = 0;
+  }
+
+  highlightNextTargetSlot();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimerUI();
+
+  timerInterval = setInterval(() => {
+    timeRemaining -= 0.1;
+    updateTimerUI();
+
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      timeRemaining = 0;
+      updateTimerUI();
+      completeSession();
+    }
+  }, 100);
+}
+
+function updateTimerUI() {
+  const clamped = Math.max(0, timeRemaining);
+  const mins = Math.floor(clamped / 60);
+  const secs = Math.floor(clamped % 60);
+  const label = String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+
+  const timeValue = document.getElementById("timeDisplay");
+  timeValue.textContent = label;
+
+  const pct = (clamped / SESSION_SECONDS) * 100;
+  const rail = document.getElementById("timerRailFill");
+  rail.style.width = pct + "%";
+
+  timeValue.classList.remove("warn", "bad");
+  rail.classList.remove("warn", "bad");
+  if (clamped <= 20) {
+    timeValue.classList.add("bad");
+    rail.classList.add("bad");
+  } else if (clamped <= 60) {
+    timeValue.classList.add("warn");
+    rail.classList.add("warn");
+  }
+}
+
+function normalizeAnswer(str) {
+  return str.toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function submitAnswer() {
+  const filledChars = targetSlots.filter(s => !s.isPunct).map(s => {
+    if (s.filledByTileId === null) return "";
+    const tile = availableLetters.find(t => t.id === s.filledByTileId);
+    return tile ? tile.char : "";
+  });
+
+  const input = normalizeAnswer(filledChars.join(""));
+  const target = normalizeAnswer(currentWordData.answer);
+  const displayAnswer = currentWordData.answer;
+
+  if (input.length < target.length) {
+    showFeedback("Place all letters into the name slots before submitting", "error");
+    return;
+  }
+
+  if (input === target) {
+    correctTaps++;
+    completedCount++;
+    streak++;
+    bestStreak = Math.max(bestStreak, streak);
+
+    const basePoints = target.length * 5;
+    const streakBonus = Math.min(streak, 10) * 4;
+    const points = basePoints + streakBonus;
+    score += points;
+
+    document.getElementById("submissionBox").className = "submission-section correct";
+    showFeedback("Bravo! " + displayAnswer + " · +" + points + " pts", "success");
+    caseHistory.push({ word: displayAnswer, status: "correct" });
+    updateHeaderStats();
+
+    setTimeout(() => {
+      if (timeRemaining > 0) loadCase();
+    }, 1100);
+
+  } else {
+    wrongTaps++;
+    streak = 0;
+    updateHeaderStats();
+
+    const subBox = document.getElementById("submissionBox");
+    subBox.className = "submission-section wrong";
+    showFeedback("Not quite — rearrange and try again!", "error");
+
+    setTimeout(() => {
+      subBox.className = "submission-section";
+    }, 500);
+  }
+}
+
+function skipCase() {
+  streak = 0;
+  skippedCount++;
+  completedCount++;
+  updateHeaderStats();
+
+  const displayAnswer = currentWordData.answer;
+  showFeedback("Faculty Member: " + displayAnswer, "error");
+  caseHistory.push({ word: displayAnswer, status: "skipped" });
+
+  setTimeout(() => {
+    if (timeRemaining > 0) loadCase();
+  }, 1100);
+}
+
+function showFeedback(msg, type) {
+  const fb = document.getElementById("feedback");
+  fb.textContent = msg;
+  fb.className = "feedback feedback-" + type + " show";
+}
+
+function completeSession() {
+  clearInterval(timerInterval);
+  document.getElementById("gameScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "block";
+
+  const correctCount = caseHistory.filter(c => c.status === "correct").length;
+  const attempted = correctCount + skippedCount;
+  const accuracy = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+
+  document.getElementById("finalScore").textContent = score;
+  document.getElementById("finalCorrect").textContent = correctCount;
+  document.getElementById("finalWrong").textContent = wrongTaps;
+  document.getElementById("finalSkipped").textContent = skippedCount;
+  document.getElementById("finalAccuracy").textContent = accuracy + "%";
+  document.getElementById("finalBestStreak").textContent = bestStreak;
+
+  const list = document.getElementById("historyList");
+  list.innerHTML = "<h3>Faculty Identified</h3>";
+  caseHistory.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    let statusClass = item.status === "correct" ? "h-correct" : item.status === "skipped" ? "h-skipped" : "h-wrong";
+    let statusText = item.status === "correct" ? "Identified" : "Passed";
+    div.innerHTML = `<span class="h-word">${i + 1}. ${item.word}</span><span class="h-status ${statusClass}">${statusText}</span>`;
+    list.appendChild(div);
+  });
+}
+
+window.addEventListener("resize", adjustDynamicTileScale);
+</script>
+
+</body>
+</html>
