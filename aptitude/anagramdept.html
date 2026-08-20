@@ -545,9 +545,9 @@
     <div class="ticket-divider"></div>
 
     <div class="identity-card" id="identityCard">
-      <img class="identity-avatar" id="identityAvatar" src="" alt="avatar">
+      <img class="identity-avatar" id="identityAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Faculty" alt="avatar">
       <div class="identity-info">
-        <div class="identity-name" id="identityName">Faculty Member</div>
+        <div class="identity-name" id="identityName">Faculty Colleague</div>
         <div class="identity-tag">Ready for Session</div>
       </div>
     </div>
@@ -655,9 +655,10 @@
 
 <script>
 /* ============================================
-   FACULTY ORIENTATION ANAGRAM BANK
+   FACULTY ORIENTATION ANAGRAM BANK & API
    ============================================ */
 const SESSION_SECONDS = 180;
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
 
 const WORD_BANK = [
   {
@@ -705,10 +706,12 @@ const WORD_BANK = [
     answer: "PADMAPRIYA",
     story: "The pyramid is a timeless monument to human ambition. APA is a world's most recognised style for academic writing. One preserves history in stone; the other preserves scholarship on paper!"
   }
- 
 ];
 
 let playerName = "Faculty Colleague";
+let playerDept = "English";
+let githubUsername = "anonymous";
+
 let score = 0;
 let streak = 0;
 let bestStreak = 0;
@@ -1097,7 +1100,7 @@ function showFeedback(msg, type) {
   fb.className = "feedback feedback-" + type + " show";
 }
 
-function completeSession() {
+async function completeSession() {
   clearInterval(timerInterval);
   document.getElementById("gameScreen").style.display = "none";
   document.getElementById("resultScreen").style.display = "block";
@@ -1123,6 +1126,51 @@ function completeSession() {
     div.innerHTML = `<span class="h-word">${i + 1}. ${item.word}</span><span class="h-status ${statusClass}">${statusText}</span>`;
     list.appendChild(div);
   });
+
+  await submitSessionToSupabase();
+}
+
+async function submitSessionToSupabase() {
+  const elapsedSec = SESSION_SECONDS - Math.max(0, timeRemaining);
+
+  const payload = {
+    student_name: playerName,
+    department: playerDept,
+    github_username: githubUsername,
+    correct: correctTaps,
+    wrong: wrongTaps,
+    time_spent: Math.round(elapsedSec),
+    quest_id: "Faculty Orientation Anagrams",
+    score: score,
+    sentences_pressed: completedCount
+  };
+
+  await sendViaEdgeFunction(payload);
+}
+
+async function sendViaEdgeFunction(payload) {
+  try {
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Edge Function Error (${response.status}):`, errorText);
+      return false;
+    }
+
+    console.log("Saved to Supabase");
+    return true;
+
+  } catch (err) {
+    console.error("Network/Fetch Error:", err);
+    return false;
+  }
 }
 
 window.addEventListener("resize", adjustDynamicTileScale);
