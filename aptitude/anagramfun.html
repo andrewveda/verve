@@ -28,6 +28,8 @@
       --brass-bright: #C9A84C;
       --brass-dark: #7D5F22;
       --brass-soft: #F1E6C4;
+      --slot-empty-bg: #EAE2CA;
+      --slot-empty-border: #C8BA95;
       --shadow-lift: 0 1px 0 rgba(255,255,255,0.6) inset, 0 10px 24px -14px rgba(20,17,10,0.35);
     }
 
@@ -48,7 +50,7 @@
 
     .app-container {
       width: 100%;
-      max-width: 480px;
+      max-width: 490px;
       background: var(--surface);
       border-radius: 22px;
       padding: 0;
@@ -104,7 +106,7 @@
       color: var(--muted);
       font-size: 0.94rem;
       line-height: 1.5;
-      padding: 0 16px 16px;
+      padding: 0 18px 16px;
     }
 
     .ticket-divider {
@@ -253,7 +255,7 @@
     .timer-rail-fill.warn { background: var(--warn); }
     .timer-rail-fill.bad { background: var(--bad); }
 
-    .category-badge-wrap { text-align: center; padding: 14px 0 2px; }
+    .category-badge-wrap { text-align: center; padding: 14px 0 4px; }
     .category-badge {
       display: inline-block;
       padding: 5px 14px;
@@ -266,7 +268,6 @@
       background: linear-gradient(120deg, var(--brass-soft), #FBF0D6);
       color: var(--brass-dark);
       border: 1px solid rgba(169,129,47,0.35);
-      box-shadow: 0 2px 8px -2px rgba(169,129,47,0.2);
     }
 
     .subtype-label {
@@ -279,7 +280,6 @@
       padding: 4px 0 0;
     }
 
-    .letters-section { padding: 0 18px; }
     .section-label {
       font-size: 0.68rem;
       color: var(--muted);
@@ -287,8 +287,10 @@
       letter-spacing: 0.08em;
       font-weight: 600;
       text-align: center;
-      padding: 10px 0 6px;
+      padding: 10px 0 8px;
     }
+
+    .letters-section { padding: 0 16px; }
 
     .letters-row {
       display: flex;
@@ -296,7 +298,7 @@
       justify-content: center;
       align-items: center;
       gap: 5px;
-      min-height: 48px;
+      min-height: 44px;
     }
 
     .letter-tile {
@@ -309,7 +311,7 @@
       align-items: center;
       justify-content: center;
       font-family: 'Fraunces', serif;
-      font-size: 1.15rem;
+      font-size: 1.12rem;
       font-weight: 600;
       color: var(--ink);
       border: 1px solid var(--border-strong);
@@ -333,22 +335,18 @@
       flex-shrink: 0;
     }
 
+    /* Structured Target Blank Layout */
     .submission-section {
-      margin: 0 18px;
+      margin: 0 16px;
       background: var(--surface-alt);
       border: 1.5px dashed var(--border-strong);
-      border-radius: 12px;
-      padding: 10px 8px;
-      min-height: 62px;
+      border-radius: 14px;
+      padding: 12px 10px;
+      min-height: 80px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       transition: border-color 0.25s, background 0.25s;
-    }
-    .submission-section.has-letters {
-      border-color: var(--brass);
-      border-style: solid;
-      background: var(--brass-soft);
     }
     .submission-section.correct {
       border-color: var(--good);
@@ -368,13 +366,64 @@
       75% { transform: translateX(8px); }
     }
 
-    .submission-placeholder {
-      color: var(--muted);
-      font-size: 0.86rem;
-      font-style: italic;
+    .target-words-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px 14px;
+    }
+
+    .target-word-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+    }
+
+    .blank-slot {
+      min-width: 32px;
+      height: 40px;
+      padding: 0 4px;
+      border-radius: 7px;
+      border: 1.5px dashed var(--slot-empty-border);
+      background: var(--slot-empty-bg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       font-family: 'Fraunces', serif;
-      text-align: center;
-      width: 100%;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--ink);
+      user-select: none;
+      transition: all 0.15s;
+      cursor: default;
+    }
+
+    .blank-slot.is-punct {
+      border: none;
+      background: transparent;
+      min-width: 10px;
+      font-size: 1.25rem;
+      color: var(--brass-dark);
+      font-weight: 700;
+    }
+
+    .blank-slot.filled {
+      border: 1px solid var(--border-strong);
+      background: linear-gradient(180deg, #FFFEFA 0%, #F7F1DE 100%);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 2px 5px -2px rgba(60,45,10,0.3);
+      cursor: pointer;
+    }
+    .blank-slot.filled:hover {
+      transform: translateY(-2px);
+      border-color: var(--brass);
+    }
+
+    .blank-slot.next-target {
+      border: 1.5px solid var(--brass-bright);
+      background: #FDF9EC;
+      box-shadow: 0 0 0 2px rgba(201,168,76,0.3);
     }
 
     .feedback {
@@ -493,7 +542,7 @@
   <div class="login-screen" id="loginScreen">
     <span class="eyebrow">Aptitude & Wordplay</span>
     <h1>Descriptive Anagrams</h1>
-    <p class="subtitle">The original phrase acts as your descriptive clue. Unscramble the letters to reveal the target word or answer.</p>
+    <p class="subtitle">The original phrase is your descriptive clue. Fill in the blank word structure by selecting letters from the clue tray.</p>
 
     <div class="ticket-divider"></div>
 
@@ -540,15 +589,15 @@
       <span class="subtype-label" id="subtypeLabel"></span>
     </div>
 
-    <!-- Submission Box -->
+    <!-- Structured Blank Submission Tray -->
     <div class="submission-section" id="submissionBox">
-      <div class="section-label">Your answer — tap tiles to return</div>
-      <div class="letters-row" id="submissionLetters"></div>
+      <div class="section-label" id="submissionLabel">Target Answer Slots</div>
+      <div class="target-words-container" id="targetWordsContainer"></div>
     </div>
 
-    <!-- Letter Tiles Tray (Ordered Clue Phrase) -->
+    <!-- Clue Letters Tray -->
     <div class="letters-section">
-      <div class="section-label">Clue tiles — tap to select</div>
+      <div class="section-label">Clue tiles — tap to place in blanks</div>
       <div class="letters-row" id="availableLetters"></div>
     </div>
 
@@ -761,10 +810,10 @@ let currentWordData = null;
 let timeRemaining = SESSION_SECONDS;
 let timerInterval = null;
 
-let availableLetters = [];
-let selectedLetters = [];
-let tileRefs = {};
-let subTileRefs = {};
+// Tile & Blank State
+let availableLetters = []; // { char, id, used, slotIdx }
+let targetSlots = [];      // { index, isPunct, char, filledByTileId, element }
+let tileRefs = {};         // id -> DOM tile
 
 function populateIdentity() {
   if (!window.GH || !window.GH.loggedIn) {
@@ -840,7 +889,7 @@ function loadCase() {
   subBox.className = "submission-section";
 
   document.getElementById("subtypeLabel").textContent = currentWordData.subtype || "";
-  initCaseTiles();
+  initCaseLayout();
 }
 
 function updateHeaderStats() {
@@ -849,27 +898,76 @@ function updateHeaderStats() {
   document.getElementById("solvedDisplay").textContent = completedCount;
 }
 
-function initCaseTiles() {
+function initCaseLayout() {
+  const wordsContainer = document.getElementById("targetWordsContainer");
   const availContainer = document.getElementById("availableLetters");
-  const subContainer = document.getElementById("submissionLetters");
 
+  wordsContainer.innerHTML = "";
   availContainer.innerHTML = "";
-  subContainer.innerHTML = "";
 
-  const clueChars = currentWordData.clue.toUpperCase().split("");
   availableLetters = [];
-  selectedLetters = [];
+  targetSlots = [];
   tileRefs = {};
-  subTileRefs = {};
 
+  // 1. Build Target Blanks organized by words
+  const words = currentWordData.answer.toUpperCase().split(" ");
+  let totalSlotCounter = 0;
+
+  words.forEach((word) => {
+    const wordGroup = document.createElement("div");
+    wordGroup.className = "target-word-group";
+
+    const chars = word.split("");
+    chars.forEach((ch) => {
+      const slotEl = document.createElement("div");
+      const isLetter = /[A-Z0-9]/.test(ch);
+
+      if (isLetter) {
+        slotEl.className = "blank-slot";
+        const slotObj = {
+          index: totalSlotCounter,
+          isPunct: false,
+          char: ch,
+          filledByTileId: null,
+          element: slotEl
+        };
+        targetSlots.push(slotObj);
+
+        const currentSlotIndex = totalSlotCounter;
+        slotEl.onclick = () => onSlotClick(currentSlotIndex);
+        slotEl.tabIndex = 0;
+        slotEl.setAttribute("role", "button");
+        slotEl.setAttribute("aria-label", "Blank slot");
+        slotEl.onkeydown = (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onSlotClick(currentSlotIndex);
+          }
+        };
+
+        totalSlotCounter++;
+      } else {
+        // Punctuation (e.g. apostrophe)
+        slotEl.className = "blank-slot is-punct";
+        slotEl.textContent = ch;
+      }
+      wordGroup.appendChild(slotEl);
+    });
+
+    wordsContainer.appendChild(wordGroup);
+  });
+
+  // 2. Build Available Clue Tiles in original Clue order
+  const clueChars = currentWordData.clue.toUpperCase().split("");
   let letterIndex = 0;
+
   clueChars.forEach((char) => {
     if (char === " ") {
       const spaceDiv = document.createElement("div");
       spaceDiv.className = "tile-space";
       availContainer.appendChild(spaceDiv);
     } else if (/[A-Z0-9]/.test(char)) {
-      const item = { char, id: letterIndex, used: false };
+      const item = { char, id: letterIndex, used: false, slotIdx: null };
       availableLetters.push(item);
 
       const tile = document.createElement("div");
@@ -892,73 +990,68 @@ function initCaseTiles() {
     }
   });
 
-  const placeholder = document.createElement("div");
-  placeholder.className = "submission-placeholder";
-  placeholder.id = "submissionPlaceholder";
-  placeholder.textContent = "Tap clue tiles above in order to spell the solution";
-  subContainer.appendChild(placeholder);
+  highlightNextTargetSlot();
 }
 
-function selectLetter(id) {
-  const item = availableLetters.find(a => a.id === id);
+function highlightNextTargetSlot() {
+  targetSlots.forEach((slot) => {
+    if (!slot.isPunct) slot.element.classList.remove("next-target");
+  });
+
+  const nextOpen = targetSlots.find(s => !s.isPunct && s.filledByTileId === null);
+  if (nextOpen) {
+    nextOpen.element.classList.add("next-target");
+  }
+}
+
+function selectLetter(tileId) {
+  const item = availableLetters.find(a => a.id === tileId);
   if (!item || item.used) return;
 
-  item.used = true;
-  selectedLetters.push({ char: item.char, id: item.id });
+  const nextSlot = targetSlots.find(s => !s.isPunct && s.filledByTileId === null);
+  if (!nextSlot) return; // All blanks full
 
-  const sourceTile = tileRefs[id];
+  item.used = true;
+  item.slotIdx = nextSlot.index;
+  nextSlot.filledByTileId = item.id;
+
+  // Update source tile
+  const sourceTile = tileRefs[tileId];
   sourceTile.classList.add("tile-placeholder");
   sourceTile.tabIndex = -1;
 
-  const placeholder = document.getElementById("submissionPlaceholder");
-  if (placeholder) placeholder.remove();
+  // Update target blank slot
+  nextSlot.element.textContent = item.char;
+  nextSlot.element.classList.add("filled");
+  nextSlot.element.setAttribute("aria-label", "Filled with " + item.char + ", tap to remove");
 
-  const subContainer = document.getElementById("submissionLetters");
-  const subTile = document.createElement("div");
-  subTile.className = "letter-tile";
-  subTile.textContent = item.char;
-  subTile.dataset.id = id;
-  subTile.tabIndex = 0;
-  subTile.setAttribute("role", "button");
-  subTile.setAttribute("aria-label", "Letter " + item.char + ", tap to remove");
-  subTile.onclick = () => unselectLetter(id);
-  subTile.onkeydown = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      unselectLetter(id);
-    }
-  };
-  subContainer.appendChild(subTile);
-  subTileRefs[id] = subTile;
-
-  document.getElementById("submissionBox").classList.add("has-letters");
+  highlightNextTargetSlot();
 }
 
-function unselectLetter(id) {
-  const idx = selectedLetters.findIndex(s => s.id === id);
-  if (idx === -1) return;
+function onSlotClick(slotIndex) {
+  const slot = targetSlots.find(s => s.index === slotIndex);
+  if (!slot || slot.isPunct || slot.filledByTileId === null) return;
 
-  const item = availableLetters.find(a => a.id === id);
-  if (item) item.used = false;
-  selectedLetters.splice(idx, 1);
+  const tileId = slot.filledByTileId;
+  const item = availableLetters.find(a => a.id === tileId);
 
-  const subTile = subTileRefs[id];
-  if (subTile) subTile.remove();
-  delete subTileRefs[id];
-
-  const sourceTile = tileRefs[id];
-  sourceTile.classList.remove("tile-placeholder");
-  sourceTile.tabIndex = 0;
-
-  const subContainer = document.getElementById("submissionLetters");
-  if (selectedLetters.length === 0) {
-    const placeholder = document.createElement("div");
-    placeholder.className = "submission-placeholder";
-    placeholder.id = "submissionPlaceholder";
-    placeholder.textContent = "Tap clue tiles above in order to spell the solution";
-    subContainer.appendChild(placeholder);
-    document.getElementById("submissionBox").classList.remove("has-letters");
+  if (item) {
+    item.used = false;
+    item.slotIdx = null;
   }
+
+  slot.filledByTileId = null;
+  slot.element.textContent = "";
+  slot.element.classList.remove("filled");
+  slot.element.setAttribute("aria-label", "Blank slot");
+
+  const sourceTile = tileRefs[tileId];
+  if (sourceTile) {
+    sourceTile.classList.remove("tile-placeholder");
+    sourceTile.tabIndex = 0;
+  }
+
+  highlightNextTargetSlot();
 }
 
 function startTimer() {
@@ -1007,11 +1100,20 @@ function normalizeAnswer(str) {
 }
 
 function submitAnswer() {
-  if (selectedLetters.length === 0) return;
+  const filledChars = targetSlots.filter(s => !s.isPunct).map(s => {
+    if (s.filledByTileId === null) return "";
+    const tile = availableLetters.find(t => t.id === s.filledByTileId);
+    return tile ? tile.char : "";
+  });
 
-  const input = normalizeAnswer(selectedLetters.map(l => l.char).join(""));
+  const input = normalizeAnswer(filledChars.join(""));
   const target = normalizeAnswer(currentWordData.answer);
   const displayAnswer = currentWordData.answer;
+
+  if (input.length < target.length) {
+    showFeedback("Fill in all blank slots before submitting", "error");
+    return;
+  }
 
   if (input === target) {
     correctTaps++;
@@ -1040,10 +1142,10 @@ function submitAnswer() {
 
     const subBox = document.getElementById("submissionBox");
     subBox.className = "submission-section wrong";
-    showFeedback("Not quite — try a different arrangement", "error");
+    showFeedback("Not quite — check the letter placement", "error");
 
     setTimeout(() => {
-      subBox.className = selectedLetters.length > 0 ? "submission-section has-letters" : "submission-section";
+      subBox.className = "submission-section";
     }, 500);
   }
 }
