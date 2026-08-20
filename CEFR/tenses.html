@@ -1249,7 +1249,7 @@ async function sendViaEdgeFunction(payload) {
 function submitSpecimenToSupabase(){
   const timeSpent = Math.round((Date.now()-specimenStartTime)/1000);
   const specimenNumber = currentSpecimenIdx + 1;
-  const questId = (specimenHadMistake ? "Tenses " : "Tense ") + specimenNumber;
+  const questId = (specimenHadMistake ? "Quest Tenses " : "Quest Tense ") + specimenNumber;
   const payload = {
     student_name: playerName,
     department: playerDept,
