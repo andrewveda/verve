@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Faculty Orientation: Anagram Encounters</title>
+  <title>Anagram Encounters</title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -539,21 +539,21 @@
   <!-- LOGIN SCREEN -->
   <div class="login-screen" id="loginScreen">
     <span class="eyebrow">Department of English</span>
-    <h1>Faculty Orientation</h1>
-    <p class="subtitle">A wordplay encounter celebrating our colleagues. Read each clue story carefully and rearrange the clue letters to reveal the faculty name.</p>
+    <h1>Anagram Encounters</h1>
+    <p class="subtitle">A wordplay encounter celebrating faculty members. Read each clue story carefully and rearrange the clue letters to reveal the faculty name.</p>
 
     <div class="ticket-divider"></div>
 
     <div class="identity-card" id="identityCard">
       <img class="identity-avatar" id="identityAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Faculty" alt="avatar">
       <div class="identity-info">
-        <div class="identity-name" id="identityName">Faculty Colleague</div>
-        <div class="identity-tag">Ready for Session</div>
+        <div class="identity-name" id="identityName">Faculty Member</div>
+        <div class="identity-tag" id="identityTag">Ready for Session</div>
       </div>
     </div>
 
     <button class="btn btn-primary" onclick="beginQuiz()">
-      Start Orientation Challenge
+      Start Challenge
     </button>
   </div>
 
@@ -604,7 +604,7 @@
 
     <div class="action-stack">
       <button class="btn btn-success" id="submitBtn" onclick="submitAnswer()">Submit Name</button>
-      <button class="btn btn-skip" onclick="skipCase()">Skip Colleague</button>
+      <button class="btn btn-skip" onclick="skipCase()">Skip</button>
     </div>
   </div>
 
@@ -653,9 +653,10 @@
 
 </div>
 
+<script src="../auth-guard.js"></script>
 <script>
 /* ============================================
-   FACULTY ORIENTATION ANAGRAM BANK & API
+   ANAGRAM BANK & API
    ============================================ */
 const SESSION_SECONDS = 180;
 const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
@@ -708,9 +709,40 @@ const WORD_BANK = [
   }
 ];
 
-let playerName = "Faculty Colleague";
+let playerName = "Faculty Member";
 let playerDept = "English";
-let githubUsername = "anonymous";
+let githubUsername = "";
+
+function initAuthProfile() {
+  const authUser = window.currentUser || window.user || JSON.parse(localStorage.getItem("authUser") || localStorage.getItem("user") || "{}");
+  
+  if (authUser.name || authUser.user_metadata?.full_name || authUser.user_metadata?.name) {
+    playerName = authUser.name || authUser.user_metadata?.full_name || authUser.user_metadata?.name;
+  }
+  
+  if (authUser.login || authUser.github_username || authUser.user_metadata?.user_name) {
+    githubUsername = authUser.login || authUser.github_username || authUser.user_metadata?.user_name;
+  }
+
+  playerDept = "English";
+
+  const nameEl = document.getElementById("identityName");
+  if (nameEl) nameEl.textContent = playerName;
+
+  const tagEl = document.getElementById("identityTag");
+  if (tagEl && githubUsername) {
+    tagEl.textContent = `@${githubUsername} • ${playerDept}`;
+  }
+
+  const avatarEl = document.getElementById("identityAvatar");
+  if (avatarEl) {
+    if (authUser.avatar_url || authUser.user_metadata?.avatar_url) {
+      avatarEl.src = authUser.avatar_url || authUser.user_metadata?.avatar_url;
+    } else if (githubUsername) {
+      avatarEl.src = `https://github.com/${githubUsername}.png`;
+    }
+  }
+}
 
 let score = 0;
 let streak = 0;
@@ -1140,7 +1172,7 @@ async function submitSessionToSupabase() {
     correct: correctTaps,
     wrong: wrongTaps,
     time_spent: Math.round(elapsedSec),
-    quest_id: "Faculty Orientation Anagrams",
+    quest_id: "Anagram Encounters",
     score: score,
     sentences_pressed: completedCount
   };
@@ -1174,6 +1206,7 @@ async function sendViaEdgeFunction(payload) {
 }
 
 window.addEventListener("resize", adjustDynamicTileScale);
+document.addEventListener("DOMContentLoaded", initAuthProfile);
 </script>
 
 </body>
