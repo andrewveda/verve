@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anagrams with Verve</title>
+  <title>Descriptive Anagrams with Verve</title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* premium ink + ivory + brass token system */
       --stage: #14171C;
       --stage-edge: #1E232B;
       --bg: #F8F4E8;
@@ -25,8 +24,6 @@
       --bad-soft: #F1DFD8;
       --warn: #8C6A24;
       --warn-soft: #F1E6C9;
-      --steel: #2F4C64;
-      --steel-soft: #DFE7EE;
       --brass: #A9812F;
       --brass-bright: #C9A84C;
       --brass-dark: #7D5F22;
@@ -51,7 +48,7 @@
 
     .app-container {
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
       background: var(--surface);
       border-radius: 22px;
       padding: 0;
@@ -94,9 +91,8 @@
 
     h1 {
       font-family: 'Fraunces', serif;
-      font-size: 2.35rem;
+      font-size: 2.15rem;
       font-weight: 600;
-      font-style: normal;
       text-align: center;
       letter-spacing: -0.01em;
       padding: 2px 0 6px;
@@ -106,9 +102,9 @@
     .subtitle {
       text-align: center;
       color: var(--muted);
-      font-size: 0.96rem;
-      line-height: 1.55;
-      padding: 0 0 16px;
+      font-size: 0.94rem;
+      line-height: 1.5;
+      padding: 0 16px 16px;
     }
 
     .ticket-divider {
@@ -131,10 +127,9 @@
     .ticket-divider::after { right: -23px; }
 
     .login-screen { display: block; padding: 0 22px 26px; }
-    .game-screen { display: none; padding-bottom: 4px; }
+    .game-screen { display: none; padding-bottom: 8px; }
     .result-screen { display: none; padding-bottom: 26px; }
     .result-screen > .btn { width: calc(100% - 44px); margin: 0 22px; }
-    .game-screen .subtitle, .result-screen .subtitle { padding-left: 22px; padding-right: 22px; }
 
     .identity-card {
       display: flex;
@@ -175,13 +170,12 @@
 
     .btn {
       width: 100%;
-      padding: 17px;
+      padding: 15px;
       border-radius: 12px;
       border: none;
-      font-size: 1rem;
+      font-size: 0.98rem;
       font-weight: 600;
       font-family: 'Inter', sans-serif;
-      letter-spacing: 0.01em;
       cursor: pointer;
       transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
       display: flex;
@@ -189,10 +183,7 @@
       justify-content: center;
       gap: 8px;
     }
-    .btn:focus-visible {
-      outline: 2px solid var(--brass);
-      outline-offset: 2px;
-    }
+    .btn:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
     .btn-primary {
       background: linear-gradient(180deg, #26221A, var(--ink));
       color: #F6EFD8;
@@ -206,7 +197,6 @@
       box-shadow: 0 10px 20px -10px rgba(31,77,63,0.55);
     }
     .btn-success:hover { background: var(--accent-dark); }
-    .btn-success:active { transform: scale(0.99); }
     .btn-hint, .btn-skip {
       background: var(--surface);
       color: var(--ink);
@@ -218,19 +208,18 @@
     .game-header {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 0;
-      padding: 16px 4px 12px;
+      padding: 14px 4px 10px;
       background: linear-gradient(180deg, #FDFAF0, var(--surface));
     }
-    .stat-box { text-align: center; padding: 4px 0; }
+    .stat-box { text-align: center; }
     .stat-box .value {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       font-weight: 600;
       color: var(--ink);
     }
     .stat-box.time .value {
-      font-size: 1.9rem;
+      font-size: 1.8rem;
       color: var(--accent);
       transition: color 0.3s;
     }
@@ -251,7 +240,7 @@
 
     .timer-rail {
       height: 3px;
-      margin: 0 22px;
+      margin: 0 20px;
       background: var(--border);
       overflow: hidden;
       border-radius: 3px;
@@ -264,27 +253,20 @@
     .timer-rail-fill.warn { background: var(--warn); }
     .timer-rail-fill.bad { background: var(--bad); }
 
-    .category-badge-wrap { text-align: center; padding: 16px 0 4px; }
+    .category-badge-wrap { text-align: center; padding: 14px 0 2px; }
     .category-badge {
       display: inline-block;
-      padding: 6px 16px;
+      padding: 5px 14px;
       border-radius: 999px;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 0.72rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      border: 1px solid transparent;
-    }
-    .cat-business { background: var(--accent-soft); color: var(--accent-dark); border-color: rgba(31,77,63,0.15); }
-    .cat-tech { background: var(--steel-soft); color: var(--steel); border-color: rgba(47,76,100,0.15); }
-    .cat-aptitude { background: var(--warn-soft); color: var(--warn); border-color: rgba(140,106,36,0.18); }
-    .cat-softskills { background: var(--bad-soft); color: var(--bad); border-color: rgba(122,46,42,0.15); }
-    .cat-fun {
+      letter-spacing: 0.08em;
       background: linear-gradient(120deg, var(--brass-soft), #FBF0D6);
       color: var(--brass-dark);
-      border-color: rgba(169,129,47,0.35);
-      box-shadow: 0 2px 8px -2px rgba(169,129,47,0.35);
+      border: 1px solid rgba(169,129,47,0.35);
+      box-shadow: 0 2px 8px -2px rgba(169,129,47,0.2);
     }
 
     .subtype-label {
@@ -292,68 +274,75 @@
       text-align: center;
       font-family: 'Fraunces', serif;
       font-style: italic;
-      font-size: 0.86rem;
+      font-size: 0.9rem;
       color: var(--brass-dark);
-      padding: 6px 0 0;
-      min-height: 1.3em;
+      padding: 4px 0 0;
     }
 
-    .letters-section { padding: 0 22px; }
+    .letters-section { padding: 0 18px; }
     .section-label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.09em;
+      letter-spacing: 0.08em;
       font-weight: 600;
       text-align: center;
-      padding: 10px 0 8px;
+      padding: 10px 0 6px;
     }
+
     .letters-row {
       display: flex;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       justify-content: center;
-      gap: 4px;
+      align-items: center;
+      gap: 5px;
+      min-height: 48px;
     }
+
     .letter-tile {
-      width: var(--tile-size, 48px);
-      height: calc(var(--tile-size, 48px) * 1.125);
-      flex-shrink: 0;
+      min-width: 32px;
+      height: 40px;
+      padding: 0 6px;
       background: linear-gradient(180deg, #FFFEFA 0%, #F7F1DE 100%);
       border-radius: 7px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       font-family: 'Fraunces', serif;
-      font-size: calc(var(--tile-size, 48px) * 0.42);
+      font-size: 1.15rem;
       font-weight: 600;
       color: var(--ink);
       border: 1px solid var(--border-strong);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 3px 6px -3px rgba(60,45,10,0.35);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 2px 5px -2px rgba(60,45,10,0.3);
       cursor: pointer;
       user-select: none;
-      transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s, background 0.12s, width 0.15s, height 0.15s;
+      transition: transform 0.1s, border-color 0.1s, background 0.1s;
     }
     .letter-tile:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       border-color: var(--brass);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 8px 14px -6px rgba(169,129,47,0.4);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 6px 12px -4px rgba(169,129,47,0.35);
     }
-    .letter-tile:active { transform: scale(0.96); }
-    .letter-tile:focus-visible {
-      outline: 2px solid var(--brass);
-      outline-offset: 2px;
-    }
-    .letter-tile.tile-placeholder {
-      visibility: hidden;
+    .letter-tile:active { transform: scale(0.95); }
+    .letter-tile:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+    .letter-tile.tile-placeholder { visibility: hidden; }
+
+    .tile-space {
+      width: 12px;
+      height: 40px;
+      flex-shrink: 0;
     }
 
     .submission-section {
-      margin: 0 22px;
+      margin: 0 18px;
       background: var(--surface-alt);
       border: 1.5px dashed var(--border-strong);
       border-radius: 12px;
-      padding: 0;
-      min-height: calc(var(--tile-size, 48px) * 1.125);
+      padding: 10px 8px;
+      min-height: 62px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       transition: border-color 0.25s, background 0.25s;
     }
     .submission-section.has-letters {
@@ -372,77 +361,65 @@
       background: var(--bad-soft);
       animation: shake 0.4s;
     }
+
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-8px); }
       75% { transform: translateX(8px); }
     }
-    @media (prefers-reduced-motion: reduce) {
-      .submission-section.wrong { animation: none; }
-      .stat-box.time .value.bad { animation: none; }
-    }
 
     .submission-placeholder {
       color: var(--muted);
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-style: italic;
       font-family: 'Fraunces', serif;
       text-align: center;
-      padding: 6px;
       width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .feedback {
       text-align: center;
-      margin: 12px 22px 0;
-      padding: 13px;
-      border-radius: 10px;
+      margin: 10px 18px 0;
+      padding: 10px 12px;
+      border-radius: 9px;
       font-weight: 600;
-      font-size: 0.96rem;
+      font-size: 0.92rem;
       display: none;
     }
-    .feedback.show { display: block; animation: slideDown 0.25s ease; }
+    .feedback.show { display: block; }
     .feedback-success { background: var(--accent-soft); color: var(--accent-dark); border: 1px solid rgba(31,77,63,0.2); }
     .feedback-error { background: var(--bad-soft); color: var(--bad); border: 1px solid rgba(122,46,42,0.2); }
-    @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
 
     .hint-text {
       text-align: center;
       color: var(--muted);
       font-family: 'Fraunces', serif;
       font-style: italic;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       min-height: 1.2em;
-      padding: 10px 22px 22px;
+      padding: 8px 18px 16px;
     }
 
     .controls-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      padding: 14px 22px 22px;
+      padding: 10px 18px 14px;
     }
-    .submit-row { padding: 18px 22px 0; }
+    .submit-row { padding: 14px 18px 0; }
 
     .result-card {
       background: linear-gradient(180deg, #FFFEFA, var(--surface-alt));
       border: 1px solid var(--border);
       border-radius: 14px;
-      margin: 4px 22px 18px;
-      padding: 22px 14px;
+      margin: 4px 18px 18px;
+      padding: 20px 14px;
       text-align: center;
       box-shadow: var(--shadow-lift);
     }
     .result-score {
       font-family: 'Fraunces', serif;
-      font-size: 4rem;
+      font-size: 3.6rem;
       font-weight: 600;
       color: var(--ink);
       line-height: 1;
@@ -453,65 +430,59 @@
       text-transform: uppercase;
       letter-spacing: 0.14em;
       font-weight: 600;
-      padding-bottom: 16px;
+      padding-bottom: 14px;
     }
     .result-detail {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 8px;
       padding-top: 4px;
     }
-    .result-detail.streak-row { grid-template-columns: 1fr; margin-top: 10px; }
+    .result-detail.streak-row { grid-template-columns: 1fr; margin-top: 8px; }
     .detail-item {
       background: var(--surface);
       border: 1px solid var(--border);
-      padding: 14px;
+      padding: 12px;
       border-radius: 10px;
     }
     .detail-item .num {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 700;
       color: var(--ink);
     }
-    .detail-item .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+    .detail-item .lbl { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
 
     .history-list {
       max-height: 220px;
       overflow-y: auto;
-      margin: 0 22px 22px;
+      margin: 0 18px 18px;
     }
     .history-list h3 {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.1em;
       font-weight: 600;
-      padding: 4px 4px 10px;
+      padding: 4px 4px 8px;
     }
     .history-item {
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      padding: 11px 14px;
+      padding: 10px 12px;
       background: var(--surface-alt);
       border: 1px solid var(--border);
-      border-radius: 9px;
+      border-radius: 8px;
       margin-bottom: 6px;
-      font-size: 0.88rem;
+      font-size: 0.84rem;
       font-family: 'IBM Plex Mono', monospace;
     }
-    .history-item .h-word { font-weight: 600; overflow-wrap: anywhere; }
+    .history-item .h-word { font-weight: 600; }
     .history-item .h-status { font-weight: 600; flex-shrink: 0; }
     .h-correct { color: var(--good); }
     .h-wrong { color: var(--bad); }
     .h-skipped { color: var(--warn); }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 1.85rem; }
-      .result-score { font-size: 3.2rem; }
-      .stat-box.time .value { font-size: 1.6rem; }
-    }
   </style>
 </head>
 <body>
@@ -520,9 +491,9 @@
 
   <!-- LOGIN SCREEN -->
   <div class="login-screen" id="loginScreen">
-    <span class="eyebrow">Placement Trainer</span>
-    <h1>Anagrams with Verve</h1>
-    <p class="subtitle">Race a 3-minute clock. Unscramble as many words as you can before time runs out.</p>
+    <span class="eyebrow">Aptitude & Wordplay</span>
+    <h1>Descriptive Anagrams</h1>
+    <p class="subtitle">The original phrase acts as your descriptive clue. Unscramble the letters to reveal the target word or answer.</p>
 
     <div class="ticket-divider"></div>
 
@@ -565,19 +536,19 @@
     </div>
 
     <div class="category-badge-wrap">
-      <span class="category-badge" id="categoryBadge">Business</span>
+      <span class="category-badge" id="categoryBadge">Descriptive Clue</span>
       <span class="subtype-label" id="subtypeLabel"></span>
     </div>
 
-    <!-- Submission Box (Selected Letters) -->
+    <!-- Submission Box -->
     <div class="submission-section" id="submissionBox">
-      <div class="section-label">Your answer — tap letters to return</div>
+      <div class="section-label">Your answer — tap tiles to return</div>
       <div class="letters-row" id="submissionLetters"></div>
     </div>
 
-    <!-- Available Letters (Scrambled) -->
+    <!-- Letter Tiles Tray (Ordered Clue Phrase) -->
     <div class="letters-section">
-      <div class="section-label">Available letters — tap to select</div>
+      <div class="section-label">Clue tiles — tap to select</div>
       <div class="letters-row" id="availableLetters"></div>
     </div>
 
@@ -631,7 +602,7 @@
 
     <div class="history-list" id="historyList"></div>
 
-    <div class="ticket-divider" style="margin: 4px 22px 22px;"></div>
+    <div class="ticket-divider" style="margin: 4px 18px 18px;"></div>
 
     <button class="btn btn-primary" onclick="restartQuiz()">
       Run It Back
@@ -643,168 +614,134 @@
 <script src="../auth-guard.js"></script>
 <script>
 /* ============================================
-   ANAGRAMS WITH VERVE
-   3-minute rush mode, tap-to-select, no rearrange
+   DESCRIPTIVE ANAGRAM BANK
    ============================================ */
-
 const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
 const SESSION_SECONDS = 180;
 
 const WORD_BANK = [
-  { word: "TEAM", category: "softskills", hint: "Group working together" },
-  { word: "GOAL", category: "business", hint: "Target to achieve" },
-  { word: "DATA", category: "tech", hint: "Facts and statistics" },
-  { word: "CODE", category: "tech", hint: "Programming instructions" },
-  { word: "LEAD", category: "softskills", hint: "To guide others" },
-  { word: "PLAN", category: "business", hint: "A detailed proposal" },
-  { word: "TEST", category: "aptitude", hint: "An examination" },
-  { word: "WORK", category: "business", hint: "Activity involving effort" },
-  { word: "SKILL", category: "softskills", hint: "Ability to do something well" },
-  { word: "LOGIC", category: "aptitude", hint: "Reasoning conducted by circuits" },
-  { word: "BRAND", category: "business", hint: "Company identity" },
-  { word: "CLOUD", category: "tech", hint: "Internet-based computing" },
-  { word: "TRUST", category: "softskills", hint: "Firm belief in reliability" },
-  { word: "PROFIT", category: "business", hint: "Financial gain" },
-  { word: "SCRIPT", category: "tech", hint: "Written program code" },
-  { word: "SERVER", category: "tech", hint: "Machine that hosts requests" },
-  { word: "ROUTER", category: "tech", hint: "Directs network traffic" },
-  { word: "KERNEL", category: "tech", hint: "Core of an operating system" },
-  { word: "CACHE", category: "tech", hint: "Temporary fast storage" },
-  { word: "RATIO", category: "aptitude", hint: "Comparison of two quantities" },
-  { word: "INTEGER", category: "aptitude", hint: "A whole number" },
-  { word: "INVOICE", category: "business", hint: "Bill for goods or services" },
-  { word: "BUDGET", category: "business", hint: "Planned spending limit" },
-  { word: "MERGER", category: "business", hint: "Two companies becoming one" },
-  { word: "EQUITY", category: "business", hint: "Ownership value in a firm" },
-  { word: "EMPATHY", category: "softskills", hint: "Understanding others' feelings" },
-  { word: "FEEDBACK", category: "softskills", hint: "Response used to improve" },
-  { word: "NETWORK", category: "tech", hint: "Connected computers" },
-  { word: "ANALYSIS", category: "aptitude", hint: "Detailed examination" },
-  { word: "STRATEGY", category: "business", hint: "Plan of action" },
-  { word: "DATABASE", category: "tech", hint: "Organized data collection" },
-  { word: "LEADERSHIP", category: "softskills", hint: "Ability to lead" },
-  { word: "ALGORITHM", category: "tech", hint: "Step-by-step procedure" },
-  { word: "MARKETING", category: "business", hint: "Promoting products" },
-  { word: "APTITUDE", category: "aptitude", hint: "Natural ability" },
-  { word: "PROTOCOL", category: "tech", hint: "Set of rules" },
-  { word: "REVENUE", category: "business", hint: "Income generated" },
-  { word: "INTERFACE", category: "tech", hint: "Point of interaction" },
-  { word: "NEGOTIATE", category: "softskills", hint: "Try to reach an agreement" },
-  { word: "VARIABLE", category: "aptitude", hint: "Changeable quantity" },
-  { word: "FRAMEWORK", category: "tech", hint: "Basic structure" },
-  { word: "PORTFOLIO", category: "business", hint: "Collection of investments" },
-  { word: "FIREWALL", category: "tech", hint: "Blocks unauthorized access" },
-  { word: "BANDWIDTH", category: "tech", hint: "Data transfer capacity" },
-  { word: "DEBUGGING", category: "tech", hint: "Finding and fixing errors" },
-  { word: "GEOMETRY", category: "aptitude", hint: "Study of shapes" },
-  { word: "SEQUENCE", category: "aptitude", hint: "Ordered list of numbers" },
-  { word: "FORECAST", category: "business", hint: "Prediction of future trends" },
-  { word: "OVERHEAD", category: "business", hint: "Ongoing operating cost" },
-  { word: "TURNOVER", category: "business", hint: "Total sales in a period" },
-  { word: "INITIATIVE", category: "softskills", hint: "Taking action on your own" },
-  { word: "DISCIPLINE", category: "softskills", hint: "Controlled, consistent behavior" },
-  { word: "CONFIDENCE", category: "softskills", hint: "Belief in one's abilities" },
-  { word: "INFRASTRUCTURE", category: "tech", hint: "Basic physical systems" },
-  { word: "ENTREPRENEUR", category: "business", hint: "Business founder" },
-  { word: "COMMUNICATION", category: "softskills", hint: "Exchange of information" },
-  { word: "PROBABILITY", category: "aptitude", hint: "Likelihood of occurrence" },
-  { word: "OPTIMIZATION", category: "tech", hint: "Making the best use of" },
-  { word: "COLLABORATION", category: "softskills", hint: "Working together" },
-  { word: "DEPRECIATION", category: "business", hint: "Reduction in value" },
-  { word: "PERMUTATION", category: "aptitude", hint: "Arrangement of items" },
-  { word: "ARCHITECTURE", category: "tech", hint: "System design structure" },
-  { word: "ACCELERATION", category: "aptitude", hint: "Rate of change of velocity" },
-  { word: "DIFFERENTIATION", category: "aptitude", hint: "Finding the derivative" },
-  { word: "MICROSERVICES", category: "tech", hint: "Small independent services" },
-  { word: "STAKEHOLDERS", category: "business", hint: "Interested parties" },
-  { word: "PROCRASTINATION", category: "softskills", hint: "Delaying action" },
-  { word: "CONFIGURATION", category: "tech", hint: "Arrangement of elements" },
-  { word: "COMPLIANCE", category: "business", hint: "Following rules and regulations" },
-  { word: "ACQUISITION", category: "business", hint: "Buying out another company" },
-  { word: "INEQUALITY", category: "aptitude", hint: "Relation showing imbalance" },
-  { word: "ESTIMATION", category: "aptitude", hint: "Approximate calculation" },
-  { word: "DEDUCTION", category: "aptitude", hint: "Conclusion from reasoning" },
-  { word: "STATISTICS", category: "aptitude", hint: "Study of data" },
-  { word: "MENTORSHIP", category: "softskills", hint: "Guidance from an experienced peer" },
-  { word: "RESILIENCE", category: "softskills", hint: "Bouncing back from setbacks" },
-  { word: "ADAPTABILITY", category: "softskills", hint: "Adjusting to change easily" },
-  { word: "PUNCTUALITY", category: "softskills", hint: "Being on time" },
-  { word: "MIDDLEWARE", category: "tech", hint: "Software connecting systems" },
-  { word: "DEPLOYMENT", category: "tech", hint: "Releasing software to use" },
-  { word: "ENCRYPTION", category: "tech", hint: "Scrambling data for security" },
-  { word: "INVENTORY", category: "business", hint: "Stock of goods on hand" },
-  { word: "LOGISTICS", category: "business", hint: "Coordinating movement of goods" },
-  { word: "DIVIDEND", category: "business", hint: "Profit paid to shareholders" },
-
-  /* ---- FUN: semantic anagrams — the anagram's meaning relates to the source ---- */
   {
-    word: "ANGERED", answer: "ENRAGED", displayAnswer: "ENRAGED",
-    category: "fun", subtype: "Identical meaning",
-    hint: "A calmer synonym scrambled into its match"
+    clue: "THE EYES",
+    answer: "THEY SEE",
+    subtype: "Direct Action",
+    hint: "What our visual organs actually perform"
   },
   {
-    word: "LISTEN", answer: "SILENT", displayAnswer: "SILENT",
-    category: "fun", subtype: "Identical meaning",
-    hint: "You have to be this to do the scrambled word well"
+    clue: "LISTEN",
+    answer: "SILENT",
+    subtype: "Essential State",
+    hint: "What you must remain in order to hear well"
   },
   {
-    word: "ELEVENPLUSTWO", answer: "TWELVEPLUSONE", displayAnswer: "TWELVE PLUS ONE",
-    category: "fun", subtype: "Identical meaning",
-    hint: "Both sums equal the same number: 13"
+    clue: "ASTRONOMER",
+    answer: "MOON STARER",
+    subtype: "Playful Definition",
+    hint: "Two words: night sky watcher"
   },
   {
-    word: "ASTRONOMER", answer: "MOONSTARER", displayAnswer: "MOON STARER",
-    category: "fun", subtype: "Definition anagram",
-    hint: "A playful job description for this stargazer"
+    clue: "SCHOOLMASTER",
+    answer: "THE CLASSROOM",
+    subtype: "Daily Domain",
+    hint: "Two words: where you find this educator"
   },
   {
-    word: "SCHOOLMASTER", answer: "THECLASSROOM", displayAnswer: "THE CLASSROOM",
-    category: "fun", subtype: "Definition anagram",
-    hint: "Where you'd find this person every day"
+    clue: "THE MORSE CODE",
+    answer: "HERE COME DOTS",
+    subtype: "Telegraphic Cue",
+    hint: "Three words: sound of incoming dots and dashes"
   },
   {
-    word: "THEEYES", answer: "THEYSEE", displayAnswer: "THEY SEE",
-    category: "fun", subtype: "Descriptive anagram",
-    hint: "What these organs are for"
+    clue: "DORMITORY",
+    answer: "DIRTY ROOM",
+    subtype: "Student Living",
+    hint: "Two words: a messy campus residence"
   },
   {
-    word: "THEMORSECODE", answer: "HERECOMEDOTS", displayAnswer: "HERE COME DOTS",
-    category: "fun", subtype: "Descriptive anagram",
-    hint: "A cheeky nod to dots and dashes"
+    clue: "SLOT MACHINES",
+    answer: "CASH LOST IN ME",
+    subtype: "Casinoware Confession",
+    hint: "Four words: a gambler's unfortunate fate"
   },
   {
-    word: "SLOTMACHINES", answer: "CASHLOSTINME", displayAnswer: "CASH LOST IN ME",
-    category: "fun", subtype: "Cause & effect",
-    hint: "What a gambler mutters while walking away"
+    clue: "DEBIT CARD",
+    answer: "BAD CREDIT",
+    subtype: "Financial Consequence",
+    hint: "Two words: the result of reckless swipe habits"
   },
   {
-    word: "DEBITCARD", answer: "BADCREDIT", displayAnswer: "BAD CREDIT",
-    category: "fun", subtype: "Cause & effect",
-    hint: "Overusing the scrambled word can lead here"
+    clue: "ELEVEN PLUS TWO",
+    answer: "TWELVE PLUS ONE",
+    subtype: "Mathematical Equation",
+    hint: "Three words: another arithmetic sum that equals 13"
   },
   {
-    word: "DORMITORY", answer: "DIRTYROOM", displayAnswer: "DIRTY ROOM",
-    category: "fun", subtype: "Humorous observation",
-    hint: "A joke about student housing"
+    clue: "CONVERSATION",
+    answer: "VOICES RANT ON",
+    subtype: "Lively Dialogue",
+    hint: "Three words: endless talking and debates"
   },
   {
-    word: "CONVERSATION", answer: "VOICESRANTON", displayAnswer: "VOICES RANT ON",
-    category: "fun", subtype: "Humorous observation",
-    hint: "Basically what this word describes"
+    clue: "THE COUNTRYSIDE",
+    answer: "NO CITY DUST HERE",
+    subtype: "Rural Landscape",
+    hint: "Four words: fresh air without urban grime"
   },
   {
-    word: "FUNERAL", answer: "REALFUN", displayAnswer: "REAL FUN",
-    category: "fun", subtype: "Ironic contrast",
-    hint: "A darkly ironic flip on a somber word"
+    clue: "A GENTLEMAN",
+    answer: "ELEGANT MAN",
+    subtype: "Polite Society",
+    hint: "Two words: a chivalrous, refined person"
   },
   {
-    word: "EVANGELIST", answer: "EVILSAGENT", displayAnswer: "EVIL'S AGENT",
-    category: "fun", subtype: "Ironic contrast",
-    hint: "A polemical twist on this preacher"
+    clue: "A SHOPLIFTER",
+    answer: "HAS TO PILFER",
+    subtype: "Criminal Impulse",
+    hint: "Three words: compelled to steal from stores"
+  },
+  {
+    clue: "SNOOZE ALARMS",
+    answer: "ALAS NO MORE ZS",
+    subtype: "Morning Routine",
+    hint: "Four words: no more sleep allowed"
+  },
+  {
+    clue: "A DECIMAL POINT",
+    answer: "I'M A DOT IN PLACE",
+    subtype: "Math Punctuation",
+    hint: "Five words: separating integers from fractions"
+  },
+  {
+    clue: "THE PUBLIC ART GALLERIES",
+    answer: "LARGE PICTURES TO CULL AT",
+    subtype: "Cultural Spaces",
+    hint: "Exhibiting works for public gaze"
+  },
+  {
+    clue: "SIGNATURE",
+    answer: "A TRUE SIGN",
+    subtype: "Personal Mark",
+    hint: "Three words: distinct personal mark of validation"
+  },
+  {
+    clue: "METEORITE",
+    answer: "REMOTE ITEM",
+    subtype: "Celestial Visitor",
+    hint: "Two words: deep space stone fallen to Earth"
+  },
+  {
+    clue: "FUNERAL",
+    answer: "REAL FUN",
+    subtype: "Ironic Contrast",
+    hint: "Two words: darkly ironic contrast to a solemn event"
+  },
+  {
+    clue: "EVANGELIST",
+    answer: "EVIL'S AGENT",
+    subtype: "Polemical Contrast",
+    hint: "Two words: an ironic and sharp reversal"
   }
 ];
 
-// Game State
 let playerName = "";
 let playerDept = "";
 let githubUsername = "";
@@ -815,9 +752,6 @@ let wrongTaps = 0;
 let correctTaps = 0;
 let completedCount = 0;
 let skippedCount = 0;
-let caseCorrectTaps = 0;
-let caseWrongTaps = 0;
-let caseStartTime = 0;
 let caseHistory = [];
 
 let wordQueue = [];
@@ -827,19 +761,13 @@ let currentWordData = null;
 let timeRemaining = SESSION_SECONDS;
 let timerInterval = null;
 
-// Tap-to-select state
-let availableLetters = []; // {char, id, used}
-let selectedLetters = [];  // {char, id}
-let tileRefs = {};         // id -> available-tray DOM element (persistent per case)
-let subTileRefs = {};      // id -> submission-tray DOM element
-
-/* ============================================
-   IDENTITY (from GitHub auth, via auth-guard.js)
-   ============================================ */
+let availableLetters = [];
+let selectedLetters = [];
+let tileRefs = {};
+let subTileRefs = {};
 
 function populateIdentity() {
   if (!window.GH || !window.GH.loggedIn) {
-    // auth-guard.js should already have redirected; this is just a safety net.
     window.location.href = "../auth.html";
     return;
   }
@@ -851,10 +779,6 @@ function populateIdentity() {
   document.getElementById("identityName").textContent = playerName;
 }
 document.addEventListener("DOMContentLoaded", populateIdentity);
-
-/* ============================================
-   INITIALIZATION
-   ============================================ */
 
 function beginQuiz() {
   wordQueue = shuffledCopy(WORD_BANK);
@@ -884,15 +808,11 @@ function restartQuiz() {
   document.getElementById("resultScreen").style.display = "none";
 }
 
-/* ============================================
-   WORD QUEUE
-   ============================================ */
-
 function getNextWord() {
   if (queuePos >= wordQueue.length) {
-    const lastWord = wordQueue[wordQueue.length - 1];
+    const lastClue = wordQueue[wordQueue.length - 1];
     wordQueue = shuffledCopy(WORD_BANK);
-    if (wordQueue[0].word === lastWord.word && wordQueue.length > 1) {
+    if (wordQueue[0].clue === lastClue.clue && wordQueue.length > 1) {
       [wordQueue[0], wordQueue[1]] = [wordQueue[1], wordQueue[0]];
     }
     queuePos = 0;
@@ -902,28 +822,15 @@ function getNextWord() {
 
 function shuffledCopy(arr) {
   const copy = [...arr];
-  shuffleArray(copy);
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
   return copy;
 }
 
-function shuffleArray(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
-
-/* ============================================
-   CASE MANAGEMENT
-   ============================================ */
-
 function loadCase() {
   currentWordData = getNextWord();
-
-  caseCorrectTaps = 0;
-  caseWrongTaps = 0;
-  caseStartTime = Date.now();
-
   updateHeaderStats();
 
   document.getElementById("feedback").className = "feedback";
@@ -932,21 +839,7 @@ function loadCase() {
   const subBox = document.getElementById("submissionBox");
   subBox.className = "submission-section";
 
-  const CATEGORY_LABELS = {
-    business: "Business",
-    tech: "Tech",
-    aptitude: "Aptitude",
-    softskills: "Soft Skills",
-    fun: "Fun — Semantic Anagram"
-  };
-
-  const badge = document.getElementById("categoryBadge");
-  badge.textContent = CATEGORY_LABELS[currentWordData.category] || currentWordData.category;
-  badge.className = "category-badge cat-" + currentWordData.category;
-
-  const subtypeEl = document.getElementById("subtypeLabel");
-  subtypeEl.textContent = currentWordData.subtype ? currentWordData.subtype : "";
-
+  document.getElementById("subtypeLabel").textContent = currentWordData.subtype || "";
   initCaseTiles();
 }
 
@@ -956,68 +849,54 @@ function updateHeaderStats() {
   document.getElementById("solvedDisplay").textContent = completedCount;
 }
 
-function scrambleWord(word) {
-  const arr = word.split("");
-  let scrambled = word;
-  while (scrambled === word) {
-    shuffleArray(arr);
-    scrambled = arr.join("");
-  }
-  return scrambled;
-}
-
-/* ============================================
-   TILE MANAGEMENT (no re-render, no re-arrange)
-   ============================================ */
-
-function computeTileSize(letterCount) {
-  const availRow = document.getElementById("availableLetters");
-  const availableWidth = availRow.clientWidth || window.innerWidth;
-
-  const gap = 4;
-  const totalGap = gap * Math.max(0, letterCount - 1);
-  let raw = (availableWidth - totalGap) / letterCount;
-  raw = Math.max(18, raw);
-
-  document.documentElement.style.setProperty("--tile-size", raw + "px");
-  document.documentElement.style.setProperty("--tile-gap", gap + "px");
-}
-
 function initCaseTiles() {
-  const scrambled = scrambleWord(currentWordData.word);
-
   const availContainer = document.getElementById("availableLetters");
   const subContainer = document.getElementById("submissionLetters");
 
   availContainer.innerHTML = "";
   subContainer.innerHTML = "";
 
-  computeTileSize(scrambled.length);
-
-  availableLetters = scrambled.split("").map((char, idx) => ({ char, id: idx, used: false }));
+  const clueChars = currentWordData.clue.toUpperCase().split("");
+  availableLetters = [];
   selectedLetters = [];
   tileRefs = {};
   subTileRefs = {};
 
+  let letterIndex = 0;
+  clueChars.forEach((char) => {
+    if (char === " ") {
+      const spaceDiv = document.createElement("div");
+      spaceDiv.className = "tile-space";
+      availContainer.appendChild(spaceDiv);
+    } else if (/[A-Z0-9]/.test(char)) {
+      const item = { char, id: letterIndex, used: false };
+      availableLetters.push(item);
+
+      const tile = document.createElement("div");
+      tile.className = "letter-tile";
+      tile.textContent = char;
+      tile.dataset.id = item.id;
+      tile.tabIndex = 0;
+      tile.setAttribute("role", "button");
+      tile.setAttribute("aria-label", "Letter " + char);
+      tile.onclick = () => selectLetter(item.id);
+      tile.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          selectLetter(item.id);
+        }
+      };
+      availContainer.appendChild(tile);
+      tileRefs[item.id] = tile;
+      letterIndex++;
+    }
+  });
+
   const placeholder = document.createElement("div");
   placeholder.className = "submission-placeholder";
   placeholder.id = "submissionPlaceholder";
-  placeholder.textContent = "Tap letters above to build your answer";
+  placeholder.textContent = "Tap clue tiles above in order to spell the solution";
   subContainer.appendChild(placeholder);
-
-  availableLetters.forEach((item) => {
-    const tile = document.createElement("div");
-    tile.className = "letter-tile";
-    tile.textContent = item.char;
-    tile.dataset.id = item.id;
-    tile.tabIndex = 0;
-    tile.setAttribute("role", "button");
-    tile.setAttribute("aria-label", "Letter " + item.char);
-    tile.onclick = () => selectLetter(item.id);
-    tile.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectLetter(item.id); } };
-    availContainer.appendChild(tile);
-    tileRefs[item.id] = tile;
-  });
 }
 
 function selectLetter(id) {
@@ -1043,7 +922,12 @@ function selectLetter(id) {
   subTile.setAttribute("role", "button");
   subTile.setAttribute("aria-label", "Letter " + item.char + ", tap to remove");
   subTile.onclick = () => unselectLetter(id);
-  subTile.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); unselectLetter(id); } };
+  subTile.onkeydown = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      unselectLetter(id);
+    }
+  };
   subContainer.appendChild(subTile);
   subTileRefs[id] = subTile;
 
@@ -1067,20 +951,15 @@ function unselectLetter(id) {
   sourceTile.tabIndex = 0;
 
   const subContainer = document.getElementById("submissionLetters");
-
   if (selectedLetters.length === 0) {
     const placeholder = document.createElement("div");
     placeholder.className = "submission-placeholder";
     placeholder.id = "submissionPlaceholder";
-    placeholder.textContent = "Tap letters above to build your answer";
+    placeholder.textContent = "Tap clue tiles above in order to spell the solution";
     subContainer.appendChild(placeholder);
     document.getElementById("submissionBox").classList.remove("has-letters");
   }
 }
-
-/* ============================================
-   SESSION TIMER (single 3:00 clock)
-   ============================================ */
 
 function startTimer() {
   clearInterval(timerInterval);
@@ -1123,53 +1002,45 @@ function updateTimerUI() {
   }
 }
 
-/* ============================================
-   ANSWER HANDLING (Submit Button)
-   ============================================ */
-
 function normalizeAnswer(str) {
-  return str.toUpperCase().replace(/[^A-Z]/g, "");
+  return str.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
 function submitAnswer() {
   if (selectedLetters.length === 0) return;
 
   const input = normalizeAnswer(selectedLetters.map(l => l.char).join(""));
-  const rawAnswer = currentWordData.answer || currentWordData.word;
-  const correctWord = normalizeAnswer(rawAnswer);
-  const displayWord = currentWordData.displayAnswer || currentWordData.word;
+  const target = normalizeAnswer(currentWordData.answer);
+  const displayAnswer = currentWordData.answer;
 
-  if (input === correctWord) {
-    caseCorrectTaps++;
+  if (input === target) {
     correctTaps++;
     completedCount++;
-
     streak++;
     bestStreak = Math.max(bestStreak, streak);
 
-    const basePoints = correctWord.length * 5;
+    const basePoints = target.length * 4;
     const streakBonus = Math.min(streak, 10) * 3;
     const points = basePoints + streakBonus;
     score += points;
 
     document.getElementById("submissionBox").className = "submission-section correct";
-    showFeedback("Correct! " + displayWord + " · +" + points + " points (streak bonus " + streakBonus + ")", "success");
-    caseHistory.push({ word: displayWord, status: "correct" });
+    showFeedback("Apt! " + displayAnswer + " · +" + points + " pts", "success");
+    caseHistory.push({ word: displayAnswer, status: "correct" });
     updateHeaderStats();
 
     setTimeout(() => {
       if (timeRemaining > 0) loadCase();
-    }, 1300);
+    }, 1200);
 
   } else {
-    caseWrongTaps++;
     wrongTaps++;
     streak = 0;
     updateHeaderStats();
 
     const subBox = document.getElementById("submissionBox");
     subBox.className = "submission-section wrong";
-    showFeedback("Not quite — try again", "error");
+    showFeedback("Not quite — try a different arrangement", "error");
 
     setTimeout(() => {
       subBox.className = selectedLetters.length > 0 ? "submission-section has-letters" : "submission-section";
@@ -1189,13 +1060,13 @@ function skipCase() {
   completedCount++;
   updateHeaderStats();
 
-  const displayWord = currentWordData.displayAnswer || currentWordData.word;
-  showFeedback("Skipped. Answer: " + displayWord, "error");
-  caseHistory.push({ word: displayWord, status: "skipped" });
+  const displayAnswer = currentWordData.answer;
+  showFeedback("Answer: " + displayAnswer, "error");
+  caseHistory.push({ word: displayAnswer, status: "skipped" });
 
   setTimeout(() => {
     if (timeRemaining > 0) loadCase();
-  }, 1000);
+  }, 1100);
 }
 
 function showFeedback(msg, type) {
@@ -1203,54 +1074,6 @@ function showFeedback(msg, type) {
   fb.textContent = msg;
   fb.className = "feedback feedback-" + type + " show";
 }
-
-/* ============================================
-   SUPABASE INTEGRATION (Exact pattern)
-   ============================================ */
-
-function submitSessionToSupabase() {
-  const elapsedSec = SESSION_SECONDS - Math.max(0, timeRemaining);
-
-  const payload = {
-    student_name: playerName,
-    department: playerDept,
-    github_username: githubUsername,
-    correct: correctTaps,
-    wrong: wrongTaps,
-    time_spent: Math.round(elapsedSec),
-    quest_id: "Quest Anagram 1",
-    score: score,
-    sentences_pressed: completedCount
-  };
-
-  sendViaEdgeFunction(payload);
-}
-
-async function sendViaEdgeFunction(payload) {
-  try {
-    const response = await fetch(EDGE_FUNCTION_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      console.error("Edge Function Error:", await response.text());
-      return;
-    }
-
-    console.log("Saved to Supabase");
-
-  } catch (err) {
-    console.error("Edge Function Error:", err);
-  }
-}
-
-/* ============================================
-   SESSION COMPLETION
-   ============================================ */
 
 function completeSession() {
   clearInterval(timerInterval);
@@ -1269,7 +1092,7 @@ function completeSession() {
   document.getElementById("finalBestStreak").textContent = bestStreak;
 
   const list = document.getElementById("historyList");
-  list.innerHTML = "<h3>Word History</h3>";
+  list.innerHTML = "<h3>Anagram History</h3>";
   caseHistory.forEach((item, i) => {
     const div = document.createElement("div");
     div.className = "history-item";
@@ -1279,10 +1102,6 @@ function completeSession() {
     list.appendChild(div);
   });
 }
-
-window.addEventListener("resize", () => {
-  if (currentWordData) computeTileSize(currentWordData.word.length);
-});
 </script>
 
 </body>
