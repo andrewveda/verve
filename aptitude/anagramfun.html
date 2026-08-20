@@ -31,6 +31,11 @@
       --slot-empty-bg: #E7DEBF;
       --slot-empty-border: #BFB088;
       --shadow-lift: 0 1px 0 rgba(255,255,255,0.6) inset, 0 10px 24px -14px rgba(20,17,10,0.35);
+
+      /* Dynamic scaling properties */
+      --tile-w: 42px;
+      --tile-h: 50px;
+      --tile-font: 1.45rem;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -50,7 +55,7 @@
 
     .app-container {
       width: 100%;
-      max-width: 580px;
+      max-width: 540px;
       background: var(--surface);
       border-radius: 24px;
       padding: 0;
@@ -93,7 +98,7 @@
 
     h1 {
       font-family: 'Fraunces', serif;
-      font-size: 2.35rem;
+      font-size: 2.3rem;
       font-weight: 600;
       text-align: center;
       letter-spacing: -0.01em;
@@ -104,7 +109,7 @@
     .subtitle {
       text-align: center;
       color: var(--muted);
-      font-size: 0.98rem;
+      font-size: 0.96rem;
       line-height: 1.5;
       padding: 0 20px 16px;
     }
@@ -175,7 +180,7 @@
       padding: 16px;
       border-radius: 14px;
       border: none;
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       font-weight: 600;
       font-family: 'Inter', sans-serif;
       cursor: pointer;
@@ -242,7 +247,7 @@
 
     .timer-rail {
       height: 4px;
-      margin: 0 24px;
+      margin: 0 20px;
       background: var(--border);
       overflow: hidden;
       border-radius: 4px;
@@ -290,14 +295,14 @@
       padding: 12px 0 8px;
     }
 
-    /* Word Blocks Wrapping Containers (never break words mid-line) */
+    /* Word Blocks: wraps only by whole words; tiles touch with 0 spacing */
     .word-cluster-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      gap: 12px 18px;
-      padding: 6px 4px;
+      gap: 14px 16px;
+      padding: 4px 2px;
     }
 
     .word-block {
@@ -305,46 +310,60 @@
       flex-wrap: nowrap;
       white-space: nowrap;
       align-items: center;
-      gap: 6px;
+      gap: 0;
       flex-shrink: 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px -2px rgba(60,45,10,0.25);
     }
 
-    /* Large Letter Tiles */
+    /* Letter Tiles: flush edges */
     .letter-tile {
-      width: 44px;
-      height: 52px;
+      width: var(--tile-w);
+      height: var(--tile-h);
       background: linear-gradient(180deg, #FFFEFA 0%, #F7F1DE 100%);
-      border-radius: 9px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-family: 'Fraunces', serif;
-      font-size: 1.55rem;
+      font-size: var(--tile-font);
       font-weight: 600;
       color: var(--ink);
-      border: 1.5px solid var(--border-strong);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 3px 6px -2px rgba(60,45,10,0.35);
+      border: 1px solid var(--border-strong);
+      border-right: none;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
       cursor: pointer;
       user-select: none;
       flex-shrink: 0;
-      transition: transform 0.12s, border-color 0.12s, background 0.12s, box-shadow 0.12s;
+      transition: transform 0.1s, border-color 0.1s, background 0.1s;
     }
+
+    .word-block > .letter-tile:first-child {
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+    }
+    .word-block > .letter-tile:last-child {
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+      border-right: 1px solid var(--border-strong);
+    }
+
     .letter-tile:hover {
       transform: translateY(-3px);
       border-color: var(--brass);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 8px 14px -4px rgba(169,129,47,0.45);
+      z-index: 2;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 6px 12px -3px rgba(169,129,47,0.4);
     }
     .letter-tile:active { transform: scale(0.95); }
     .letter-tile:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
     .letter-tile.tile-placeholder { visibility: hidden; pointer-events: none; }
 
-    /* Large Target Blanks */
+    /* Target Tray Blanks: flush edges */
     .submission-section {
-      margin: 0 20px;
+      margin: 0 16px;
       background: var(--surface-alt);
       border: 2px dashed var(--border-strong);
       border-radius: 16px;
-      padding: 14px 12px;
+      padding: 14px 8px;
       min-height: 96px;
       display: flex;
       flex-direction: column;
@@ -370,16 +389,16 @@
     }
 
     .blank-slot {
-      width: 44px;
-      height: 52px;
-      border-radius: 9px;
-      border: 2px dashed var(--slot-empty-border);
+      width: var(--tile-w);
+      height: var(--tile-h);
+      border: 1.5px solid var(--slot-empty-border);
+      border-right: none;
       background: var(--slot-empty-bg);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-family: 'Fraunces', serif;
-      font-size: 1.55rem;
+      font-size: var(--tile-font);
       font-weight: 600;
       color: var(--ink);
       user-select: none;
@@ -388,39 +407,51 @@
       cursor: default;
     }
 
+    .word-block > .blank-slot:first-child {
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+    }
+    .word-block > .blank-slot:last-child {
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+      border-right: 1.5px solid var(--slot-empty-border);
+    }
+
     .blank-slot.is-punct {
-      border: none;
-      background: transparent;
-      width: 14px;
-      font-size: 1.65rem;
+      border: none !important;
+      background: transparent !important;
+      width: calc(var(--tile-w) * 0.4);
+      font-size: var(--tile-font);
       color: var(--brass-dark);
       font-weight: 700;
     }
 
     .blank-slot.filled {
-      border: 1.5px solid var(--border-strong);
+      border-color: var(--border-strong);
       background: linear-gradient(180deg, #FFFEFA 0%, #F7F1DE 100%);
-      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 3px 6px -2px rgba(60,45,10,0.35);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.9) inset;
       cursor: pointer;
     }
     .blank-slot.filled:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       border-color: var(--brass);
+      z-index: 2;
     }
 
     .blank-slot.next-target {
-      border: 2px solid var(--brass-bright);
+      border-color: var(--brass-bright);
       background: #FDF9EB;
-      box-shadow: 0 0 0 3px rgba(201,168,76,0.35);
+      box-shadow: 0 0 0 2px rgba(201,168,76,0.35);
+      z-index: 1;
     }
 
     .feedback {
       text-align: center;
-      margin: 12px 20px 0;
+      margin: 12px 18px 0;
       padding: 12px 14px;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 0.98rem;
+      font-size: 0.96rem;
       display: none;
     }
     .feedback.show { display: block; }
@@ -432,24 +463,24 @@
       color: var(--muted);
       font-family: 'Fraunces', serif;
       font-style: italic;
-      font-size: 0.96rem;
+      font-size: 0.95rem;
       min-height: 1.2em;
-      padding: 8px 20px 16px;
+      padding: 8px 18px 16px;
     }
 
     .controls-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      padding: 10px 20px 14px;
+      padding: 10px 18px 14px;
     }
-    .submit-row { padding: 14px 20px 0; }
+    .submit-row { padding: 14px 18px 0; }
 
     .result-card {
       background: linear-gradient(180deg, #FFFEFA, var(--surface-alt));
       border: 1px solid var(--border);
       border-radius: 16px;
-      margin: 4px 20px 20px;
+      margin: 4px 18px 20px;
       padding: 24px 16px;
       text-align: center;
       box-shadow: var(--shadow-lift);
@@ -493,7 +524,7 @@
     .history-list {
       max-height: 220px;
       overflow-y: auto;
-      margin: 0 20px 20px;
+      margin: 0 18px 20px;
     }
     .history-list h3 {
       font-size: 0.72rem;
@@ -520,12 +551,6 @@
     .h-correct { color: var(--good); }
     .h-wrong { color: var(--bad); }
     .h-skipped { color: var(--warn); }
-
-    @media (max-width: 480px) {
-      .letter-tile, .blank-slot { width: 38px; height: 46px; font-size: 1.35rem; }
-      .word-cluster-container { gap: 10px 14px; }
-      .word-block { gap: 4px; }
-    }
   </style>
 </head>
 <body>
@@ -536,7 +561,7 @@
   <div class="login-screen" id="loginScreen">
     <span class="eyebrow">Aptitude & Wordplay</span>
     <h1>Descriptive Anagrams</h1>
-    <p class="subtitle">The original clue phrase reveals the answer. Fill the structured blanks with tiles from the clue tray.</p>
+    <p class="subtitle">The original clue phrase reveals the answer. Fill the structured blanks with seamless tiles from the clue tray.</p>
 
     <div class="ticket-divider"></div>
 
@@ -590,7 +615,7 @@
     </div>
 
     <!-- Clue Letters Tray -->
-    <div class="letters-section" style="padding: 0 20px;">
+    <div class="letters-section" style="padding: 0 16px;">
       <div class="section-label">Clue phrase tiles — tap to place</div>
       <div class="word-cluster-container" id="availableLetters"></div>
     </div>
@@ -645,7 +670,7 @@
 
     <div class="history-list" id="historyList"></div>
 
-    <div class="ticket-divider" style="margin: 4px 20px 20px;"></div>
+    <div class="ticket-divider" style="margin: 4px 18px 20px;"></div>
 
     <button class="btn btn-primary" onclick="restartQuiz()">
       Run It Back
@@ -872,8 +897,39 @@ function shuffledCopy(arr) {
   return copy;
 }
 
+/* ============================================
+   DYNAMIC TILE SCALING ENGINE (Zero Overflow)
+   ============================================ */
+function adjustDynamicTileScale() {
+  if (!currentWordData) return;
+
+  const container = document.getElementById("submissionBox");
+  const availableWidth = Math.max(280, (container ? container.clientWidth : 460) - 28);
+
+  const answerWords = currentWordData.answer.split(" ");
+  const clueWords = currentWordData.clue.split(" ");
+  const allWords = [...answerWords, ...clueWords];
+
+  let maxWordLength = 1;
+  allWords.forEach(w => {
+    const len = w.replace(/[^A-Z0-9]/gi, "").length;
+    if (len > maxWordLength) maxWordLength = len;
+  });
+
+  let computedWidth = Math.floor(availableWidth / maxWordLength);
+  computedWidth = Math.min(46, Math.max(22, computedWidth));
+
+  const computedHeight = Math.round(computedWidth * 1.18);
+  const computedFont = Math.max(0.85, (computedWidth / 46) * 1.45).toFixed(2);
+
+  document.documentElement.style.setProperty("--tile-w", computedWidth + "px");
+  document.documentElement.style.setProperty("--tile-h", computedHeight + "px");
+  document.documentElement.style.setProperty("--tile-font", computedFont + "rem");
+}
+
 function loadCase() {
   currentWordData = getNextWord();
+  adjustDynamicTileScale();
   updateHeaderStats();
 
   document.getElementById("feedback").className = "feedback";
@@ -903,7 +959,7 @@ function initCaseLayout() {
   targetSlots = [];
   tileRefs = {};
 
-  // 1. Build Target Blanks grouped by unbroken words
+  // 1. Target Blanks: contiguous word blocks with 0 inter-tile gap
   const answerWords = currentWordData.answer.toUpperCase().split(" ");
   let totalSlotCounter = 0;
 
@@ -950,7 +1006,7 @@ function initCaseLayout() {
     wordsContainer.appendChild(wordBlock);
   });
 
-  // 2. Build Clue Letters Tray grouped by unbroken words in original order
+  // 2. Clue Tiles: contiguous word blocks with 0 inter-tile gap
   const clueWords = currentWordData.clue.toUpperCase().split(" ");
   let letterIndex = 0;
 
@@ -1199,6 +1255,8 @@ function completeSession() {
     list.appendChild(div);
   });
 }
+
+window.addEventListener("resize", adjustDynamicTileScale);
 </script>
 
 </body>
