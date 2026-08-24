@@ -611,6 +611,9 @@ async function getPosterDataURL(v){
 /* ═══════════════════════════════════════════════════════
    PART 3 — JIGSAW ENGINE
 ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   PART 3 — JIGSAW ENGINE
+═══════════════════════════════════════════════════════ */
 const DIRECTORY = window.PUZZLE_DIRECTORY || { quests: [] };
 const urlParams = new URLSearchParams(location.search);
 const requestedQuestId = urlParams.get("quest");
@@ -625,7 +628,19 @@ let startPuzzleIdx = 0;
 if (requestedPuzzleId) {
   const foundIdx = PUZZLES.findIndex(p => p.id === requestedPuzzleId);
   if (foundIdx >= 0) startPuzzleIdx = foundIdx;
+} else {
+  // Check local storage for solved puzzles and jump to the first unsolved one
+  const solved = getSolvedVerses(); 
+  const firstUnsolvedIdx = PUZZLES.findIndex(p => !solved.includes(p.id));
+  
+  if (firstUnsolvedIdx !== -1) {
+    startPuzzleIdx = firstUnsolvedIdx;
+  } else if (PUZZLES.length > 0) {
+    // If they have completed all 150 puzzles, default to the final puzzle
+    startPuzzleIdx = PUZZLES.length - 1;
+  }
 }
+
 
 const SUPABASE_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
 
