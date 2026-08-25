@@ -676,6 +676,7 @@ function populateIdentity() {
 
   document.getElementById("identityAvatar").src = githubAvatar;
   document.getElementById("identityName").textContent = playerName;
+  document.addEventListener("DOMContentLoaded", populateIdentity);
 }
 /* ============================================
    INITIALIZATION
