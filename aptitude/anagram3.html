@@ -669,15 +669,16 @@ function populateIdentity() {
   githubUsername = window.GH.username || "";
   
   // Pulling the new GitHub fields (falling back to localStorage just in case)
-  githubId = window.GH.id || localStorage.getItem('github_id') || "";
+  githubId = window.GH.githubId || localStorage.getItem("github_id") || "";
   githubProfile = window.GH.profile || localStorage.getItem('github_profile') || "";
   githubAvatar = window.GH.avatar || localStorage.getItem('avatar') || "";
   githubName = window.GH.name || localStorage.getItem('userName') || "";
 
   document.getElementById("identityAvatar").src = githubAvatar;
   document.getElementById("identityName").textContent = playerName;
-  document.addEventListener("DOMContentLoaded", populateIdentity);
+  
 }
+  populateIdentity();
 /* ============================================
    INITIALIZATION
    ============================================ */
