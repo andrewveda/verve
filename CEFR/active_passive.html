@@ -919,8 +919,8 @@ const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functi
 // quest_id is built per rule group at send time, using its fixed position in
 // RULE_GROUPS (1-30, stable regardless of shuffle order), prefixed "Voice" so
 // this game's entries never collide with other Verve quizzes in the same table:
-// "Voice Rule N"  = mastered — all 4 sentences in the group solved on the first tap
-// "Voice Rules N" = practiced — at least one sentence needed a retry after a wrong tap
+// " N"  = mastered — all 4 sentences in the group solved on the first tap
+// "s N" = practiced — at least one sentence needed a retry after a wrong tap
 
 /* ═══════ Supabase client (for reading back a player's history) ═══════ */
 const SUPABASE_PROXY_URL = "https://yellow-lab-4999.andrewveda.workers.dev";
@@ -974,7 +974,7 @@ let studySearchTerm = '';
 
 /* ═══════════════ PLAYER HISTORY (Supabase) ═══════════════ */
 // Reads report_card_view.quest_list for this player name and turns entries like
-// "Voice Rule 3" (mastered) / "Voice Rules 8" (practiced) into a rule-index → status map.
+// " 3" (mastered) / "s 8" (practiced) into a rule-index → status map.
 async function loadPlayerHistory(name){
   loadedRuleStatus = new Map();
   if(!name) return;
@@ -997,11 +997,11 @@ const questList = (data.quest_list || "")
     questList.forEach(q=>{
       if(typeof q !== 'string') return;
       let ruleNum = null, mastered = false;
-      if(q.startsWith("Voice Rule ")){
-        ruleNum = parseInt(q.replace("Voice Rule ",""),10);
+      if(q.startsWith("Quest Voice Rule ")){
+        ruleNum = parseInt(q.replace("Quest Voice Rule ",""),10);
         mastered = true;
-      } else if(q.startsWith("Voice Rules ")){
-        ruleNum = parseInt(q.replace("Voice Rules ",""),10);
+      } else if(q.startsWith("Quest Voice Rules ")){
+        ruleNum = parseInt(q.replace("Quest Voice Rules ",""),10);
         mastered = false;
       }
       if(ruleNum && !isNaN(ruleNum)){
@@ -1504,7 +1504,7 @@ async function sendViaEdgeFunction(payload) {
 function submitRuleToSupabase(){
   const timeSpent = Math.round((Date.now()-ruleStartTime)/1000);
   const ruleNumber = currentGroupIdx + 1;
-  const questId = (ruleHadMistake ? "Voice Rules " : "Voice Rule ") + ruleNumber;
+  const questId = (ruleHadMistake ? "Quest Voice Rules " : "Quest Voice Rule ") + ruleNumber;
   const payload = {
     student_name: playerName,
     department: playerDept,
