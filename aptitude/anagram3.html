@@ -638,6 +638,10 @@ let caseWrongTaps = 0;
 let caseStartTime = 0;
 let caseHistory = [];
 
+let githubId = "";
+let githubProfile = "";
+let githubAvatar = "";
+let githubName = "";
 let wordQueue = [];
 let queuePos = 0;
 let currentWordData = null;
@@ -657,19 +661,22 @@ let subTileRefs = {};      // id -> submission-tray DOM element
 
 function populateIdentity() {
   if (!window.GH || !window.GH.loggedIn) {
-    // auth-guard.js should already have redirected; this is just a safety net.
     window.location.href = "../auth.html";
     return;
   }
   playerName = window.GH.name || window.GH.username || "Candidate";
   playerDept = window.GH.dept || "";
   githubUsername = window.GH.username || "";
+  
+  // Pulling the new GitHub fields (falling back to localStorage just in case)
+  githubId = window.GH.id || localStorage.getItem('github_id') || "";
+  githubProfile = window.GH.profile || localStorage.getItem('github_profile') || "";
+  githubAvatar = window.GH.avatar || localStorage.getItem('avatar') || "";
+  githubName = window.GH.name || localStorage.getItem('userName') || "";
 
-  document.getElementById("identityAvatar").src = window.GH.avatar || "";
+  document.getElementById("identityAvatar").src = githubAvatar;
   document.getElementById("identityName").textContent = playerName;
 }
-document.addEventListener("DOMContentLoaded", populateIdentity);
-
 /* ============================================
    INITIALIZATION
    ============================================ */
@@ -1014,12 +1021,17 @@ function submitSessionToSupabase() {
     student_name: playerName,
     department: playerDept,
     github_username: githubUsername,
+    github_id: githubId,
+    github_profile: githubProfile,
+    github_avatar: githubAvatar,
+    github_name: githubName,
+    auth_provider: 'github',
     correct: correctTaps,
     wrong: wrongTaps,
-    time_spent: Math.round(elapsedSec),
+    time_spent: Math.round(elapsedSec).toString(),
     quest_id: "Quest Anagram 1",
     score: score,
-    sentences_pressed: completedCount
+    longest_streak: bestStreak
   };
 
   sendViaEdgeFunction(payload);
@@ -1077,6 +1089,8 @@ function completeSession() {
     div.innerHTML = `<span class="h-word">${i + 1}. ${item.word}</span><span class="h-status ${statusClass}">${statusText}</span>`;
     list.appendChild(div);
   });
+
+  submitSessionToSupabase();
 }
 
 window.addEventListener("resize", () => {
