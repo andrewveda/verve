@@ -1139,7 +1139,7 @@ async function sendViaEdgeFunction(payload) {
 function submitRuleToSupabase(){
   const timeSpent = Math.round((Date.now()-ruleStartTime)/1000);
   const ruleNumber = currentGroupIdx + 1;
-  const questId = (ruleHadMistake ? "Verve Articles " : "Verve Article ") + ruleNumber;
+  const questId = (ruleHadMistake ? "Quest Articles " : "Quest Article ") + ruleNumber;
   const payload = { student_name: playerName, department: playerDept, correct: ruleCorrectTaps, wrong: ruleWrongTaps, time_spent: timeSpent, quest_id: questId, score: ruleScore, sentences_pressed: currentForms.length };
   sendViaEdgeFunction(payload);
   if(ruleHadMistake){ if(loadedRuleStatus.get(currentGroupIdx) !== 'mastered') loadedRuleStatus.set(currentGroupIdx, 'practiced'); }
