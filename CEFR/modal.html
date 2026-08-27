@@ -927,11 +927,11 @@ const questList = (data.quest_list || "")
     questList.forEach(q=>{
       if(typeof q !== 'string') return;
       let ruleNum = null, mastered = false;
-      if(q.startsWith("Verve Modal ")){
-        ruleNum = parseInt(q.replace("Verve Modal ",""),10);
+      if(q.startsWith("Quest Modal ")){
+        ruleNum = parseInt(q.replace("Quest Modal ",""),10);
         mastered = true;
-      } else if(q.startsWith("Verve Modals ")){
-        ruleNum = parseInt(q.replace("Verve Modals ",""),10);
+      } else if(q.startsWith("Quest Modals ")){
+        ruleNum = parseInt(q.replace("Quest Modals ",""),10);
         mastered = false;
       }
       if(ruleNum && !isNaN(ruleNum)){
@@ -1435,7 +1435,7 @@ async function sendViaEdgeFunction(payload) {
 function submitRuleToSupabase(){
   const timeSpent = Math.round((Date.now()-ruleStartTime)/1000);
   const ruleNumber = currentGroupIdx + 1;
-  const questId = (ruleHadMistake ? "Verve Modals " : "Verve Modal ") + ruleNumber;
+  const questId = (ruleHadMistake ? "Quest Modals " : "Quest Modal ") + ruleNumber;
   const payload = {
     student_name: playerName,
     department: playerDept,
