@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CEFR Grammar Directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Cormorant:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3EEE0;
+    --square:#EAE1C4;
+    --ink:#211E17;
+    --ink-soft:#6B6555;
+    --gold:#9C7A3C;
+    --line:rgba(33,30,23,0.16);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Cormorant', Georgia, serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+
+  .board{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background-image:
+      linear-gradient(45deg, var(--square) 25%, transparent 25%, transparent 75%, var(--square) 75%, var(--square)),
+      linear-gradient(45deg, var(--square) 25%, transparent 25%, transparent 75%, var(--square) 75%, var(--square));
+    background-size:88px 88px;
+    background-position:0 0, 44px 44px;
+    opacity:0.55;
+  }
+  .board::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(156,122,60,0.10) 0, rgba(156,122,60,0.10) 1px, transparent 1px, transparent 88px),
+      repeating-linear-gradient(90deg, rgba(156,122,60,0.10) 0, rgba(156,122,60,0.10) 1px, transparent 1px, transparent 88px);
+  }
+  .vignette{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 45%, var(--paper) 92%);
+  }
+
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:600px;
+    margin:0 auto;
+    padding:0 24px 72px;
+  }
+
+  header{
+    padding:64px 0 30px;
+    text-align:center;
+  }
+  h1{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:clamp(28px, 7vw, 34px);
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    margin:0;
+  }
+  .rule{
+    width:46px;
+    height:1px;
+    background:var(--gold);
+    margin:22px auto 0;
+  }
+
+  .list{
+    margin-top:12px;
+    border-top:1px solid var(--line);
+  }
+
+  a.row{
+    display:block;
+    padding:24px 4px;
+    text-decoration:none;
+    color:var(--ink);
+    border-bottom:1px solid var(--line);
+    font-family:'Cormorant Garamond', serif;
+    font-weight:500;
+    font-size:21px;
+    letter-spacing:0.015em;
+    text-align:center;
+    transition:color 0.2s ease, letter-spacing 0.2s ease;
+  }
+  @media (hover:hover){
+    a.row:hover{ color:var(--gold); letter-spacing:0.04em; }
+  }
+  a.row:active{ opacity:0.6; }
+
+  footer{
+    margin-top:60px;
+    text-align:center;
+    font-size:13px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="board" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<div class="wrap">
+
+  <header>
+    <h1>CEFR Grammar<br>Directory</h1>
+    <div class="rule"></div>
+  </header>
+
+  <div class="list" id="list"></div>
+
+  <footer>Live Long and Prosper!✨</footer>
+
+</div>
+
+<script>
+const topics = [
+  { title: "Active &amp; Passive Voice", file: "active_passive.html" },
+  { title: "Articles", file: "articles.html" },
+  { title: "Conditionals", file: "conditionals.html" },
+  { title: "Conjunctions", file: "conjunctions.html" },
+  { title: "Direct &amp; Indirect Speech", file: "direct-indirect.html" },
+  { title: "Modal Verbs", file: "modal.html" },
+  { title: "Onboarding Test", file: "onboarding-test.html" },
+  { title: "Prepositions", file: "preposition.html" },
+  { title: "Pronouns", file: "pronouns.html" },
+  { title: "Questions", file: "questions.html" },
+  { title: "Subject-Verb Agreement", file: "subject-verb.html" },
+  { title: "Tenses", file: "tenses.html" }
+];
+
+const base = "https://andrewveda.com/verve/CEFR/";
+const list = document.getElementById('list');
+
+topics.forEach((t) => {
+  const a = document.createElement('a');
+  a.className = 'row';
+  a.href = base + t.file;
+  a.innerHTML = t.title;
+  list.appendChild(a);
+});
+</script>
+
+</body>
+</html>
