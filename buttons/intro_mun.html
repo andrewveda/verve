@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Model United Nations | Elite Communications</title>
+    <style>
+        /* Import Aristocratic Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+
+        /* CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body, html {
+            background-color: #FBF9F6;
+            /* Subtle radial gradient for a premium parchment/cream depth */
+            background-image: radial-gradient(circle at center, #FFFFFF 0%, #F2EBE1 100%);
+            color: #231F20;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Animation Classes */
+        .animate-up { animation: fadeUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; }
+        .delay-1 { animation-delay: 0.3s; }
+        .delay-2 { animation-delay: 0.6s; }
+        .delay-3 { animation-delay: 0.9s; }
+        .delay-4 { animation-delay: 1.2s; }
+        .delay-5 { animation-delay: 1.5s; }
+        .delay-6 { animation-delay: 1.8s; }
+
+        /* --- Gold Gradients --- */
+        .gold-gradient-text {
+            background: linear-gradient(to right, #9A7B4F 0%, #D4AF37 25%, #FFF0B3 50%, #D4AF37 75%, #9A7B4F 100%);
+            background-size: 200% auto;
+            color: #000;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 6s linear infinite;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            padding: 50px 0 30px;
+            position: relative;
+        }
+
+        header::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 1px;
+            background: #D4AF37;
+            margin: 25px auto 0;
+            opacity: 0.6;
+        }
+
+        .dept-name {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #9A7B4F;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .college-name {
+            font-family: 'Cinzel', serif;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: #4A4641;
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            padding: 30px 10px 40px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.1rem;
+            line-height: 1.25;
+            font-weight: 400;
+            margin-bottom: 25px;
+            color: #1A1816;
+        }
+
+        /* --- Copy Section --- */
+        .copy-section {
+            padding: 10px 5px;
+            font-size: 1.25rem;
+        }
+
+        .intro-p {
+            text-align: center;
+            font-style: italic;
+            color: #6C6353;
+            margin-bottom: 40px;
+        }
+
+        /* Aristocratic Question Box */
+        .questions-container {
+            position: relative;
+            margin: 40px 0;
+            padding: 40px 25px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.03);
+        }
+
+        /* Decorative Corners */
+        .questions-container::before, .questions-container::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border: 1px solid #D4AF37;
+        }
+        .questions-container::before {
+            top: 5px; left: 5px;
+            border-right: none; border-bottom: none;
+        }
+        .questions-container::after {
+            bottom: 5px; right: 5px;
+            border-left: none; border-top: none;
+        }
+
+        .questions-container p {
+            font-size: 1.35rem;
+            font-style: italic;
+            margin-bottom: 25px;
+            color: #1A1816;
+            line-height: 1.5;
+        }
+
+        .questions-container p:last-child {
+            margin-bottom: 0;
+        }
+
+        .prose p {
+            margin-bottom: 28px;
+            color: #332F2B;
+            text-align: justify;
+        }
+
+        .prose .highlight {
+            font-weight: 600;
+            color: #1A1816;
+        }
+
+        .prose .club-name {
+            display: block;
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            margin: 40px 0;
+            letter-spacing: 2px;
+        }
+
+        /* --- Call to Action --- */
+        .cta-section {
+            text-align: center;
+            padding: 50px 0 80px;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            background: linear-gradient(135deg, #2B2620 0%, #1A1816 100%);
+            color: #FBF9F6;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-decoration: none;
+            padding: 22px 20px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            border: 1px solid #D4AF37;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Button Hover/Active */
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn:active::before {
+            left: 100%;
+        }
+
+        .guarantee {
+            font-size: 0.9rem;
+            color: #8C8270;
+            margin-top: 25px;
+            font-style: italic;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: #A39B8D;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+.instagram-btn {
+    margin-top: 18px;
+    background: transparent;
+    color: #2B2620;
+    box-shadow: none;
+    animation: none;
+}
+
+.instagram-btn:hover {
+    background: #2B2620;
+    color: #FBF9F6;
+}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="animate-up">
+            <span class="dept-name">Department of English</span>
+            <span class="college-name">SRM Valliammai Engineering College</span>
+        </header>
+
+        <main>
+            <section class="hero animate-up delay-1">
+                <h1>How to command a room, outsmart your peers, and <span class="gold-gradient-text">build a legacy</span> the world cannot ignore.</h1>
+            </section>
+
+            <section class="copy-section">
+                <p class="intro-p animate-up delay-2">Pray, consider this for a moment.</p>
+                
+                <div class="questions-container animate-up delay-3">
+                    <p>Do you wish to dress sharply and command absolute reverence the very second you cross a threshold?</p>
+                    <p>Do you desire to be a master of the spoken word—one who articulates profound ideas, effortlessly persuades, and never falters under pressure?</p>
+                    <p>Do you have the ambition to represent India upon the grandest global stage?</p>
+                    <p>Do you intend to walk into the most demanding boardrooms in the world and claim them as your own?</p>
+                </div>
+
+                <div class="prose">
+                    <p class="animate-up delay-4">If you nodded to even one of these inquiries, you possess the pedigree of individual we are seeking.</p>
+
+                    <p class="animate-up delay-4">History does not yield to the merely intelligent. <span class="highlight">It bows to those who possess the rare, devastating power to communicate their vision.</span></p>
+
+                    <span class="club-name animate-up delay-5 gold-gradient-text">The Model United Nations Club</span>
+
+                    <p class="animate-up delay-5">This is not merely an extracurricular pursuit. It is an exclusive proving ground for tomorrow's aristocracy of leaders. Here, you shall step into the elevated role of an international diplomat, mediate global crises, and master the sovereign art of true persuasion.</p>
+
+                    <p class="animate-up delay-6">You require no prior knowledge of international diplomacy to join our ranks. You require only an exacting standard for your own future. We shall sculpt the rest.</p>
+
+                    <p class="animate-up delay-6">When you take your seat at our tables, you will learn the mechanics of authority. You will master the nuances of negotiation, the strategic advantage of active listening, and the projection of unshakeable poise. By the time you conclude your academic tenure, you will not simply be an engineer; you will be an architect of influence.</p>
+
+                    <p class="animate-up delay-6">The men and women who emerge from this institution go on to rule their respective domains. They are the ones who secure the highest appointments, broker the monumental deals, and quietly shape the world.</p>
+                </div>
+            </section>
+
+           <section class="cta-section animate-up delay-6">
+    <a href="#" class="btn">Claim Your Seat at the Table</a>
+
+    <a href="https://www.instagram.com/vec_munsoc/" class="btn instagram-btn">
+        Enter Our World on Instagram
+    </a>
+
+    <p class="guarantee">For those who refuse to be ordinary.</p>
+</section>
+
+        </main>
+
+        <footer class="animate-up delay-6">
+            <p>&copy; 2026 SRM Valliammai Engineering College.</p>
+        </footer>
+    </div>
+
+</body>
+</html>
