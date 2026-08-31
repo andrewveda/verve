@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>V for Vote of Thanks! Live long and prosper!🌌</title>
+<title>The Shift: Noun & Verb Mastery</title>
 
 <!-- External Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -32,9 +32,6 @@
     --gold: #c9a227; 
     --rust: #a4392c;
     --prep: #2f6b3f;
-    --blue-main: #2979ff;
-    --green-main: #00c853;
-    --red-main: #e53935;
     
     /* Security Colors */
     --cheat: #dc2626;
@@ -62,8 +59,6 @@
   }
 
   /* ---------- SECURITY & ANTI-CHEAT UI ---------- */
-  .security-badge { position: fixed; top: 50%; right: -40px; transform: rotate(90deg) translateX(-50%); background: var(--cheat); color: white; padding: 6px 16px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; z-index: 50; border-radius: 4px 4px 0 0; opacity: 0.8; pointer-events: none; }
-  
   .cheat-overlay { display: none; position: fixed; inset: 0; background: rgba(220, 38, 38, 0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; color: white; backdrop-filter: blur(5px); }
   .cheat-overlay.show { display: flex; }
   .cheat-overlay h2 { font-family: 'Fraunces', serif; font-size: 2rem; margin-bottom: 12px; }
@@ -103,7 +98,7 @@
   
   .hero-quote { margin-bottom: 8px; }
   .hero-text { font-family: 'Fraunces', serif; font-weight: 900; font-size: 2.1rem; color: var(--forest); letter-spacing: -.5px; line-height: 1.1; }
-  .hero-author { font-size: 1.3rem; margin-top: 8px; }
+  .hero-author { font-size: 1rem; margin-top: 8px; color: var(--clay); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
   
   .candidate-chip { background: #fffdf7; border: 1.5px solid var(--card-line); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; text-align: left; font-size: 0.85rem; color: var(--ink); display: flex; align-items: center; gap: 12px; }
   .candidate-chip img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--forest); }
@@ -112,14 +107,7 @@
   .btn-primary { background: linear-gradient(135deg, var(--forest), var(--moss)); color: white; box-shadow: 0 4px 16px rgba(47,82,51,.25); }
   .btn-primary:active { transform: scale(0.97); }
   .btn-secondary { background: var(--card); color: var(--ink); border: 1.5px solid var(--card-line); }
-  
-  /* ---------- PASSWORD MODAL ---------- */
-  .password-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-  .password-modal.show { display: flex; }
-  .password-box { background: var(--card); padding: 24px; border-radius: 20px; width: 90%; max-width: 360px; text-align: center; box-shadow: var(--shadow-md); border: 1.5px solid var(--card-line); }
-  .password-box h3 { font-family: 'Fraunces', serif; margin-bottom: 10px; font-size: 1.3rem; color: var(--forest); }
-  .password-box input { width: 100%; padding: 14px; border-radius: 12px; border: 1.5px solid var(--card-line); margin-bottom: 14px; font-size: 1rem; text-align: center; outline: none; -webkit-user-select: text; user-select: text; }
-  .password-box input:focus { border-color: var(--moss); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
   /* ---------- QUIZ HUD ---------- */
   .top-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -128,8 +116,12 @@
   .brand span { color: var(--rust); }
   .brand .sub { font-family: 'Space Mono', monospace; font-size: .58rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); margin-top: 1px; }
 
-  .timer-pill { display: flex; align-items: center; gap: 6px; background: var(--card); border: 1.5px solid var(--card-line); border-radius: 99px; padding: 6px 14px; box-shadow: var(--shadow-sm); }
-  .timer-text { font-family: 'Space Mono', monospace; font-size: .85rem; font-weight: 700; color: var(--forest); white-space: nowrap; }
+  .icon-btn { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--card-line); background: var(--card); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: transform 0.15s, background 0.15s; color: var(--ink); box-shadow: var(--shadow-sm); }
+  .icon-btn:active { transform: scale(0.9); }
+  .icon-btn:hover { background: #f7ede0; }
+
+  .timer-pill { display: flex; align-items: center; gap: 6px; background: var(--card); border: 1.5px solid var(--card-line); border-radius: 99px; padding: 8px 16px; box-shadow: var(--shadow-sm); }
+  .timer-text { font-family: 'Space Mono', monospace; font-size: .95rem; font-weight: 700; color: var(--forest); white-space: nowrap; }
 
   /* ---------- STATS STRIP ---------- */
   .stat-strip { background: var(--card); border: 1.5px solid var(--card-line); border-radius: 12px; padding: 9px 14px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; }
@@ -148,7 +140,7 @@
   .mount::before { content: ''; position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px; border: 1px dashed #d8c69a; border-radius: 8px; pointer-events: none; }
   
   .sentence-item {
-    font-family: 'Fraunces', serif; font-size: 1.15rem; line-height: 1.7; text-align: center; position: relative; z-index: 1;
+    font-family: 'Fraunces', serif; font-size: 1.1rem; line-height: 1.6; text-align: center; position: relative; z-index: 1;
     padding-bottom: 12px; border-bottom: 1px dashed var(--card-line); cursor: pointer; transition: opacity 0.3s;
   }
   .sentence-item:last-child { border-bottom: none; padding-bottom: 0; }
@@ -194,9 +186,13 @@
     background: #faf5e6; border: 1.5px solid #ecdfb9; border-radius: 12px; padding: 14px 16px;
     font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--forest);
     text-align: center; box-shadow: inset 0 1px 3px rgba(45,38,32,.04); opacity: 0; transition: opacity 0.3s;
-    margin-top: auto; line-height: 1.4;
+    margin-top: auto; line-height: 1.4; cursor: pointer; position: relative;
+    pointer-events: none;
   }
-  #motivationBox.show { opacity: 1; }
+  #motivationBox.show { opacity: 1; pointer-events: auto; }
+  #motivationBox::after {
+    content: "✕ dismiss"; position: absolute; bottom: 4px; right: 8px; font-size: 0.65rem; color: var(--ink-muted); font-weight: 500; font-family: 'Space Mono', monospace;
+  }
   #motivationBox.wrong-msg { color: var(--rust); background: #fcf0ee; border-color: #f1d3d0; }
 
   /* ---------- ANIMATIONS ---------- */
@@ -238,8 +234,6 @@
 <body oncontextmenu="return false;">
 
   <!-- ANTI-CHEAT OVERLAYS -->
-  <div class="security-badge">Secure Mode Active</div>
-  
   <div class="cheat-overlay" id="cheatOverlay">
     <h2>⚠ Security Alert</h2>
     <p id="cheatMessage">Suspicious activity detected. Please return to the test immediately.</p>
@@ -248,22 +242,12 @@
   
   <div class="toast" id="toast"></div>
 
-  <!-- PASSWORD MODAL -->
-  <div class="password-modal" id="passwordModal">
-    <div class="password-box">
-      <h3>Enter Test Password</h3>
-      <p style="font-size:0.8rem; color:var(--ink-muted); margin-bottom:12px;">Azeema rides first leaves a Spark, giving Original Content for brilliant science officer (5)</p>
-      <input type="password" id="testPasswordInput" placeholder="Enter passcode" autocomplete="off">
-      <button class="btn btn-primary" onclick="verifyTestPassword()">Unlock Test</button>
-    </div>
-  </div>
-
   <!-- NAME GATE (GitHub Auth) -->
   <div class="screen active" id="nameFormScreen">
     <div class="gate-card">
       <div class="hero-quote">
-        <div class="hero-text">We love trying!</div>
-        <div class="hero-author">🤗♥️✨</div>
+        <div class="hero-text">Master the context,<br>master the word.</div>
+        <div class="hero-author">Context is everything.</div>
       </div>
       
       <div class="candidate-chip" id="candidateChip">
@@ -276,10 +260,10 @@
       
       <div class="security-notice">
         <strong>🔒 Secure Test Environment</strong>
-        This test is monitored. Switching tabs, minimizing the window, opening developer tools, or attempting to copy content will be recorded and flagged.
+        This test is actively monitored. Switching tabs, minimizing the window, or attempting to copy content will be recorded in your final assessment.
       </div>
       
-      <button class="btn btn-primary" id="startBtn" onclick="initiateTestStart()" disabled>✿ Start Quiz</button>
+      <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>✿ Enter The Shift</button>
     </div>
   </div>
 
@@ -287,9 +271,12 @@
   <div class="screen" id="quizContent">
     <div class="col">
       <div class="top-bar">
-        <div class="brand"><h1>V for <span>V</span>ocab</h1><div class="sub">Vote of Thanks!</div></div>
-        <div class="timer-pill">
-          <div class="timer-text" id="timer">00:00</div>
+        <div class="brand"><h1>The <span>Shift</span></h1><div class="sub">Noun & Verb Mastery</div></div>
+        <div style="display: flex; gap: 8px;">
+          <button id="muteBtn" class="icon-btn" onclick="toggleMute()" title="Toggle Sound">🔊</button>
+          <div class="timer-pill">
+            <div class="timer-text" id="timer">00:00</div>
+          </div>
         </div>
       </div>
 
@@ -308,7 +295,7 @@
         <!-- Tiles injected here -->
       </div>
 
-      <div id="motivationBox"></div>
+      <div id="motivationBox" onclick="this.classList.remove('show')" title="Tap to dismiss"></div>
     </div>
   </div>
 
@@ -316,7 +303,7 @@
   <div class="screen" id="endScreen">
     <div class="col" style="justify-content: center; align-items: center;">
       <div class="end-card">
-        <div class="end-title" id="endTitle">🎉 Quiz Completed!</div>
+        <div class="end-title" id="endTitle">Mission Accomplished.</div>
         <div class="end-subtitle" id="endSubtitle">Player details</div>
         
         <div class="end-stats">
@@ -346,7 +333,6 @@ let playerDept = "Unknown";
 let playerAvatar = "";
 
 window.addEventListener('DOMContentLoaded', () => {
-  // Simulate auth-guard.js populating window.GH
   if (window.GH) {
     playerName = window.GH.name || window.GH.username || "Student";
     playerDept = window.GH.dept || "Department Unspecified";
@@ -359,7 +345,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     document.getElementById('startBtn').disabled = false;
   } else {
-    // Fallback for demo if auth-guard isn't present
+    // Fallback for standalone demo
     setTimeout(() => {
       playerName = localStorage.getItem("questPlayerName") || "Test Student";
       playerDept = localStorage.getItem("questPlayerDept") || "CSE";
@@ -380,7 +366,15 @@ wrongSound.src = 'https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.
 applauseSound.volume = 0.4;
 wrongSound.volume = 0.3;
 
+let isMuted = false;
+
+function toggleMute() {
+  isMuted = !isMuted;
+  document.getElementById('muteBtn').textContent = isMuted ? '🔇' : '🔊';
+}
+
 function playSound(audio) {
+  if (isMuted) return;
   try {
     audio.currentTime = 0;
     audio.play().catch(() => {});
@@ -477,7 +471,6 @@ function recordCheat(description, type) {
   cheatCount++;
   cheatEvents.push({ type, description, timestamp: new Date().toISOString(), question: current + 1 });
   updateCheatCounter();
-  console.warn('[SECURITY] ' + description + ' at Q' + (current + 1));
 }
 
 function updateCheatCounter() {
@@ -510,22 +503,142 @@ function showToast(msg, isCheat = false) {
 }
 
 /* ========== DATA ========== */
-const quizData = [
-  { questionItems: [{word: "Important ___ should be handled carefully.", answer: "mail (noun)"}, {word: "I will ___ the documents tomorrow.", answer: "mail (verb)"}], answers: ["mail (noun)", "mail (verb)"] },
-  { questionItems: [{word: "___ teaches you patience and perspective.", answer: "travel (noun)"}, {word: "We will ___ abroad next year.", answer: "travel (verb)"}], answers: ["travel (noun)", "travel (verb)"] },
-  { questionItems: [{word: "Every project needs a ___.", answer: "plan (noun)"}, {word: "They ___ to start early.", answer: "plan (verb)"}], answers: ["plan (noun)", "plan (verb)"] },
-  { questionItems: [{word: "He broke the college ___.", answer: "record (noun)"}, {word: "Please ___ the attendance.", answer: "record (verb)"}], answers: ["record (noun)", "record (verb)"] },
-  { questionItems: [{word: "Judit Polgar received strong ___ from her fans.", answer: "support (noun)"}, {word: "They ___ the proposal.", answer: "support (verb)"}], answers: ["support (noun)", "support (verb)"] },
-  { questionItems: [{word: "Our Industrial ___ was memorable.", answer: "visit (noun)"}, {word: "They plan to ___ the museum tomorrow.", answer: "visit (verb)"}], answers: ["visit (noun)", "visit (verb)"] },
-  { questionItems: [{word: "Robert James Fischer's ___ shocked the audience at the World Chess Championship.", answer: "move (noun)"}, {word: "Magnus Carlsen is going to ___ to Chennai next month.", answer: "move (verb)"}], answers: ["move (noun)", "move (verb)"] },
-  { questionItems: [{word: "They offered immediate ___.", answer: "help (noun)"}, {word: "He ___ his friend to study efficiently.", answer: "helps (verb)"}], answers: ["help (noun)", "helps (verb)"] },
-  { questionItems: [{word: "Water is the healthiest ___.", answer: "drink (noun)"}, {word: "Please ___ enough water.", answer: "drink (verb)"}], answers: ["drink (noun)", "drink (verb)"] },
-  { questionItems: [{word: "This ___ changed my thinking.", answer: "book (noun)"}, {word: "Please ___ the tickets early.", answer: "book (verb)"}], answers: ["book (noun)", "book (verb)"] },
-  { questionItems: [{word: "The ___ prepared the meal.", answer: "cook (noun)"}, {word: "They ___ together on Sundays.", answer: "cook (verb)"}], answers: ["cook (noun)", "cook (verb)"] },
-  { questionItems: [{word: "We sat in the front ___.", answer: "row (noun)"}, {word: "They love to ___ across the lake on their boat.", answer: "row (verb)"}], answers: ["row (noun)", "row (verb)"] },
-  { questionItems: [{word: "Hikaru likes to play on an antique wooden ___.", answer: "board (noun)"}, {word: "Even though they started late, they managed to ___ the train on time.", answer: "board (verb)"}], answers: ["board (noun)", "board (verb)"] },
-  { questionItems: [{word: "The ___ is still wet.", answer: "paint (noun)"}, {word: "He will ___ the wall.", answer: "paint (verb)"}], answers: ["paint (noun)", "paint (verb)"] },
-  { questionItems: [{word: "Do or do not. There is no ___. by Yoda from Star Wars", answer: "try (noun)"}, {word: "Ever tried. Ever failed. No matter. ___ again. Fail again. Fail better! by Samuel Beckett", answer: "try (verb)"}, {word: "The opposite of a good idea is another ___ idea! by Neils Bohr and popularised by Rory Sutherland", answer: "good"}], answers: ["try (noun)", "try (verb)", "good"] }
+let quizData = [
+  { 
+    questionItems: [
+      {word: "Important ___ should be handled carefully.", answer: "mail (noun)"}, 
+      {word: "I will ___ the documents tomorrow.", answer: "mail (verb)"},
+      {word: "She reads her electronic ___ every morning.", answer: "mail (noun)"},
+      {word: "Did you remember to ___ the package?", answer: "mail (verb)"}
+    ], 
+    answers: ["mail (noun)", "mail (verb)", "mail (noun)", "mail (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "Space ___ teaches you patience and perspective.", answer: "travel (noun)"}, 
+      {word: "We will ___ abroad next year.", answer: "travel (verb)"},
+      {word: "His job requires frequent foreign ___.", answer: "travel (noun)"},
+      {word: "They love to ___ across the countryside.", answer: "travel (verb)"}
+    ], 
+    answers: ["travel (noun)", "travel (verb)", "travel (noun)", "travel (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "Every project needs a solid ___.", answer: "plan (noun)"}, 
+      {word: "They ___ to start the construction early.", answer: "plan (verb)"},
+      {word: "Do you have a backup ___ for the event?", answer: "plan (noun)"},
+      {word: "We must ___ our budget carefully.", answer: "plan (verb)"}
+    ], 
+    answers: ["plan (noun)", "plan (verb)", "plan (noun)", "plan (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "He broke the college athletic ___.", answer: "record (noun)"}, 
+      {word: "Please ___ the attendance daily.", answer: "record (verb)"},
+      {word: "The doctor checked the patient's medical ___.", answer: "record (noun)"},
+      {word: "The studio will ___ the new album next week.", answer: "record (verb)"}
+    ], 
+    answers: ["record (noun)", "record (verb)", "record (noun)", "record (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "Judit Polgar received strong ___ from her fans.", answer: "support (noun)"}, 
+      {word: "They ___ the proposal completely.", answer: "support (verb)"},
+      {word: "I appreciate your emotional ___.", answer: "support (noun)"},
+      {word: "The pillars ___ the entire roof.", answer: "support (verb)"}
+    ], 
+    answers: ["support (noun)", "support (verb)", "support (noun)", "support (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "Our industrial ___ was memorable.", answer: "visit (noun)"}, 
+      {word: "They plan to ___ the museum tomorrow.", answer: "visit (verb)"},
+      {word: "The doctor's ___ cost a lot of money.", answer: "visit (noun)"},
+      {word: "We will ___ our grandparents this Sunday.", answer: "visit (verb)"}
+    ], 
+    answers: ["visit (noun)", "visit (verb)", "visit (noun)", "visit (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "Robert James Fischer's ___ shocked the audience.", answer: "move (noun)"}, 
+      {word: "Magnus Carlsen is going to ___ to Chennai.", answer: "move (verb)"},
+      {word: "Buying that property was a smart ___.", answer: "move (noun)"},
+      {word: "Please don't ___ the fragile boxes.", answer: "move (verb)"}
+    ], 
+    answers: ["move (noun)", "move (verb)", "move (noun)", "move (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "They offered immediate financial ___.", answer: "help (noun)"}, 
+      {word: "She will ___ you carry the luggage.", answer: "help (verb)"},
+      {word: "We need some ___ with this math problem.", answer: "help (noun)"},
+      {word: "Good sleep can ___ improve your memory.", answer: "help (verb)"}
+    ], 
+    answers: ["help (noun)", "help (verb)", "help (noun)", "help (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "Water is the healthiest ___ for athletes.", answer: "drink (noun)"}, 
+      {word: "Please ___ enough water during the game.", answer: "drink (verb)"},
+      {word: "He ordered a cold ___ at the cafe.", answer: "drink (noun)"},
+      {word: "They ___ green tea every morning.", answer: "drink (verb)"}
+    ], 
+    answers: ["drink (noun)", "drink (verb)", "drink (noun)", "drink (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "This fiction ___ changed my thinking.", answer: "book (noun)"}, 
+      {word: "Please ___ the train tickets early.", answer: "book (verb)"},
+      {word: "The library lent me a rare ___.", answer: "book (noun)"},
+      {word: "I need to ___ a table for two.", answer: "book (verb)"}
+    ], 
+    answers: ["book (noun)", "book (verb)", "book (noun)", "book (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "The head ___ prepared a lavish meal.", answer: "cook (noun)"}, 
+      {word: "They usually ___ together on Sundays.", answer: "cook (verb)"},
+      {word: "He is a professional ___ at the hotel.", answer: "cook (noun)"},
+      {word: "Who will ___ dinner tonight?", answer: "cook (verb)"}
+    ], 
+    answers: ["cook (noun)", "cook (verb)", "cook (noun)", "cook (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "We sat in the front ___ of the theater.", answer: "row (noun)"}, 
+      {word: "They love to ___ across the lake in their boat.", answer: "row (verb)"},
+      {word: "The vegetables were planted in a neat ___.", answer: "row (noun)"},
+      {word: "It takes strength to ___ against the current.", answer: "row (verb)"}
+    ], 
+    answers: ["row (noun)", "row (verb)", "row (noun)", "row (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "The teacher wrote on the white ___.", answer: "board (noun)"}, 
+      {word: "We must ___ the flight before it departs.", answer: "board (verb)"},
+      {word: "The chess ___ was made of oak.", answer: "board (noun)"},
+      {word: "Passengers will ___ the ship at noon.", answer: "board (verb)"}
+    ], 
+    answers: ["board (noun)", "board (verb)", "board (noun)", "board (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "The blue ___ is still wet on the canvas.", answer: "paint (noun)"}, 
+      {word: "He will ___ the living room walls.", answer: "paint (verb)"},
+      {word: "We need to buy more red ___.", answer: "paint (noun)"},
+      {word: "She likes to ___ landscapes in watercolor.", answer: "paint (verb)"}
+    ], 
+    answers: ["paint (noun)", "paint (verb)", "paint (noun)", "paint (verb)"] 
+  },
+  { 
+    questionItems: [
+      {word: "The school ___ was a huge success.", answer: "play (noun)"}, 
+      {word: "The children ___ football in the park.", answer: "play (verb)"},
+      {word: "Shakespeare wrote a famous tragedy ___.", answer: "play (noun)"},
+      {word: "I like to ___ the piano to relax.", answer: "play (verb)"}
+    ], 
+    answers: ["play (noun)", "play (verb)", "play (noun)", "play (verb)"] 
+  }
 ];
 
 /* ========== MOTIVATION MESSAGES ========== */
@@ -551,7 +664,7 @@ const wrongMessages = [
 ];
 
 let current = 0, correctCount = 0, totalWrongGuesses = 0, gemsCount = 0;
-let wrongQuestions = [], startTime, timerInterval;
+let startTime, timerInterval;
 let selectedOption = null, elapsedSeconds = 0;
 
 const dragOptionsEl = document.getElementById("dragOptions");
@@ -560,27 +673,16 @@ const gemsCounterEl = document.getElementById("gemsCounter");
 const progressTracker = document.getElementById("progressTracker");
 const motivationBox = document.getElementById("motivationBox");
 
-function initiateTestStart() {
-  document.getElementById('passwordModal').classList.add('show');
-}
-
-function verifyTestPassword() {
-  const inputPass = document.getElementById('testPasswordInput').value;
-  if (inputPass === "Spock") {
-    document.getElementById('passwordModal').classList.remove('show');
-    document.getElementById("nameFormScreen").classList.remove("active");
-    document.getElementById("quizContent").classList.add("active");
-    startQuiz();
-  } else {
-    alert('Incorrect password. Please try again.');
-    document.getElementById('testPasswordInput').value = '';
-  }
-}
-
 function startQuiz() {
-  current = 0; correctCount = 0; totalWrongGuesses = 0; gemsCount = 0; elapsedSeconds = 0;
-  wrongQuestions = []; cheatEvents = []; cheatCount = 0; testSubmitted = false;
+  document.getElementById("nameFormScreen").classList.remove("active");
+  document.getElementById("quizContent").classList.add("active");
   
+  current = 0; correctCount = 0; totalWrongGuesses = 0; gemsCount = 0; elapsedSeconds = 0;
+  cheatEvents = []; cheatCount = 0; testSubmitted = false;
+  
+  // Reset repeated flags on all data items if restarting
+  quizData.forEach(q => q.repeated = false);
+
   startTime = Date.now();
   updateGems();
   startTimer();
@@ -594,14 +696,17 @@ function loadQuestion() {
   selectedOption = null;
   motivationBox.classList.remove("show");
   
-  const data = quizData[current];
+  // Dynamic counter instantly reflects pushed mistakes
   progressTracker.innerHTML = `${current + 1} of ${quizData.length}`;
+
+  const data = JSON.parse(JSON.stringify(quizData[current]));
 
   dragOptionsEl.innerHTML = "";
   dropContainerEl.innerHTML = "";
 
-  const shuffled = [...data.answers].sort(() => Math.random() - 0.5);
-  shuffled.forEach((ans) => {
+  // Jumble Drag Options
+  const shuffledOptions = [...data.answers].sort(() => Math.random() - 0.5);
+  shuffledOptions.forEach((ans) => {
     const div = document.createElement("div");
     div.classList.add("tile");
     div.innerHTML = `<span class="word">${ans}</span>`;
@@ -609,7 +714,9 @@ function loadQuestion() {
     dragOptionsEl.appendChild(div);
   });
 
-  data.questionItems.forEach((item) => {
+  // Jumble Statements
+  const shuffledItems = [...data.questionItems].sort(() => Math.random() - 0.5);
+  shuffledItems.forEach((item) => {
     const drop = document.createElement("div");
     drop.classList.add("sentence-item");
     drop.innerHTML = item.word.replace("___", "<b>____</b>");
@@ -645,6 +752,13 @@ function placeOption(dropZone) {
     selectedOption.el.classList.add("solved");
     selectedOption = null;
 
+    if (document.querySelectorAll(".sentence-item:not(.filled)").length === 0) {
+      setTimeout(() => {
+        current++;
+        loadQuestion();
+      }, 900);
+    }
+
   } else {
     playSound(wrongSound);
     totalWrongGuesses++; gemsCount--; updateGems();
@@ -656,19 +770,16 @@ function placeOption(dropZone) {
     selectedOption.el.classList.remove("selected");
     selectedOption = null;
 
+    // Deep clone logic: push the question to the end instantly
     const currentQ = quizData[current];
-    if (!wrongQuestions.includes(currentQ)) wrongQuestions.push(currentQ);
-  }
-
-  if (document.querySelectorAll(".sentence-item:not(.filled)").length === 0) {
-    setTimeout(() => {
-      current++;
-      if (current >= quizData.length && wrongQuestions.length > 0) {
-        quizData.push(...wrongQuestions);
-        wrongQuestions = [];
-      }
-      loadQuestion();
-    }, 900);
+    if (!currentQ.repeated) {
+      let newQ = JSON.parse(JSON.stringify(currentQ));
+      newQ.repeated = false;
+      quizData.push(newQ);
+      currentQ.repeated = true;
+      // Instantly update counter visually
+      progressTracker.innerHTML = `${current + 1} of ${quizData.length}`;
+    }
   }
 }
 
@@ -733,7 +844,7 @@ function showScore() {
       correct: correctCount, 
       wrong: totalWrongGuesses,
       time_spent: elapsedSeconds, 
-      quest_id: "Quest 171 - Vote of Thanks",
+      quest_id: "Quest 1",
       cheat_count: cheatCount,
       cheat_events: cheatEvents
     })
@@ -759,7 +870,7 @@ function downloadPDFReport() {
   doc.text('Department of English', 105, 31, { align: 'center' });
   doc.setFontSize(14); doc.setFont('times', 'bold');
   doc.setTextColor(201, 162, 39); // var(--gold)
-  doc.text('Quest Performance Report', 105, 39, { align: 'center' });
+  doc.text('Linguistic Assessment Report', 105, 39, { align: 'center' });
 
   // Info
   doc.setTextColor(0, 0, 0); doc.setFontSize(11);
@@ -769,7 +880,7 @@ function downloadPDFReport() {
     body: [ 
       ['Student Name', playerName], 
       ['Department', playerDept], 
-      ['Quest ID', 'Quest 171 - Vote of Thanks'], 
+      ['Quest ID', 'Quest 171 - Noun/Verb Shift'], 
       ['Completed On', reportDate] 
     ],
     theme: 'plain', styles: { fontSize: 10, font: 'times', cellPadding: 3 },
@@ -786,7 +897,7 @@ function downloadPDFReport() {
   doc.autoTable({
     startY: y + 3,
     body: [
-      ['Total Questions', quizData.length.toString()], 
+      ['Total Base Questions', '15'], 
       ['Correct Answers', correctCount.toString()],
       ['Wrong Attempts', totalWrongGuesses.toString()], 
       ['Final Gems Earned', gemsCount.toString()],
@@ -814,12 +925,12 @@ function downloadPDFReport() {
     y = doc.lastAutoTable.finalY + 12;
   }
 
-  // Questions
+  // Questions (Print original 15, ignoring dynamic duplicates for the log)
   if (y > 250) { doc.addPage(); y = 20; }
   doc.setFont('times', 'bold'); doc.text('QUESTION BANK WITH CORRECT ANSWERS', 20, y);
   y += 6;
 
-  quizData.forEach((item, i) => {
+  quizData.slice(0, 15).forEach((item, i) => {
     if (y > 260) { doc.addPage(); y = 20; }
     doc.setFontSize(11); doc.setFont('times', 'bold'); doc.setTextColor(47, 82, 51);
     doc.text(`Question ${i + 1}:`, 20, y); y += 6;
@@ -829,7 +940,7 @@ function downloadPDFReport() {
       const qText = `${j + 1}. ${qItem.word.replace('___', '____')} `;
       const lines = doc.splitTextToSize(qText, 160);
       doc.text(lines, 25, y); y += lines.length * 5;
-      doc.setTextColor(111, 143, 90); // var(--moss)
+      doc.setTextColor(111, 143, 90);
       doc.text(`Answer: ${qItem.answer}`, 30, y);
       doc.setTextColor(0, 0, 0); y += 7;
     });
@@ -842,7 +953,7 @@ function downloadPDFReport() {
   doc.setFontSize(8); doc.setTextColor(128, 128, 128); doc.setFont('times', 'italic');
   doc.text('This is a system-generated report', 105, 287, { align: 'center' });
 
-  doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_Quest171_Report.pdf`);
+  doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_Quest1_Report.pdf`);
 }
 </script>
 </body>
