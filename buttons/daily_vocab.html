@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>V for Vocabulary</title>
+
+<!-- Auth Guard to protect and load user session -->
+<script src="../../auth-guard.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Fredoka+One&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -24,12 +28,14 @@ body { font-family: 'EB Garamond', serif; background: var(--deep); color: var(--
 .hero-quote { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:20px; margin-bottom:24px; width:100%; }
 .hero-text { font-family:'Playfair Display',serif; font-size:1.1rem; line-height:1.6; color:#ffe082; text-shadow:0 0 20px rgba(255,224,130,0.4); font-style:italic; }
 .hero-author { margin-top:10px; font-size:.82rem; color:rgba(255,255,255,0.45); font-style:italic; }
-#name-screen select, #name-screen input { display:block; width:100%; max-width:320px; margin:8px auto; padding:12px 16px; font-size:1rem; font-family:'EB Garamond',serif; border-radius:10px; border:2px solid rgba(108,99,255,0.4); background:rgba(255,255,255,0.08); color:white; outline:none; transition:border .2s; }
-#name-screen select option { background:#1a1a2e; }
-#name-screen input::placeholder { color:rgba(255,255,255,0.4); }
-#name-screen select:focus, #name-screen input:focus { border-color:var(--ui-accent); }
-#start-btn { margin-top:18px; padding:14px 40px; font-family:'Playfair Display',serif; font-size:1.2rem; letter-spacing:1px; border:none; border-radius:14px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:#2a1a00; cursor:pointer; box-shadow:0 6px 20px rgba(201,168,76,0.5); transition:transform .2s,box-shadow .2s; font-weight:700; }
-#start-btn:hover { transform:scale(1.05); box-shadow:0 8px 30px rgba(201,168,76,0.7); }
+
+/* ── GITHUB AUTH CANDIDATE CHIP ── */
+.candidate-chip { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px 16px; margin:0 auto 20px; text-align:left; font-size:0.9rem; color:white; display:flex; align-items:center; gap:14px; width:100%; max-width:320px; }
+.candidate-chip img { width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid var(--gold); }
+
+#start-btn { margin-top:6px; padding:14px 40px; font-family:'Playfair Display',serif; font-size:1.2rem; letter-spacing:1px; border:none; border-radius:14px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:#2a1a00; cursor:pointer; box-shadow:0 6px 20px rgba(201,168,76,0.5); transition:transform .2s,box-shadow .2s; font-weight:700; width: 100%; max-width: 320px; }
+#start-btn:hover:not(:disabled) { transform:scale(1.05); box-shadow:0 8px 30px rgba(201,168,76,0.7); }
+#start-btn:disabled { opacity:0.6; cursor:not-allowed; box-shadow:none; transform:none; }
 
 /* ── MAIN APP ── */
 .dictionary-container { width:100%; max-width:520px; margin:auto; padding:28px 24px; background:linear-gradient(145deg,#fff,#f8f2e8); border-radius:14px; border:1px solid var(--border-dim); box-shadow:0 12px 35px rgba(0,0,0,0.06); display:none; }
@@ -357,18 +363,16 @@ h2 { display:none; }
     <div class="hero-text">"The limits of my language<br>mean the limits of my world."</div>
     <div class="hero-author">— Ludwig Wittgenstein</div>
   </div>
-  <select id="dept-select">
-    <option value="">-- Select Department --</option>
-    <option>CSI Ewart</option>    
-    <option>Cyber Security</option><option>CSE-1</option><option>CSE-2</option>
-    <option>CSE-3</option><option>Mechanical Engineering</option><option>ECE-1</option>
-    <option>ECE-2</option><option>ECE-3</option><option>AI DS-1</option>
-    <option>AI DS-2</option><option>Civil</option><option>Agri</option>
-    <option>EEE</option><option>EIE</option><option>Medical Electronics</option>
-    <option>IT-1</option><option>IT-2</option>
-  </select>
-  <input type="text" id="name-input" placeholder="Enter your name" />
-  <button id="start-btn">📖 Open Vocabulary</button>
+  
+  <div class="candidate-chip" id="candidate-chip">
+    <img id="candidate-avatar" src="https://via.placeholder.com/150" alt="Avatar">
+    <div>
+      <strong id="candidate-name">Loading User...</strong><br>
+      <span id="candidate-dept" style="color:rgba(255,255,255,0.5);font-size:0.75rem;">Verifying GitHub Auth...</span>
+    </div>
+  </div>
+
+  <button id="start-btn" disabled>📖 Open Vocabulary</button>
 </div>
 
 <!-- MAIN APP -->
@@ -456,13 +460,44 @@ h2 { display:none; }
 </div>
 
 <script>
+/* ========== GITHUB AUTH INTEGRATION ========== */
+let playerName = "Guest";
+let playerDept = "Unknown";
+let playerAvatar = "https://via.placeholder.com/150";
+
+window.addEventListener('DOMContentLoaded', () => {
+  const startBtn = document.getElementById('start-btn');
+  if (window.GH) {
+    playerName = window.GH.name || window.GH.username || "Student";
+    playerDept = window.GH.dept || "Department Unspecified";
+    playerAvatar = window.GH.avatar || "https://via.placeholder.com/150";
+    
+    document.getElementById('candidate-name').textContent = playerName;
+    document.getElementById('candidate-dept').textContent = 'Department: ' + playerDept;
+    document.getElementById('candidate-avatar').src = playerAvatar;
+    
+    startBtn.disabled = false;
+    startBtn.onclick = () => startApp(playerName, playerDept);
+  } else {
+    // Fallback for missing auth-guard testing
+    setTimeout(() => {
+      playerName = localStorage.getItem("pName") || "Test Student";
+      playerDept = localStorage.getItem("pDept") || "CSE";
+      document.getElementById('candidate-name').textContent = playerName;
+      document.getElementById('candidate-dept').textContent = 'Department: ' + playerDept;
+      
+      startBtn.disabled = false;
+      startBtn.onclick = () => startApp(playerName, playerDept);
+    }, 500);
+  }
+});
+
 // ── CONSTANTS ──
 const sheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQsGIvL6Tfe9VMLQxiNtLVflhrTA1GcTKYtouNCqDTHpiA6G7Id3QilvntH5xIICpTrRuQyNGW_ouZi/pub?output=csv";
 const SUPABASE_URL = "https://ahezssoczvpbkteffcgz.supabase.co/functions/v1/logQuest";
 const SHARE_LINK = "andrewveda.github.io/SRM-VEC-English-PWA";
 
 // ── STATE ──
-let playerName = "", playerDept = "";
 let allWords = [];
 let datesWithWords = new Set();
 let selectedDate = new Date(); selectedDate.setHours(0,0,0,0);
@@ -598,20 +633,6 @@ function startApp(name, dept) {
     renderCalendar(); displayWords();
   });
 }
-
-try {
-  const sn=localStorage.getItem('pName'), sd=localStorage.getItem('pDept');
-  if(sn&&sd){ document.getElementById('name-input').value=sn; document.getElementById('dept-select').value=sd; startApp(sn,sd); }
-  else{ if(sn) document.getElementById('name-input').value=sn; if(sd) document.getElementById('dept-select').value=sd; }
-} catch(e){}
-
-document.getElementById('start-btn').onclick=()=>{
-  const n=document.getElementById('name-input').value.trim();
-  const d=document.getElementById('dept-select').value;
-  if(!d){alert('Please select your department!');return;}
-  if(!n){alert('Please enter your name!');return;}
-  startApp(n,d);
-};
 
 // ── DATE HELPERS ──
 function formatDateObj(d) { return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`; }
