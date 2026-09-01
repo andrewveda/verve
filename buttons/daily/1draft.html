@@ -187,11 +187,12 @@
     font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--forest);
     text-align: center; box-shadow: inset 0 1px 3px rgba(45,38,32,.04); opacity: 0; transition: opacity 0.3s;
     margin-top: auto; line-height: 1.4; cursor: pointer; position: relative;
+    pointer-events: none;
   }
+  #motivationBox.show { opacity: 1; pointer-events: auto; }
   #motivationBox::after {
-    content: "✕ dismiss"; position: absolute; bottom: 4px; right: 8px; font-size: 0.65rem; color: var(--ink-muted); font-weight: 500; font-family: 'Space Mono', monospace;
+    content: ""; position: absolute; bottom: 4px; right: 8px; font-size: 0.65rem; color: var(--ink-muted); font-weight: 500; font-family: 'Space Mono', monospace;
   }
-  #motivationBox.show { opacity: 1; }
   #motivationBox.wrong-msg { color: var(--rust); background: #fcf0ee; border-color: #f1d3d0; }
 
   /* ---------- ANIMATIONS ---------- */
@@ -326,6 +327,46 @@
   </div>
 
 <script>
+
+const CLIENT_SECRET_HEX = "47ca583c36faa0de5b1ad0637a400f97a9b325cc0ae6c3213e6ae1f8d90a611a"; 
+
+async function getEncryptionKey(hexKey) {
+  const keyBytes = new Uint8Array(hexKey.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+  return await crypto.subtle.importKey(
+    "raw",
+    keyBytes,
+    { name: "AES-GCM" },
+    false,
+    ["encrypt"]
+  );
+}
+
+async function encryptPayload(dataObject) {
+  const key = await getEncryptionKey(CLIENT_SECRET_HEX);
+  
+  // 12-byte random IV
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encodedData = new TextEncoder().encode(JSON.stringify(dataObject));
+
+  const cipherBuffer = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: iv },
+    key,
+    encodedData
+  );
+
+  // Combine IV + Ciphertext into a single byte array
+  const combined = new Uint8Array(iv.length + cipherBuffer.byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(cipherBuffer), iv.length);
+
+  // Convert to Base64 string for transmission
+  let binary = '';
+  for (let i = 0; i < combined.length; i++) {
+    binary += String.fromCharCode(combined[i]);
+  }
+  return btoa(binary);
+}
+
 /* ========== GITHUB AUTH INTEGRATION ========== */
 let playerName = "Guest";
 let playerDept = "Unknown";
@@ -502,7 +543,7 @@ function showToast(msg, isCheat = false) {
 }
 
 /* ========== DATA ========== */
-const quizData = [
+let quizData = [
   { 
     questionItems: [
       {word: "Important ___ should be handled carefully.", answer: "mail (noun)"}, 
@@ -663,7 +704,7 @@ const wrongMessages = [
 ];
 
 let current = 0, correctCount = 0, totalWrongGuesses = 0, gemsCount = 0;
-let wrongQuestions = [], startTime, timerInterval;
+let startTime, timerInterval;
 let selectedOption = null, elapsedSeconds = 0;
 
 const dragOptionsEl = document.getElementById("dragOptions");
@@ -677,8 +718,11 @@ function startQuiz() {
   document.getElementById("quizContent").classList.add("active");
   
   current = 0; correctCount = 0; totalWrongGuesses = 0; gemsCount = 0; elapsedSeconds = 0;
-  wrongQuestions = []; cheatEvents = []; cheatCount = 0; testSubmitted = false;
+  cheatEvents = []; cheatCount = 0; testSubmitted = false;
   
+  // Reset repeated flags on all data items if restarting
+  quizData.forEach(q => q.repeated = false);
+
   startTime = Date.now();
   updateGems();
   startTimer();
@@ -692,14 +736,17 @@ function loadQuestion() {
   selectedOption = null;
   motivationBox.classList.remove("show");
   
-  const data = quizData[current];
+  // Dynamic counter instantly reflects pushed mistakes
   progressTracker.innerHTML = `${current + 1} of ${quizData.length}`;
+
+  const data = JSON.parse(JSON.stringify(quizData[current]));
 
   dragOptionsEl.innerHTML = "";
   dropContainerEl.innerHTML = "";
 
-  const shuffled = [...data.answers].sort(() => Math.random() - 0.5);
-  shuffled.forEach((ans) => {
+  // Jumble Drag Options
+  const shuffledOptions = [...data.answers].sort(() => Math.random() - 0.5);
+  shuffledOptions.forEach((ans) => {
     const div = document.createElement("div");
     div.classList.add("tile");
     div.innerHTML = `<span class="word">${ans}</span>`;
@@ -707,7 +754,9 @@ function loadQuestion() {
     dragOptionsEl.appendChild(div);
   });
 
-  data.questionItems.forEach((item) => {
+  // Jumble Statements
+  const shuffledItems = [...data.questionItems].sort(() => Math.random() - 0.5);
+  shuffledItems.forEach((item) => {
     const drop = document.createElement("div");
     drop.classList.add("sentence-item");
     drop.innerHTML = item.word.replace("___", "<b>____</b>");
@@ -743,6 +792,13 @@ function placeOption(dropZone) {
     selectedOption.el.classList.add("solved");
     selectedOption = null;
 
+    if (document.querySelectorAll(".sentence-item:not(.filled)").length === 0) {
+      setTimeout(() => {
+        current++;
+        loadQuestion();
+      }, 900);
+    }
+
   } else {
     playSound(wrongSound);
     totalWrongGuesses++; gemsCount--; updateGems();
@@ -754,19 +810,16 @@ function placeOption(dropZone) {
     selectedOption.el.classList.remove("selected");
     selectedOption = null;
 
+    // Deep clone logic: push the question to the end instantly
     const currentQ = quizData[current];
-    if (!wrongQuestions.includes(currentQ)) wrongQuestions.push(currentQ);
-  }
-
-  if (document.querySelectorAll(".sentence-item:not(.filled)").length === 0) {
-    setTimeout(() => {
-      current++;
-      if (current >= quizData.length && wrongQuestions.length > 0) {
-        quizData.push(...wrongQuestions);
-        wrongQuestions = [];
-      }
-      loadQuestion();
-    }, 900);
+    if (!currentQ.repeated) {
+      let newQ = JSON.parse(JSON.stringify(currentQ));
+      newQ.repeated = false;
+      quizData.push(newQ);
+      currentQ.repeated = true;
+      // Instantly update counter visually
+      progressTracker.innerHTML = `${current + 1} of ${quizData.length}`;
+    }
   }
 }
 
@@ -801,7 +854,7 @@ function startTimer() {
 
 const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
 
-function showScore() {
+async function showScore() {
   clearInterval(timerInterval);
   testSubmitted = true;
   triggerMegaConfetti();
@@ -822,20 +875,30 @@ function showScore() {
     cheatList.innerHTML = cheatEvents.map(e => '<li>' + e.description + ' (Q' + e.question + ')</li>').join(''); 
   }
 
-  fetch(EDGE_FUNCTION_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      student_name: playerName, 
-      department: playerDept,
-      correct: correctCount, 
-      wrong: totalWrongGuesses,
-      time_spent: elapsedSeconds, 
-      quest_id: "Quest 171 - Noun/Verb Shift",
-      cheat_count: cheatCount,
-      cheat_events: cheatEvents
-    })
-  }).catch(() => {});
+ 
+  const rawPayload = {
+    student_name: playerName,
+    department: playerDept,
+    correct: correctCount,
+    wrong: totalWrongGuesses,
+    time_spent: elapsedSeconds,
+    quest_id: "Quest 1",
+    cheat_count: cheatCount,
+    cheat_events: cheatEvents,
+    quiz_data: quizData
+  };
+
+  try {
+    const encryptedBody = await encryptPayload(rawPayload);
+
+    await fetch(EDGE_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: encryptedBody
+    });
+  } catch (err) {
+    console.error("Submission failed");
+  }
 }
 
 /* ========== PDF GENERATION ========== */
@@ -884,7 +947,7 @@ function downloadPDFReport() {
   doc.autoTable({
     startY: y + 3,
     body: [
-      ['Total Questions', quizData.length.toString()], 
+      ['Total Base Questions', '15'], 
       ['Correct Answers', correctCount.toString()],
       ['Wrong Attempts', totalWrongGuesses.toString()], 
       ['Final Gems Earned', gemsCount.toString()],
@@ -912,12 +975,12 @@ function downloadPDFReport() {
     y = doc.lastAutoTable.finalY + 12;
   }
 
-  // Questions
+  // Questions (Print original 15, ignoring dynamic duplicates for the log)
   if (y > 250) { doc.addPage(); y = 20; }
   doc.setFont('times', 'bold'); doc.text('QUESTION BANK WITH CORRECT ANSWERS', 20, y);
   y += 6;
 
-  quizData.forEach((item, i) => {
+  quizData.slice(0, 15).forEach((item, i) => {
     if (y > 260) { doc.addPage(); y = 20; }
     doc.setFontSize(11); doc.setFont('times', 'bold'); doc.setTextColor(47, 82, 51);
     doc.text(`Question ${i + 1}:`, 20, y); y += 6;
@@ -940,7 +1003,7 @@ function downloadPDFReport() {
   doc.setFontSize(8); doc.setTextColor(128, 128, 128); doc.setFont('times', 'italic');
   doc.text('This is a system-generated report', 105, 287, { align: 'center' });
 
-  doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_Quest171_Report.pdf`);
+  doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_Quest1_Report.pdf`);
 }
 </script>
 </body>
