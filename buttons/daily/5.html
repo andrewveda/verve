@@ -151,6 +151,7 @@
     display: flex;
     width: 100%;
     justify-content: center;
+    text-align: center;
     text-transform: none;
     padding: 12px 18px;
     font-size: 1.05rem;
@@ -162,6 +163,7 @@
     animation: shakeStrip .35s ease;
     background: var(--rust) !important;
     border-color: var(--rust) !important;
+    color: white;
   }
 
   .mount-caption { text-align: center; font-family: 'Space Mono', monospace; font-size: .6rem; color: var(--ink-muted); letter-spacing: .03em; text-transform: uppercase; }
@@ -522,136 +524,177 @@ function showToast(msg, isCheat = false) {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-/* ========== DATA ========== */
+/* ========== DATA ========== 
+   Both build and choose questions are now unified in the same array 
+   so they follow identical scoring, penalty, and repetition rules.
+   The 'accepted' array in build mode accepts ALL valid grammatical variations. */
 let pageData = [
   {
     statement: "Yes, he attends the English lab regularly.",
-    bestQuestion: 2,
-    bonusOptions: [
-      "Do he attend the English lab regularly?",
-      "Does he attends the English lab regularly?",
-      "Does he attend the English lab regularly?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Does","he","attend","the","English","lab","regularly"], accepted: [["Does","he","attend","the","English","lab","regularly"]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Does","he","attend","the","English","lab","regularly"], 
+        accepted: [
+          ["Does","he","attend","the","English","lab","regularly"],
+          ["Does","he","regularly","attend","the","English","lab"] // Acccept valid adverb shift
+        ] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Do he attend the English lab regularly?", "Does he attends the English lab regularly?", "Does he attend the English lab regularly?"], 
+        correctIdx: 2 
+      }
     ]
   },
   {
     statement: "Yes, they have completed the assignment.",
-    bestQuestion: 0,
-    bonusOptions: [
-      "Have they completed the assignment?",
-      "Has they completed the assignment?",
-      "Did they completed the assignment?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Have","they","completed","the","assignment"], accepted: [["Have","they","completed","the","assignment"]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Have","they","completed","the","assignment"], 
+        accepted: [["Have","they","completed","the","assignment"]] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Have they completed the assignment?", "Has they completed the assignment?", "Did they completed the assignment?"], 
+        correctIdx: 0 
+      }
     ]
   },
   {
     statement: "Yes, the train arrived on time.",
-    bestQuestion: 2,
-    bonusOptions: [
-      "Do the train arrive on time?",
-      "Did the train arrived on time?",
-      "Did the train arrive on time?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Did","the","train","arrive","on","time"], accepted: [["Did","the","train","arrive","on","time"]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Did","the","train","arrive","on","time"], 
+        accepted: [["Did","the","train","arrive","on","time"]] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Do the train arrive on time?", "Did the train arrived on time?", "Did the train arrive on time?"], 
+        correctIdx: 2 
+      }
     ]
   },
   {
     statement: "Yes, he can solve the problem easily.",
-    bestQuestion: 1,
-    bonusOptions: [
-      "Does he can solve the problem easily?",
-      "Can he solve the problem easily?",
-      "Can he solves the problem easily?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Can","he","solve","the","problem","easily"], accepted: [["Can","he","solve","the","problem","easily"]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Can","he","solve","the","problem","easily"], 
+        accepted: [
+          ["Can","he","solve","the","problem","easily"],
+          ["Can","he","easily","solve","the","problem"]
+        ] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Does he can solve the problem easily?", "Can he solve the problem easily?", "Can he solves the problem easily?"], 
+        correctIdx: 1 
+      }
     ]
   },
   {
     statement: "Yes, the students are preparing for the semester examination.",
-    bestQuestion: 0,
-    bonusOptions: [
-      "Are the students preparing for the semester examination?",
-      "Is the students preparing for the semester examination?",
-      "Do the students preparing for the semester examination?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Are","the","students","preparing","for","the","semester","examination"], accepted: [["Are","the","students","preparing","for","the","semester","examination"]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Are","the","students","preparing","for","the","semester","examination"], 
+        accepted: [["Are","the","students","preparing","for","the","semester","examination"]] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Are the students preparing for the semester examination?", "Is the students preparing for the semester examination?", "Do the students preparing for the semester examination?"], 
+        correctIdx: 0 
+      }
     ]
   },
   {
     statement: "Your brother works in Bengaluru.",
-    bestQuestion: 1,
-    bonusOptions: [
-      "Do your brother work in Bengaluru?",
-      "Does your brother work in Bengaluru?",
-      "Does your brother works in Bengaluru?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Does","your","brother","work","in","Bengaluru"], accepted: [["Does","your","brother","work","in","Bengaluru"]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Does","your","brother","work","in","Bengaluru"], 
+        accepted: [["Does","your","brother","work","in","Bengaluru"]] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Do your brother work in Bengaluru?", "Does your brother work in Bengaluru?", "Does your brother works in Bengaluru?"], 
+        correctIdx: 1 
+      }
     ]
   },
   {
     statement: "The meeting will begin at 10.00 a.m.",
-    bestQuestion: 2,
-    bonusOptions: [
-      "Will the meeting begins at 10.00 a.m?",
-      "Does the meeting will begin at 10.00 a.m?",
-      "Will the meeting begin at 10.00 a.m?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Will","the","meeting","begin","at","10.00","a.m."], accepted: [["Will","the","meeting","begin","at","10.00","a.m."]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Will","the","meeting","begin","at","10.00","a.m."], 
+        accepted: [["Will","the","meeting","begin","at","10.00","a.m."]] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Will the meeting begins at 10.00 a.m?", "Does the meeting will begin at 10.00 a.m?", "Will the meeting begin at 10.00 a.m?"], 
+        correctIdx: 2 
+      }
     ]
   },
   {
     statement: "She was absent yesterday.",
-    bestQuestion: 0,
-    bonusOptions: [
-      "Was she absent yesterday?",
-      "Were she absent yesterday?",
-      "Did she absent yesterday?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Was","she","absent","yesterday"], accepted: [["Was","she","absent","yesterday"]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Was","she","absent","yesterday"], 
+        accepted: [["Was","she","absent","yesterday"]] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Was she absent yesterday?", "Were she absent yesterday?", "Did she absent yesterday?"], 
+        correctIdx: 0 
+      }
     ]
   },
   {
     statement: "The company has launched a new product.",
-    bestQuestion: 1,
-    bonusOptions: [
-      "Have the company launched a new product?",
-      "Has the company launched a new product?",
-      "Did the company launched a new product?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Has","the","company","launched","a","new","product"], accepted: [["Has","the","company","launched","a","new","product"]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Has","the","company","launched","a","new","product"], 
+        accepted: [["Has","the","company","launched","a","new","product"]] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Have the company launched a new product?", "Has the company launched a new product?", "Did the company launched a new product?"], 
+        correctIdx: 1 
+      }
     ]
   },
   {
     statement: "They were discussing the project.",
-    bestQuestion: 2,
-    bonusOptions: [
-      "Was they discussing the project?",
-      "Are they discussing the project?",
-      "Were they discussing the project?"
-    ],
     questions: [
-      { type: "YES/NO", instruction: "Build the Yes/No question for this statement.", tiles: ["Were","they","discussing","the","project"], accepted: [["Were","they","discussing","the","project"]] }
+      { 
+        mode: "build", type: "BUILD YES/NO", instruction: "Build the Yes/No question for this statement.", 
+        tiles: ["Were","they","discussing","the","project"], 
+        accepted: [["Were","they","discussing","the","project"]] 
+      },
+      { 
+        mode: "choose", type: "IDENTIFY", instruction: "Select the grammatically correct formulation.", 
+        options: ["Was they discussing the project?", "Are they discussing the project?", "Were they discussing the project?"], 
+        correctIdx: 2 
+      }
     ]
   }
 ];
 
-// Dynamically inject the "?" tile into all tiles and accepted arrays
+// Dynamically inject the "?" tile into all tiles and accepted arrays for build tasks
 pageData.forEach(page => {
   page.questions.forEach(q => {
-    if (!q.tiles.includes("?")) {
-      q.tiles.push("?");
-      q.accepted.forEach(ans => ans.push("?"));
+    if (q.mode === "build") {
+      if (!q.tiles.includes("?")) {
+        q.tiles.push("?");
+        q.accepted.forEach(ans => ans.push("?"));
+      }
     }
   });
 });
@@ -682,13 +725,12 @@ let currentPage = 0, currentQ = 0, correctCount = 0, totalWrongGuesses = 0, gems
 let startTime, timerInterval;
 let elapsedSeconds = 0, awaitingAdvance = false;
 
-// Live interaction state for the current question only
-let builtWords = [];       // [{ word, trayIdx, uid }]
-let trayState = [];        // [{ word, used }]
-let trayEls = [];          // DOM refs matching trayState, index-aligned
-let stripEls = {};         // uid -> DOM ref for strip slots
+let builtWords = [];       
+let trayState = [];        
+let trayEls = [];          
+let stripEls = {};         
 let uidCounter = 0;
-let builtOnThisPage = [];  // strings of questions the student has successfully built on the current page
+let builtOnThisPage = [];  
 
 const trayEl = document.getElementById("tray");
 const answerStripEl = document.getElementById("answerStrip");
@@ -718,7 +760,6 @@ function loadPage() {
   if (currentPage >= pageData.length) return showScore();
   currentQ = 0;
   builtOnThisPage = [];
-  document.getElementById("mountCaption").style.display = "block"; // reset caption
   renderStatement();
   renderBuiltList();
   loadQuestion();
@@ -749,7 +790,7 @@ function loadQuestion() {
   const page = pageData[currentPage];
   
   if (currentQ >= page.questions.length) {
-    loadBonusQuestion();
+    setTimeout(() => { currentPage++; loadPage(); }, 700);
     return;
   }
 
@@ -760,64 +801,80 @@ function loadQuestion() {
   document.getElementById("qType").style.display = "inline-block";
   document.getElementById("qType").textContent = q.type;
   document.getElementById("qPrompt").textContent = q.instruction;
-
-  builtWords = [];
-  stripEls = {};
-  const shuffled = [...q.tiles].sort(() => Math.random() - 0.5);
-  trayState = shuffled.map(w => ({ word: w, used: false }));
-
-  renderDots();
-  renderTrayFull();
-  renderStripFull();
-}
-
-function loadBonusQuestion() {
-  awaitingAdvance = false;
-  motivationBox.classList.remove("show");
-
-  document.getElementById("qType").textContent = "BONUS";
-  document.getElementById("qPrompt").textContent = "For fun: Which of these is the grammatically correct Yes/No question?";
   
-  answerStripEl.innerHTML = "";
-  answerStripEl.classList.remove("error", "correct");
+  renderDots();
 
-  trayEl.innerHTML = ""; // Hide tray
-  document.getElementById("mountCaption").style.display = "none"; // Hide build caption
+  if (q.mode === "build") {
+    // Normal building mode
+    document.getElementById("mountCaption").style.display = "block";
+    trayEl.style.display = "flex";
+    
+    builtWords = [];
+    stripEls = {};
+    const shuffled = [...q.tiles].sort(() => Math.random() - 0.5);
+    trayState = shuffled.map(w => ({ word: w, used: false }));
+    
+    renderTrayFull();
+    renderStripFull();
+  } else if (q.mode === "choose") {
+    // Multiple Choice mode
+    document.getElementById("mountCaption").style.display = "none";
+    trayEl.style.display = "none";
+    
+    answerStripEl.innerHTML = "";
+    answerStripEl.classList.remove("error", "correct");
 
-  const page = pageData[currentPage];
-  page.bonusOptions.forEach((optText, idx) => {
-    const btn = document.createElement("div");
-    btn.className = "strip-slot bonus-option";
-    // Ensure the options end in a question mark
-    let text = optText;
-    if (!text.endsWith("?")) text += "?";
-    btn.textContent = text;
-    btn.onclick = () => checkBonusAnswer(idx, btn);
-    answerStripEl.appendChild(btn);
-  });
-
-  document.getElementById("qDots").innerHTML = ""; // Hide dots
+    q.options.forEach((optText, idx) => {
+      const btn = document.createElement("div");
+      btn.className = "strip-slot bonus-option";
+      let text = optText;
+      if (!text.endsWith("?")) text += "?";
+      btn.textContent = text;
+      btn.onclick = () => checkChooseAnswer(idx, btn, q);
+      answerStripEl.appendChild(btn);
+    });
+  }
 }
 
-function checkBonusAnswer(idx, btnNode) {
+function checkChooseAnswer(idx, btnNode, q) {
   if (awaitingAdvance) return;
-  const page = pageData[currentPage];
-  if (idx === page.bestQuestion) {
+
+  if (idx === q.correctIdx) {
     awaitingAdvance = true;
     btnNode.style.background = "var(--success)";
     btnNode.style.borderColor = "var(--success)";
+    btnNode.style.color = "#fff";
     playSound(applauseSound);
     triggerConfetti();
+    correctCount++; gemsCount++; updateGems();
+    showMotivation(true);
+
+    builtOnThisPage.push(btnNode.textContent);
+    renderBuiltList();
+
     setTimeout(() => {
-      currentPage++;
-      loadPage();
-    }, 1500);
+      currentQ++;
+      loadQuestion();
+    }, 1200);
   } else {
     playSound(wrongSound);
+    totalWrongGuesses++; gemsCount--; updateGems();
+    showMotivation(false);
     btnNode.classList.add("error-shake");
+
+    // Repeat-on-wrong identical to the build mode
+    const page = pageData[currentPage];
+    if (!page.repeated) {
+      const clonedPage = JSON.parse(JSON.stringify(page));
+      clonedPage.repeated = false;
+      pageData.push(clonedPage);
+      page.repeated = true;
+      progressTracker.innerHTML = `Page ${currentPage + 1} of ${pageData.length}`;
+    }
+
     setTimeout(() => {
       btnNode.classList.remove("error-shake");
-    }, 400);
+    }, 450);
   }
 }
 
@@ -877,7 +934,6 @@ function tapTile(idx) {
   const uid = uidCounter++;
   builtWords.push({ word: t.word, trayIdx: idx, uid });
 
-  // clear placeholder text if this is the first word placed
   if (builtWords.length === 1) {
     answerStripEl.innerHTML = "";
   }
@@ -891,7 +947,7 @@ function tapTile(idx) {
   const page = pageData[currentPage];
   const q = page.questions[currentQ];
   if (builtWords.length === q.tiles.length) {
-    setTimeout(checkAnswer, 250);
+    setTimeout(checkBuildAnswer, 250);
   }
 }
 
@@ -910,7 +966,7 @@ function normalize(arr) {
   return arr.map(w => w.toLowerCase()).join(" ");
 }
 
-function checkAnswer() {
+function checkBuildAnswer() {
   const page = pageData[currentPage];
   const q = page.questions[currentQ];
   const built = normalize(builtWords.map(b => b.word));
@@ -1100,7 +1156,7 @@ function downloadPDFReport() {
     y = doc.lastAutoTable.finalY + 12;
   }
 
-  // Study guide: statements & the correct Yes/No questions to build for each
+  // Study guide: statements & the correct questions to build/choose for each
   if (y > 250) { doc.addPage(); y = 20; }
   doc.setFont('times', 'bold'); doc.text('STUDY GUIDE — STATEMENTS & QUESTIONS', 20, y);
   y += 6;
@@ -1112,9 +1168,17 @@ function downloadPDFReport() {
     doc.text(stmtLines, 20, y); y += stmtLines.length * 6;
 
     doc.setTextColor(0, 0, 0); doc.setFont('times', 'normal'); doc.setFontSize(10);
+    
     page.questions.forEach((q) => {
-      // Cleanly replace space before the newly injected question mark
-      const qText = `Question: ${q.accepted[0].join(" ").replace(/ \?/g, "?")}`;
+      let qText = "";
+      if (q.mode === "build") {
+        qText = `Build: ${q.accepted[0].join(" ").replace(/ \?/g, "?")}`;
+      } else {
+        let optTxt = q.options[q.correctIdx];
+        if (!optTxt.endsWith("?")) optTxt += "?";
+        qText = `Identify: ${optTxt}`;
+      }
+
       const qLines = doc.splitTextToSize(qText, 165);
       doc.text(qLines, 25, y); y += qLines.length * 5;
       if (y > 270) { doc.addPage(); y = 20; }
