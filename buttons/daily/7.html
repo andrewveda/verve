@@ -505,8 +505,94 @@ function showToast(msg, isCheat = false) {
 /* ========== DATA ========== */
 let quizData = [
   {
-  questionItems: [ { word: "A clear purpose <strong>gives</strong> direction even when the destination is uncertain.<br>— <i>Start With Why</i> by Simon Sinek<br>(Begin with a compelling purpose.) ___", answer: "Begin with a compelling purpose." }, { word: "Daily habits <strong>shape</strong> the future more than occasional bursts of motivation.<br>— <i>The Compound Effect</i> by Darren Hardy<br>(Small actions accumulate into remarkable results.) ___", answer: "Small actions accumulate into remarkable results." }, { word: "Every meaningful challenge <strong>offers</strong> an opportunity to grow.<br>— <i>Mindset</i> by Carol S. Dweck<br>(Challenges develop abilities through a growth mindset.) ___", answer: "Challenges develop abilities through a growth mindset." } ], answers: [ "Begin with a compelling purpose.", "Small actions accumulate into remarkable results.", "Challenges develop abilities through a growth mindset." ] }, { questionItems: [ { word: "Small improvements repeated consistently <strong>produce</strong> extraordinary results.<br>— <i>Atomic Habits</i> by James Clear<br>(Tiny improvements compound over time.) ___", answer: "Tiny improvements compound over time." }, { word: "The fear of failure <strong>prevents</strong> many people from beginning.<br>— <i>Feel the Fear and Do It Anyway</i> by Susan Jeffers<br>(Act despite fear.) ___", answer: "Act despite fear." }, { word: "Great leaders <strong>inspire</strong> others through their actions rather than their titles.<br>— <i>Leaders Eat Last</i> by Simon Sinek<br>(Leadership is service and trust.) ___", answer: "Leadership is service and trust." } ], answers: [ "Tiny improvements compound over time.", "Act despite fear.", "Leadership is service and trust." ] }, { questionItems: [ { word: "Every setback <strong>contains</strong> the seed of a valuable lesson.<br>— <i>The Obstacle Is the Way</i> by Ryan Holiday<br>(Obstacles become opportunities.) ___", answer: "Obstacles become opportunities." }, { word: "Courage and perseverance <strong>transform</strong> ordinary people into remarkable achievers.<br>— <i>Can't Hurt Me</i> by David Goggins<br>(Mental toughness overcomes limits.) ___", answer: "Mental toughness overcomes limits." }, { word: "A growth mindset <strong>encourages</strong> lifelong learning.<br>— <i>Mindset</i> by Carol S. Dweck<br>(Abilities can be developed through effort.) ___", answer: "Abilities can be developed through effort." } ], answers: [ "Obstacles become opportunities.", "Mental toughness overcomes limits.", "Abilities can be developed through effort." ] }, { questionItems: [ { word: "Your excuses <strong>limit</strong> your potential more than your circumstances.<br>— <i>The 5 Second Rule</i> by Mel Robbins<br>(Take action before hesitation wins.) ___", answer: "Take action before hesitation wins." }, { word: "Deep, focused work <strong>requires</strong> patience and discipline.<br>— <i>Deep Work</i> by Cal Newport<br>(Concentrated work creates exceptional value.) ___", answer: "Concentrated work creates exceptional value." }, { word: "The strongest character <strong>emerges</strong> during difficult times.<br>— <i>The Gift of Imperfection</i> by Brené Brown<br>(Embrace vulnerability to build resilience.) ___", answer: "Embrace vulnerability to build resilience." } ], answers: [ "Take action before hesitation wins.", "Concentrated work creates exceptional value.", "Embrace vulnerability to build resilience." ] }, { questionItems: [ { word: "Consistent effort, not natural talent, <strong>determines</strong> lasting success.<br>— <i>Grit</i> by Angela Duckworth<br>(Perseverance matters more than talent.) ___", answer: "Perseverance matters more than talent." }, { word: "Every meaningful goal <strong>demands</strong> sacrifices that most people avoid.<br>— <i>The One Thing</i> by Gary Keller<br>(Focus on the highest-priority task.) ___", answer: "Focus on the highest-priority task." }, { word: "Successful people <strong>choose</strong> responsibility instead of excuses.<br>— <i>The 7 Habits of Highly Effective People</i> by Stephen R. Covey<br>(Be proactive and take responsibility.) ___", answer: "Be proactive and take responsibility." } ], answers: [ "Perseverance matters more than talent.", "Focus on the highest-priority task.", "Be proactive and take responsibility." ] }
+    questionItems: [
+      { word: "A clear purpose <strong>gives</strong> direction even when the destination is uncertain.<br>— <i>Start With Why</i> by Simon Sinek<br>___", answer: "Begin with a compelling purpose." },
+      { word: "Daily habits <strong>shape</strong> the future more than occasional bursts of motivation.<br>— <i>The Compound Effect</i> by Darren Hardy<br>___", answer: "Small actions accumulate into remarkable results." }
+    ],
+    answers: [ "Begin with a compelling purpose.", "Small actions accumulate into remarkable results." ]
+  },
+
+  {
+    questionItems: [
+      { word: "Small improvements repeated consistently <strong>produce</strong> extraordinary results.<br>— <i>Atomic Habits</i> by James Clear<br>___", answer: "Tiny improvements compound over time." },
+      { word: "The fear of failure <strong>prevents</strong> many people from beginning.<br>— <i>Feel the Fear and Do It Anyway</i> by Susan Jeffers<br>___", answer: "Act despite fear." }
+    ],
+    answers: [ "Tiny improvements compound over time.", "Act despite fear." ]
+  },
+
+  {
+    questionItems: [
+      { word: "Every setback <strong>contains</strong> the seed of a valuable lesson.<br>— <i>The Obstacle Is the Way</i> by Ryan Holiday<br>___", answer: "Obstacles become opportunities." },
+      { word: "Courage and perseverance <strong>transform</strong> ordinary people into remarkable achievers.<br>— <i>Can't Hurt Me</i> by David Goggins<br>___", answer: "Mental toughness overcomes limits." }
+    ],
+    answers: [ "Obstacles become opportunities.", "Mental toughness overcomes limits." ]
+  },
+
+  {
+    questionItems: [
+      { word: "Your excuses <strong>limit</strong> your potential more than your circumstances.<br>— <i>The 5 Second Rule</i> by Mel Robbins<br>___", answer: "Take action before hesitation wins." },
+      { word: "Deep, focused work <strong>requires</strong> patience and discipline.<br>— <i>Deep Work</i> by Cal Newport<br>___", answer: "Concentrated work creates exceptional value." }
+    ],
+    answers: [ "Take action before hesitation wins.", "Concentrated work creates exceptional value." ]
+  },
+
+  {
+    questionItems: [
+      { word: "Consistent effort, not natural talent, <strong>determines</strong> lasting success.<br>— <i>Grit</i> by Angela Duckworth<br>___", answer: "Perseverance matters more than talent." },
+      { word: "Every meaningful goal <strong>demands</strong> sacrifices that most people avoid.<br>— <i>The One Thing</i> by Gary Keller<br>___", answer: "Focus on the highest-priority task." }
+    ],
+    answers: [ "Perseverance matters more than talent.", "Focus on the highest-priority task." ]
+  },
+
+  {
+    questionItems: [
+      { word: "True creation <strong>demands</strong> independence of mind above all else.<br>— <i>The Fountainhead</i> by Ayn Rand<br>___", answer: "Independent thinking fuels genuine achievement." },
+      { word: "A person's highest duty <strong>lies</strong> in living for their own reasoned values.<br>— <i>Atlas Shrugged</i> by Ayn Rand<br>___", answer: "Live according to your own rational purpose." }
+    ],
+    answers: [ "Independent thinking fuels genuine achievement.", "Live according to your own rational purpose." ]
+  },
+
+  {
+    questionItems: [
+      { word: "Your thoughts <strong>influence</strong> the way you experience your circumstances.<br>— <i>As a Man Thinketh</i> by James Allen<br>___", answer: "Your thinking shapes your life." },
+      { word: "A person who <strong>cultivates</strong> disciplined thoughts can gradually transform their character.<br>— <i>As a Man Thinketh</i> by James Allen<br>___", answer: "Character develops through disciplined thinking." }
+    ],
+    answers: [ "Your thinking shapes your life.", "Character develops through disciplined thinking." ]
+  },
+
+  {
+    questionItems: [
+      { word: "People <strong>discover</strong> meaning even in circumstances they cannot control.<br>— <i>Man's Search for Meaning</i> by Viktor E. Frankl<br>___", answer: "Meaning can be found even in hardship." },
+      { word: "A person <strong>chooses</strong> their attitude even when they cannot choose their circumstances.<br>— <i>Man's Search for Meaning</i> by Viktor E. Frankl<br>___", answer: "Choose your attitude toward adversity." }
+    ],
+    answers: [ "Meaning can be found even in hardship.", "Choose your attitude toward adversity." ]
+  },
+
+  {
+    questionItems: [
+      { word: "Successful people <strong>develop</strong> a clear vision before taking purposeful action.<br>— <i>The 7 Habits of Highly Effective People</i> by Stephen R. Covey<br>___", answer: "Begin with a clear vision of the desired result." },
+      { word: "Effective people <strong>prioritize</strong> what matters most instead of merely reacting to what is urgent.<br>— <i>The 7 Habits of Highly Effective People</i> by Stephen R. Covey<br>___", answer: "Focus on what matters most." }
+    ],
+    answers: [ "Begin with a clear vision of the desired result.", "Focus on what matters most." ]
+  },
+{
+  questionItems: [
+    {
+      word: "A person <strong>creates</strong> their own success by thinking independently and acting according to reason.<br>— <i>The Fountainhead</i> by Ayn Rand<br>___",
+      answer: "Independent thought and purposeful action create achievement."
+    },
+    {
+      word: "A person <strong>achieves</strong> greatness by refusing to surrender their own judgment to the opinions of others.<br>— <i>The Fountainhead</i> by Ayn Rand<br>___",
+      answer: "Trust your own judgment instead of seeking approval."
+    }
+  ],
+  answers: [
+    "Independent thought and purposeful action create achievement.",
+    "Trust your own judgment instead of seeking approval."
+  ]
+}
 ];
+  
 
 /* ========== MOTIVATION MESSAGES ========== */
 const rightMessages = [
