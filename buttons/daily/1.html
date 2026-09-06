@@ -515,24 +515,6 @@ let quizData = [
   },
   { 
     questionItems: [
-      {word: "Space ___ teaches you patience and perspective.", answer: "travel (noun)"}, 
-      {word: "We will ___ abroad next year.", answer: "travel (verb)"},
-      {word: "His job requires frequent foreign ___.", answer: "travel (noun)"},
-      {word: "They love to ___ across the countryside.", answer: "travel (verb)"}
-    ], 
-    answers: ["travel (noun)", "travel (verb)", "travel (noun)", "travel (verb)"] 
-  },
-  { 
-    questionItems: [
-      {word: "Every project needs a solid ___.", answer: "plan (noun)"}, 
-      {word: "They ___ to start the construction early.", answer: "plan (verb)"},
-      {word: "Do you have a backup ___ for the event?", answer: "plan (noun)"},
-      {word: "We must ___ our budget carefully.", answer: "plan (verb)"}
-    ], 
-    answers: ["plan (noun)", "plan (verb)", "plan (noun)", "plan (verb)"] 
-  },
-  { 
-    questionItems: [
       {word: "He broke the college athletic ___.", answer: "record (noun)"}, 
       {word: "Please ___ the attendance daily.", answer: "record (verb)"},
       {word: "The doctor checked the patient's medical ___.", answer: "record (noun)"},
@@ -596,15 +578,6 @@ let quizData = [
   },
   { 
     questionItems: [
-      {word: "The head ___ prepared a lavish meal.", answer: "cook (noun)"}, 
-      {word: "They usually ___ together on Sundays.", answer: "cook (verb)"},
-      {word: "He is a professional ___ at the hotel.", answer: "cook (noun)"},
-      {word: "Who will ___ dinner tonight?", answer: "cook (verb)"}
-    ], 
-    answers: ["cook (noun)", "cook (verb)", "cook (noun)", "cook (verb)"] 
-  },
-  { 
-    questionItems: [
       {word: "We sat in the front ___ of the theater.", answer: "row (noun)"}, 
       {word: "They love to ___ across the lake in their boat.", answer: "row (verb)"},
       {word: "The vegetables were planted in a neat ___.", answer: "row (noun)"},
@@ -620,24 +593,6 @@ let quizData = [
       {word: "Passengers will ___ the ship at noon.", answer: "board (verb)"}
     ], 
     answers: ["board (noun)", "board (verb)", "board (noun)", "board (verb)"] 
-  },
-  { 
-    questionItems: [
-      {word: "The blue ___ is still wet on the canvas.", answer: "paint (noun)"}, 
-      {word: "He will ___ the living room walls.", answer: "paint (verb)"},
-      {word: "We need to buy more red ___.", answer: "paint (noun)"},
-      {word: "She likes to ___ landscapes in watercolor.", answer: "paint (verb)"}
-    ], 
-    answers: ["paint (noun)", "paint (verb)", "paint (noun)", "paint (verb)"] 
-  },
-  { 
-    questionItems: [
-      {word: "The school ___ was a huge success.", answer: "play (noun)"}, 
-      {word: "The children ___ football in the park.", answer: "play (verb)"},
-      {word: "Shakespeare wrote a famous tragedy ___.", answer: "play (noun)"},
-      {word: "I like to ___ the piano to relax.", answer: "play (verb)"}
-    ], 
-    answers: ["play (noun)", "play (verb)", "play (noun)", "play (verb)"] 
   }
 ];
 
@@ -897,7 +852,7 @@ function downloadPDFReport() {
   doc.autoTable({
     startY: y + 3,
     body: [
-      ['Total Base Questions', '15'], 
+      ['Total Base Questions', '10'], 
       ['Correct Answers', correctCount.toString()],
       ['Wrong Attempts', totalWrongGuesses.toString()], 
       ['Final Gems Earned', gemsCount.toString()],
@@ -925,12 +880,12 @@ function downloadPDFReport() {
     y = doc.lastAutoTable.finalY + 12;
   }
 
-  // Questions (Print original 15, ignoring dynamic duplicates for the log)
+  
   if (y > 250) { doc.addPage(); y = 20; }
   doc.setFont('times', 'bold'); doc.text('QUESTION BANK WITH CORRECT ANSWERS', 20, y);
   y += 6;
 
-  quizData.slice(0, 15).forEach((item, i) => {
+  quizData.slice(0, 10).forEach((item, i) => {
     if (y > 260) { doc.addPage(); y = 20; }
     doc.setFontSize(11); doc.setFont('times', 'bold'); doc.setTextColor(47, 82, 51);
     doc.text(`Question ${i + 1}:`, 20, y); y += 6;
