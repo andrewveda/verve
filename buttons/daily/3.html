@@ -136,7 +136,7 @@
 
   /* ---------- QUESTION MOUNT ---------- */
   .mount { background: var(--card); border: 1.5px solid var(--card-line); border-radius: 14px; padding: 18px 18px 16px; box-shadow: var(--shadow-md); display: flex; flex-direction: column; gap: 14px; }
-  .q-type { display: inline-block; align-self: center; font-family: 'Space Mono', monospace; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; background: var(--forest); color: #fff; padding: 4px 12px; border-radius: 20px; }
+  .q-type { display: inline-block; align-self: center; font-family: 'Space Mono', monospace; font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; background: var(--forest); color: #fff; padding: 4px 12px; border-radius: 20px; text-align: center; }
   .q-prompt { font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 600; text-align: center; color: var(--ink); line-height: 1.5; }
 
   .answer-strip { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 48px; align-items: center; padding: 10px; border-radius: 10px; background: #faf5e6; border: 1.5px dashed #d8c69a; }
@@ -147,7 +147,25 @@
     padding: 8px 14px; border-radius: 9px; cursor: pointer; animation: tileIn .22s cubic-bezier(.2,1.5,.4,1);
     box-shadow: var(--shadow-sm);
   }
-  .strip-placeholder { font-family: 'Space Mono', monospace; font-size: .68rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+  .strip-placeholder { font-family: 'Space Mono', monospace; font-size: .68rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; text-align: center; }
+
+  /* Bonus Option Style */
+  .bonus-option {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    text-transform: none;
+    padding: 12px 18px;
+    font-size: 1.05rem;
+    transition: background 0.2s, transform 0.1s;
+    border: 2px solid transparent;
+  }
+  .bonus-option:active { transform: scale(0.98); }
+  .bonus-option.error-shake {
+    animation: shakeStrip .35s ease;
+    background: var(--rust) !important;
+    border-color: var(--rust) !important;
+  }
 
   .mount-caption { text-align: center; font-family: 'Space Mono', monospace; font-size: .6rem; color: var(--ink-muted); letter-spacing: .03em; text-transform: uppercase; }
 
@@ -292,7 +310,7 @@
         <div class="answer-strip" id="answerStrip"></div>
         <div class="q-dots" id="qDots"></div>
       </div>
-      <div class="mount-caption">Tap the words in order to build the question</div>
+      <div class="mount-caption" id="mountCaption">Tap the words in order to build the question</div>
 
       <div class="tray" id="tray"></div>
 
@@ -508,13 +526,11 @@ function showToast(msg, isCheat = false) {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-/* ========== DATA ==========
-   Each page = one statement. Each question = a WH-type the student must
-   BUILD (the tiles form the correct question sentence, not an answer).
-   Skipped WH types are listed with a plain-language reason. */
+/* ========== DATA ========== */
 let pageData = [
   {
     statement: "My father works in Chennai.",
+    bestQuestion: 2, // Where does my father work?
     skipped: [
       { type: "WHEN", reason: "No time is mentioned in the sentence." },
       { type: "WHY", reason: "No reason is given in the sentence." },
@@ -528,6 +544,7 @@ let pageData = [
   },
   {
     statement: "The seminar begins at 10.00 a.m.",
+    bestQuestion: 1, // When does the seminar begin?
     skipped: [
       { type: "WHO", reason: "No person is named in the sentence." },
       { type: "WHERE", reason: "No location is mentioned." },
@@ -541,6 +558,7 @@ let pageData = [
   },
   {
     statement: "She bought a laptop yesterday.",
+    bestQuestion: 1, // What did she buy yesterday?
     skipped: [
       { type: "WHERE", reason: "No location is mentioned." },
       { type: "WHY", reason: "No reason is given." },
@@ -554,6 +572,7 @@ let pageData = [
   },
   {
     statement: "They are travelling by train.",
+    bestQuestion: 2, // How are they travelling?
     skipped: [
       { type: "WHEN", reason: "No time is mentioned." },
       { type: "WHERE", reason: "No destination is mentioned." },
@@ -567,6 +586,7 @@ let pageData = [
   },
   {
     statement: "Rahul completed the project in three days.",
+    bestQuestion: 2, // How long did Rahul take to complete the project?
     skipped: [
       { type: "WHERE", reason: "No location is mentioned." },
       { type: "WHY", reason: "No reason is given." }
@@ -579,6 +599,7 @@ let pageData = [
   },
   {
     statement: "The meeting was held in the conference hall.",
+    bestQuestion: 1, // Where was the meeting held?
     skipped: [
       { type: "WHO", reason: "No person or organiser is named (the sentence is passive)." },
       { type: "WHEN", reason: "No time is mentioned." },
@@ -592,6 +613,7 @@ let pageData = [
   },
   {
     statement: "The students visited Mahabalipuram last weekend.",
+    bestQuestion: 2, // Where did the students go last weekend?
     skipped: [
       { type: "WHY", reason: "No reason is given." },
       { type: "HOW", reason: "No manner is described." }
@@ -605,6 +627,7 @@ let pageData = [
   },
   {
     statement: "The principal addressed the gathering.",
+    bestQuestion: 0, // Who addressed the gathering?
     skipped: [
       { type: "WHEN", reason: "No time is mentioned." },
       { type: "WHERE", reason: "No location is mentioned." },
@@ -618,6 +641,7 @@ let pageData = [
   },
   {
     statement: "The examination starts on Monday.",
+    bestQuestion: 1, // When does the examination start?
     skipped: [
       { type: "WHO", reason: "No person is named." },
       { type: "WHERE", reason: "No location is mentioned." },
@@ -631,6 +655,7 @@ let pageData = [
   },
   {
     statement: "She is preparing for the placement interview.",
+    bestQuestion: 1, // What is she preparing for?
     skipped: [
       { type: "WHEN", reason: "No time is mentioned." },
       { type: "WHERE", reason: "No location is mentioned." },
@@ -643,6 +668,16 @@ let pageData = [
     ]
   }
 ];
+
+// Dynamically inject the "?" tile into all tiles and accepted arrays
+pageData.forEach(page => {
+  page.questions.forEach(q => {
+    if (!q.tiles.includes("?")) {
+      q.tiles.push("?");
+      q.accepted.forEach(ans => ans.push("?"));
+    }
+  });
+});
 
 /* ========== MOTIVATION MESSAGES ========== */
 const rightMessages = [
@@ -706,6 +741,7 @@ function loadPage() {
   if (currentPage >= pageData.length) return showScore();
   currentQ = 0;
   builtOnThisPage = [];
+  document.getElementById("mountCaption").style.display = "block"; // reset caption
   renderStatement();
   renderBuiltList();
   loadQuestion();
@@ -744,8 +780,9 @@ function renderBuiltList() {
 
 function loadQuestion() {
   const page = pageData[currentPage];
+  
   if (currentQ >= page.questions.length) {
-    setTimeout(() => { currentPage++; loadPage(); }, 700);
+    loadBonusQuestion();
     return;
   }
 
@@ -753,6 +790,7 @@ function loadQuestion() {
   motivationBox.classList.remove("show");
   const q = page.questions[currentQ];
 
+  document.getElementById("qType").style.display = "inline-block";
   document.getElementById("qType").textContent = q.type;
   document.getElementById("qPrompt").textContent = q.instruction;
 
@@ -766,6 +804,55 @@ function loadQuestion() {
   renderStripFull();
 }
 
+function loadBonusQuestion() {
+  awaitingAdvance = false;
+  motivationBox.classList.remove("show");
+
+  document.getElementById("qType").textContent = "BONUS";
+  document.getElementById("qPrompt").textContent = "For fun: Which question makes the most sense to ask if you want the statement above as the answer?";
+  
+  answerStripEl.innerHTML = "";
+  answerStripEl.classList.remove("error", "correct");
+
+  trayEl.innerHTML = ""; // Hide tray
+  document.getElementById("mountCaption").style.display = "none"; // Hide build caption
+
+  const page = pageData[currentPage];
+  page.questions.forEach((q, idx) => {
+    const btn = document.createElement("div");
+    btn.className = "strip-slot bonus-option";
+    // Replace space before question mark naturally
+    let text = q.accepted[0].join(" ").replace(/ \?/g, "?");
+    btn.textContent = text;
+    btn.onclick = () => checkBonusAnswer(idx, btn);
+    answerStripEl.appendChild(btn);
+  });
+
+  document.getElementById("qDots").innerHTML = ""; // Hide dots
+}
+
+function checkBonusAnswer(idx, btnNode) {
+  if (awaitingAdvance) return;
+  const page = pageData[currentPage];
+  if (idx === page.bestQuestion) {
+    awaitingAdvance = true;
+    btnNode.style.background = "var(--success)";
+    btnNode.style.borderColor = "var(--success)";
+    playSound(applauseSound);
+    triggerConfetti();
+    setTimeout(() => {
+      currentPage++;
+      loadPage();
+    }, 1500);
+  } else {
+    playSound(wrongSound);
+    btnNode.classList.add("error-shake");
+    setTimeout(() => {
+      btnNode.classList.remove("error-shake");
+    }, 400);
+  }
+}
+
 function renderDots() {
   const page = pageData[currentPage];
   const dotsEl = document.getElementById("qDots");
@@ -777,8 +864,6 @@ function renderDots() {
   });
 }
 
-/* Full render — only called once per new question, or after an undo,
-   to avoid replaying spawn animations on untouched tiles (the flicker bug). */
 function renderTrayFull() {
   trayEl.innerHTML = "";
   trayEls = [];
@@ -813,8 +898,6 @@ function renderStripFull() {
   });
 }
 
-/* Targeted update: tapping a tile only toggles that one tile and appends
-   one new slot — nothing else in the tray or strip gets re-created. */
 function tapTile(idx) {
   if (isPaused || awaitingAdvance) return;
   const t = trayState[idx];
@@ -844,8 +927,6 @@ function tapTile(idx) {
   }
 }
 
-/* Targeted update: undo only removes the specific slot/tile touched,
-   then does one full re-render pass so slot order stays consistent. */
 function undoWord(uid) {
   if (isPaused || awaitingAdvance) return;
   const idx = builtWords.findIndex(b => b.uid === uid);
@@ -875,7 +956,9 @@ function checkAnswer() {
     showMotivation(true);
     answerStripEl.classList.add("correct");
 
-    builtOnThisPage.push(builtWords.map(b => b.word).join(" ") + "?");
+    // Format the built list carefully to remove the space before the "?" tile
+    let text = builtWords.map(b => b.word).join(" ");
+    builtOnThisPage.push(text.replace(/ \?/g, "?"));
     renderBuiltList();
 
     setTimeout(() => {
@@ -1062,7 +1145,8 @@ function downloadPDFReport() {
 
     doc.setTextColor(0, 0, 0); doc.setFont('times', 'normal'); doc.setFontSize(10);
     page.questions.forEach((q) => {
-      const qText = `${q.type}: ${q.accepted[0].join(" ")}?`;
+      // Cleanly replace space before the newly injected question mark
+      const qText = `${q.type}: ${q.accepted[0].join(" ").replace(/ \?/g, "?")}`;
       const qLines = doc.splitTextToSize(qText, 165);
       doc.text(qLines, 25, y); y += qLines.length * 5;
       if (y > 270) { doc.addPage(); y = 20; }
