@@ -504,95 +504,85 @@ function showToast(msg, isCheat = false) {
 
 /* ========== DATA ========== */
 let quizData = [
- {
+{
   questionItems: [
-    {word: "Minerva ___ for the exam at 8 p.m. last night.", answer: "was studying"},
+    {word: "Minerva ___ for the exam last night.", answer: "studied"},
     {word: "Minerva ___ for the exam right now.", answer: "is studying"},
-    {word: "Minerva ___ for the exam at 8 p.m. tonight.", answer: "will be studying"},
-    {word: "Minerva ___ for the exam again tomorrow.", answer: "will study"}
+    {word: "Minerva ___ for the exam tomorrow.", answer: "will study"}
   ],
-  answers: ["was studying", "is studying", "will be studying", "will study"]
+  answers: ["studied", "is studying", "will study"]
 },
 {
   questionItems: [
-    {word: "Minerva ___ for three hours last night.", answer: "had been studying"},
+    {word: "Minerva ___ for three hours last night.", answer: "studied"},
     {word: "Minerva ___ for the exam right now.", answer: "is studying"},
-    {word: "Minerva ___ for the exam at 8 p.m. tonight.", answer: "will be studying"},
-    {word: "Minerva ___ for the exam again tomorrow.", answer: "will study"}
+    {word: "Minerva ___ for the exam tomorrow.", answer: "will study"}
   ],
-  answers: ["had been studying", "is studying", "will be studying", "will study"]
+  answers: ["studied", "is studying", "will study"]
 },
 {
   questionItems: [
-    {word: "Albus and Severus ___ on the project at 8 p.m. last night.", answer: "were working"},
+    {word: "Albus and Severus ___ on the project last night.", answer: "worked"},
     {word: "Albus and Severus ___ on the project right now.", answer: "are working"},
-    {word: "Albus and Severus ___ on the project at 8 p.m. tonight.", answer: "will be working"},
-    {word: "Albus and Severus ___ on the project again tomorrow.", answer: "will work"}
+    {word: "Albus and Severus ___ on the project tomorrow.", answer: "will work"}
   ],
-  answers: ["were working", "are working", "will be working", "will work"]
+  answers: ["worked", "are working", "will work"]
 },
 {
   questionItems: [
-    {word: "Albus and Severus ___ on the project for three hours last night.", answer: "had been working"},
+    {word: "Albus and Severus ___ on the project for three hours last night.", answer: "worked"},
     {word: "Albus and Severus ___ on the project right now.", answer: "are working"},
-    {word: "Albus and Severus ___ on the project at 8 p.m. tonight.", answer: "will be working"},
-    {word: "Albus and Severus ___ on the project again tomorrow.", answer: "will work"}
+    {word: "Albus and Severus ___ on the project tomorrow.", answer: "will work"}
   ],
-  answers: ["had been working", "are working", "will be working", "will work"]
+  answers: ["worked", "are working", "will work"]
 },
 {
   questionItems: [
-    {word: "You ___ the piano at 8 p.m. last night.", answer: "were practicing"},
+    {word: "You ___ the piano last night.", answer: "practiced"},
     {word: "You ___ the piano right now.", answer: "are practicing"},
-    {word: "You ___ the piano at 8 p.m. tonight.", answer: "will be practicing"},
-    {word: "You ___ the piano again tomorrow.", answer: "will practice"}
+    {word: "You ___ the piano tomorrow.", answer: "will practice"}
   ],
-  answers: ["were practicing", "are practicing", "will be practicing", "will practice"]
+  answers: ["practiced", "are practicing", "will practice"]
 },
 {
   questionItems: [
-    {word: "You ___ the piano for an hour last night.", answer: "had been practicing"},
+    {word: "You ___ the piano for an hour last night.", answer: "practiced"},
     {word: "You ___ the piano right now.", answer: "are practicing"},
-    {word: "You ___ the piano at 8 p.m. tonight.", answer: "will be practicing"},
-    {word: "You ___ the piano again tomorrow.", answer: "will practice"}
+    {word: "You ___ the piano tomorrow.", answer: "will practice"}
   ],
-  answers: ["had been practicing", "are practicing", "will be practicing", "will practice"]
+  answers: ["practiced", "are practicing", "will practice"]
 },
 {
   questionItems: [
-    {word: "They ___ the house at 8 p.m. last night.", answer: "were cleaning"},
+    {word: "They ___ the house last night.", answer: "cleaned"},
     {word: "They ___ the house right now.", answer: "are cleaning"},
-    {word: "They ___ the house at 8 p.m. tonight.", answer: "will be cleaning"},
-    {word: "They ___ the house again tomorrow.", answer: "will clean"}
+    {word: "They ___ the house tomorrow.", answer: "will clean"}
   ],
-  answers: ["were cleaning", "are cleaning", "will be cleaning", "will clean"]
+  answers: ["cleaned", "are cleaning", "will clean"]
 },
 {
   questionItems: [
-    {word: "They ___ the house for three hours last night.", answer: "had been cleaning"},
+    {word: "They ___ the house for three hours last night.", answer: "cleaned"},
     {word: "They ___ the house right now.", answer: "are cleaning"},
-    {word: "They ___ the house at 8 p.m. tonight.", answer: "will be cleaning"},
-    {word: "They ___ the house again tomorrow.", answer: "will clean"}
+    {word: "They ___ the house tomorrow.", answer: "will clean"}
   ],
-  answers: ["had been cleaning", "are cleaning", "will be cleaning", "will clean"]
+  answers: ["cleaned", "are cleaning", "will clean"]
 },
 {
   questionItems: [
-    {word: "I ___ my novel at 8 p.m. last night.", answer: "was writing"},
+    {word: "I ___ my novel last night.", answer: "wrote"},
     {word: "I ___ my novel right now.", answer: "am writing"},
-    {word: "I ___ my novel at 8 p.m. tonight.", answer: "will be writing"},
-    {word: "I ___ my novel again tomorrow.", answer: "will write"}
+    {word: "I ___ my novel tomorrow.", answer: "will write"}
   ],
-  answers: ["was writing", "am writing", "will be writing", "will write"]
+  answers: ["wrote", "am writing", "will write"]
 },
 {
   questionItems: [
-    {word: "I ___ my novel for three hours last night.", answer: "had been writing"},
+    {word: "I ___ my novel for three hours last night.", answer: "wrote"},
     {word: "I ___ my novel right now.", answer: "am writing"},
-    {word: "I ___ my novel at 8 p.m. tonight.", answer: "will be writing"},
-    {word: "I ___ my novel again tomorrow.", answer: "will write"}
+    {word: "I ___ my novel tomorrow.", answer: "will write"}
   ],
-  answers: ["had been writing", "am writing", "will be writing", "will write"]
+  answers: ["wrote", "am writing", "will write"]
 }
 ];
 
