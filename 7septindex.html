@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <link rel="icon" type="image/png" href="icons/96.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Verve</title>
+  <!-- Main Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="icons/32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/16.png">
+
+<!-- iOS Touch Icon -->
+<link rel="apple-touch-icon" sizes="180x180" href="icons/180.png">
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f7f1e3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Verve">
+<link rel="apple-touch-icon" href="icons/180.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+
+  <!--
+    NOTE: auth-guard.js is intentionally NOT loaded on this page.
+    It performs a synchronous, unconditional redirect to auth.html the moment
+    it runs (before the login overlay below ever gets a chance to render),
+    which makes a "Skip for now" button impossible to reach.
+    This page reimplements the same localStorage checks inline, but only
+    redirects when the person actually taps "Continue with GitHub".
+    Other pages in the PWA that should stay GitHub-only can keep using
+    auth-guard.js as before.
+  -->
+
+  <style>
+    :root {
+      /* ===== Letterpress / illuminated-manuscript token system ===== */
+      --obsidian: #f7f1e3;      /* paper */
+      --deep: #efe6d0;          /* deeper cream panel */
+      --surface: #fbf7ee;       /* card surface */
+      --surface2: #efe6d0;      /* recessed surface */
+
+      --gold: #a9812f;          /* antique gold foil */
+      --gold-light: #c9a24f;    /* bright foil highlight */
+      --gold-dim: rgba(169,129,47,0.10);
+      --gold-glow: #c9a24f;
+
+      --crimson: #7a0019;
+      --text: #24201c;          /* warm ink */
+      --text-muted: #6b5f52;
+      --text-dim: #a99d8c;
+      --green: #3f8f66;
+
+      --border: rgba(36,32,28,0.20);
+      --border-dim: rgba(36,32,28,0.09);
+
+      /* per-chapter ink accents, swapped via body.theme-* */
+      --accent: var(--gold);
+      --accent-soft: var(--gold-dim);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    html, body {
+      height: 100%;
+      overscroll-behavior: none;
+    }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--obsidian);
+      color: var(--text);
+      height: 100dvh;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.5;
+      mix-blend-mode: multiply;
+    }
+
+    .ambient {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .ambient::before {
+      content:'';
+      position:absolute;
+      top:-25%; left:-15%;
+      width:70vw; height:70vw;
+      background: radial-gradient(circle, var(--accent-soft), transparent 68%);
+      transition: background 0.7s ease;
+      animation: breathe 12s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%,100% { transform: scale(1); opacity: 0.55; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+
+    /* ===== Chapter ink accents ===== */
+    body.theme-missions  { --accent: #a9812f; --accent-soft: rgba(169,129,47,0.12); }
+    body.theme-listening { --accent: #2f5d62; --accent-soft: rgba(47,93,98,0.12); }
+    body.theme-speaking  { --accent: #8a2a2a; --accent-soft: rgba(138,42,42,0.12); }
+    body.theme-reading   { --accent: #3f6b3f; --accent-soft: rgba(63,107,63,0.12); }
+    body.theme-writing   { --accent: #3d3f7a; --accent-soft: rgba(61,63,122,0.12); }
+
+    /* ===== Dictionary Splash Screen ===== */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #fbf7ee 0%, #efe4c9 100%);
+      padding: 24px;
+      cursor: pointer;
+      transition: opacity 0.65s ease, visibility 0.65s ease;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .splash-card {
+      max-width: 430px;
+      width: 100%;
+      text-align: center;
+      animation: splashRise 1.1s cubic-bezier(0.16,1,0.3,1);
+    }
+    @keyframes splashRise {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .splash-word {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 3.4rem;
+      letter-spacing: 1px;
+      line-height: 1;
+      color: var(--gold);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    }
+    .splash-phonetic {
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+      font-size: 0.92rem;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+    .splash-pos {
+      display: inline-block;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1rem;
+      color: var(--gold);
+      margin-top: 6px;
+    }
+    .splash-divider {
+      width: 64px;
+      height: 1px;
+      background: var(--border);
+      margin: 20px auto;
+    }
+    .splash-defs {
+      list-style: none;
+      counter-reset: def;
+      text-align: left;
+      padding: 0;
+      margin: 0 auto;
+      max-width: 380px;
+    }
+    .splash-defs li {
+      counter-increment: def;
+      font-family: 'Crimson Pro', serif;
+      font-weight: 300;
+      font-size: 1.08rem;
+      line-height: 1.55;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding-left: 28px;
+      position: relative;
+    }
+    .splash-defs li::before {
+      content: counter(def) '.';
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .splash-etym {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      margin-top: 22px;
+      line-height: 1.5;
+    }
+    .splash-tap {
+      margin-top: 34px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      animation: pulseTap 1.8s ease-in-out infinite;
+    }
+    @keyframes pulseTap {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== App shell ===== */
+    .app {
+      position: relative;
+      z-index: 1;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Top Bar */
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: rgba(251,247,238,0.9);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      flex: 0 0 auto;
+    }
+
+    .topbar-verve {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 1.55rem;
+      letter-spacing: 0.5px;
+      line-height: 1;
+      color: var(--gold);
+      padding-top: 2px;
+    }
+
+    .topbar-right {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar-brand { text-align: right; }
+
+    .topbar-brand .org {
+      font-size: 0.5rem;
+      letter-spacing: 1px;
+      color: var(--gold);
+      text-transform: uppercase;
+      display: block;
+      max-width: 220px;
+      line-height: 1.25;
+    }
+
+    .topbar-brand .dept {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1f1f1f;
+    }
+
+    .avatar-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--gold);
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      overflow: hidden;
+    }
+
+    .avatar-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Main Container */
+    .main {
+      flex: 1 1 0%;
+      min-height: 0;
+      padding: 6px 8px;
+      max-width: 650px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .student-strip {
+      text-align: center;
+      padding: 2px 0 4px;
+      flex: 0 0 auto;
+    }
+
+    .student-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .student-dept {
+      font-size: 0.56rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 2px;
+    }
+
+    /* Compact Stats Strip */
+    .stats-strip {
+      background: var(--surface);
+      border: 1px solid var(--border-dim);
+      border-radius: 10px;
+      padding: 5px 6px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex: 0 0 auto;
+    }
+
+    .strip-item {
+      flex: 1;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .strip-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1.1;
+    }
+
+    .strip-lbl {
+      font-size: 0.45rem;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .strip-divider {
+      width: 1px;
+      align-self: stretch;
+      background: var(--border-dim);
+      margin: 2px 4px;
+    }
+
+    /* ===== Filter shelf: plate emblem + chapter tabs ===== */
+    .filter-shelf {
+      flex: 0 0 auto;
+      margin-bottom: 6px;
+    }
+
+    .chapter-tabs {
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-dim);
+      border-bottom: 1px solid var(--border-dim);
+      padding: 6px 0;
+    }
+
+    .tab {
+      flex: 1;
+      background: none;
+      border: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.56rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 6px 2px;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+    .tab::after {
+      content: '';
+      position: absolute;
+      left: 50%; bottom: -7px;
+      width: 0; height: 2px;
+      background: var(--accent);
+      transform: translateX(-50%);
+      transition: width 0.3s cubic-bezier(0.25,1,0.5,1);
+    }
+    .tab.active {
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 1.4px;
+    }
+    .tab.active::after { width: 65%; }
+    .tab:active { opacity: 0.7; }
+
+    /* ===== Entry grid: letterpress plate tiles ===== */
+    .entry-list {
+      flex: 1 1 0%;
+      min-height: 0;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: minmax(78px, auto);
+      gap: 8px;
+      padding: 2px 2px 6px;
+      align-content: start;
+      -webkit-overflow-scrolling: touch;
+    }
+    .entry-list::-webkit-scrollbar { width: 0; }
+
+    .entry-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 4px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      background: linear-gradient(160deg, var(--surface), var(--surface2));
+      border: 1px solid var(--border-dim);
+      border-radius: 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+      transition: transform 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease,
+                  border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      will-change: transform, opacity;
+    }
+    .entry-row:hover {
+      border-color: var(--accent);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 3px 10px rgba(36,32,28,0.08);
+    }
+    .entry-row:active {
+      transform: scale(0.95);
+      border-color: var(--accent);
+      background: linear-gradient(160deg, var(--accent-soft), var(--surface2));
+    }
+
+    .entry-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .entry-text { width: 100%; }
+
+    .entry-label {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 0.6rem;
+      color: var(--text);
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* entrance / exit states applied by JS */
+    .entry-row.entering { opacity: 0; transform: translateY(10px) scale(0.92); }
+    .entry-row.leaving {
+      opacity: 0 !important;
+      transform: translateY(-4px) scale(0.88) !important;
+      transition: opacity 0.28s ease, transform 0.28s ease !important;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 4px 12px 2px;
+      font-size: 0.48rem;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      flex: 0 0 auto;
+    }
+    .footer a { color: var(--gold); text-decoration: none; }
+
+    /* Auth Screen Overlay */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(251,247,238,0.97);
+      backdrop-filter: blur(12px);
+      overflow-y: auto;
+      padding: 20px 0;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 30px 24px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.6), 0 14px 30px rgba(36,32,28,0.10);
+    }
+
+    .login-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-verve-mark {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 2.6rem;
+      letter-spacing: 1px;
+      line-height: 1;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .login-welcome {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      letter-spacing: 0.3px;
+    }
+
+    .login-org-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      margin: 0 auto 12px;
+    }
+
+    .login-title-main {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    .login-title-sub {
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 4px;
+    }
+
+    .btn-github {
+      width: 100%;
+      padding: .9rem;
+      background: linear-gradient(135deg, #24292e, #40474f);
+      color: #ffffff;
+      font-family: 'DM Mono', monospace;
+      font-size: .82rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(36,41,46,0.25);
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .55rem;
+    }
+    .btn-github:hover { transform: translateY(-1px); filter: brightness(1.15); }
+    .btn-github-icon { font-size: 1.1rem; line-height: 1; }
+
+    .github-hint {
+      font-size: .66rem;
+      line-height: 1.55;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: .75rem;
+      padding: 0 .2rem;
+    }
+    .github-hint strong { color: var(--gold); font-weight: 700; }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 1.15rem 0;
+      color: var(--text-dim);
+      font-size: .6rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-dim);
+    }
+
+    .btn-skip {
+      width: 100%;
+      padding: .9rem;
+      background: transparent;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: .82rem;
+      font-weight: 700;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      transition: all .2s;
+    }
+    .btn-skip:hover {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .skip-note {
+      font-size: .6rem;
+      line-height: 1.5;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: .6rem;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: .65rem;
+      letter-spacing: .05em;
+      color: var(--text-muted);
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: 'DM Mono', monospace;
+    }
+    .back-link:hover { color: var(--gold); }
+
+    .gh-identity {
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      background: var(--gold-dim);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .gh-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 2px solid var(--gold);
+      object-fit: cover; flex-shrink: 0;
+      background: #ffffff;
+    }
+
+    .gh-avatar-fallback {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 2px solid var(--gold);
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: var(--gold); flex-shrink: 0;
+    }
+
+    .gh-info { flex: 1; min-width: 0; }
+    .gh-name {
+      font-size: .92rem; font-weight: 700; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .gh-handle { font-size: .75rem; color: var(--text-muted); margin-top: .1rem; }
+    .gh-badge {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .65rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--green); margin-top: .25rem;
+    }
+    .gh-badge::before {
+      content: ''; display: inline-block;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+    }
+
+    .field-label {
+      display: block;
+      font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: .4rem; margin-top: 1rem;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%; padding: .75rem 1rem;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text); font-family: 'DM Mono', monospace; font-size: .85rem;
+      outline: none; transition: border-color .2s;
+    }
+
+    input[type="text"]:focus,
+    select:focus { border-color: var(--gold); }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a9812f' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    .btn-launch {
+      width: 100%; margin-top: 1.5rem; padding: .85rem;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: #ffffff; font-family: 'DM Mono', monospace; font-size: .85rem; font-weight: 700;
+      border: none; border-radius: 8px; cursor: pointer; letter-spacing: .05em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(169,129,47,0.25); transition: all .2s;
+    }
+
+    .btn-launch:hover { transform: translateY(-1px); filter: brightness(1.05); }
+
+    /* Drawer Styles */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(36,32,28,0.25);
+      z-index: 300; display: none;
+      backdrop-filter: blur(3px);
+    }
+    .drawer-overlay.open { display: block; }
+
+    .drawer {
+      position: fixed; top: 0; right: -340px;
+      width: 320px; height: 100%;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      z-index: 310; transition: right 0.3s ease;
+      display: flex; flex-direction: column;
+    }
+    .drawer.open { right: 0; }
+
+    .drawer-top { padding: 20px; background: var(--deep); border-bottom: 1px solid var(--border-dim); }
+
+    .drawer-top-verve {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .drawer-body { padding: 16px; flex: 1; overflow-y: auto; }
+
+    .drawer-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-dim);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.78rem;
+      margin-bottom: 6px;
+      transition: all 0.2s;
+      background: var(--surface);
+    }
+
+    .drawer-link:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    .drawer-link .dl-icon { font-size: 0.9rem; }
+
+    .drawer-footer { padding: 16px; border-top: 1px solid var(--border-dim); }
+
+    .logout-btn {
+      width: 100%;
+      background: rgba(122,0,25,0.08);
+      border: 1px solid rgba(122,0,25,0.2);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--crimson);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+
+    /* PWA install affordances */
+    .install-fab {
+      position: fixed;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      right: 16px;
+      z-index: 250;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(169,129,47,0.35);
+    }
+    .install-fab:active { transform: scale(0.97); }
+
+    .drawer-install-btn {
+      width: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 10px;
+      background: var(--gold-dim);
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      color: var(--gold);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      cursor: pointer;
+    }
+    .drawer-install-btn:hover { background: var(--gold); color: #ffffff; }
+
+    @media (min-width: 480px) {
+      .entry-list { grid-template-columns: repeat(5, 1fr); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .entry-row, .tab::after { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body class="theme-missions">
+
+<!-- Dictionary-style Splash Screen — shown first, above everything else -->
+<div class="splash-screen" id="screenSplash">
+  <div class="splash-card">
+    <div class="splash-word">Verve</div>
+    <div class="splash-phonetic">/vɜːrv/</div>
+    <div class="splash-pos">noun</div>
+    <div class="splash-divider"></div>
+    <ol class="splash-defs">
+      <li>Vigour and spirit; enthusiasm, especially as expressed in art, speech, or performance.</li>
+      <li>Energy and liveliness of style or manner.</li>
+    </ol>
+    <div class="splash-etym">French, from Old French <em>verve</em> — "caprice, style" — ultimately from Latin <em>verba</em>, "words."</div>
+    <div class="splash-tap">Tap anywhere to continue</div>
+  </div>
+</div>
+
+<div class="ambient"></div>
+
+<!-- Login / Auth Selection Overlay -->
+<div class="login-overlay" id="screenLogin">
+  <div class="login-card">
+    <div class="login-title">
+      <div class="login-verve-mark">VERVE</div>
+      <div class="login-welcome">Welcome to Verve</div>
+      <div class="login-org-divider"></div>
+      <div class="login-title-main">SRM Valliammai Engineering College</div>
+      <div class="login-title-sub">Department of English</div>
+    </div>
+
+    <!-- Step 1: choose how to sign in -->
+    <div id="authChoice">
+      <button class="btn-github" id="githubBtn" onclick="startGithubLogin()">
+        <span class="btn-github-icon">🐙</span> Continue with GitHub
+      </button>
+      <p class="github-hint">
+        New here? Creating a GitHub account takes under a minute — just tap
+        <strong>"Sign in with Google"</strong> on GitHub's page and use your Google account.
+      </p>
+
+      <div class="auth-divider"><span>or</span></div>
+
+      <button class="btn-skip" id="skipBtn" onclick="showGuestForm()">
+        Skip for now →
+      </button>
+    </div>
+
+    <!-- Step 2a: GitHub identity, populated after redirect back from auth.html -->
+    <div class="gh-identity" id="ghIdentityCard" style="display:none;">
+      <div id="ghAvatarSlot"></div>
+      <div class="gh-info">
+        <div class="gh-name" id="ghDisplayName">Loading…</div>
+        <div class="gh-handle" id="ghHandleText"></div>
+        <div class="gh-badge">GitHub Authenticated</div>
+      </div>
+    </div>
+
+    <!-- Step 2b: Guest name entry -->
+    <div id="guestForm" style="display:none;">
+      <label class="field-label" for="guestName">Your Name</label>
+      <input type="text" id="guestName" placeholder="Enter your name…">
+    </div>
+
+    <div id="deptRow" style="display:none;">
+      <label class="field-label" for="deptSelect">Department</label>
+      <select id="deptSelect">
+        <option value="">— Select your department —</option>
+        <option value="MCA">MCA</option>
+       <option value="CSI Ewart">CSI Ewart</option>
+        <option value="Cyber Security">Cyber Security</option>
+        <option value="CSE-1">CSE-1</option>
+        <option value="CSE-2">CSE-2</option>
+        <option value="CSE-3">CSE-3</option>
+        <option value="Mechanical Engineering">Mechanical Engineering</option>
+        <option value="ECE-1">ECE-1</option>
+        <option value="ECE-2">ECE-2</option>
+        <option value="ECE-3">ECE-3</option>
+        <option value="AI DS-1">AI DS-1</option>
+        <option value="AI DS-2">AI DS-2</option>
+        <option value="Civil">Civil</option>
+        <option value="Agri">Agri</option>
+        <option value="EEE">EEE</option>
+        <option value="EIE">EIE</option>
+        <option value="Medical Electronics">Medical Electronics</option>
+        <option value="IT-1">IT-1</option>
+        <option value="IT-2">IT-2</option>
+      </select>
+    </div>
+
+    <button class="btn-launch" id="launchBtn" onclick="handleLaunch()" style="display:none;">Enter Mission Control 🚀</button>
+
+    <button class="back-link" id="backLink" onclick="showAuthChoice()" style="display:none;">← Back</button>
+  </div>
+</div>
+
+<!-- Profile Drawer with All Quick Access Links -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-top">
+    <div class="drawer-top-verve">VERVE</div>
+    <div style="font-family:'Playfair Display', serif; font-weight:700; font-size:1.1rem;" id="drawerName">—</div>
+    <div style="font-size:0.6rem; color:var(--gold); letter-spacing:1px; margin-top:2px;" id="drawerDept">—</div>
+  </div>
+
+  <div class="drawer-body">
+    <p style="font-size:0.6rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Quick Links</p>
+
+    <a class="drawer-link" href="https://andrewveda.com/V/">
+      <span class="dl-icon">📚</span> Daily Vocabulary
+    </a>
+    <a class="drawer-link" href="https://andrewveda.com/verve/buttons/blossomhub">
+      <span class="dl-icon">🌱</span> Blossom Hub
+    </a>
+    <a class="drawer-link" href="https://andrewveda.com/videoquest">
+      <span class="dl-icon">🎥</span> Video Quests
+    </a>
+    <a class="drawer-link" href="https://andrewveda.com/SRM-VEC-English-PWA/directory">
+      <span class="dl-icon">🗺</span> Quest Directory - Semester I
+    </a>
+    <a class="drawer-link" href="https://andrewveda.com/SRM-VEC-English-PWA/buttons/leaderboard">
+      <span class="dl-icon">😎</span> Leaderboard - Sem I - CAT-I
+    </a>
+    <a class="drawer-link" href="https://andrewveda.com/SRM-VEC-English-PWA/buttons/ELLL.html">
+      <span class="dl-icon">📝</span> ELLL Record
+    </a>
+    <a class="drawer-link" href="https://andrewveda.com/a-quote-a-day/">
+      <span class="dl-icon">💬</span> A Quote a Day
+    </a>
+    <a class="drawer-link" href="https://andrewveda.com/cryptic">
+      <span class="dl-icon">🔍</span> Cryptic Crossword
+    </a>
+
+    <button class="drawer-install-btn" id="drawerInstallBtn" onclick="installApp()">
+      📲 Install App
+    </button>
+
+    <!-- Guests get a nudge to link a real account -->
+    <div id="drawerGithubPrompt" style="display:none; margin-top:16px; padding:12px; border:1px dashed var(--gold); border-radius:10px; background:var(--gold-dim);">
+      <div style="font-size:0.7rem; font-weight:700; color:var(--text); margin-bottom:4px;">Browsing as a guest</div>
+      <div style="font-size:0.65rem; color:var(--text-muted); line-height:1.5; margin-bottom:8px;">
+        Sign in with GitHub to keep your progress permanently — you can even use your Google account to create one in seconds.
+      </div>
+      <button class="btn-github" style="padding:.6rem;" onclick="startGithubLogin()">
+        <span class="btn-github-icon">🐙</span> Continue with GitHub
+      </button>
+    </div>
+  </div>
+
+  <div class="drawer-footer">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- Main Dashboard Interface -->
+<div class="app" id="appShell" style="display:none;">
+
+  <div class="topbar">
+    <div class="topbar-verve">Verve</div>
+    <div class="topbar-right">
+      <div class="topbar-brand">
+        <span class="org">SRM Valliammai Engineering College</span>
+        <span class="dept">Department of English</span>
+      </div>
+      <div class="avatar-btn" id="avatarBtn" onclick="openDrawer()">?</div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <div class="student-strip">
+      <div class="student-name" id="studentName">—</div>
+      <div class="student-dept" id="studentDept">—</div>
+    </div>
+
+    <!-- Compact stats strip: Quests / Videos / Score / Time only -->
+    <div class="stats-strip">
+      <div class="strip-item"><div class="strip-val" id="statQuests">0</div><div class="strip-lbl">Quests</div></div>
+      <div class="strip-divider"></div>
+      <div class="strip-item"><div class="strip-val" id="statVideos">0</div><div class="strip-lbl">Videos</div></div>
+      <div class="strip-divider"></div>
+      <div class="strip-item"><div class="strip-val" id="statScore">0</div><div class="strip-lbl">Score</div></div>
+      <div class="strip-divider"></div>
+      <div class="strip-item"><div class="strip-val" id="statTime">0h 0m</div><div class="strip-lbl">Time</div></div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-shelf">
+      <div class="chapter-tabs" id="chapterTabs">
+        <button class="tab active" data-cat="missions">Missions</button>
+        <button class="tab" data-cat="listening">Listening</button>
+        <button class="tab" data-cat="speaking">Speaking</button>
+        <button class="tab" data-cat="reading">Reading</button>
+        <button class="tab" data-cat="writing">Writing</button>
+      </div>
+    </div>
+
+    <!-- Indexed entry list — populated + FLIP-animated by JS -->
+    <div class="entry-list" id="entryList"></div>
+
+    <div class="footer">
+      Created with grit, nurtured with love ♥ by <a href="https://andrewveda.com/" target="_blank">Andrew Veda</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Floating PWA install button -->
+<button class="install-fab" id="installFab" onclick="installApp()">
+  📲 Install App
+</button>
+
+<script>
+  // ─── Dictionary Splash Screen dismissal ───
+  (function () {
+    const splash = document.getElementById('screenSplash');
+    if (!splash) return;
+    let dismissed = false;
+    function dismissSplash() {
+      if (dismissed) return;
+      dismissed = true;
+      splash.classList.add('hidden');
+      setTimeout(() => splash.remove(), 700);
+    }
+    splash.addEventListener('click', dismissSplash);
+    setTimeout(dismissSplash, 15000);
+  })();
+</script>
+
+<script>
+  // ===== Entry data =====
+  const ENTRIES = [
+    { id: 'wordle',        label: 'Wordle',                    icon: '🟩', href: 'https://andrewveda.com/verve/buttons/wordle-hub',                     cat: ['missions'] },
+    { id: 'cryptic',       label: 'Cryptic Crossword',         icon: '🔍', href: 'https://andrewveda.com/cryptic/',                                      cat: ['missions'] },
+    { id: 'blossom',       label: 'Blossom Hub',               icon: '🌱', href: 'https://andrewveda.com/verve/buttons/blossomhub',                     cat: ['missions'] },
+    { id: 'jigsaw',        label: 'Jigsaw Thon',               icon: '🧩', href: 'https://andrewveda.com/verve/buttons/jigsaw_thon',                    cat: ['missions'] },
+    { id: 'dailyquest',    label: 'Daily Quest',               icon: '🔥', href: 'https://andrewveda.com/verve/calendar',                                cat: ['missions'] },
+    { id: 'wordrush',      label: 'Word Rush',                 icon: '⚡', href: 'https://andrewveda.com/verve/aptitude/thon/wordrush',                 cat: ['missions'] },
+    { id: 'sentencesnap',  label: 'Sentence Snap',             icon: '📸', href: 'https://andrewveda.com/verve/aptitude/thon/sentencesnap',             cat: ['missions'] },
+    { id: 'anagram',       label: 'Anagram',                   icon: '🔤', href: 'https://andrewveda.com/verve/aptitude/anagram3',                      cat: ['missions'] },
+    { id: '4pics',         label: '4 Pics 1 Word',             icon: '🖼️', href: 'https://andrewveda.com/SRM-VEC-English-PWA/4pics',                    cat: ['missions'] },
+    { id: 'stories',       label: 'Cloze Stories',             icon: '🪶', href: 'https://andrewveda.com/verve/buttons/cloze/stories',                  cat: ['missions'] },
+    { id: 'ieltsgre',      label: 'IELTS / GRE',                icon: '🎓', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/vv-directory',     cat: ['missions','listening','reading'] },
+    { id: 'dailyvocab',    label: 'Daily Vocabulary',          icon: '📚', href: 'https://andrewveda.com/verve/buttons/vocab',                          cat: ['reading','listening'] },
+    { id: 'videos',        label: 'Videos',                     icon: '🎥', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/videoyg',         cat: ['listening'] },
+    { id: 'studentsspeak', label: 'Students Speak',            icon: '📷', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/videoy',           cat: ['listening'] },
+    { id: 'tedEd',         label: 'Ted-ED',                     icon: '🎧', href: 'https://andrewveda.com/verve/buttons/video/ted-ed',                   cat: ['listening'] },
+    { id: 'songs',         label: 'Songs',                      icon: '🎶', href: 'https://andrewveda.com/verve/buttons/songs',                          cat: ['listening'] },
+    { id: 'thon',          label: 'Thon',                       icon: '🏆', href: 'https://andrewveda.com/verve/aptitude/thon/directory',                cat: ['speaking'] },
+    { id: 'selfintro',     label: 'Self-Introduction',         icon: '🗣️', href: 'https://andrewveda.com/verve/buttons/speaking/self-introduction',     cat: ['speaking'] },
+    { id: 'groupdisc',     label: 'Group Discussion',          icon: '👥', href: 'https://andrewveda.com/verve/gd',                                      cat: ['speaking'] },
+    { id: 'cefr',          label: 'CEFR Directory',            icon: '🧭', href: 'https://andrewveda.com/verve/CEFR/directory',                          cat: ['reading'] },
+    { id: 'philosophical', label: 'Philosophical Conversations', icon: '💭', href: 'https://andrewveda.com/verve/buttons/dialogues/directory',           cat: ['reading'] },
+    { id: 'eclatineers',   label: 'Eclatineers',                icon: '📰', href: 'https://andrewveda.com/eclatineers',                                  cat: ['reading','writing'] },
+    { id: 'forum',         label: 'Forum',                      icon: '♾️', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/vox-forum',        cat: ['reading','writing'] },
+    { id: 'insights',      label: 'Insights',                   icon: '📖', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/bookinsights',     cat: ['reading','writing'] },
+    { id: 'quoteaday',     label: 'A Quote a Day',              icon: '💬', href: 'https://andrewveda.com/a-quote-a-day/',                                cat: ['reading','writing'] },
+    { id: 'elllrecord',    label: 'ELLL Record',                icon: '📝', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/ELLL.html',        cat: ['writing'] },
+    { id: 'assignments',   label: 'Assignments',                icon: '🖋️', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/chess',           cat: ['writing'] },
+    { id: 'chess',         label: 'Chess',                      icon: '♟️', href: 'https://andrewveda.com/verve/buttons/chess',                          cat: ['writing'] },
+    { id: 'resume',        label: 'Resume Builder',            icon: '📄', href: 'https://andrewveda.com/verve/buttons/resume',                         cat: ['writing'] },
+    { id: 'numerical',     label: 'Numerical',                  icon: '🔢', href: 'https://andrewveda.com/verve/aptitude/thon/numerical',                cat: ['writing'] },
+    { id: 'leaders',       label: 'Leaders',                    icon: '🏆', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/leaderboard_hub',  cat: ['writing'] },
+    { id: 'directory',     label: 'Directory',                  icon: '📑', href: 'https://andrewveda.com/SRM-VEC-English-PWA/cat-a',                    cat: ['writing'] },
+    { id: 'vvv',           label: 'Veni, Vidi, Vici',           icon: '🚀', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/leaderboard_dept', cat: ['writing'] },
+    { id: 'starjoin',      label: 'Star & Join the Team',       icon: '⭐', href: 'https://github.com/andrewveda',                                       cat: ['writing'], external: true }
+  ];
+
+  let currentCat = 'missions';
+
+  function buildRow(entry) {
+    const a = document.createElement('a');
+    a.className = 'entry-row entering';
+    a.dataset.id = entry.id;
+    a.href = entry.href;
+    if (entry.external) { a.target = '_blank'; a.rel = 'noopener'; }
+    a.innerHTML = `
+      <span class="entry-icon">${entry.icon}</span>
+      <span class="entry-text"><span class="entry-label">${entry.label}</span></span>
+    `;
+    return a;
+  }
+
+  function renderChapter(cat, animate) {
+    const list = document.getElementById('entryList');
+    const newEntries = ENTRIES.filter(e => e.cat.includes(cat));
+    const newIds = new Set(newEntries.map(e => e.id));
+
+    // capture first rects for persisting elements
+    const firstRects = new Map();
+    if (animate) {
+      list.querySelectorAll('.entry-row').forEach(el => {
+        firstRects.set(el.dataset.id, el.getBoundingClientRect());
+      });
+    }
+
+    // animate out & remove elements not in new set
+    const existing = Array.from(list.querySelectorAll('.entry-row'));
+    existing.forEach(el => {
+      if (!newIds.has(el.dataset.id)) {
+        if (animate) {
+          el.classList.add('leaving');
+          setTimeout(() => el.remove(), 280);
+        } else {
+          el.remove();
+        }
+      }
+    });
+
+    // reorder / insert to match new order
+    newEntries.forEach((entry, idx) => {
+      let el = list.querySelector(`.entry-row[data-id="${entry.id}"]`);
+      if (el) {
+        el.classList.remove('leaving');
+        list.appendChild(el); // reorders in place
+      } else {
+        el = buildRow(entry);
+        list.appendChild(el);
+      }
+    });
+
+    if (!animate) {
+      list.querySelectorAll('.entry-row').forEach(el => el.classList.remove('entering'));
+      return;
+    }
+
+    // FLIP: for persisting elements, invert then play to identity
+    requestAnimationFrame(() => {
+      list.querySelectorAll('.entry-row').forEach((el, idx) => {
+        const id = el.dataset.id;
+        if (firstRects.has(id)) {
+          const first = firstRects.get(id);
+          const last = el.getBoundingClientRect();
+          const dx = first.left - last.left;
+          const dy = first.top - last.top;
+          if (dx || dy) {
+            el.style.transition = 'none';
+            el.style.transform = `translate(${dx}px, ${dy}px)`;
+            requestAnimationFrame(() => {
+              el.style.transition = '';
+              el.style.transform = '';
+            });
+          }
+        } else {
+          // brand new row: stagger the entrance
+          el.style.transitionDelay = `${Math.min(idx, 8) * 35}ms`;
+          requestAnimationFrame(() => {
+            el.classList.remove('entering');
+            setTimeout(() => { el.style.transitionDelay = ''; }, 400);
+          });
+        }
+      });
+    });
+  }
+
+  function setActiveChapter(cat, animate) {
+    currentCat = cat;
+
+    document.querySelectorAll('.tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.cat === cat);
+    });
+
+    document.body.className = document.body.className
+      .split(' ').filter(c => !c.startsWith('theme-')).concat(`theme-${cat}`).join(' ').trim();
+
+    renderChapter(cat, animate);
+  }
+
+  document.getElementById('chapterTabs').addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab');
+    if (!btn || btn.dataset.cat === currentCat) return;
+    setActiveChapter(btn.dataset.cat, true);
+  });
+
+  // initial paint happens once the app shell is shown (see enterApp below)
+  window.__initEntryList = function () { setActiveChapter('missions', false); };
+</script>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm";
+
+  // Supabase Client Initialization
+  const supabase = createClient(
+    "https://yellow-lab-4999.andrewveda.workers.dev",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE"
+  );
+
+  function makeAvatar(src, fallbackChar, size) {
+    if (src) {
+      const img = document.createElement('img');
+      img.src = src;
+      img.className = 'gh-avatar';
+      img.style.cssText = `width:${size}px;height:${size}px;`;
+      img.onerror = () => img.replaceWith(makeFallback(fallbackChar, size));
+      return img;
+    }
+    return makeFallback(fallbackChar, size);
+  }
+
+  function makeFallback(char, size) {
+    const d = document.createElement('div');
+    d.className = 'gh-avatar-fallback';
+    d.style.cssText = `width:${size}px;height:${size}px;`;
+    d.textContent = (char || '?')[0].toUpperCase();
+    return d;
+  }
+
+  // ─── Read the same localStorage keys auth-guard.js checks, WITHOUT redirecting ───
+  function getGHFromStorage() {
+    const loggedIn = localStorage.getItem('logged_in');
+    const githubUser = localStorage.getItem('github_username');
+    const githubId = localStorage.getItem('github_id');
+    if (loggedIn === 'true' && githubUser && githubId) {
+      return {
+        loggedIn: true,
+        username: githubUser,
+        githubId: githubId,
+        profile: localStorage.getItem('github_profile'),
+        avatar: localStorage.getItem('avatar'),
+        name: localStorage.getItem('userName'),
+        dept: localStorage.getItem('userDept')
+      };
+    }
+    return null;
+  }
+
+  // ─── Step navigation on the login card ───
+  window.startGithubLogin = function () {
+    const current = window.location.pathname + window.location.search;
+    const returnTo = encodeURIComponent(current);
+    window.location.href = `/verve/auth.html?return=${returnTo}`;
+  };
+
+  window.showGuestForm = function () {
+    window.__authMode = 'guest';
+    document.getElementById('authChoice').style.display = 'none';
+    document.getElementById('guestForm').style.display = 'block';
+    document.getElementById('deptRow').style.display = 'block';
+    document.getElementById('launchBtn').style.display = 'block';
+    document.getElementById('backLink').style.display = 'inline-block';
+    document.getElementById('guestName').focus();
+  };
+
+  window.showAuthChoice = function () {
+    window.__authMode = null;
+    document.getElementById('authChoice').style.display = 'block';
+    document.getElementById('guestForm').style.display = 'none';
+    document.getElementById('ghIdentityCard').style.display = 'none';
+    document.getElementById('deptRow').style.display = 'none';
+    document.getElementById('launchBtn').style.display = 'none';
+    document.getElementById('backLink').style.display = 'none';
+  };
+
+  function populateIdentity() {
+    window.__authMode = 'github';
+    document.getElementById('authChoice').style.display = 'none';
+    document.getElementById('ghIdentityCard').style.display = 'flex';
+    document.getElementById('deptRow').style.display = 'block';
+    document.getElementById('launchBtn').style.display = 'block';
+
+    const displayName = window.GH?.name || window.GH?.username || 'GitHub User';
+    const handle = window.GH?.username ? `@${window.GH.username}` : '';
+    const avatar = window.GH?.avatar || '';
+
+    document.getElementById('ghDisplayName').textContent = displayName;
+    document.getElementById('ghHandleText').textContent = handle;
+    const ghSlot = document.getElementById('ghAvatarSlot');
+    ghSlot.innerHTML = '';
+    ghSlot.appendChild(makeAvatar(avatar, displayName, 48));
+
+    const savedDept = localStorage.getItem('vfv_dept') || localStorage.getItem('userDept') || window.GH?.dept;
+    if (savedDept) {
+      const sel = document.getElementById('deptSelect');
+      if ([...sel.options].some(o => o.value === savedDept)) sel.value = savedDept;
+      enterApp(displayName, savedDept, avatar);
+    }
+  }
+
+  window.handleLaunch = function () {
+    const dept = document.getElementById('deptSelect').value;
+    if (!dept) { alert('Please select your department!'); return; }
+
+    if (window.__authMode === 'guest') {
+      const name = document.getElementById('guestName').value.trim();
+      if (!name) { alert('Please enter your name!'); return; }
+
+      localStorage.setItem('guest_mode', 'true');
+      localStorage.setItem('userName', name);
+      localStorage.setItem('userDept', dept);
+      localStorage.setItem('vfv_dept', dept);
+
+      enterApp(name, dept, '');
+      return;
+    }
+
+    // GitHub mode
+    if (window.GH) window.GH.dept = dept;
+    localStorage.setItem('vfv_dept', dept);
+    localStorage.setItem('userDept', dept);
+
+    const displayName = window.GH?.name || window.GH?.username || 'GitHub User';
+    const avatar = window.GH?.avatar || '';
+    enterApp(displayName, dept, avatar);
+  };
+
+  async function enterApp(name, dept, avatar) {
+    document.getElementById('screenLogin').style.display = 'none';
+    document.getElementById('appShell').style.display = 'flex';
+
+    document.getElementById('studentName').textContent = name;
+    document.getElementById('studentDept').textContent = dept;
+
+    document.getElementById('drawerName').textContent = name;
+    document.getElementById('drawerDept').textContent = dept;
+
+    const isGuest = window.__authMode === 'guest';
+    document.getElementById('drawerGithubPrompt').style.display = isGuest ? 'block' : 'none';
+
+    const avatarBtn = document.getElementById('avatarBtn');
+    avatarBtn.innerHTML = '';
+    avatarBtn.appendChild(makeAvatar(avatar, name, 38));
+
+    if (window.__initEntryList) window.__initEntryList();
+
+    await fetchUserData(name);
+  }
+
+  async function fetchUserData(name) {
+    try {
+      const { data, error } = await supabase
+        .from("report_card_view")
+        .select("*");
+
+      if (error) throw error;
+
+      const user = (data || []).find(u =>
+        u.name && u.name.trim().toLowerCase() === name.trim().toLowerCase()
+      );
+
+      if (user) {
+        document.getElementById("statQuests").textContent = user.quests_completed ?? 0;
+        document.getElementById("statVideos").textContent = user.videos_completed ?? 0;
+        document.getElementById("statScore").textContent = user.total_score ?? 0;
+
+        const sec = user.total_time ?? 0;
+        const h = Math.floor(sec / 3600);
+        const m = Math.floor((sec % 3600) / 60);
+        document.getElementById("statTime").textContent = `${h}h ${m}m`;
+      }
+    } catch (e) {
+      console.error("Supabase data fetch error:", e);
+    }
+  }
+
+  window.openDrawer = () => {
+    document.getElementById("drawer").classList.add("open");
+    document.getElementById("drawerOverlay").classList.add("open");
+  };
+
+  window.closeDrawer = () => {
+    document.getElementById("drawer").classList.remove("open");
+    document.getElementById("drawerOverlay").classList.remove("open");
+  };
+
+  window.logout = () => {
+    ['vfv_dept', 'userDept', 'userName', 'guest_mode',
+     'logged_in', 'auth_provider', 'github_username', 'github_id',
+     'github_profile', 'avatar'
+    ].forEach(k => localStorage.removeItem(k));
+    window.location.reload();
+  };
+
+  (function init() {
+    window.GH = getGHFromStorage();
+    const guestMode = localStorage.getItem('guest_mode') === 'true';
+
+    if (window.GH) {
+      populateIdentity();
+    } else if (guestMode) {
+      window.__authMode = 'guest';
+      const name = localStorage.getItem('userName');
+      const dept = localStorage.getItem('userDept');
+      if (name && dept) {
+        enterApp(name, dept, '');
+      } else {
+        showGuestForm();
+      }
+    }
+    // else: authChoice (GitHub vs Skip) stays visible — the default state in the HTML
+  })();
+</script>
+
+  <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then(reg => {
+        console.log("Service Worker registered:", reg.scope);
+      })
+      .catch(err => {
+        console.error("Service Worker registration failed:", err);
+      });
+  });
+}
+</script>
+</body>
+</html>
