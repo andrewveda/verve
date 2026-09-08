@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>Test Directory</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --cream: #F4EEDA;
+    --gold: #B08A3E;
+    --gold-line: #C7A464;
+    --ink: #6B5426;
+    --ink-deep: #4E3D1C;
+
+    /* Background pattern */
+    --pattern-line: rgba(176, 138, 62, 0.13);
+  }
+
+  *{
+    box-sizing: border-box;
+  }
+
+  html,
+  body{
+    height: 100%;
+    margin: 0;
+  }
+
+  body{
+    /* Cream background + subtle diamond pattern */
+    background-color: var(--cream);
+
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        transparent 0,
+        transparent 35px,
+        var(--pattern-line) 35px,
+        var(--pattern-line) 36px,
+        transparent 36px,
+        transparent 70px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent 0,
+        transparent 35px,
+        var(--pattern-line) 35px,
+        var(--pattern-line) 36px,
+        transparent 36px,
+        transparent 70px
+      );
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 32px 20px;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom));
+
+    font-family: 'Jost', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .stack{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .btn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    min-height: 52px;
+    padding: 16px 18px;
+
+    text-decoration: none;
+
+    color: var(--ink);
+
+    border: 1.5px solid var(--gold-line);
+    border-radius: 4px;
+
+    background: rgba(244, 238, 218, 0.35);
+
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .btn .mark{
+    width: 9px;
+    height: 9px;
+
+    flex-shrink: 0;
+
+    background: var(--gold);
+
+    transform: rotate(45deg);
+  }
+
+  .btn .arrow{
+    margin-left: 2px;
+    font-size: 15px;
+  }
+
+  .btn:active{
+    background: var(--gold);
+    color: var(--cream);
+  }
+
+  .btn:active .mark{
+    background: var(--cream);
+  }
+
+  :focus-visible{
+    outline: 2px solid var(--ink-deep);
+    outline-offset: 3px;
+  }
+</style>
+</head>
+
+<body>
+
+  <div class="stack">
+
+    <a
+      class="btn"
+      href="https://andrewveda.com/verve/buttons/daily/2"
+      rel="noopener"
+    >
+      <span class="mark"></span>
+      <span>Test 1</span>
+      <span class="arrow">→</span>
+    </a>
+
+    <a
+      class="btn"
+      href="https://andrewveda.com/verve/buttons/daily/10"
+      rel="noopener"
+    >
+      <span class="mark"></span>
+      <span>Test 2</span>
+      <span class="arrow">→</span>
+    </a>
+
+  </div>
+
+</body>
+</html>
