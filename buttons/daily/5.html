@@ -1075,7 +1075,7 @@ function showScore() {
       correct: correctCount,
       wrong: totalWrongGuesses,
       time_spent: elapsedSeconds,
-      quest_id: "Quest 3 - Yes/No Question Builder",
+      quest_id: "Quest 5",
       cheat_count: cheatCount,
       cheat_events: cheatEvents
     })
@@ -1193,7 +1193,7 @@ function downloadPDFReport() {
   doc.setFontSize(8); doc.setTextColor(128, 128, 128); doc.setFont('times', 'italic');
   doc.text('This is a system-generated report', 105, 287, { align: 'center' });
 
-  doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_Quest3_Report.pdf`);
+  doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_Quest5.pdf`);
 }
 </script>
 </body>
