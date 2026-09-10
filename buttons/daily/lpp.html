@@ -141,12 +141,14 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 /* ═══ PLAYER SCREEN ═══ */
 #screenPlayer { background: #000; position: relative; display: none; flex-direction: column; justify-content: center; }
 #screenPlayer.active { display: flex; }
-.player-container { flex: 1; display: flex; flex-direction: column; max-width: 700px; margin: 0 auto; width: 100%; height: 100%; position: relative; }
 
-.video-wrap { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; } /* Hidden YouTube iframe */
+/* The critical fix for scrolling inside a flex-column layout: min-height: 0 and overflow: hidden */
+.player-container { flex: 1; display: flex; flex-direction: column; max-width: 700px; margin: 0 auto; width: 100%; height: 100%; position: relative; overflow: hidden; min-height: 0; }
+
+.video-wrap { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
 .audiobook-ui {
-  flex: 1; display: flex; flex-direction: column;
+  flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;
   padding: calc(var(--topbar-h) + var(--safe-top) + 20px) 20px calc(30px + var(--safe-bottom));
   background: radial-gradient(ellipse at 50% 30%, #1f1b16 0%, #0a0908 100%);
   color: white; align-items: stretch; justify-content: space-between;
@@ -159,15 +161,15 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
   border-radius: 16px; margin-bottom: 24px; overflow: hidden;
 }
 .reader-toolbar {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
   padding: 12px 16px; background: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 .reader-title { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: rgba(255,255,255,0.5); text-transform: uppercase; }
 .font-controls { display: flex; gap: 8px; }
 .font-btn {
-  background: rgba(255,255,255,0.1); color: #fff; border-radius: 6px;
-  padding: 4px 10px; font-family: var(--sans); font-weight: 600; font-size: 12px;
-  transition: background 0.2s;
+  background: rgba(255,255,255,0.1); color: #fff; border-radius: 6px; border: none;
+  padding: 4px 10px; font-family: var(--sans); font-weight: 600; font-size: 13px;
+  transition: background 0.2s; cursor: pointer;
 }
 .font-btn:active { background: rgba(255,255,255,0.25); }
 
@@ -178,13 +180,29 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 }
 .reader-content p { margin-bottom: 1em; }
 
+/* Pagination Footer */
+.reader-footer {
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  padding: 12px 16px; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05);
+}
+.page-btn {
+  background: rgba(255,255,255,0.1); color: #fff; border-radius: 6px; border: none;
+  padding: 8px 14px; font-family: var(--sans); font-weight: 500; font-size: 13px;
+  transition: background 0.2s; cursor: pointer;
+}
+.page-btn:active { background: rgba(255,255,255,0.25); }
+.page-btn[disabled] { opacity: 0.3; pointer-events: none; }
+.page-indicator {
+  font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; text-transform: uppercase;
+}
+
 /* ═══ CONTROLS ═══ */
-.ab-controls-container { width: 100%; flex-shrink: 0; }
+.ab-controls-container { width: 100%; flex-shrink: 0; padding-bottom: 10px; }
 
 .scrubber-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; width: 100%; }
 .scrub-time { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.5); min-width: 40px; }
 .scrub-time.remaining { text-align: right; }
-.scrub-track { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); position: relative; pointer-events: none; /* Disabled seeking */ }
+.scrub-track { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); position: relative; pointer-events: none; }
 .scrub-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--gold); border-radius: 3px; width: 0%; }
 
 .playback-controls { display: flex; align-items: center; justify-content: center; gap: 30px; }
@@ -200,10 +218,11 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
   z-index: 10;
 }
 .exit-player {
-  position: absolute; top: calc(var(--safe-top) + 20px); left: 20px;
-  color: rgba(255,255,255,0.6); font-family: var(--mono); font-size: 12px; text-transform: uppercase;
-  z-index: 10; padding: 10px;
+  position: absolute; top: calc(var(--safe-top) + 16px); left: 16px;
+  color: rgba(255,255,255,0.8); font-family: var(--mono); font-size: 12px; text-transform: uppercase;
+  z-index: 10; padding: 10px; cursor: pointer; background: rgba(0,0,0,0.4); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
 }
+.exit-player:active { background: rgba(0,0,0,0.6); }
 </style>
 </head>
 <body>
@@ -226,7 +245,7 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 <!-- PLAYER -->
 <div class="screen" id="screenPlayer">
   <div class="player-container">
-    <button class="exit-player" onclick="confirmLeavePlayer()">⟵ Back</button>
+    <button class="exit-player" onclick="confirmLeavePlayer()">⟵ Exit Reader</button>
     
     <div class="audio-status" id="audioStatus" style="display:none;">Loading audio...</div>
     
@@ -241,14 +260,21 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
                <button class="font-btn" onclick="changeFontSize(2)">A+</button>
             </div>
          </div>
+         
          <div class="reader-content" id="readerContent">Loading text...</div>
+         
+         <div class="reader-footer">
+            <button class="page-btn" id="btnPrevPage" onclick="changePage(-1)">← Prev</button>
+            <span class="page-indicator" id="pageIndicator">Page 1 / ?</span>
+            <button class="page-btn" id="btnNextPage" onclick="changePage(1)">Next →</button>
+         </div>
       </div>
       
       <!-- Controls Area -->
       <div class="ab-controls-container">
         <div class="scrubber-row">
           <span class="scrub-time elapsed" id="vpElapsed">0:00</span>
-          <!-- Disabled scrubbing by removing onclick handler -->
+          <!-- Scrubbing disabled by removing mouse/touch events & pointer-events: none in CSS -->
           <div class="scrub-track" id="scrubTrack">
             <div class="scrub-fill" id="vpFill"></div>
           </div>
@@ -269,7 +295,6 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
     </div>
   </div>
 </div>
-
 
 <!-- SIGN-IN MODAL -->
 <div class="modal-backdrop" id="modalBackdrop">
@@ -300,7 +325,7 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 const BOOK = {
   id: 'W86gMRUKQr0',
   title: 'The Little Prince',
-  author: 'Antoine de Saint-Exupéry (Narrated by Peter Ustinov)',
+  author: 'Antoine de Saint-Exupéry',
   youtubeId: 'W86gMRUKQr0'
 };
 
@@ -339,8 +364,12 @@ let progressInterval = null;
 let saveInterval = null;
 let isPlaying = false;
 let playStartTime = 0; // Tracks when they hit play for logging session
-let currentFontSize = 18; // Default reader font size
+
+// Reader vars
+let currentFontSize = 18; 
 let isTextLoaded = false;
+let textPages = [];
+let currentPageIndex = 0;
 
 function fmtTime(s) { 
   s = Math.max(0, Math.floor(s || 0)); 
@@ -544,7 +573,7 @@ function openIntro() {
        </div>
     </button>
     
-    ${hasProgress ? `<div style="text-align:center; margin-top: 10px;"><button style="font-family:var(--mono); font-size:10px; color:var(--ink-muted); text-decoration:underline;" onclick="saveProgress(0); openIntro();">Reset progress to beginning</button></div>` : ''}
+    ${hasProgress ? `<div style="text-align:center; margin-top: 10px;"><button style="font-family:var(--mono); font-size:10px; color:var(--ink-muted); text-decoration:underline; border:none; background:none; cursor:pointer;" onclick="saveProgress(0); openIntro();">Reset progress to beginning</button></div>` : ''}
   `;
 
   const editBtn = document.getElementById('profileStripEdit');
@@ -557,17 +586,20 @@ function openIntro() {
   showScreen('intro', false);
 }
 
-/* ── READER LOGIC ── */
+/* ── PAGINATED TEXT READER LOGIC ── */
 async function loadBookText() {
   const contentEl = document.getElementById('readerContent');
-  if (isTextLoaded) return; // Prevent refetching if already loaded
+  if (isTextLoaded) return; 
   
   contentEl.textContent = "Loading text...";
   try {
     const response = await fetch(BOOK_TEXT_URL);
     if (!response.ok) throw new Error("Network response was not ok");
-    const text = await response.text();
-    contentEl.textContent = text;
+    const rawText = await response.text();
+    
+    // Split the massive text file into manageable "pages"
+    // roughly ~1500 characters each, broken cleanly at paragraph boundaries.
+    paginateText(rawText);
     isTextLoaded = true;
   } catch (error) {
     contentEl.textContent = "Failed to load the book text. Please check your connection.";
@@ -575,12 +607,65 @@ async function loadBookText() {
   }
 }
 
+function paginateText(rawText) {
+  // Split by double line breaks (paragraphs)
+  const paragraphs = rawText.split(/\n\s*\n/);
+  textPages = [];
+  let currentPage = "";
+  
+  for (let i = 0; i < paragraphs.length; i++) {
+    // If adding the next paragraph makes it too long, push the current page and start a new one
+    if (currentPage.length + paragraphs[i].length > 1500 && currentPage.length > 0) {
+      textPages.push(currentPage.trim());
+      currentPage = paragraphs[i] + "\n\n";
+    } else {
+      currentPage += paragraphs[i] + "\n\n";
+    }
+  }
+  
+  // Push the final chunk if any is left over
+  if (currentPage.trim().length > 0) {
+    textPages.push(currentPage.trim());
+  }
+  
+  currentPageIndex = 0;
+  renderCurrentPage();
+}
+
+function renderCurrentPage() {
+  const contentEl = document.getElementById('readerContent');
+  if (textPages.length === 0) {
+    contentEl.textContent = "No content loaded.";
+    return;
+  }
+  
+  // Update Content
+  contentEl.textContent = textPages[currentPageIndex];
+  
+  // Reset Scroll
+  contentEl.scrollTop = 0;
+  
+  // Update Buttons & Indicator
+  document.getElementById('pageIndicator').textContent = `Page ${currentPageIndex + 1} of ${textPages.length}`;
+  document.getElementById('btnPrevPage').disabled = (currentPageIndex === 0);
+  document.getElementById('btnNextPage').disabled = (currentPageIndex === textPages.length - 1);
+}
+
+function changePage(delta) {
+  const newIndex = currentPageIndex + delta;
+  if (newIndex >= 0 && newIndex < textPages.length) {
+    currentPageIndex = newIndex;
+    renderCurrentPage();
+  }
+}
+
 function changeFontSize(delta) {
   currentFontSize += delta;
-  if (currentFontSize < 12) currentFontSize = 12;
-  if (currentFontSize > 36) currentFontSize = 36;
+  if (currentFontSize < 14) currentFontSize = 14;
+  if (currentFontSize > 32) currentFontSize = 32;
   document.getElementById('readerContent').style.fontSize = currentFontSize + 'px';
 }
+
 
 /* ── PLAYER LOGIC ── */
 async function startPlayer(startTimeSeconds) {
@@ -588,7 +673,7 @@ async function startPlayer(startTimeSeconds) {
   document.getElementById('audioStatus').style.display = 'block';
   document.getElementById('audioStatus').textContent = 'Loading audio...';
 
-  // Load the book text into the viewer
+  // Fetch and chunk the text on open
   loadBookText();
 
   try {
