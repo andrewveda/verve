@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Audiobook — The Little Prince</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=DM+Mono:wght@300;400;500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://www.youtube.com/iframe_api"></script>
+<style>
+:root {
+  --paper: #f8f5ef; --ink: #1c1a16; --ink-mid: #4a4640; --ink-muted: #8a837a; --ink-ghost: #c5bdb5;
+  --gold: #b8913a; --gold-light: #d4aa58; --gold-pale: rgba(184,145,58,0.10); --gold-border: rgba(184,145,58,0.22);
+  --crimson: #6b0f1a; --crimson-pale: rgba(107,15,26,0.08); --crimson-border: rgba(107,15,26,0.25);
+  --surface: #ffffff; --green: #2f8f5b; --red: #b8393a;
+  --teal: #2f6f6b; --teal-light: #4f9691; --teal-pale: rgba(47,111,107,0.10); --teal-border: rgba(47,111,107,0.28);
+  --serif: 'Cormorant Garamond', Georgia, serif; --fell: 'IM Fell English', Georgia, serif;
+  --mono: 'DM Mono', monospace; --sans: 'Jost', system-ui, sans-serif;
+  --ease: cubic-bezier(0.4,0,0.2,1); --spring: cubic-bezier(0.34,1.56,0.64,1);
+  --topbar-h: 54px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--paper); color: var(--ink); font-family: var(--sans); overscroll-behavior: none; }
+button { touch-action: manipulation; font-family: inherit; border: none; background: none; cursor: pointer; }
+
+.screen { display: none; height: 100dvh; width: 100vw; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ═══ TOP BAR ═══ */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; gap: 12px;
+  padding: calc(10px + var(--safe-top)) 16px 12px;
+  background: linear-gradient(to bottom, rgba(248,245,239,0.97) 60%, rgba(248,245,239,0));
+}
+.topbar.dark { background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%); }
+.tb-title { font-family: var(--fell); font-style: italic; font-size: 1.08rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar.dark .tb-title { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.tb-user {
+  width: 34px; height: 34px; min-width: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--crimson));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fell); font-style: italic; font-size: 13px; color: #fff; flex-shrink: 0;
+  cursor: pointer;
+}
+.tb-signin-btn {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--gold); background: var(--surface); border: 1px solid var(--gold-border);
+  border-radius: 20px; padding: 7px 13px; cursor: pointer; flex-shrink: 0; white-space: nowrap;
+}
+.topbar.dark .tb-signin-btn { background: rgba(0,0,0,0.35); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+/* ═══ SIGN-IN GATE ═══ */
+.signin-gate {
+  background: var(--surface); border: 1px solid var(--gold-border); border-radius: 16px;
+  padding: 26px 22px; margin: 4px 2px; text-align: center;
+}
+.signin-gate-title { font-family: var(--fell); font-style: italic; font-size: 1.35rem; color: var(--ink); margin-bottom: 6px; }
+.signin-gate-sub { font-family: var(--serif); font-size: 13.5px; color: var(--ink-muted); line-height: 1.5; margin-bottom: 18px; }
+.signin-gate .field-group { text-align: left; }
+.signin-gate-note { font-family: var(--mono); font-size: 9.5px; color: var(--ink-ghost); letter-spacing: 0.5px; margin-top: 12px; line-height: 1.5; }
+
+.gate-wrap { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: calc(var(--topbar-h) + var(--safe-top) + 24px) 20px calc(24px + var(--safe-bottom)); display: flex; flex-direction: column; justify-content: center; max-width: 500px; margin: 0 auto; width: 100%;}
+.gate-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--teal); margin-bottom: 4px; text-align: center; }
+.gate-headline { font-family: var(--fell); font-style: italic; font-size: 1.7rem; color: var(--ink); margin-bottom: 22px; text-align: center; }
+
+/* ═══ PROFILE STRIP ═══ */
+.profile-strip {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--gold-pale); border: 1px solid var(--gold-border); border-radius: 12px;
+  padding: 10px 14px; margin-bottom: 18px;
+}
+.profile-strip-text { font-family: var(--mono); font-size: 10.5px; color: var(--ink-mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile-strip-text b { color: var(--ink); font-weight: 500; }
+.profile-strip-edit {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); background: var(--surface); border: 1px solid var(--gold-border);
+  border-radius: 16px; padding: 5px 10px; cursor: pointer; flex-shrink: 0;
+}
+
+/* ═══ SIGN-IN MODAL ═══ */
+.modal-backdrop {
+  display: none; position: fixed; inset: 0; background: rgba(28,26,22,0.55); z-index: 300;
+  justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(6px);
+}
+.modal-backdrop.show { display: flex; }
+.modal-card {
+  background: var(--surface); border: 1px solid var(--gold-border); border-radius: 16px;
+  padding: 26px 20px; width: 100%; max-width: 320px; position: relative; overflow: hidden;
+  box-shadow: 0 14px 34px rgba(28,26,22,0.18); animation: modalIn 0.3s var(--spring);
+}
+@keyframes modalIn { from { transform: scale(0.9) translateY(12px); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--crimson), var(--gold), var(--crimson)); }
+.modal-title { font-family: var(--fell); font-style: italic; font-size: 1.25rem; color: var(--ink); text-align: center; margin-bottom: 2px; }
+.modal-sub { font-family: var(--mono); font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-muted); text-align: center; margin-bottom: 18px; }
+.field-group { margin-bottom: 12px; }
+.field-group label { display: block; font-family: var(--mono); font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 5px; }
+.field-group input, .field-group select {
+  width: 100%; background: var(--paper); border: 1px solid var(--gold-border); border-radius: 8px;
+  padding: 10px 12px; font-family: var(--sans); font-size: 13.5px; color: var(--ink); outline: none;
+  transition: border-color 0.2s; -webkit-appearance: none;
+}
+.field-group input::placeholder { color: var(--ink-ghost); }
+.field-group input:focus, .field-group select:focus { border-color: var(--gold); }
+.field-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b8913a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; cursor: pointer;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--crimson)); color: #fff; border: none;
+  border-radius: 8px; padding: 12px; font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px;
+  text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(184,145,58,0.25); transition: transform 0.15s;
+}
+.btn-primary:active { transform: scale(0.98); }
+
+/* ═══ INTRO SCREEN ═══ */
+#screenIntro { background: var(--paper); }
+.intro-scroll { flex: 1; overflow-y: auto; padding: calc(var(--topbar-h) + var(--safe-top) + 14px) 22px calc(24px + var(--safe-bottom)); -webkit-overflow-scrolling: touch; max-width: 600px; margin: 0 auto; width: 100%;}
+.intro-back-link {
+  display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 11px;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 14px;
+}
+.intro-back-link:active { color: var(--teal); }
+.intro-thumb { width: 100%; aspect-ratio: 1/1; border-radius: 16px; overflow: hidden; margin-bottom: 18px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--gold-border); }
+.intro-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.intro-tags { display: flex; gap: 6px; margin-bottom: 14px; justify-content: center; }
+.intro-title { font-family: var(--fell); font-style: italic; font-size: 2rem; line-height: 1.15; margin-bottom: 10px; text-align: center; }
+.intro-desc { font-family: var(--serif); font-size: 15.5px; color: var(--ink-mid); line-height: 1.55; margin-bottom: 26px; text-align: center;}
+.tag-exam {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 10px; font-weight: 500;
+  background: rgba(255,255,255,0.9); color: var(--ink);
+}
+.play-action-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--ink); color: var(--paper); border: none;
+  border-radius: 14px; padding: 18px; font-family: var(--sans); font-weight: 500; font-size: 16px;
+  cursor: pointer; width: 100%; margin-bottom: 16px; box-shadow: 0 8px 20px rgba(28,26,22,0.15);
+  transition: transform 0.15s;
+}
+.play-action-btn:active { transform: scale(0.97); }
+.play-action-btn .subtext { font-family: var(--mono); font-size: 11px; opacity: 0.7; font-weight: 400; }
+
+/* ═══ PLAYER SCREEN ═══ */
+#screenPlayer { background: #000; position: relative; display: none; flex-direction: column; justify-content: center; }
+#screenPlayer.active { display: flex; }
+.player-container { flex: 1; display: flex; flex-direction: column; max-width: 600px; margin: 0 auto; width: 100%; height: 100%; position: relative; }
+
+.video-wrap { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; } /* Hidden YouTube iframe */
+
+.audiobook-ui {
+  flex: 1; display: flex; flex-direction: column;
+  padding: calc(var(--topbar-h) + var(--safe-top) + 20px) 24px calc(30px + var(--safe-bottom));
+  background: radial-gradient(ellipse at 50% 30%, #2a2620 0%, #0a0908 100%);
+  color: white; align-items: center; justify-content: space-between;
+}
+
+.ab-cover {
+  width: 75%; aspect-ratio: 1/1; border-radius: 20px; overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+  margin-top: 2vh;
+}
+.ab-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+.ab-info { text-align: center; margin-top: 30px; width: 100%; }
+.ab-title { font-family: var(--fell); font-style: italic; font-size: 1.8rem; line-height: 1.2; margin-bottom: 8px; }
+.ab-author { font-family: var(--sans); color: rgba(255,255,255,0.6); font-size: 15px; }
+
+.ab-controls-container { width: 100%; margin-top: auto; padding-bottom: 2vh; }
+
+.scrubber-row { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; width: 100%; }
+.scrub-time { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.5); min-width: 40px; }
+.scrub-time.remaining { text-align: right; }
+.scrub-track { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.15); position: relative; cursor: pointer; }
+.scrub-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--gold); border-radius: 3px; width: 0%; pointer-events: none; }
+.scrub-handle { position: absolute; top: 50%; right: -6px; transform: translateY(-50%); width: 12px; height: 12px; background: #fff; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); pointer-events: none; }
+
+.playback-controls { display: flex; align-items: center; justify-content: center; gap: 30px; }
+.ctrl-btn { background: none; border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.15s; }
+.ctrl-btn:active { transform: scale(0.9); }
+.ctrl-btn.play-pause { width: 70px; height: 70px; border-radius: 50%; background: var(--gold); color: #000; box-shadow: 0 8px 20px rgba(184,145,58,0.3); }
+.ctrl-icon { width: 32px; height: 32px; fill: currentColor; }
+.ctrl-icon-small { width: 28px; height: 28px; fill: currentColor; }
+
+.audio-status {
+  position: absolute; top: 120px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px;
+  font-family: var(--sans); font-size: 13px; text-align: center; border: 1px solid rgba(255,255,255,0.2);
+  z-index: 10;
+}
+.exit-player {
+  position: absolute; top: calc(var(--safe-top) + 20px); left: 20px;
+  color: rgba(255,255,255,0.6); font-family: var(--mono); font-size: 12px; text-transform: uppercase;
+  z-index: 10; padding: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <span class="tb-title" id="tbTitle">Audiobook</span>
+  <div class="tb-user" id="tbUser">–</div>
+</div>
+
+<!-- HOME (Sign-in gate) -->
+<div class="screen active" id="screenHome">
+  <div class="gate-wrap" id="gateWrap"></div>
+</div>
+
+<!-- INTRO (Book details and Start/Resume) -->
+<div class="screen" id="screenIntro">
+  <div class="intro-scroll" id="introScroll"></div>
+</div>
+
+<!-- PLAYER -->
+<div class="screen" id="screenPlayer">
+  <div class="player-container">
+    <button class="exit-player" onclick="confirmLeavePlayer()">⟵ Back</button>
+    
+    <div class="audio-status" id="audioStatus" style="display:none;">Loading audio...</div>
+    
+    <div class="audiobook-ui">
+      <div class="ab-cover">
+        <img src="https://img.youtube.com/vi/W86gMRUKQr0/maxresdefault.jpg" alt="The Little Prince Cover" id="abCoverImg">
+      </div>
+      
+      <div class="ab-info">
+        <div class="ab-title">The Little Prince</div>
+        <div class="ab-author">Narrated by Peter Ustinov</div>
+      </div>
+      
+      <div class="ab-controls-container">
+        <div class="scrubber-row">
+          <span class="scrub-time elapsed" id="vpElapsed">0:00</span>
+          <div class="scrub-track" id="scrubTrack" onclick="seekAudio(event)">
+            <div class="scrub-fill" id="vpFill"><div class="scrub-handle"></div></div>
+          </div>
+          <span class="scrub-time remaining" id="vpRemaining">-0:00</span>
+        </div>
+        
+        <div class="playback-controls">
+          <button class="ctrl-btn" onclick="seekRelative(-15)" aria-label="Rewind 15 seconds">
+            <svg class="ctrl-icon-small" viewBox="0 0 24 24"><path d="M12.5 3C17.15 3 21 6.85 21 11.5C21 16.15 17.15 20 12.5 20C9.17 20 6.29 18.06 4.9 15.22L6.72 14.39C7.75 16.5 9.94 18 12.5 18C16.09 18 19 15.09 19 11.5C19 7.91 16.09 5 12.5 5C9.32 5 6.67 7.29 5.37 10.2L8.5 10.2L4.25 14.5L0 10.2L3.3 10.2C4.78 6.57 8.35 3 12.5 3Z"/></svg>
+          </button>
+          
+          <button class="ctrl-btn play-pause" id="btnPlayPause" onclick="togglePlay()">
+            <svg id="iconPlay" class="ctrl-icon" viewBox="0 0 24 24" style="margin-left: 4px;"><path d="M8 5V19L19 12L8 5Z"/></svg>
+            <svg id="iconPause" class="ctrl-icon" viewBox="0 0 24 24" style="display: none;"><path d="M6 19H10V5H6V19ZM14 5V19H18V5H14Z"/></svg>
+          </button>
+          
+          <button class="ctrl-btn" onclick="seekRelative(15)" aria-label="Forward 15 seconds">
+             <svg class="ctrl-icon-small" viewBox="0 0 24 24"><path d="M11.5 3C6.85 3 3 6.85 3 11.5C3 16.15 6.85 20 11.5 20C14.83 20 17.71 18.06 19.1 15.22L17.28 14.39C16.25 16.5 14.06 18 11.5 18C7.91 18 5 15.09 5 11.5C5 7.91 7.91 5 11.5 5C14.68 5 17.33 7.29 18.63 10.2L15.5 10.2L19.75 14.5L24 10.2L20.7 10.2C19.22 6.57 15.65 3 11.5 3Z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="video-wrap">
+      <div id="ytPlayer"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- SIGN-IN MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-card">
+    <div class="modal-title">SRM Valliammai Engineering College</div>
+    <div class="modal-sub">Department of English &bull; Sign In</div>
+    <div class="field-group"><label>Your Name</label><input id="nameInput" type="text" placeholder="Enter your name&hellip;" maxlength="60" autocomplete="off"/></div>
+    <div class="field-group">
+      <label>Department</label>
+      <select id="deptSelect">
+        <option value="">-- Select Department --</option>
+        <option>CSI Ewart</option>
+        <option>Cyber Security</option><option>EIE</option>
+        <option>CSE-1</option><option>CSE-2</option><option>CSE-3</option>
+        <option>Mechanical Engineering</option>
+        <option>ECE-1</option><option>ECE-2</option><option>ECE-3</option>
+        <option>AI DS-1</option><option>AI DS-2</option>
+        <option>Agri and Civil</option><option>EEE</option>
+        <option>Medical Electronics</option>
+        <option>IT-1</option><option>IT-2</option>
+      </select>
+    </div>
+    <button class="btn-primary" id="modalContinueBtn">Continue &#8594;</button>
+  </div>
+</div>
+
+<script>
+const BOOK = {
+  id: 'W86gMRUKQr0',
+  title: 'The Little Prince',
+  author: 'Antoine de Saint-Exupéry (Narrated by Peter Ustinov)',
+  youtubeId: 'W86gMRUKQr0'
+};
+
+const EDGE_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+let playerName = '', playerDept = '';
+
+function loadFromStorage() {
+  playerName = localStorage.getItem('userName') || '';
+  playerDept = localStorage.getItem('userDept') || '';
+}
+function savePlayer(name, dept) {
+  playerName = name; playerDept = dept;
+  localStorage.setItem('userName', name);
+  localStorage.setItem('userDept', dept);
+}
+function isSignedIn() { return !!(playerName && playerDept); }
+
+// Local Storage for Resuming Position
+function getProgressKey() {
+  return `progress_${BOOK.id}_${playerName.replace(/\s+/g, '')}`;
+}
+function getSavedProgress() {
+  return parseFloat(localStorage.getItem(getProgressKey()) || 0);
+}
+function saveProgress(seconds) {
+  if(seconds > 0) {
+    localStorage.setItem(getProgressKey(), seconds);
+  }
+}
+
+// Global player vars
+let ytPlayer = null;
+let progressInterval = null;
+let saveInterval = null;
+let isPlaying = false;
+let playStartTime = 0; // Tracks when they hit play for logging session
+
+function fmtTime(s) { 
+  s = Math.max(0, Math.floor(s || 0)); 
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60); 
+  const sec = s % 60; 
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+  }
+  return `${m}:${sec.toString().padStart(2,'0')}`; 
+}
+function getInitials(name) { return String(name || '?').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase(); }
+function ytThumb(id) { return `https://img.youtube.com/vi/${id}/maxresdefault.jpg`; }
+
+let youtubeReady = false;
+window.onYouTubeIframeAPIReady = () => { youtubeReady = true; };
+function waitForYT(timeoutMs = 10000) {
+  return new Promise((resolve, reject) => {
+    if (youtubeReady && window.YT && YT.Player) return resolve();
+    const check = setInterval(() => {
+      if (youtubeReady && window.YT && YT.Player) { clearInterval(check); clearTimeout(timer); resolve(); }
+    }, 100);
+    const timer = setTimeout(() => { clearInterval(check); reject(new Error('YouTube API failed to load')); }, timeoutMs);
+  });
+}
+
+function renderTopbarUser() {
+  const tb = document.getElementById('tbUser');
+  if (isSignedIn()) {
+    tb.textContent = getInitials(playerName);
+    tb.classList.remove('tb-signin-btn');
+    tb.onclick = openModal;
+  } else {
+    tb.textContent = 'Sign In';
+    tb.classList.add('tb-signin-btn');
+    tb.onclick = openModal;
+  }
+}
+
+async function init() {
+  loadFromStorage();
+  renderTopbarUser();
+  if (isSignedIn()) {
+    openIntro();
+  } else {
+    renderSignInGate();
+    showScreen('home');
+    openModal();
+  }
+}
+
+function showScreen(which, dark) {
+  ['Home','Intro','Player'].forEach(s => {
+    document.getElementById('screen'+s).classList.toggle('active', s.toLowerCase() === which);
+  });
+  document.getElementById('topbar').classList.toggle('dark', !!dark);
+}
+
+function confirmLeavePlayer() {
+  teardownPlayer();
+  openIntro();
+}
+
+function teardownPlayer() {
+  logCurrentSession(); // Flush time to Supabase when user leaves
+
+  if (ytPlayer && typeof ytPlayer.destroy === 'function') { try { ytPlayer.destroy(); } catch (e) {} }
+  ytPlayer = null;
+  if (progressInterval) { clearInterval(progressInterval); progressInterval = null; }
+  if (saveInterval) { clearInterval(saveInterval); saveInterval = null; }
+  isPlaying = false;
+  updatePlayPauseUI();
+}
+
+function updateVideoProgress() {
+  if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+  const duration = ytPlayer.getDuration() || 0;
+  const current = ytPlayer.getCurrentTime() || 0;
+  
+  if (duration > 0) {
+    const pct = Math.min(100, (current / duration) * 100);
+    document.getElementById('vpFill').style.width = pct + '%';
+    document.getElementById('vpElapsed').textContent = fmtTime(current);
+    document.getElementById('vpRemaining').textContent = '-' + fmtTime(Math.max(0, duration - current));
+  }
+}
+
+// Background tick strictly updates local storage for resume purposes
+function backgroundSaveTick() {
+  if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+  const current = ytPlayer.getCurrentTime() || 0;
+  if(isPlaying && current > 0) {
+    saveProgress(current);
+  }
+}
+
+/* ── TRACKING SESSIONS TO SUPABASE ── */
+function logCurrentSession() {
+  if (playStartTime > 0) {
+    const watchedSeconds = Math.floor((Date.now() - playStartTime) / 1000);
+    playStartTime = 0; // Reset for next session chunk
+    
+    // Only send to Supabase if they actually watched for more than 1 second (prevents spam on scrubbing)
+    if (watchedSeconds > 1) {
+      logQuestToSupabase(watchedSeconds);
+    }
+  }
+}
+
+async function logQuestToSupabase(secondsWatched) {
+  if (!isSignedIn()) return;
+  
+  const payload = {
+    student_name: playerName,
+    department: playerDept,
+    quest_id: 'Quest TLP',
+    time_spent: secondsWatched,
+    correct: secondsWatched,
+    wrong: 0,
+    total: secondsWatched,
+    mode: "audiobook"
+  };
+
+  try {
+    const res = await fetch(EDGE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) console.error('Failed to log watch session chunk.');
+  } catch (e) {
+    console.error("Could not sync watch session", e);
+  }
+}
+
+/* ── SIGN-IN GATE ── */
+function renderSignInGate() {
+  const wrap = document.getElementById('gateWrap');
+  wrap.innerHTML = `
+    <div class="gate-eyebrow">Audio Library</div>
+    <div class="gate-headline">The Little Prince</div>
+    <div class="signin-gate">
+      <div class="signin-gate-title">Sign in to listen</div>
+      <div class="signin-gate-sub">Enter your name and department. We'll automatically save your progress so you never lose your place.</div>
+      <div class="field-group"><label>Your Name</label><input id="gateNameInput" type="text" placeholder="Enter your name&hellip;" maxlength="60" autocomplete="off"/></div>
+      <div class="field-group">
+        <label>Department</label>
+        <select id="gateDeptSelect">
+          <option value="">-- Select Department --</option>
+          <option>CSI Ewart</option>
+          <option>Cyber Security</option><option>EIE</option>
+          <option>CSE-1</option><option>CSE-2</option><option>CSE-3</option>
+          <option>Mechanical Engineering</option>
+          <option>ECE-1</option><option>ECE-2</option><option>ECE-3</option>
+          <option>AI DS-1</option><option>AI DS-2</option>
+          <option>Agri and Civil</option><option>EEE</option>
+          <option>Medical Electronics</option>
+          <option>IT-1</option><option>IT-2</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="gateContinueBtn">Continue &#8594;</button>
+    </div>`;
+  document.getElementById('gateContinueBtn').addEventListener('click', () => {
+    const rawName = document.getElementById('gateNameInput').value.trim();
+    const dept    = document.getElementById('gateDeptSelect').value;
+    attemptLogin(rawName, dept);
+  });
+}
+
+function profileStripHtml() {
+  if (!isSignedIn()) return '';
+  return `
+    <div class="profile-strip" id="profileStrip">
+      <span class="profile-strip-text">Signed in as <b>${playerName}</b></span>
+      <button class="profile-strip-edit" id="profileStripEdit">Switch</button>
+    </div>`;
+}
+
+/* ── INTRO SCREEN ── */
+function openIntro() {
+  if (!isSignedIn()) { renderSignInGate(); showScreen('home'); openModal(); return; }
+  
+  const savedSec = getSavedProgress();
+  const hasProgress = savedSec > 10;
+  const btnText = hasProgress ? `Resume from ${fmtTime(savedSec)}` : "Start Listening";
+  const btnSubText = hasProgress ? `Continue where you left off` : `From the beginning`;
+
+  const scroll = document.getElementById('introScroll');
+  scroll.innerHTML = `
+    ${profileStripHtml()}
+    <div class="intro-thumb"><img src="${ytThumb(BOOK.id)}" alt=""></div>
+    <div class="intro-tags">
+      <span class="tag-exam" style="background:var(--gold-pale);color:var(--gold);border:1px solid var(--gold-border);">Classic Literature</span>
+    </div>
+    <div class="intro-title">${BOOK.title}</div>
+    <div class="intro-desc">${BOOK.author}</div>
+    
+    <button class="play-action-btn" id="startAudioBtn">
+       <div>
+         <div>▶ ${btnText}</div>
+         <div class="subtext">${btnSubText}</div>
+       </div>
+    </button>
+    
+    ${hasProgress ? `<div style="text-align:center; margin-top: 10px;"><button style="font-family:var(--mono); font-size:10px; color:var(--ink-muted); text-decoration:underline;" onclick="saveProgress(0); openIntro();">Reset progress to beginning</button></div>` : ''}
+  `;
+
+  const editBtn = document.getElementById('profileStripEdit');
+  if (editBtn) editBtn.addEventListener('click', openModal);
+  
+  document.getElementById('startAudioBtn').addEventListener('click', () => {
+     startPlayer(savedSec);
+  });
+
+  showScreen('intro', false);
+}
+
+/* ── PLAYER LOGIC ── */
+async function startPlayer(startTimeSeconds) {
+  showScreen('player', true);
+  document.getElementById('audioStatus').style.display = 'block';
+  document.getElementById('audioStatus').textContent = 'Loading audio...';
+
+  try {
+    await waitForYT();
+  } catch (e) {
+    document.getElementById('audioStatus').textContent = 'Failed to load player. Check connection.';
+    return;
+  }
+
+  teardownPlayer();
+  
+  ytPlayer = new YT.Player('ytPlayer', {
+    videoId: BOOK.youtubeId,
+    playerVars: {
+      rel: 0, playsinline: 1, autoplay: 1, controls: 0, disablekb: 1, fs: 0,
+      start: Math.floor(startTimeSeconds) 
+    },
+    events: {
+      onReady: (e) => { 
+        e.target.playVideo(); 
+      },
+      onStateChange: onPlayerStateChange
+    }
+  });
+  
+  progressInterval = setInterval(updateVideoProgress, 250);
+  saveInterval = setInterval(backgroundSaveTick, 5000);
+}
+
+function onPlayerStateChange(e) {
+  const statusEl = document.getElementById('audioStatus');
+  
+  if (e.data === YT.PlayerState.PLAYING) {
+    isPlaying = true;
+    statusEl.style.display = 'none';
+    updatePlayPauseUI();
+    
+    // Start tracking session duration
+    playStartTime = Date.now();
+  }
+  if (e.data === YT.PlayerState.PAUSED) {
+    isPlaying = false;
+    updatePlayPauseUI();
+    
+    // Pause triggers a log to Supabase
+    logCurrentSession();
+  }
+  if (e.data === YT.PlayerState.BUFFERING) {
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Buffering...';
+    
+    // Log whatever they watched prior to buffering
+    logCurrentSession();
+  }
+  if (e.data === YT.PlayerState.ENDED) {
+    isPlaying = false;
+    saveProgress(0); // reset on finish
+    updatePlayPauseUI();
+    
+    logCurrentSession();
+  }
+}
+
+/* ── PLAYBACK CONTROLS ── */
+function togglePlay() {
+  if(!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
+  const state = ytPlayer.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) {
+    ytPlayer.pauseVideo();
+  } else {
+    ytPlayer.playVideo();
+  }
+}
+
+function updatePlayPauseUI() {
+  const iconPlay = document.getElementById('iconPlay');
+  const iconPause = document.getElementById('iconPause');
+  if(isPlaying) {
+    iconPlay.style.display = 'none';
+    iconPause.style.display = 'block';
+  } else {
+    iconPlay.style.display = 'block';
+    iconPause.style.display = 'none';
+  }
+}
+
+function seekRelative(seconds) {
+  if(!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+  const current = ytPlayer.getCurrentTime();
+  const duration = ytPlayer.getDuration();
+  let target = current + seconds;
+  if(target < 0) target = 0;
+  if(target > duration) target = duration;
+  ytPlayer.seekTo(target, true);
+  updateVideoProgress();
+}
+
+function seekAudio(e) {
+  if(!ytPlayer || typeof ytPlayer.getDuration !== 'function') return;
+  const track = document.getElementById('scrubTrack');
+  const rect = track.getBoundingClientRect();
+  const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+  const percentage = clickX / rect.width;
+  
+  const duration = ytPlayer.getDuration();
+  if (duration > 0) {
+    const targetTime = duration * percentage;
+    ytPlayer.seekTo(targetTime, true);
+    saveProgress(targetTime); // immediate save on jump
+    updateVideoProgress();
+  }
+}
+
+/* ── SIGN-IN MODAL ── */
+function openModal() {
+  document.getElementById('nameInput').value  = playerName;
+  document.getElementById('deptSelect').value = playerDept;
+  document.getElementById('modalBackdrop').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modalBackdrop').classList.remove('show');
+}
+
+function attemptLogin(rawName, dept) {
+  if (!rawName) { alert('Please enter your name!'); return; }
+  if (!dept) { alert('Please select your department!'); return; }
+  savePlayer(rawName, dept);
+  renderTopbarUser();
+  closeModal();
+  openIntro();
+}
+
+document.getElementById('modalBackdrop').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalBackdrop') && isSignedIn()) closeModal();
+});
+document.getElementById('modalContinueBtn').addEventListener('click', () => {
+  const rawName = document.getElementById('nameInput').value.trim();
+  const dept    = document.getElementById('deptSelect').value;
+  attemptLogin(rawName, dept);
+});
+document.getElementById('nameInput').addEventListener('keydown', e => { 
+  if (e.key === 'Enter') document.getElementById('modalContinueBtn').click(); 
+});
+
+// If they close the tab or reload mid-audiobook, flush tracking
+window.addEventListener("beforeunload", function (e) {
+  logCurrentSession();
+});
+
+document.addEventListener('DOMContentLoaded', () => { init(); });
+</script>
+</body>
+</html>
