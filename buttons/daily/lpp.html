@@ -297,7 +297,7 @@ function savePlayer(name, dept) {
 }
 function isSignedIn() { return !!(playerName && playerDept); }
 
-// Local Storage for Resuming Position
+// Local Storage for Resuming Position (Audio)
 function getProgressKey() {
   return `progress_${BOOK.id}_${playerName.replace(/\s+/g, '')}`;
 }
@@ -305,8 +305,21 @@ function getSavedProgress() {
   return parseFloat(localStorage.getItem(getProgressKey()) || 0);
 }
 function saveProgress(seconds) {
-  if(seconds > 0) {
+  if(seconds > 0 || seconds === 0) { // allow resetting to 0
     localStorage.setItem(getProgressKey(), seconds);
+  }
+}
+
+// Local Storage for Resuming Position (Text Scroll)
+function getTextProgressKey() {
+  return `text_progress_${BOOK.id}_${playerName.replace(/\s+/g, '')}`;
+}
+function getSavedTextProgress() {
+  return parseFloat(localStorage.getItem(getTextProgressKey()) || 0);
+}
+function saveTextProgress(scrollTop) {
+  if(scrollTop >= 0) { // allow saving 0 (top of page)
+    localStorage.setItem(getTextProgressKey(), scrollTop);
   }
 }
 
@@ -383,11 +396,20 @@ function updateVideoProgress() {
   }
 }
 
+// Background tick handles saving BOTH audio progress and text scroll progress
 function backgroundSaveTick() {
-  if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
-  const current = ytPlayer.getCurrentTime() || 0;
-  if(isPlaying && current > 0) {
-    saveProgress(current);
+  // 1. Save audio progress
+  if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+    const current = ytPlayer.getCurrentTime() || 0;
+    if(isPlaying && current > 0) {
+      saveProgress(current);
+    }
+  }
+  
+  // 2. Save text reader progress regardless of playback state
+  const reader = document.getElementById('readerContent');
+  if (reader && isTextLoaded) {
+    saveTextProgress(reader.scrollTop);
   }
 }
 
@@ -488,7 +510,7 @@ function openIntro() {
        </div>
     </button>
     
-    ${hasProgress ? `<div style="text-align:center; margin-top: 10px;"><button style="font-family:var(--mono); font-size:10px; color:var(--ink-muted); text-decoration:underline; border:none; background:none; cursor:pointer;" onclick="saveProgress(0); openIntro();">Reset progress to beginning</button></div>` : ''}
+    ${hasProgress ? `<div style="text-align:center; margin-top: 10px;"><button style="font-family:var(--mono); font-size:10px; color:var(--ink-muted); text-decoration:underline; border:none; background:none; cursor:pointer;" onclick="saveProgress(0); saveTextProgress(0); openIntro();">Reset progress to beginning</button></div>` : ''}
   `;
   
   document.getElementById('startAudioBtn').addEventListener('click', () => {
@@ -511,8 +533,14 @@ async function loadBookText() {
     contentEl.textContent = text;
     isTextLoaded = true;
     
-    // Give it a tick to render text, then calculate pages
-    setTimeout(updatePageIndicator, 100);
+    // Give it a tick to render text, restore scroll position, then calculate pages
+    setTimeout(() => {
+      const savedScroll = getSavedTextProgress();
+      if (savedScroll > 0) {
+        contentEl.scrollTop = savedScroll;
+      }
+      updatePageIndicator();
+    }, 100);
   } catch (error) {
     contentEl.textContent = "Failed to load the book text. Please check your connection.";
     console.error("Error fetching text:", error);
@@ -617,6 +645,7 @@ function onPlayerStateChange(e) {
   if (e.data === YT.PlayerState.ENDED) {
     isPlaying = false;
     saveProgress(0); // reset on finish
+    saveTextProgress(0); // reset text scroll on finish
     updatePlayPauseUI();
     
     logCurrentSession();
@@ -679,6 +708,11 @@ document.getElementById('nameInput').addEventListener('keydown', e => {
 // If they close the tab or reload mid-audiobook, flush tracking
 window.addEventListener("beforeunload", function (e) {
   logCurrentSession();
+  // Ensure we capture final scroll progress too
+  const reader = document.getElementById('readerContent');
+  if (reader && isTextLoaded) {
+    saveTextProgress(reader.scrollTop);
+  }
 });
 
 document.addEventListener('DOMContentLoaded', () => { init(); });
