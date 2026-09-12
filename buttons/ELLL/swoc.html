@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>SWOT Profile Builder</title>
+<title>SWOC Profile Builder</title>
 
 <!-- External Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -236,7 +236,6 @@
       <div class="top-bar">
         <div class="brand"><h1>The <span>Blueprint</span></h1><div class="sub">Professional Profiler</div></div>
         <div style="display: flex; gap: 8px;">
-          <button id="muteBtn" class="icon-btn" onclick="toggleMute()" title="Toggle Sound">🔊</button>
           <div class="timer-pill">
             <div class="timer-text" id="timer">00:00</div>
           </div>
@@ -320,26 +319,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ========== AUDIO SETUP ========== */
-const applauseSound = new Audio();
-applauseSound.src = 'https://andrewveda.github.io/SRM-VEC-English-PWA/sounds/crowd.mp3';
-
-let isMuted = false;
-
-function toggleMute() {
-  isMuted = !isMuted;
-  document.getElementById('muteBtn').textContent = isMuted ? '🔇' : '🔊';
-}
-
-function playSound(audio) {
-  if (isMuted) return;
-  try {
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-  } catch (error) {}
-}
-
-/* ========== CONFETTI ========== */
 function triggerConfetti() {
   confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 }, colors: ['#2f5233', '#c9a227'] });
 }
@@ -935,7 +914,6 @@ function submitAnswer() {
   gemsCount += answers.length * 2; // Reward for effort
   updateGems();
   
-  playSound(applauseSound);
   triggerConfetti();
 
   setTimeout(() => {
