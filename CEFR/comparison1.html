@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>Triple Toggle — Degrees of Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --paper:#f3ead4; --card:#fffbf2; --card-line:#e3d5b0;
+    --ink:#2d2620; --ink-muted:#8c7c62;
+    --forest:#2f5233; --moss:#6f8f5a; --clay:#b5651d; --rust:#a4392c;
+    --pos:#4f8f5f; --comp:#c9932a; --sup:#a4392c;
+    --shadow-sm:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);
+    --shadow-md:0 2px 6px rgba(45,38,32,.10),0 10px 26px rgba(45,38,32,.12);
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  html,body{min-height:100%;}
+  body{
+    font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink);
+    min-height:100dvh; display:flex; flex-direction:column; align-items:center;
+    background-image:
+      radial-gradient(ellipse 70% 50% at 12% 8%, rgba(111,143,90,.14) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 45% at 92% 88%, rgba(181,101,29,.10) 0%, transparent 60%);
+  }
+  .col{width:100%;max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 30px);display:flex;flex-direction:column;gap:14px;}
+
+  .top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:1.35rem;color:var(--forest);letter-spacing:-.3px;}
+  .brand span{color:var(--rust);}
+  .brand .sub{font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-top:1px;}
+  .mode-switch{display:flex;background:#e2d4b0;border-radius:99px;padding:3px;gap:3px;}
+  .mode-btn{padding:7px 14px;border:none;border-radius:99px;background:transparent;font-family:'Space Mono',monospace;font-size:.66rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-muted);cursor:pointer;transition:all .2s var(--ease);}
+  .mode-btn.active{background:var(--forest);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+
+  .view{display:none;flex-direction:column;gap:14px;}
+  .view.active{display:flex;}
+
+  /* ═══ STUDY MODE ═══ */
+  .study-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:12px;}
+  .study-card-num{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;}
+  .triple-toggle{display:flex;background:#e9dcbb;border-radius:99px;padding:3px;gap:3px;}
+  .triple-btn{flex:1;padding:8px 6px;border:none;border-radius:99px;background:transparent;font-family:'Space Mono',monospace;font-size:.62rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-muted);cursor:pointer;transition:all .2s var(--ease);text-align:center;}
+  .triple-btn.active[data-deg="pos"]{background:var(--pos);color:#fff;}
+  .triple-btn.active[data-deg="comp"]{background:var(--comp);color:#fff;}
+  .triple-btn.active[data-deg="sup"]{background:var(--sup);color:#fff;}
+  .study-sentence{font-family:'Fraunces',serif;font-size:1.08rem;line-height:1.6;text-align:center;color:var(--ink);min-height:2.6em;display:flex;align-items:center;justify-content:center;padding:6px 4px;}
+  .degree-pill{align-self:center;font-family:'Space Mono',monospace;font-size:.62rem;font-weight:700;letter-spacing:.05em;padding:4px 12px;border-radius:99px;color:#fff;text-transform:uppercase;}
+  .degree-pill.pos{background:var(--pos);}
+  .degree-pill.comp{background:var(--comp);}
+  .degree-pill.sup{background:var(--sup);}
+
+  /* ═══ QUIZ MODE ═══ */
+  .quiz-stats{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:8px 13px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:5px;}
+  .quiz-stats-top{display:flex;justify-content:space-between;align-items:baseline;font-family:'Space Mono',monospace;font-size:.68rem;color:var(--ink-muted);}
+  .quiz-stats-top b{color:var(--clay);font-size:1.05em;margin:0 2px;}
+  .quiz-track{height:5px;background:#e9dcbb;border-radius:99px;overflow:hidden;}
+  .quiz-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--forest));border-radius:99px;transition:width .5s var(--ease);}
+
+  .quiz-mount{background:var(--card);border:1.5px solid var(--card-line);border-radius:16px;padding:26px 20px;box-shadow:var(--shadow-md);position:relative;min-height:120px;display:flex;align-items:center;justify-content:center;}
+  .quiz-mount.wrong-shake{animation:shake .35s ease;}
+  .quiz-mount.right-pop{animation:pop .4s var(--ease);}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.02)}100%{transform:scale(1)}}
+  .quiz-sentence{font-family:'Fraunces',serif;font-size:1.18rem;line-height:1.65;text-align:center;color:var(--ink);}
+
+  .quiz-options{display:flex;flex-direction:column;gap:10px;}
+  .opt-btn{
+    padding:15px 16px;border-radius:12px;border:1.5px solid var(--card-line);background:#fffdf7;
+    font-family:'Inter',sans-serif;font-weight:600;font-size:.92rem;color:var(--ink);cursor:pointer;
+    transition:transform .15s var(--ease),box-shadow .15s,border-color .15s,background .15s;
+    box-shadow:var(--shadow-sm);text-align:center;
+  }
+  .opt-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+  .opt-btn:active{transform:scale(.97);}
+  .opt-btn.correct{background:linear-gradient(135deg,var(--forest),var(--moss));border-color:var(--forest);color:#fff;}
+  .opt-btn.incorrect{background:linear-gradient(135deg,var(--rust),#c0503f);border-color:var(--rust);color:#fff;animation:shake .35s ease;}
+  .opt-btn.disabled{pointer-events:none;opacity:.55;}
+  .opt-btn.disabled.correct, .opt-btn.disabled.incorrect{opacity:1;}
+
+  .quiz-controls{display:flex;justify-content:center;}
+  .btn-restart{
+    padding:11px 20px;border:none;border-radius:99px;background:var(--card);border:1.5px solid var(--card-line);
+    font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--ink-muted);cursor:pointer;transition:all .15s var(--ease);
+  }
+  .btn-restart:hover{color:var(--rust);border-color:var(--rust);}
+
+  /* ═══ END SCREEN ═══ */
+  .end-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:20px;padding:30px 24px;box-shadow:0 20px 60px rgba(45,38,32,.14);display:flex;flex-direction:column;gap:16px;animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;}
+  @keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+  .end-title{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:900;text-align:center;color:var(--forest);}
+  .end-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;text-align:center;border:1.5px solid var(--card-line);}
+  .stat-num{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:var(--forest);line-height:1;}
+  .stat-lbl{font-family:'Space Mono',monospace;font-size:.56rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+  .btn-again{padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:.92rem;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(47,82,51,.25);}
+
+  .toast{
+    position:fixed;bottom:calc(env(safe-area-inset-bottom) + 20px);left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;
+    padding:10px 20px;border-radius:16px;font-size:.82rem;font-weight:600;z-index:200;pointer-events:none;
+    transition:transform .35s var(--ease),opacity .35s;opacity:0;max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+  .toast.good{background:linear-gradient(135deg,var(--forest),var(--moss));}
+  .toast.bad{background:linear-gradient(135deg,var(--rust),#c0503f);}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="col">
+  <div class="top-bar">
+    <div class="brand"><h1>Triple<span>✦</span></h1><div class="sub">Degrees of Comparison</div></div>
+    <div class="mode-switch">
+      <button class="mode-btn active" id="btnStudyMode">Study</button>
+      <button class="mode-btn" id="btnQuizMode">Quiz</button>
+    </div>
+  </div>
+
+  <!-- ═══════ STUDY VIEW ═══════ -->
+  <div class="view active" id="studyView"></div>
+
+  <!-- ═══════ QUIZ VIEW ═══════ -->
+  <div class="view" id="quizView">
+    <div class="quiz-stats">
+      <div class="quiz-stats-top">
+        <span>Score <b id="qScore">0</b></span>
+        <span>Streak <b id="qStreak">0</b></span>
+        <span><b id="qProgress">0</b>/30</span>
+      </div>
+      <div class="quiz-track"><div class="quiz-fill" id="qFill" style="width:0%"></div></div>
+    </div>
+    <div class="quiz-mount" id="quizMount">
+      <div class="quiz-sentence" id="quizSentence"></div>
+    </div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="quiz-controls">
+      <button class="btn-restart" id="btnQuizRestart">↻ Restart Quiz</button>
+    </div>
+  </div>
+
+  <!-- ═══════ END VIEW ═══════ -->
+  <div class="view" id="endView">
+    <div class="end-card">
+      <div class="end-title" id="endTitle">🎯 Quiz Complete!</div>
+      <div class="end-stats">
+        <div class="stat-box"><div class="stat-num" id="endScore">0</div><div class="stat-lbl">Score</div></div>
+        <div class="stat-box"><div class="stat-num" id="endAccuracy">0%</div><div class="stat-lbl">Accuracy</div></div>
+      </div>
+      <button class="btn-again" id="btnPlayAgain">✿ Play Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATA — 10 subjects, each with a Positive / Comparative /
+   Superlative sentence about the same idea. (Minor grammar polish
+   applied to item 8's positive sentence to remove a redundant
+   repeated noun — meaning and structure otherwise unchanged.)
+   ═══════════════════════════════════════════════════════════════ */
+const SUBJECTS = [
+  { pos:"Mount Everest is a tall mountain.", comp:"Mount Everest is taller than other mountains in the world.", sup:"Mount Everest is the highest mountain in the world." },
+  { pos:"Rahul is a tall person.", comp:"Rahul is taller than Mohan.", sup:"Rahul is the tallest person in the group." },
+  { pos:"This laptop is a cheap laptop.", comp:"This laptop is cheaper than that laptop.", sup:"This laptop is the cheapest laptop in the shop." },
+  { pos:"Health is a valuable thing.", comp:"Health is more valuable than wealth.", sup:"Health is the most valuable thing in life." },
+  { pos:"Iron is a useful metal.", comp:"Iron is more useful than other metals.", sup:"Iron is the most useful metal." },
+  { pos:"Mumbai is a crowded city in India.", comp:"Mumbai is more crowded than most other cities in India.", sup:"Mumbai is one of the most crowded cities in India." },
+  { pos:"The Nile is a long river in Africa.", comp:"The Nile is longer than any other river in Africa.", sup:"The Nile is the longest river in Africa." },
+  { pos:"This novel is an interesting one.", comp:"This novel is more interesting than any other novel I have read.", sup:"This is the most interesting novel I have ever read." },
+  { pos:"Anita is a talented singer in the class.", comp:"Anita is more talented than any other singer in the class.", sup:"Anita is the most talented singer in the class." },
+  { pos:"Python is a popular programming language.", comp:"Python is more popular than any other programming language.", sup:"Python is the most popular programming language." }
+];
+
+const DEGREE_LABEL = { pos:"Positive Degree", comp:"Comparative Degree", sup:"Superlative Degree" };
+const DEGREE_ORDER = ["pos","comp","sup"];
+
+/* ═══════════════════════ STUDY MODE ═══════════════════════ */
+function renderStudyView(){
+  const wrap = document.getElementById('studyView');
+  wrap.innerHTML = SUBJECTS.map((s,i)=>`
+    <div class="study-card" data-idx="${i}">
+      <div class="study-card-num">Subject ${i+1} / ${SUBJECTS.length}</div>
+      <div class="triple-toggle">
+        <button class="triple-btn active" data-deg="pos" onclick="setStudyDegree(${i},'pos',this)">Positive</button>
+        <button class="triple-btn" data-deg="comp" onclick="setStudyDegree(${i},'comp',this)">Comparative</button>
+        <button class="triple-btn" data-deg="sup" onclick="setStudyDegree(${i},'sup',this)">Superlative</button>
+      </div>
+      <div class="study-sentence" id="study-sentence-${i}">${SUBJECTS[i].pos}</div>
+      <span class="degree-pill pos" id="study-pill-${i}">Positive Degree</span>
+    </div>
+  `).join('');
+}
+
+function setStudyDegree(idx, deg, btnEl){
+  const card = btnEl.closest('.study-card');
+  card.querySelectorAll('.triple-btn').forEach(b=>b.classList.toggle('active', b.dataset.deg===deg));
+  document.getElementById(`study-sentence-${idx}`).textContent = SUBJECTS[idx][deg];
+  const pill = document.getElementById(`study-pill-${idx}`);
+  pill.textContent = DEGREE_LABEL[deg];
+  pill.className = 'degree-pill ' + deg;
+}
+window.setStudyDegree = setStudyDegree;
+
+/* ═══════════════════════ QUIZ MODE ═══════════════════════ */
+let quizDeck = [];
+let quizIndex = 0;
+let quizScore = 0, quizStreak = 0, quizCorrect = 0, quizWrong = 0;
+let quizLocked = false;
+
+function buildQuizDeck(){
+  const flat = [];
+  SUBJECTS.forEach(s=>{
+    DEGREE_ORDER.forEach(deg=>flat.push({ sentence: s[deg], answer: DEGREE_LABEL[deg] }));
+  });
+  for(let i=flat.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [flat[i],flat[j]]=[flat[j],flat[i]];
+  }
+  return flat;
+}
+
+function startQuiz(){
+  quizDeck = buildQuizDeck();
+  quizIndex = 0; quizScore = 0; quizStreak = 0; quizCorrect = 0; quizWrong = 0;
+  updateQuizStats();
+  loadQuizQuestion();
+}
+
+function updateQuizStats(){
+  document.getElementById('qScore').textContent = quizScore;
+  document.getElementById('qStreak').textContent = quizStreak;
+  document.getElementById('qProgress').textContent = quizIndex;
+  document.getElementById('qFill').style.width = (quizIndex / quizDeck.length * 100) + '%';
+}
+
+function loadQuizQuestion(){
+  quizLocked = false;
+  const q = quizDeck[quizIndex];
+  document.getElementById('quizSentence').textContent = q.sentence;
+  const optWrap = document.getElementById('quizOptions');
+  const opts = ["Positive Degree","Comparative Degree","Superlative Degree"];
+  optWrap.innerHTML = opts.map(o=>`<button class="opt-btn" data-opt="${o}">${o}</button>`).join('');
+  optWrap.querySelectorAll('.opt-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>selectOption(btn, q.answer));
+  });
+}
+
+function selectOption(btn, correctAnswer){
+  if(quizLocked) return;
+  quizLocked = true;
+  const chosen = btn.dataset.opt;
+  const mount = document.getElementById('quizMount');
+  const allBtns = document.querySelectorAll('.opt-btn');
+  allBtns.forEach(b=>b.classList.add('disabled'));
+
+  if(chosen === correctAnswer){
+    btn.classList.add('correct');
+    quizScore += 10 + Math.min(quizStreak,5)*2;
+    quizStreak++; quizCorrect++;
+    mount.classList.add('right-pop');
+    setTimeout(()=>mount.classList.remove('right-pop'),450);
+    showToast(quizStreak>=3 ? `🔥 ${quizStreak} streak! Correct` : 'Correct!', 'good');
+    if(navigator.vibrate) navigator.vibrate(18);
+  } else {
+    btn.classList.add('incorrect');
+    allBtns.forEach(b=>{ if(b.dataset.opt===correctAnswer) b.classList.add('correct'); });
+    quizStreak = 0; quizWrong++;
+    mount.classList.add('wrong-shake');
+    setTimeout(()=>mount.classList.remove('wrong-shake'),350);
+    showToast(`Not quite — it's ${correctAnswer}`, 'bad');
+    if(navigator.vibrate) navigator.vibrate(15);
+  }
+  updateQuizStats();
+
+  setTimeout(()=>{
+    quizIndex++;
+    if(quizIndex >= quizDeck.length){
+      updateQuizStats();
+      showEndScreen();
+    } else {
+      loadQuizQuestion();
+    }
+  }, 950);
+}
+
+function showEndScreen(){
+  document.getElementById('quizView').classList.remove('active');
+  document.getElementById('endView').classList.add('active');
+  document.getElementById('endScore').textContent = quizScore;
+  const total = quizCorrect + quizWrong;
+  document.getElementById('endAccuracy').textContent = total ? Math.round(quizCorrect/total*100)+'%' : '0%';
+  const pct = total ? quizCorrect/total : 0;
+  document.getElementById('endTitle').textContent = pct === 1 ? '🏆 Perfect Score!' : pct >= 0.8 ? '🎯 Great Work!' : pct >= 0.5 ? '📈 Good Effort!' : '📖 Keep Practicing!';
+}
+
+document.getElementById('btnPlayAgain').addEventListener('click', ()=>{
+  document.getElementById('endView').classList.remove('active');
+  document.getElementById('quizView').classList.add('active');
+  startQuiz();
+});
+document.getElementById('btnQuizRestart').addEventListener('click', startQuiz);
+
+/* ═══════════════════════ TOAST ═══════════════════════ */
+let toastTimer;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show '+type;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),1500);
+}
+
+/* ═══════════════════════ MODE SWITCH ═══════════════════════ */
+document.getElementById('btnStudyMode').addEventListener('click', ()=>{
+  document.getElementById('btnStudyMode').classList.add('active');
+  document.getElementById('btnQuizMode').classList.remove('active');
+  document.getElementById('studyView').classList.add('active');
+  document.getElementById('quizView').classList.remove('active');
+  document.getElementById('endView').classList.remove('active');
+});
+document.getElementById('btnQuizMode').addEventListener('click', ()=>{
+  document.getElementById('btnQuizMode').classList.add('active');
+  document.getElementById('btnStudyMode').classList.remove('active');
+  document.getElementById('quizView').classList.add('active');
+  document.getElementById('studyView').classList.remove('active');
+  document.getElementById('endView').classList.remove('active');
+  startQuiz();
+});
+
+/* ═══════════════════════ INIT ═══════════════════════ */
+renderStudyView();
+</script>
+</body>
+</html>
