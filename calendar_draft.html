@@ -338,10 +338,8 @@ const supabase = createClient(
 let userData = null;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-// Start date set to September 1, 2026 (Month is 0-indexed, so 8 = September)
 const startDate = new Date(2026, 8, 1);
 
-// Links
 const questLinks = {
  1: "https://andrewveda.com/verve/buttons/daily/1",
  2: "https://andrewveda.com/verve/buttons/daily/2",
@@ -357,15 +355,47 @@ const questLinks = {
  12: "https://andrewveda.com/verve/buttons/daily/11",
 };
 
-// Init
+// Vacuum function to suck up ALL names from local storage, regardless of what key was used
+function extractAllNamesFromStorage() {
+  let aliases = new Set();
+  
+  for (let i = 0; i < localStorage.length; i++) {
+    let key = localStorage.key(i);
+    
+    // Ignore known system variables that aren't names
+    const ignoreKeys = ['cachedUserData', 'userIdentityMode', 'userIdentityIndex', 'userDept'];
+    if (ignoreKeys.includes(key)) continue;
+
+    let value = localStorage.getItem(key);
+    if (!value) continue;
+
+    // Try parsing in case it's a JSON array, otherwise split by comma
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        parsed.forEach(n => aliases.add(String(n).trim().toLowerCase()));
+      } else if (typeof parsed === 'string') {
+        parsed.split(",").forEach(n => aliases.add(n.trim().toLowerCase()));
+      }
+    } catch (e) {
+      value.split(",").forEach(n => aliases.add(n.trim().toLowerCase()));
+    }
+  }
+  
+  // Remove empty strings and obvious non-names (like long CSS/HTML strings if any got caught)
+  return Array.from(aliases).filter(name => name.length > 0 && name.length < 50);
+}
+
 async function init() {
   checkOnlineStatus();
   
-  // Prioritize "student_name", fallback to "userName"
-  const namesRaw = localStorage.getItem("student_name") || localStorage.getItem("userName") || "Guest";
+  const allAliases = extractAllNamesFromStorage();
   const savedDept = localStorage.getItem("userDept") || "—";
   
-  document.getElementById("userNameLabel").textContent = namesRaw;
+  // Fallback to "Guest" if storage is completely empty
+  const defaultDisplayName = allAliases.length > 0 ? allAliases.join(" / ") : "Guest";
+  
+  document.getElementById("userNameLabel").textContent = defaultDisplayName;
   document.getElementById("userDeptLabel").textContent = savedDept;
 
   const cached = localStorage.getItem("cachedUserData");
@@ -377,39 +407,27 @@ async function init() {
     renderCalendar(currentMonth, currentYear);
   }
 
-  if (namesRaw !== "Guest") {
-    fetchUserData(namesRaw);
+  if (allAliases.length > 0) {
+    fetchUserData(allAliases);
   } else {
     renderCalendar(currentMonth, currentYear);
   }
 }
 
-async function fetchUserData(namesRaw) {
+async function fetchUserData(aliases) {
   try {
     const { data, error } = await supabase.from("report_card_view").select("*");
     if (error) throw error;
 
-    // Support JSON array format OR comma-separated format
-    let aliases = [];
-    try {
-      const parsed = JSON.parse(namesRaw);
-      if (Array.isArray(parsed)) {
-        aliases = parsed.map(n => String(n).trim().toLowerCase());
-      } else {
-        aliases = String(namesRaw).split(",").map(n => n.trim().toLowerCase());
-      }
-    } catch (e) {
-      aliases = String(namesRaw).split(",").map(n => n.trim().toLowerCase());
-    }
-    aliases = aliases.filter(Boolean);
-
-    // Find all records that match ANY of the provided names/aliases
+    // Find all records that match ANY of the aliases found in local storage
     const matches = (data || []).filter(u =>
       u.name && aliases.includes(u.name.trim().toLowerCase())
     );
 
     if (matches.length === 0) {
-      userData = { name: aliases.join(" / ") || "Guest", quest_list: "" };
+      // Format aliases for display nicely with Title Case
+      const displayTitle = aliases.map(n => n.replace(/\b\w/g, c => c.toUpperCase())).join(" / ");
+      userData = { name: displayTitle || "Guest", quest_list: "" };
     } else if (matches.length === 1) {
       userData = matches[0];
     } else {
