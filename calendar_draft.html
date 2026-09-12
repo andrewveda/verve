@@ -92,13 +92,16 @@
     .header-user {
       display: flex;
       flex-direction: column;
+      flex: 1;
+      padding-right: 12px;
     }
     .user-name {
       font-family: 'Playfair Display', serif;
       font-size: 1.15rem;
       font-weight: 700;
       color: var(--text);
-      line-height: 1.1;
+      line-height: 1.2;
+      word-break: break-word;
     }
     .user-dept {
       font-size: 0.58rem;
@@ -117,6 +120,7 @@
       font-size: 0.7rem;
       text-decoration: none;
       transition: all 0.2s;
+      white-space: nowrap;
     }
     .home-link:hover {
       border-color: var(--gold);
@@ -271,40 +275,6 @@
       font-style: normal;
     }
 
-    /* Modal for duplicate matching */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 600;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(6px);
-      padding: 16px;
-    }
-    .modal-overlay.show { display: flex; }
-    .modal-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-    }
-    .modal-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border-dim);
-      background: var(--deep);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
     /* Footer */
     .footer {
       text-align: center;
@@ -356,11 +326,6 @@
   </div>
 </div>
 
-<!-- Modal for choosing student record -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal-box" id="modalBox"></div>
-</div>
-
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm";
 
@@ -395,59 +360,66 @@ const questLinks = {
 // Init
 async function init() {
   checkOnlineStatus();
-  const savedName = localStorage.getItem("userName") || "Guest";
+  
+  // Prioritize "student_name", fallback to "userName"
+  const namesRaw = localStorage.getItem("student_name") || localStorage.getItem("userName") || "Guest";
   const savedDept = localStorage.getItem("userDept") || "—";
   
-  document.getElementById("userNameLabel").textContent = savedName;
+  document.getElementById("userNameLabel").textContent = namesRaw;
   document.getElementById("userDeptLabel").textContent = savedDept;
 
   const cached = localStorage.getItem("cachedUserData");
   if (cached) {
     userData = JSON.parse(cached);
+    if (userData && userData.name) {
+       document.getElementById("userNameLabel").textContent = userData.name;
+    }
     renderCalendar(currentMonth, currentYear);
   }
 
-  if (savedName !== "Guest") {
-    fetchUserData(savedName);
+  if (namesRaw !== "Guest") {
+    fetchUserData(namesRaw);
   } else {
     renderCalendar(currentMonth, currentYear);
   }
 }
 
-async function fetchUserData(nameRaw) {
+async function fetchUserData(namesRaw) {
   try {
     const { data, error } = await supabase.from("report_card_view").select("*");
     if (error) throw error;
 
-    // Split the stored name by commas to support multiple nicknames
-    const aliases = nameRaw.split(",").map(n => n.trim().toLowerCase()).filter(Boolean);
+    // Support JSON array format OR comma-separated format
+    let aliases = [];
+    try {
+      const parsed = JSON.parse(namesRaw);
+      if (Array.isArray(parsed)) {
+        aliases = parsed.map(n => String(n).trim().toLowerCase());
+      } else {
+        aliases = String(namesRaw).split(",").map(n => n.trim().toLowerCase());
+      }
+    } catch (e) {
+      aliases = String(namesRaw).split(",").map(n => n.trim().toLowerCase());
+    }
+    aliases = aliases.filter(Boolean);
 
+    // Find all records that match ANY of the provided names/aliases
     const matches = (data || []).filter(u =>
       u.name && aliases.includes(u.name.trim().toLowerCase())
     );
 
     if (matches.length === 0) {
-      userData = { name: nameRaw, quest_list: "" };
+      userData = { name: aliases.join(" / ") || "Guest", quest_list: "" };
     } else if (matches.length === 1) {
       userData = matches[0];
     } else {
-      const mode = localStorage.getItem("userIdentityMode");
-      // Force auto-merge if the user deliberately typed multiple names separated by commas
-      if (mode === "merged" || aliases.length > 1) {
-        userData = mergeUserRecords(matches);
-        localStorage.setItem("userIdentityMode", "merged");
-      } else if (mode === "single") {
-        const index = parseInt(localStorage.getItem("userIdentityIndex"), 10);
-        if (!isNaN(index) && matches[index]) userData = matches[index];
-      } else {
-        showDuplicatePicker(matches);
-        return;
-      }
+      // Auto-merge all matched records
+      userData = mergeUserRecords(matches);
     }
 
     localStorage.setItem("cachedUserData", JSON.stringify(userData));
     
-    // Update the UI with the merged display name if applicable
+    // Update the UI with the merged display name
     if (userData && userData.name) {
       document.getElementById("userNameLabel").textContent = userData.name;
     }
@@ -457,54 +429,6 @@ async function fetchUserData(nameRaw) {
     console.error("Fetch error:", err);
     document.getElementById("offlineBanner").classList.add("show");
   }
-}
-
-function showDuplicatePicker(matches) {
-  const modal = document.getElementById("confirmModal");
-  const box = document.getElementById("modalBox");
-
-  box.innerHTML = `
-    <p style="font-size:0.9rem;margin-bottom:12px;">Multiple records found.<br>Which one are you?</p>
-    <div id="pickerOptions" style="display:flex;flex-direction:column;gap:6px;"></div>
-  `;
-
-  const container = document.getElementById("pickerOptions");
-  matches.forEach((match, i) => {
-    const btn = document.createElement("button");
-    btn.className = "modal-btn";
-    btn.style.textAlign = "left";
-    btn.innerHTML = `
-      <div style="font-weight:700;">${match.name}</div>
-      <div style="color:var(--gold);font-size:0.6rem;">${match.department || "No dept"} · ${match.quests_completed ?? 0} quests</div>
-    `;
-    btn.onclick = () => {
-      userData = match;
-      localStorage.setItem("userIdentityMode", "single");
-      localStorage.setItem("userIdentityIndex", i);
-      localStorage.setItem("cachedUserData", JSON.stringify(userData));
-      document.getElementById("userNameLabel").textContent = userData.name;
-      modal.classList.remove("show");
-      renderCalendar(currentMonth, currentYear);
-    };
-    container.appendChild(btn);
-  });
-
-  const mergeBtn = document.createElement("button");
-  mergeBtn.className = "modal-btn";
-  mergeBtn.style.borderColor = "var(--gold)";
-  mergeBtn.style.color = "var(--gold)";
-  mergeBtn.textContent = "Merge All Records";
-  mergeBtn.onclick = () => {
-    userData = mergeUserRecords(matches);
-    localStorage.setItem("userIdentityMode", "merged");
-    localStorage.setItem("cachedUserData", JSON.stringify(userData));
-    document.getElementById("userNameLabel").textContent = userData.name;
-    modal.classList.remove("show");
-    renderCalendar(currentMonth, currentYear);
-  };
-  container.appendChild(mergeBtn);
-
-  modal.classList.add("show");
 }
 
 function mergeUserRecords(records) {
