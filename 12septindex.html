@@ -431,66 +431,69 @@
     .tab.active::after { width: 65%; }
     .tab:active { opacity: 0.7; }
 
-  /* ===== Entry grid: changed to a vertical list of bars ===== */
-.entry-list {
-  flex: 1 1 0%;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;               /* Changed from grid to flex */
-  flex-direction: column;      /* Stack bars vertically */
-  gap: 10px;
-  padding: 4px 8px 12px;
-  align-content: start;
-  -webkit-overflow-scrolling: touch;
-}
-.entry-list::-webkit-scrollbar { width: 0; }
+    /* ===== Entry grid: letterpress plate tiles ===== */
+    .entry-list {
+      flex: 1 1 0%;
+      min-height: 0;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: minmax(78px, auto);
+      gap: 8px;
+      padding: 2px 2px 6px;
+      align-content: start;
+      -webkit-overflow-scrolling: touch;
+    }
+    .entry-list::-webkit-scrollbar { width: 0; }
 
-.entry-row {
-  display: flex;
-  flex-direction: row;         /* Icon and text side-by-side */
-  align-items: center;
-  justify-content: flex-start; /* Align contents to the left */
-  gap: 16px;                   /* Space between icon and text */
-  padding: 14px 20px;          /* Thicker padding for a nice bar shape */
-  text-align: left;
-  text-decoration: none;
-  color: var(--text);
-  background: linear-gradient(160deg, var(--surface), var(--surface2));
-  border: 1px solid var(--border-dim);
-  border-radius: 12px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
-  transition: transform 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease,
-              border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  will-change: transform, opacity;
-}
-.entry-row:hover {
-  border-color: var(--accent);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 3px 10px rgba(36,32,28,0.08);
-}
-.entry-row:active {
-  transform: scale(0.97);      /* Slightly gentler scale for wide bars */
-  border-color: var(--accent);
-  background: linear-gradient(160deg, var(--accent-soft), var(--surface2));
-}
-   .entry-icon {
-  font-size: 1.8rem;           /* Slightly larger icon */
-  line-height: 1;
-  flex-shrink: 0;
-  width: 40px;                 /* Fixed width keeps text aligned uniformly */
-  text-align: center;
-}
+    .entry-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 4px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      background: linear-gradient(160deg, var(--surface), var(--surface2));
+      border: 1px solid var(--border-dim);
+      border-radius: 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+      transition: transform 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease,
+                  border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      will-change: transform, opacity;
+    }
+    .entry-row:hover {
+      border-color: var(--accent);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 3px 10px rgba(36,32,28,0.08);
+    }
+    .entry-row:active {
+      transform: scale(0.95);
+      border-color: var(--accent);
+      background: linear-gradient(160deg, var(--accent-soft), var(--surface2));
+    }
 
-.entry-text { 
-  flex: 1; 
-}
+    .entry-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
 
-.entry-label {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  font-size: 0.95rem;          /* Larger, more readable text */
-  color: var(--text);
-  line-height: 1.3;
-}
+    .entry-text { width: 100%; }
+
+    .entry-label {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 0.6rem;
+      color: var(--text);
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* entrance / exit states applied by JS */
     .entry-row.entering { opacity: 0; transform: translateY(10px) scale(0.92); }
     .entry-row.leaving {
       opacity: 0 !important;
@@ -866,6 +869,11 @@
       cursor: pointer;
     }
     .drawer-install-btn:hover { background: var(--gold); color: #ffffff; }
+
+    @media (min-width: 700px) {
+      .entry-list { grid-template-columns: repeat(5, 1fr); }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .entry-row, .tab::after { transition: none !important; animation: none !important; }
     }
@@ -1103,9 +1111,14 @@
 <script>
   // ===== Entry data =====
   const ENTRIES = [
-    { id: 'wordle',        label: 'Wordle',                    icon: '🟩', href: 'https://andrewveda.com/verve/buttons/wordle-hub',                     cat: ['missions'] },
+    { id: 'wordle',        label: 'Wordle',                    icon: '🟩', href: 'https://andrewveda.com/verve/buttons/wordledaily',                    cat: ['missions'] },
+    { id: 'wordleblitz',   label: 'Wordle Blitz',              icon: '⚡', href: 'https://andrewveda.com/verve/wordleblitz',                            cat: ['missions'] },
     { id: 'cryptic',       label: 'Cryptic Crossword',         icon: '🔍', href: 'https://andrewveda.com/cryptic/',                                      cat: ['missions'] },
-    { id: 'blossom',       label: 'Blossom Hub',               icon: '🌱', href: 'https://andrewveda.com/verve/buttons/blossomhub',                     cat: ['missions'] },
+    { id: 'blossom',       label: 'Blossom',                   icon: '🌱', href: 'https://andrewveda.com/verve/buttons/blossom',                        cat: ['missions'] },
+    { id: 'blossomhard',   label: 'Blossom Hard',              icon: '🌸', href: 'https://andrewveda.com/verve/buttons/blossomhard',                    cat: ['missions'] },
+    { id: 'missionsleaderboard', label: 'Leaderboard',         icon: '🏆', href: 'https://andrewveda.com/verve/leaderboard',                            cat: ['missions'] },
+    { id: 'blossomleaderboard',  label: 'Blossom Leaderboard', icon: '🌻', href: 'https://andrewveda.com/verve/buttons/blossomleaderboard',             cat: ['missions'] },
+    { id: 'wordleleaderboard',   label: 'Wordle Leaderboard',  icon: '🟨', href: 'https://andrewveda.com/verve/buttons/wordleleaderboard',              cat: ['missions'] },
     { id: 'jigsaw',        label: 'Jigsaw Thon',               icon: '🧩', href: 'https://andrewveda.com/verve/buttons/jigsaw_thon',                    cat: ['missions'] },
     { id: 'dailyquest',    label: 'Daily Quest',               icon: '🔥', href: 'https://andrewveda.com/verve/calendar',                                cat: ['missions'] },
     { id: 'wordrush',      label: 'Word Rush',                 icon: '⚡', href: 'https://andrewveda.com/verve/aptitude/thon/wordrush',                 cat: ['missions'] },
@@ -1125,6 +1138,9 @@
     { id: 'cefr',          label: 'CEFR Directory',            icon: '🧭', href: 'https://andrewveda.com/verve/CEFR/directory',                          cat: ['reading'] },
     { id: 'philosophical', label: 'Philosophical Conversations', icon: '💭', href: 'https://andrewveda.com/verve/buttons/dialogues/directory',           cat: ['reading'] },
     { id: 'eclatineers',   label: 'Eclatineers',                icon: '📰', href: 'https://andrewveda.com/eclatineers',                                  cat: ['reading','writing'] },
+    { id: 'acrostic',      label: 'Acrostic Poetry Builder',    icon: '✍️', href: 'https://andrewveda.com/eclatineers/acrostic-builder',                cat: ['reading','writing'] },
+    { id: 'littleprince',  label: 'The Little Prince',          icon: '🌹', href: 'https://andrewveda.com/verve/buttons/daily/lpp',                     cat: ['reading','listening'] },
+    { id: 'bookreviews',   label: 'Book Reviews',               icon: '🎬', href: 'https://andrewveda.com/verve/buttons/review/lppvideos',              cat: ['listening'] },
     { id: 'forum',         label: 'Forum',                      icon: '♾️', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/vox-forum',        cat: ['reading','writing'] },
     { id: 'insights',      label: 'Insights',                   icon: '📖', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/bookinsights',     cat: ['reading','writing'] },
     { id: 'quoteaday',     label: 'A Quote a Day',              icon: '💬', href: 'https://andrewveda.com/a-quote-a-day/',                                cat: ['reading','writing'] },
@@ -1133,10 +1149,9 @@
     { id: 'chess',         label: 'Chess',                      icon: '♟️', href: 'https://andrewveda.com/verve/buttons/chess',                          cat: ['writing'] },
     { id: 'resume',        label: 'Resume Builder',            icon: '📄', href: 'https://andrewveda.com/verve/buttons/resume',                         cat: ['writing'] },
     { id: 'numerical',     label: 'Numerical',                  icon: '🔢', href: 'https://andrewveda.com/verve/aptitude/thon/numerical',                cat: ['writing'] },
-    { id: 'leaders',       label: 'Leaders',                    icon: '🏆', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/leaderboard_hub',  cat: ['writing'] },
     { id: 'directory',     label: 'Directory',                  icon: '📑', href: 'https://andrewveda.com/SRM-VEC-English-PWA/cat-a',                    cat: ['writing'] },
     { id: 'vvv',           label: 'Veni, Vidi, Vici',           icon: '🚀', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/leaderboard_dept', cat: ['writing'] },
-    { id: 'starjoin',      label: 'Star & Join the Team',       icon: '⭐', href: 'https://github.com/andrewveda',                                       cat: ['writing'], external: true }
+    { id: 'starjoin',      label: 'Star & Join the Team',       icon: '⭐', href: 'https://github.com/andrewveda',                                       cat: ['missions','listening','speaking','reading','writing'], external: true }
   ];
 
   let currentCat = 'missions';
