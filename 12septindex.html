@@ -109,11 +109,9 @@
     }
 
     /* ===== Chapter ink accents ===== */
-    body.theme-missions  { --accent: #a9812f; --accent-soft: rgba(169,129,47,0.12); }
-    body.theme-listening { --accent: #2f5d62; --accent-soft: rgba(47,93,98,0.12); }
-    body.theme-speaking  { --accent: #8a2a2a; --accent-soft: rgba(138,42,42,0.12); }
-    body.theme-reading   { --accent: #3f6b3f; --accent-soft: rgba(63,107,63,0.12); }
-    body.theme-writing   { --accent: #3d3f7a; --accent-soft: rgba(61,63,122,0.12); }
+    body.theme-missions           { --accent: #a9812f; --accent-soft: rgba(169,129,47,0.12); }
+    body.theme-listening-speaking { --accent: #2f5d62; --accent-soft: rgba(47,93,98,0.12); }
+    body.theme-reading-writing    { --accent: #3f6b3f; --accent-soft: rgba(63,107,63,0.12); }
 
     /* ===== Dictionary Splash Screen ===== */
     .splash-screen {
@@ -405,14 +403,15 @@
       background: none;
       border: none;
       font-family: 'DM Mono', monospace;
-      font-size: 0.56rem;
-      letter-spacing: 1px;
+      font-size: 0.52rem;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
       color: var(--text-muted);
       padding: 6px 2px;
       cursor: pointer;
       position: relative;
       transition: color 0.3s ease;
+      white-space: nowrap;
     }
     .tab::after {
       content: '';
@@ -1069,10 +1068,8 @@
     <div class="filter-shelf">
       <div class="chapter-tabs" id="chapterTabs">
         <button class="tab active" data-cat="missions">Missions</button>
-        <button class="tab" data-cat="listening">Listening</button>
-        <button class="tab" data-cat="speaking">Speaking</button>
-        <button class="tab" data-cat="reading">Reading</button>
-        <button class="tab" data-cat="writing">Writing</button>
+        <button class="tab" data-cat="listening-speaking">Listening → Speaking</button>
+        <button class="tab" data-cat="reading-writing">Reading → Writing</button>
       </div>
     </div>
 
@@ -1126,32 +1123,32 @@
     { id: 'anagram',       label: 'Anagram',                   icon: '🔤', href: 'https://andrewveda.com/verve/aptitude/anagram3',                      cat: ['missions'] },
     { id: '4pics',         label: '4 Pics 1 Word',             icon: '🖼️', href: 'https://andrewveda.com/SRM-VEC-English-PWA/4pics',                    cat: ['missions'] },
     { id: 'stories',       label: 'Cloze Stories',             icon: '🪶', href: 'https://andrewveda.com/verve/buttons/cloze/stories',                  cat: ['missions'] },
-    { id: 'ieltsgre',      label: 'IELTS / GRE',                icon: '🎓', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/vv-directory',     cat: ['missions','listening','reading'] },
-    { id: 'dailyvocab',    label: 'Daily Vocabulary',          icon: '📚', href: 'https://andrewveda.com/verve/buttons/vocab',                          cat: ['reading','listening'] },
-    { id: 'videos',        label: 'Videos',                     icon: '🎥', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/videoyg',         cat: ['listening'] },
-    { id: 'studentsspeak', label: 'Students Speak',            icon: '📷', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/videoy',           cat: ['listening'] },
-    { id: 'tedEd',         label: 'Ted-ED',                     icon: '🎧', href: 'https://andrewveda.com/verve/buttons/video/ted-ed',                   cat: ['listening'] },
-    { id: 'songs',         label: 'Songs',                      icon: '🎶', href: 'https://andrewveda.com/verve/buttons/songs',                          cat: ['listening'] },
-    { id: 'thon',          label: 'Thon',                       icon: '🏆', href: 'https://andrewveda.com/verve/aptitude/thon/directory',                cat: ['speaking'] },
-    { id: 'selfintro',     label: 'Self-Introduction',         icon: '🗣️', href: 'https://andrewveda.com/verve/buttons/speaking/self-introduction',     cat: ['speaking'] },
-    { id: 'groupdisc',     label: 'Group Discussion',          icon: '👥', href: 'https://andrewveda.com/verve/gd',                                      cat: ['speaking'] },
-    { id: 'cefr',          label: 'CEFR Directory',            icon: '🧭', href: 'https://andrewveda.com/verve/CEFR/directory',                          cat: ['reading'] },
-    { id: 'philosophical', label: 'Philosophical Conversations', icon: '💭', href: 'https://andrewveda.com/verve/buttons/dialogues/directory',           cat: ['reading'] },
-    { id: 'eclatineers',   label: 'Eclatineers',                icon: '📰', href: 'https://andrewveda.com/eclatineers',                                  cat: ['reading','writing'] },
-    { id: 'acrostic',      label: 'Acrostic Poetry Builder',    icon: '✍️', href: 'https://andrewveda.com/eclatineers/acrostic-builder',                cat: ['reading','writing'] },
-    { id: 'littleprince',  label: 'The Little Prince',          icon: '🌹', href: 'https://andrewveda.com/verve/buttons/daily/lpp',                     cat: ['reading','listening'] },
-    { id: 'bookreviews',   label: 'Book Reviews',               icon: '🎬', href: 'https://andrewveda.com/verve/buttons/review/lppvideos',              cat: ['listening'] },
-    { id: 'forum',         label: 'Forum',                      icon: '♾️', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/vox-forum',        cat: ['reading','writing'] },
-    { id: 'insights',      label: 'Insights',                   icon: '📖', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/bookinsights',     cat: ['reading','writing'] },
-    { id: 'quoteaday',     label: 'A Quote a Day',              icon: '💬', href: 'https://andrewveda.com/a-quote-a-day/',                                cat: ['reading','writing'] },
-    { id: 'elllrecord',    label: 'ELLL Record',                icon: '📝', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/ELLL.html',        cat: ['writing'] },
-    { id: 'assignments',   label: 'Assignments',                icon: '🖋️', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/chess',           cat: ['writing'] },
-    { id: 'chess',         label: 'Chess',                      icon: '♟️', href: 'https://andrewveda.com/verve/buttons/chess',                          cat: ['writing'] },
-    { id: 'resume',        label: 'Resume Builder',            icon: '📄', href: 'https://andrewveda.com/verve/buttons/resume',                         cat: ['writing'] },
-    { id: 'numerical',     label: 'Numerical',                  icon: '🔢', href: 'https://andrewveda.com/verve/aptitude/thon/numerical',                cat: ['writing'] },
-    { id: 'directory',     label: 'Directory',                  icon: '📑', href: 'https://andrewveda.com/SRM-VEC-English-PWA/cat-a',                    cat: ['writing'] },
-    { id: 'vvv',           label: 'Veni, Vidi, Vici',           icon: '🚀', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/leaderboard_dept', cat: ['writing'] },
-    { id: 'starjoin',      label: 'Star & Join the Team',       icon: '⭐', href: 'https://github.com/andrewveda',                                       cat: ['missions','listening','speaking','reading','writing'], external: true }
+    { id: 'ieltsgre',      label: 'IELTS / GRE',                icon: '🎓', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/vv-directory',     cat: ['missions','listening-speaking','reading-writing'] },
+    { id: 'dailyvocab',    label: 'Daily Vocabulary',          icon: '📚', href: 'https://andrewveda.com/verve/buttons/vocab',                          cat: ['reading-writing','listening-speaking'] },
+    { id: 'videos',        label: 'Videos',                     icon: '🎥', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/videoyg',         cat: ['listening-speaking'] },
+    { id: 'studentsspeak', label: 'Students Speak',            icon: '📷', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/videoy',           cat: ['listening-speaking'] },
+    { id: 'tedEd',         label: 'Ted-ED',                     icon: '🎧', href: 'https://andrewveda.com/verve/buttons/video/ted-ed',                   cat: ['listening-speaking'] },
+    { id: 'songs',         label: 'Songs',                      icon: '🎶', href: 'https://andrewveda.com/verve/buttons/songs',                          cat: ['listening-speaking'] },
+    { id: 'thon',          label: 'Thon',                       icon: '🏆', href: 'https://andrewveda.com/verve/aptitude/thon/directory',                cat: ['listening-speaking'] },
+    { id: 'selfintro',     label: 'Self-Introduction',         icon: '🗣️', href: 'https://andrewveda.com/verve/buttons/speaking/self-introduction',     cat: ['listening-speaking'] },
+    { id: 'groupdisc',     label: 'Group Discussion',          icon: '👥', href: 'https://andrewveda.com/verve/gd',                                      cat: ['listening-speaking'] },
+    { id: 'cefr',          label: 'CEFR Directory',            icon: '🧭', href: 'https://andrewveda.com/verve/CEFR/directory',                          cat: ['reading-writing'] },
+    { id: 'philosophical', label: 'Philosophical Conversations', icon: '💭', href: 'https://andrewveda.com/verve/buttons/dialogues/directory',           cat: ['reading-writing'] },
+    { id: 'eclatineers',   label: 'Eclatineers',                icon: '📰', href: 'https://andrewveda.com/eclatineers',                                  cat: ['reading-writing'] },
+    { id: 'acrostic',      label: 'Acrostic Poetry Builder',    icon: '✍️', href: 'https://andrewveda.com/eclatineers/acrostic-builder',                cat: ['reading-writing'] },
+    { id: 'littleprince',  label: 'The Little Prince',          icon: '🌹', href: 'https://andrewveda.com/verve/buttons/daily/lpp',                     cat: ['reading-writing','listening-speaking'] },
+    { id: 'bookreviews',   label: 'Book Reviews',               icon: '🎬', href: 'https://andrewveda.com/verve/buttons/review/lppvideos',              cat: ['listening-speaking'] },
+    { id: 'forum',         label: 'Forum',                      icon: '♾️', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/vox-forum',        cat: ['reading-writing'] },
+    { id: 'insights',      label: 'Insights',                   icon: '📖', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/bookinsights',     cat: ['reading-writing'] },
+    { id: 'quoteaday',     label: 'A Quote a Day',              icon: '💬', href: 'https://andrewveda.com/a-quote-a-day/',                                cat: ['reading-writing'] },
+    { id: 'elllrecord',    label: 'ELLL Record',                icon: '📝', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/ELLL.html',        cat: ['reading-writing'] },
+    { id: 'assignments',   label: 'Assignments',                icon: '🖋️', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/chess',           cat: ['reading-writing'] },
+    { id: 'chess',         label: 'Chess',                      icon: '♟️', href: 'https://andrewveda.com/verve/buttons/chess',                          cat: ['reading-writing'] },
+    { id: 'resume',        label: 'Resume Builder',            icon: '📄', href: 'https://andrewveda.com/verve/buttons/resume',                         cat: ['reading-writing'] },
+    { id: 'numerical',     label: 'Numerical',                  icon: '🔢', href: 'https://andrewveda.com/verve/aptitude/thon/numerical',                cat: ['reading-writing'] },
+    { id: 'directory',     label: 'Directory',                  icon: '📑', href: 'https://andrewveda.com/SRM-VEC-English-PWA/cat-a',                    cat: ['reading-writing'] },
+    { id: 'vvv',           label: 'Veni, Vidi, Vici',           icon: '🚀', href: 'https://andrewveda.com/SRM-VEC-English-PWA/buttons/leaderboard_dept', cat: ['reading-writing'] },
+    { id: 'starjoin',      label: 'Star & Join the Team',       icon: '⭐', href: 'https://github.com/andrewveda',                                       cat: ['missions','listening-speaking','reading-writing'], external: true }
   ];
 
   let currentCat = 'missions';
