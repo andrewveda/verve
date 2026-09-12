@@ -92,13 +92,16 @@
     .header-user {
       display: flex;
       flex-direction: column;
+      flex: 1;
+      padding-right: 12px;
     }
     .user-name {
       font-family: 'Playfair Display', serif;
       font-size: 1.15rem;
       font-weight: 700;
       color: var(--text);
-      line-height: 1.1;
+      line-height: 1.2;
+      word-break: break-word;
     }
     .user-dept {
       font-size: 0.58rem;
@@ -117,6 +120,7 @@
       font-size: 0.7rem;
       text-decoration: none;
       transition: all 0.2s;
+      white-space: nowrap;
     }
     .home-link:hover {
       border-color: var(--gold);
@@ -271,40 +275,6 @@
       font-style: normal;
     }
 
-    /* Modal for duplicate matching */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 600;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(6px);
-      padding: 16px;
-    }
-    .modal-overlay.show { display: flex; }
-    .modal-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      width: 100%;
-      max-width: 360px;
-      text-align: center;
-    }
-    .modal-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border-dim);
-      background: var(--deep);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
     /* Footer */
     .footer {
       text-align: center;
@@ -356,11 +326,6 @@
   </div>
 </div>
 
-<!-- Modal for choosing student record -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal-box" id="modalBox"></div>
-</div>
-
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm";
 
@@ -373,72 +338,113 @@ const supabase = createClient(
 let userData = null;
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-// Start date set to September 1, 2026 (Month is 0-indexed, so 8 = September)
 const startDate = new Date(2026, 8, 1);
 
-// Links
 const questLinks = {
  1: "https://andrewveda.com/verve/buttons/daily/1",
-2: "https://andrewveda.com/verve/buttons/daily/2",
-3: "https://andrewveda.com/verve/buttons/daily/3",
-4: "https://andrewveda.com/verve/buttons/daily/4",
-5: "https://andrewveda.com/verve/buttons/daily/5",
-6: "https://andrewveda.com/verve/buttons/daily/6",
-7: "https://andrewveda.com/verve/buttons/daily/7",
-8: "https://andrewveda.com/verve/buttons/daily/8",
-9: "https://andrewveda.com/verve/buttons/daily/9",
-10: "https://andrewveda.com/verve/buttons/clips/Invictus",
-11: "https://andrewveda.com/verve/buttons/daily/10",
-12: "https://andrewveda.com/verve/buttons/daily/11",
+ 2: "https://andrewveda.com/verve/buttons/daily/2",
+ 3: "https://andrewveda.com/verve/buttons/daily/3",
+ 4: "https://andrewveda.com/verve/buttons/daily/4",
+ 5: "https://andrewveda.com/verve/buttons/daily/5",
+ 6: "https://andrewveda.com/verve/buttons/daily/6",
+ 7: "https://andrewveda.com/verve/buttons/daily/7",
+ 8: "https://andrewveda.com/verve/buttons/daily/8",
+ 9: "https://andrewveda.com/verve/buttons/daily/9",
+ 10: "https://andrewveda.com/verve/buttons/clips/Invictus",
+ 11: "https://andrewveda.com/verve/buttons/daily/10",
+ 12: "https://andrewveda.com/verve/buttons/daily/11",
+ 13: "https://andrewveda.com/verve/buttons/kipling_if",
+ 14: "https://andrewveda.com/verve/buttons/clips/knowledgeispower",
+ 15: "https://andrewveda.com/verve/buttons/clips/powerriddle"
 };
 
-// Init
+// Vacuum function to suck up ALL names from local storage, regardless of what key was used
+function extractAllNamesFromStorage() {
+  let aliases = new Set();
+  
+  for (let i = 0; i < localStorage.length; i++) {
+    let key = localStorage.key(i);
+    
+    // Ignore known system variables that aren't names
+    const ignoreKeys = ['cachedUserData', 'userIdentityMode', 'userIdentityIndex', 'userDept'];
+    if (ignoreKeys.includes(key)) continue;
+
+    let value = localStorage.getItem(key);
+    if (!value) continue;
+
+    // Try parsing in case it's a JSON array, otherwise split by comma
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        parsed.forEach(n => aliases.add(String(n).trim().toLowerCase()));
+      } else if (typeof parsed === 'string') {
+        parsed.split(",").forEach(n => aliases.add(n.trim().toLowerCase()));
+      }
+    } catch (e) {
+      value.split(",").forEach(n => aliases.add(n.trim().toLowerCase()));
+    }
+  }
+  
+  // Remove empty strings and obvious non-names (like long CSS/HTML strings if any got caught)
+  return Array.from(aliases).filter(name => name.length > 0 && name.length < 50);
+}
+
 async function init() {
   checkOnlineStatus();
-  const savedName = localStorage.getItem("userName") || "Guest";
+  
+  const allAliases = extractAllNamesFromStorage();
   const savedDept = localStorage.getItem("userDept") || "—";
   
-  document.getElementById("userNameLabel").textContent = savedName;
+  // Fallback to "Guest" if storage is completely empty
+  const defaultDisplayName = allAliases.length > 0 ? allAliases.join(" / ") : "Guest";
+  
+  document.getElementById("userNameLabel").textContent = defaultDisplayName;
   document.getElementById("userDeptLabel").textContent = savedDept;
 
   const cached = localStorage.getItem("cachedUserData");
   if (cached) {
     userData = JSON.parse(cached);
+    if (userData && userData.name) {
+       document.getElementById("userNameLabel").textContent = userData.name;
+    }
     renderCalendar(currentMonth, currentYear);
   }
 
-  if (savedName !== "Guest") {
-    fetchUserData(savedName);
+  if (allAliases.length > 0) {
+    fetchUserData(allAliases);
   } else {
     renderCalendar(currentMonth, currentYear);
   }
 }
 
-async function fetchUserData(name) {
+async function fetchUserData(aliases) {
   try {
     const { data, error } = await supabase.from("report_card_view").select("*");
     if (error) throw error;
 
-    const matches = (data || []).filter(u => u.name && u.name.trim().toLowerCase() === name.trim().toLowerCase());
+    // Find all records that match ANY of the aliases found in local storage
+    const matches = (data || []).filter(u =>
+      u.name && aliases.includes(u.name.trim().toLowerCase())
+    );
 
     if (matches.length === 0) {
-      userData = { name, quest_list: "" };
+      // Format aliases for display nicely with Title Case
+      const displayTitle = aliases.map(n => n.replace(/\b\w/g, c => c.toUpperCase())).join(" / ");
+      userData = { name: displayTitle || "Guest", quest_list: "" };
     } else if (matches.length === 1) {
       userData = matches[0];
     } else {
-      const mode = localStorage.getItem("userIdentityMode");
-      if (mode === "merged") {
-        userData = mergeUserRecords(matches);
-      } else if (mode === "single") {
-        const index = parseInt(localStorage.getItem("userIdentityIndex"), 10);
-        if (!isNaN(index) && matches[index]) userData = matches[index];
-      } else {
-        showDuplicatePicker(matches);
-        return;
-      }
+      // Auto-merge all matched records
+      userData = mergeUserRecords(matches);
     }
 
     localStorage.setItem("cachedUserData", JSON.stringify(userData));
+    
+    // Update the UI with the merged display name
+    if (userData && userData.name) {
+      document.getElementById("userNameLabel").textContent = userData.name;
+    }
+
     renderCalendar(currentMonth, currentYear);
   } catch (err) {
     console.error("Fetch error:", err);
@@ -446,61 +452,19 @@ async function fetchUserData(name) {
   }
 }
 
-function showDuplicatePicker(matches) {
-  const modal = document.getElementById("confirmModal");
-  const box = document.getElementById("modalBox");
-
-  box.innerHTML = `
-    <p style="font-size:0.9rem;margin-bottom:12px;">Multiple records found.<br>Which one are you?</p>
-    <div id="pickerOptions" style="display:flex;flex-direction:column;gap:6px;"></div>
-  `;
-
-  const container = document.getElementById("pickerOptions");
-  matches.forEach((match, i) => {
-    const btn = document.createElement("button");
-    btn.className = "modal-btn";
-    btn.style.textAlign = "left";
-    btn.innerHTML = `
-      <div style="font-weight:700;">${match.name}</div>
-      <div style="color:var(--gold);font-size:0.6rem;">${match.department || "No dept"} · ${match.quests_completed ?? 0} quests</div>
-    `;
-    btn.onclick = () => {
-      userData = match;
-      localStorage.setItem("userIdentityMode", "single");
-      localStorage.setItem("userIdentityIndex", i);
-      localStorage.setItem("cachedUserData", JSON.stringify(userData));
-      modal.classList.remove("show");
-      renderCalendar(currentMonth, currentYear);
-    };
-    container.appendChild(btn);
-  });
-
-  const mergeBtn = document.createElement("button");
-  mergeBtn.className = "modal-btn";
-  mergeBtn.style.borderColor = "var(--gold)";
-  mergeBtn.style.color = "var(--gold)";
-  mergeBtn.textContent = "Merge All Records";
-  mergeBtn.onclick = () => {
-    userData = mergeUserRecords(matches);
-    localStorage.setItem("userIdentityMode", "merged");
-    localStorage.setItem("cachedUserData", JSON.stringify(userData));
-    modal.classList.remove("show");
-    renderCalendar(currentMonth, currentYear);
-  };
-  container.appendChild(mergeBtn);
-
-  modal.classList.add("show");
-}
-
 function mergeUserRecords(records) {
   const merged = { ...records[0] };
   let questSet = new Set();
+  let uniqueNames = new Set();
 
   records.forEach(r => {
+    if(r.name) uniqueNames.add(r.name.trim());
     parseList(r.quest_list).forEach(x => questSet.add(x));
   });
 
+  merged.name = Array.from(uniqueNames).join(" / ");
   merged.quest_list = [...questSet].join(",");
+  merged.quests_completed = questSet.size;
   return merged;
 }
 
@@ -573,7 +537,7 @@ function checkOnlineStatus() {
   if (!navigator.onLine) document.getElementById("offlineBanner").classList.add("show");
 }
 window.addEventListener("online", () => document.getElementById("offlineBanner").classList.remove("show"));
-window.addEventListener("offline", () => document.getElementById("offlineBanner").classList.show());
+window.addEventListener("offline", () => document.getElementById("offlineBanner").classList.add("show"));
 
 init();
 </script>
