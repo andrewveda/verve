@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+  <title>Degree Quest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --paper:#f3ead4; --card:#fffbf2; --card-line:#e3d5b0;
+      --ink:#2d2620; --ink-muted:#8c7c62;
+      --forest:#2f5233; --forest-dark:#20391f; --moss:#6f8f5a;
+      --clay:#b5651d; --gold:#c9a227; --rust:#a4392c;
+      --verb:#2f6b3f; --wrong:#a4392c;
+      --a1:#4f8f5f; --a2:#4f8f5f; --b1:#c9932a; --b2:#c9932a; --c1:#a4392c; --c2:#6b3fa0;
+      --shadow-sm:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);
+      --shadow-md:0 2px 6px rgba(45,38,32,.10),0 10px 26px rgba(45,38,32,.12);
+      --ease:cubic-bezier(.16,1,.3,1);
+    }
+    html,body{min-height:100%;overscroll-behavior-x:none;}
+    body{
+      font-family:'Inter',sans-serif; background:var(--paper); color:var(--ink);
+      min-height:100dvh; display:flex; flex-direction:column; align-items:center;
+      background-image:
+        radial-gradient(ellipse 70% 50% at 12% 8%, rgba(111,143,90,.14) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 45% at 92% 88%, rgba(181,101,29,.10) 0%, transparent 60%);
+    }
+    .screen{display:none;flex-direction:column;align-items:center;width:100%;min-height:100dvh;}
+    .screen.active{display:flex;}
+    #gameScreen{align-items:stretch;}
+    .col{
+      display:flex;flex-direction:column;width:100%;min-height:100%;max-width:520px;margin:0 auto;
+      padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
+      gap:clamp(9px,1.4dvh,14px);
+    }
+
+    /* ═══════ Name / Department Gate ═══════ */
+    #nameForm{align-items:center;justify-content:center;padding:24px;gap:0;}
+    .gate-card{
+      width:100%;max-width:400px;background:var(--card);border:1.5px solid var(--card-line);
+      border-radius:20px;padding:34px 26px 28px;box-shadow:0 20px 60px rgba(45,38,32,.14);
+      display:flex;flex-direction:column;align-items:stretch;gap:14px;
+      animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;
+    }
+    .hero-quote{text-align:center;margin-bottom:8px;}
+    .hero-text{font-family:'Fraunces',serif;font-weight:900;font-size:1.7rem;color:var(--forest);letter-spacing:-.5px;}
+    .hero-author{font-size:1.3rem;margin-top:4px;}
+    .gate-label{font-family:'Space Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted);margin:6px 0 -6px;}
+    #nameInput, #departmentSelect{
+      width:100%;padding:14px 15px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:#fffdf7;font-family:'Inter',sans-serif;font-size:1rem;color:var(--ink);
+      appearance:none;-webkit-appearance:none;
+    }
+    #departmentSelect{
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238c7c62' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+      background-repeat:no-repeat;background-position:right 14px center;background-size:18px;
+    }
+    #nameInput:focus, #departmentSelect:focus{outline:none;border-color:var(--moss);}
+    #gateError{color:var(--rust);font-size:.78rem;font-family:'Space Mono',monospace;text-align:center;min-height:1em;}
+    .btn-start{
+      margin-top:6px;padding:15px;border:none;border-radius:12px;
+      background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;
+      font-family:'Inter',sans-serif;font-weight:700;font-size:.95rem;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;box-shadow:0 4px 16px rgba(47,82,51,.25);
+      transition:transform .15s;
+    }
+    .btn-start:active{transform:scale(.97);}
+    .btn-start:disabled{opacity:.6;cursor:default;}
+    .btn-study-link{
+      background:none;border:none;margin-top:2px;padding:8px;color:var(--ink-muted);
+      font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.03em;cursor:pointer;
+      text-decoration:underline;text-underline-offset:3px;transition:color .15s;
+    }
+    .btn-study-link:hover{color:var(--forest);}
+
+    /* Top Bar */
+    .top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .top-actions{display:flex;gap:6px;}
+    .icon-btn{
+      width:38px;height:38px;border-radius:9px;border:1.5px solid var(--card-line);background:var(--card);
+      display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-muted);
+      box-shadow:var(--shadow-sm);transition:all .18s var(--ease);
+    }
+    .icon-btn svg{width:46%;height:46%;}
+    .icon-btn:hover{background:#f7ede0;color:var(--rust);}
+    .icon-btn:active{transform:scale(.9);}
+    .brand{text-align:center;}
+    .brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.05rem,3.2dvh,1.4rem);letter-spacing:-.3px;color:var(--forest);}
+    .brand span{color:var(--rust);}
+    .brand .sub{font-family:'Space Mono',monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-top:1px;}
+
+    .timer-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--card-line);border-radius:99px;padding:6px 13px;box-shadow:var(--shadow-sm);}
+    .timer-text{font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;color:var(--forest);white-space:nowrap;}
+
+    /* Stats Strip */
+    .stat-strip{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:8px 13px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:5px;}
+    .stat-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+    .rank-name{font-family:'Fraunces',serif;font-weight:700;font-size:.82rem;color:var(--forest);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .stat-nums{font-family:'Space Mono',monospace;font-size:.63rem;color:var(--ink-muted);white-space:nowrap;}
+    .stat-nums b{color:var(--clay);font-weight:700;font-size:1.05em;margin:0 2px;}
+    .rank-track{height:5px;background:#e9dcbb;border-radius:99px;overflow:hidden;}
+    .rank-fill{height:100%;background:linear-gradient(90deg,var(--moss),var(--forest));border-radius:99px;transition:width .6s var(--ease);}
+
+    /* Rule Card */
+    .rule-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:11px 15px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:5px;}
+    .rule-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+    .rule-name{font-family:'Fraunces',serif;font-weight:700;font-size:.94rem;color:var(--forest);}
+    .cefr-pill{font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:3px 9px;border-radius:99px;color:#fff;white-space:nowrap;}
+    .cefr-pill.a1,.cefr-pill.a2{background:var(--a1);}
+    .cefr-pill.b1,.cefr-pill.b2{background:var(--b1);}
+    .cefr-pill.c1{background:var(--c1);}
+    .cefr-pill.c2{background:var(--c2);}
+    .rule-explain{font-family:'Inter',sans-serif;font-size:.76rem;line-height:1.42;color:var(--ink-muted);}
+
+    /* Toggle contrast card */
+    .contrast-card{
+      background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:10px 14px;
+      display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 1px 3px rgba(45,38,32,.04);
+    }
+    .contrast-header{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+    .contrast-title{font-family:'Space Mono',monospace;font-size:.58rem;text-transform:uppercase;color:var(--clay);font-weight:700;letter-spacing:.05em;}
+    .toggle-wrap{display:flex;background:#e2d4b0;border-radius:99px;padding:2px;gap:2px;}
+    .toggle-btn{
+      padding:4px 12px;border:none;border-radius:99px;background:transparent;
+      font-family:'Space Mono',monospace;font-size:.64rem;font-weight:700;color:var(--ink-muted);
+      cursor:pointer;transition:all .2s var(--ease);white-space:nowrap;
+    }
+    .toggle-btn.active{background:var(--forest);color:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+    .contrast-sentence{font-family:'Fraunces',serif;font-size:.9rem;color:var(--ink);line-height:1.4;text-align:center;}
+    .contrast-sentence b{color:var(--verb);text-decoration:underline;text-underline-offset:3px;}
+    .contrast-meaning{
+      font-size:.73rem;line-height:1.4;color:var(--ink);background:var(--card);
+      padding:8px 10px;border-radius:8px;border:1px solid var(--card-line);
+      display:flex;align-items:flex-start;gap:6px;
+    }
+    .contrast-icon{font-size:1.05rem;line-height:1;flex-shrink:0;}
+
+    /* Specimen Mount */
+    .mount{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:20px 18px 14px;box-shadow:var(--shadow-md);position:relative;}
+    .mount::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px dashed #d8c69a;border-radius:8px;pointer-events:none;}
+    .mount.error{animation:shake .35s ease;}
+    .mount.success{animation:pop .4s var(--ease);}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+    @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+    .sentence-line{font-family:'Fraunces',serif;font-size:1.12rem;line-height:1.7;text-align:center;position:relative;z-index:1;}
+    .blank-slot{
+      display:inline-block;min-width:70px;padding:1px 8px;border-bottom:2.5px dashed #c9b98d;
+      font-weight:700;color:var(--ink-muted);text-align:center;
+    }
+    .blank-slot.filled{border-bottom-style:solid;border-bottom-color:var(--verb);color:var(--verb);animation:tileIn .25s cubic-bezier(.2,1.5,.4,1);}
+    @keyframes tileIn{from{transform:translateY(6px) scale(.85);opacity:0}to{transform:none;opacity:1}}
+    .mount-caption{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--ink-muted);margin-top:10px;letter-spacing:.03em;position:relative;z-index:1;}
+
+    /* Choice Tray */
+    .tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:52px;align-content:flex-start;}
+    .tile{
+      display:inline-flex;flex-direction:column;align-items:center;gap:1px;padding:10px 20px;border-radius:12px;
+      background:#fffdf7;border:1.5px solid #bfe0c8;cursor:pointer;user-select:none;
+      box-shadow:var(--shadow-sm);transition:transform .15s var(--ease),box-shadow .15s,opacity .15s;
+      animation:tileSpawn .22s cubic-bezier(.2,1.5,.4,1);
+    }
+    .tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .tile:active{transform:scale(.94);}
+    .tile.wrong{animation:tileShake .4s ease;}
+    .tile.solved{opacity:0;pointer-events:none;}
+    @keyframes tileShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+    @keyframes tileSpawn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+    .tile .word{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;color:var(--verb);text-transform:lowercase;text-align:center;}
+
+    /* Paradigm Panel */
+    .paradigm-panel{
+      background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:10px 14px 12px;
+      box-shadow:var(--shadow-sm);margin-top:auto;display:flex;flex-direction:column;gap:6px;
+    }
+    .paradigm-title{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;}
+    .paradigm-title b{color:var(--forest);}
+    .paradigm-rows{display:flex;flex-direction:column;gap:4px;}
+    .paradigm-row{display:flex;align-items:baseline;gap:8px;padding:4px 2px;border-radius:6px;}
+    .paradigm-row.active{background:#eef3e9;}
+    .paradigm-num{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);min-width:16px;flex-shrink:0;}
+    .paradigm-row.done .paradigm-num{color:var(--forest);}
+    .paradigm-sentence{font-family:'Fraunces',serif;font-size:.86rem;color:var(--ink);flex:1;}
+    .paradigm-sentence.pending{color:#c9bfa5;font-style:italic;}
+    .paradigm-sentence b{color:var(--verb);}
+    .paradigm-check{font-size:.75rem;color:var(--moss);flex-shrink:0;}
+
+    .archive-title{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:8px;}
+    .archive-list{display:flex;flex-direction:column;gap:6px;max-height:130px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .archive-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;padding:7px 10px;}
+    .archive-card .arc-rule{font-family:'Space Mono',monospace;font-size:.56rem;color:var(--forest);text-transform:uppercase;font-weight:700;margin-bottom:3px;}
+    .archive-card .arc-line{font-family:'Fraunces',serif;font-size:.78rem;color:var(--ink);line-height:1.5;}
+    .archive-card .arc-line b{color:var(--verb);}
+
+    .toast{
+      position:fixed;bottom:calc(env(safe-area-inset-bottom) + 24px);left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;
+      padding:10px 20px;border-radius:16px;font-size:.82rem;font-weight:500;z-index:200;pointer-events:none;
+      transition:transform .35s var(--ease),opacity .35s;opacity:0;max-width:90vw;text-align:center;line-height:1.4;box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+    .toast.good{background:linear-gradient(135deg,var(--forest),var(--moss));}
+    .toast.bad{background:linear-gradient(135deg,var(--rust),#c0503f);}
+    .toast b{display:block;font-family:'Fraunces',serif;font-size:.95rem;margin-bottom:2px;}
+
+    /* End Screen */
+    #endScreen{justify-content:flex-start;padding:30px 16px 50px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .end-card{
+      background:var(--card);border:1.5px solid var(--card-line);border-radius:20px;padding:32px 26px;max-width:520px;
+      width:100%;box-shadow:0 20px 60px rgba(45,38,32,.14);animation:cardIn .55s cubic-bezier(.34,1.4,.64,1) forwards;
+    }
+    @keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+    .end-title{font-family:'Fraunces',serif;font-size:1.9rem;font-weight:900;text-align:center;color:var(--forest);margin-bottom:4px;}
+    .end-subtitle{text-align:center;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px;}
+    .end-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px;}
+    .stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;text-align:center;border:1.5px solid var(--card-line);}
+    .stat-num{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:var(--forest);line-height:1;}
+    .stat-lbl{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+    .end-sentences-title{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;}
+    .end-specimen-card{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:10px;padding:10px 12px;margin-bottom:8px;animation:pop-in .35s cubic-bezier(.2,1.5,.4,1) backwards;}
+    .end-specimen-card .arc-rule{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--forest);text-transform:uppercase;font-weight:700;margin-bottom:4px;}
+    .end-specimen-card .arc-line{font-family:'Fraunces',serif;font-size:.85rem;color:var(--ink);line-height:1.6;}
+    @keyframes pop-in{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+    .end-btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+    .btn-end{
+      flex:1;padding:13px 10px;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:.86rem;font-weight:700;
+      letter-spacing:.03em;cursor:pointer;transition:transform .15s;text-transform:uppercase;min-width:90px;
+    }
+    .btn-end:hover{transform:scale(1.03);}
+    .btn-end-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;box-shadow:0 4px 16px rgba(47,82,51,.25);}
+    .btn-end-share{background:linear-gradient(135deg,#128c7e,#25d366);color:#fff;}
+
+    /* Study Glossary Overlay */
+    .study-overlay{
+      display:none;position:fixed;inset:0;background:var(--paper);z-index:250;overflow-y:auto;
+      -webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 32px);
+    }
+    .study-overlay.show{display:block;}
+    .study-inner{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:12px;}
+    .study-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:10px;border-bottom:1.5px solid var(--card-line);}
+    .study-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.15rem;color:var(--forest);}
+    .study-subtitle{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.05em;color:var(--ink-muted);text-transform:uppercase;margin-top:3px;}
+    .study-search{
+      width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--card-line);
+      background:var(--card);font-family:'Inter',sans-serif;font-size:.9rem;color:var(--ink);outline:none;
+    }
+    .study-search:focus{border-color:var(--moss);}
+    .study-filter-row{display:flex;gap:6px;flex-wrap:wrap;}
+    .study-chip{
+      padding:5px 12px;border-radius:99px;border:1.5px solid var(--card-line);background:var(--card);
+      color:var(--ink-muted);font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.04em;
+      text-transform:uppercase;cursor:pointer;transition:all .15s var(--ease);
+    }
+    .study-chip.active{border-color:var(--forest);background:var(--forest);color:#fff;}
+    .study-grid{display:flex;flex-direction:column;gap:10px;}
+    .study-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);}
+    .study-card.attempted{border-color:rgba(201,147,42,.55);background:linear-gradient(180deg,#fdf6e6,var(--card));}
+    .study-card.mastered{border-color:rgba(47,82,51,.6);background:linear-gradient(180deg,#eef3e9,var(--card));}
+    .study-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+    .study-card-name{font-family:'Fraunces',serif;font-weight:700;font-size:.96rem;color:var(--forest);}
+    .study-card-explain{font-family:'Inter',sans-serif;font-size:.77rem;line-height:1.44;color:var(--ink-muted);margin-bottom:10px;}
+    .study-card-sentences{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;padding:9px 11px;background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:8px;}
+    .study-line{font-family:'Fraunces',serif;font-size:.82rem;color:var(--ink);line-height:1.5;}
+    .study-line b{color:var(--verb);}
+    .study-card-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+    .study-practice-btn{
+      padding:8px 16px;border:none;border-radius:99px;background:linear-gradient(135deg,var(--forest),var(--moss));
+      color:#fff;font-family:'Inter',sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.03em;
+      text-transform:uppercase;cursor:pointer;transition:transform .15s;
+    }
+    .study-practice-btn:active{transform:scale(.95);}
+    .study-practiced-badge{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--clay);letter-spacing:.03em;}
+    .study-mastered-badge{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--moss);letter-spacing:.03em;}
+    .study-empty{text-align:center;padding:32px 0;font-family:'Fraunces',serif;font-style:italic;font-size:.95rem;color:var(--ink-muted);}
+  </style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ═══════ Name / Department Gate ═══════ -->
+<div class="screen active" id="nameForm">
+  <div class="gate-card">
+    <div class="hero-quote">
+      <div class="hero-text">Degree Quest</div>
+      <div class="hero-author">📏⚖️🏆</div>
+    </div>
+    <div class="gate-label">Your Name</div>
+    <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="off"/>
+    <div class="gate-label">Department</div>
+    <select id="departmentSelect">
+      <option value="">-- Select Department --</option>
+      <option value="CSI Ewart">CSI Ewart</option>
+      <option value="Cyber Security">Cyber Security</option>
+      <option value="EIE">EIE</option>
+      <option value="CSE-1">CSE-1</option>
+      <option value="CSE-2">CSE-2</option>
+      <option value="CSE-3">CSE-3</option>
+      <option value="Mechanical Engineering">Mechanical Engineering</option>
+      <option value="ECE-1">ECE-1</option>
+      <option value="ECE-2">ECE-2</option>
+      <option value="ECE-3">ECE-3</option>
+      <option value="AI DS-1">AI DS-1</option>
+      <option value="AI DS-2">AI DS-2</option>
+      <option value="Agri and Civil">Agri and Civil</option>
+      <option value="EEE">EEE</option>
+      <option value="Medical Electronics">Medical Electronics</option>
+      <option value="IT-1">IT-1</option>
+      <option value="IT-2">IT-2</option>
+    </select>
+    <div id="gateError"></div>
+    <button class="btn-start" id="btnBeginQuiz">✿ Start Quiz</button>
+    <button class="btn-study-link" onclick="openStudy()">📖 Study the rules first</button>
+  </div>
+</div>
+
+<div class="screen" id="gameScreen">
+  <div class="col">
+    <div class="top-bar">
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-end-game" aria-label="End round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 3.5L16 11H5"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-study" aria-label="Study glossary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5v-15Z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-new" aria-label="New round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+        </button>
+      </div>
+      <div class="brand"><h1>Degree<span>✦</span></h1><div class="sub">Degree Quest</div></div>
+      <div class="timer-pill">
+        <div class="timer-text" id="timerText">00:00</div>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-top">
+        <span class="rank-name" id="rank-name">Beginner Comparer 🌱</span>
+        <span class="stat-nums"><b id="score">0</b>pts · <b id="streak">0</b> streak · best <b id="best-score">0</b></span>
+      </div>
+      <div class="rank-track"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Rule Card -->
+    <div class="rule-card">
+      <div class="rule-card-top">
+        <span class="rule-name" id="rule-name">Rule name</span>
+        <span class="cefr-pill" id="cefr-pill">A1</span>
+      </div>
+      <div class="rule-explain" id="rule-explain">Explanation goes here.</div>
+    </div>
+
+    <!-- Form toggle -->
+    <div class="contrast-card" id="contrast-card">
+      <div class="contrast-header">
+        <span class="contrast-title" id="contrast-title">Compare</span>
+        <div class="toggle-wrap" id="toggle-wrap"></div>
+      </div>
+      <div class="contrast-sentence" id="contrast-sentence"></div>
+      <div class="contrast-meaning">
+        <span class="contrast-icon" id="contrast-icon">💡</span>
+        <span id="contrast-text">Select an option to see how the form changes.</span>
+      </div>
+    </div>
+
+    <div class="mount" id="mount">
+      <div class="sentence-line" id="sentence-line"></div>
+      <div class="mount-caption" id="mount-caption">tap the correct form</div>
+    </div>
+
+    <div class="tray" id="tray"></div>
+
+    <!-- Paradigm panel: all 4 sentences of the current rule group -->
+    <div class="paradigm-panel">
+      <div class="paradigm-title">Rule <b id="specimen-num">1</b>/30 · <b id="paradigm-count">0</b>/4 sentences</div>
+      <div class="paradigm-rows" id="paradigm-rows"></div>
+      <div class="archive-title" id="archive-title" style="display:none;">Earlier rules</div>
+      <div class="archive-list" id="archive-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="endScreen">
+  <div class="end-card">
+    <div class="end-title" id="endTitle">🏆 Final Verdict</div>
+    <div class="end-subtitle" id="endSubtitle">Degree Quest</div>
+    <div class="end-stats">
+      <div class="stat-box"><div class="stat-num" id="endScore">0</div><div class="stat-lbl">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="endSentences">0</div><div class="stat-lbl">Delivered</div></div>
+      <div class="stat-box"><div class="stat-num" id="endAccuracy">0%</div><div class="stat-lbl">Accuracy</div></div>
+    </div>
+    <div class="end-sentences-title">Your Performances</div>
+    <div id="endSentencesList"></div>
+    <div class="end-btn-row">
+      <button class="btn-end btn-end-primary" id="btnPlayAgain">✿ Play Again</button>
+      <button class="btn-end btn-end-share" id="btnShare">📲 Share</button>
+    </div>
+  </div>
+</div>
+
+<!-- Study Glossary Overlay -->
+<div class="study-overlay" id="studyOverlay">
+  <div class="study-inner">
+    <div class="study-header">
+      <div>
+        <div class="study-title">📖 Study — Degrees of Comparison</div>
+        <div class="study-subtitle">Browse all 30 rule groups · A1 → C2</div>
+      </div>
+      <button class="icon-btn" id="btn-study-close" aria-label="Close study">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <input class="study-search" id="studySearch" type="text" placeholder="Search a rule or example…" oninput="handleStudySearch()"/>
+    <div class="study-filter-row" id="studyCefrRow">
+      <div class="study-chip active" onclick="setStudyCefrFilter('all',this)">All Levels</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a1',this)">A1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('a2',this)">A2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b1',this)">B1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('b2',this)">B2</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('c1',this)">C1</div>
+      <div class="study-chip" onclick="setStudyCefrFilter('c2',this)">C2</div>
+    </div>
+    <div class="study-filter-row" id="studyPracticedRow">
+      <div class="study-chip active" onclick="setStudyPracticedFilter('all',this)">All</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('mastered',this)">✓ Mastered</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('practiced',this)">◐ Practiced</div>
+      <div class="study-chip" onclick="setStudyPracticedFilter('unattempted',this)">Not Yet</div>
+    </div>
+    <div class="study-grid" id="studyGrid"></div>
+  </div>
+</div>
+
+<script type="module">
+/* ═══════════════════════════════════════════════════════════════
+   RULE DATA — 30 Degrees of Comparison rule groups, CEFR-tagged
+   A1 → C2 (5 per level), each with a one-line "why" explanation,
+   4 practice sentences, and a hand-curated toggle contrasting the
+   same rule pattern across two related forms (e.g. positive vs
+   comparative, comparative vs superlative, or two confusable forms).
+   ═══════════════════════════════════════════════════════════════ */
+const RULE_GROUPS = [
+  // ───────────────── A1 ─────────────────
+  {
+    name: "Positive Degree — Simple Description", cefr: "a1",
+    explain: "Use the positive degree to describe one person or thing on its own, without comparing it to anything else. Just use the plain adjective.",
+    toggle: {
+      title: "Positive vs Comparative",
+      a: { label:"Positive", icon:"🌱", text:"Ravi is <b>tall</b>.", note:"Positive degree: plain adjective, no comparison." },
+      b: { label:"Comparative", icon:"⚖️", text:"Ravi is <b>taller</b> than Mohan.", note:"Comparative degree: adjective + -er + than." }
+    },
+    items: [
+      { before:"This is a", after:"box.", answer:"heavy", choices:["heavy","heavier"] },
+      { before:"Priya is a", after:"student.", answer:"clever", choices:["clever","cleverer"] },
+      { before:"That is a", after:"river.", answer:"wide", choices:["wide","wider"] },
+      { before:"He owns a", after:"car.", answer:"fast", choices:["fast","faster"] }
+    ]
+  },
+  {
+    name: "Comparative Degree — One-Syllable Adjectives (+ -er)", cefr: "a1",
+    explain: "For most one-syllable adjectives, add -er and use 'than' to compare two things.",
+    toggle: {
+      title: "Comparative vs Superlative",
+      a: { label:"Comparative", icon:"🔼", text:"This road is <b>longer</b> than that one.", note:"Comparative: -er + than, comparing two things." },
+      b: { label:"Superlative", icon:"🏆", text:"This is the <b>longest</b> road in the city.", note:"Superlative: the + -est, comparing three or more." }
+    },
+    items: [
+      { before:"This road is", after:"than that one.", answer:"longer", choices:["longer","long"] },
+      { before:"My brother is", after:"than me.", answer:"taller", choices:["taller","tall"] },
+      { before:"This box is", after:"than that box.", answer:"lighter", choices:["lighter","light"] },
+      { before:"The new road is", after:"than the old road.", answer:"wider", choices:["wider","wide"] }
+    ]
+  },
+  {
+    name: "Superlative Degree — One-Syllable Adjectives (+ -est)", cefr: "a1",
+    explain: "For most one-syllable adjectives, add -est and put 'the' before the adjective to show the highest degree among three or more things.",
+    toggle: {
+      title: "Positive vs Superlative",
+      a: { label:"Positive", icon:"🌱", text:"This is a <b>tall</b> building.", note:"Positive: no comparison." },
+      b: { label:"Superlative", icon:"🏆", text:"This is the <b>tallest</b> building in the city.", note:"Superlative: the + -est, the highest degree of all." }
+    },
+    items: [
+      { before:"Everest is the", after:"mountain in the world.", answer:"highest", choices:["highest","higher"] },
+      { before:"This is the", after:"river in the state.", answer:"longest", choices:["longest","longer"] },
+      { before:"She is the", after:"girl in the class.", answer:"shortest", choices:["shortest","shorter"] },
+      { before:"That was the", after:"race of the season.", answer:"fastest", choices:["fastest","faster"] }
+    ]
+  },
+  {
+    name: "Comparative Degree — Long Adjectives (more + adjective)", cefr: "a1",
+    explain: "For adjectives with two or more syllables (like 'interesting' or 'beautiful'), use 'more' before the adjective instead of adding -er.",
+    toggle: {
+      title: "More vs -er",
+      a: { label:"More + adj.", icon:"📖", text:"This film is <b>more interesting</b> than that one.", note:"Long adjectives use 'more' + adjective + than." },
+      b: { label:"Adj. + -er", icon:"✏️", text:"This film is <b>shorter</b> than that one.", note:"Short adjectives use adjective + -er + than." }
+    },
+    items: [
+      { before:"This book is", after:"than that book.", answer:"more interesting", choices:["more interesting","interestinger"] },
+      { before:"Her plan is", after:"than his plan.", answer:"more practical", choices:["more practical","practicaler"] },
+      { before:"This dress is", after:"than that one.", answer:"more expensive", choices:["more expensive","expensiver"] },
+      { before:"The second lecture was", after:"than the first.", answer:"more difficult", choices:["more difficult","difficulter"] }
+    ]
+  },
+  {
+    name: "Superlative Degree — Long Adjectives (the most + adjective)", cefr: "a1",
+    explain: "For adjectives with two or more syllables, use 'the most' before the adjective to form the superlative.",
+    toggle: {
+      title: "Most vs -est",
+      a: { label:"Most + adj.", icon:"🏆", text:"This is the <b>most beautiful</b> garden I have seen.", note:"Long adjectives: the most + adjective." },
+      b: { label:"Adj. + -est", icon:"🔤", text:"This is the <b>smallest</b> garden on the street.", note:"Short adjectives: the + adjective + -est." }
+    },
+    items: [
+      { before:"This is the", after:"place I have ever visited.", answer:"most beautiful", choices:["most beautiful","beautifulest"] },
+      { before:"That was the", after:"movie of the year.", answer:"most popular", choices:["most popular","popularest"] },
+      { before:"He is the", after:"person I know.", answer:"most generous", choices:["most generous","generousest"] },
+      { before:"This is the", after:"question in the test.", answer:"most difficult", choices:["most difficult","difficultest"] }
+    ]
+  },
+
+  // ───────────────── A2 ─────────────────
+  {
+    name: "Comparative Degree — Adjectives Ending in -y", cefr: "a2",
+    explain: "For two-syllable adjectives ending in a consonant + y, change the y to i and add -er.",
+    toggle: {
+      title: "-y Comparative vs -y Superlative",
+      a: { label:"Comparative", icon:"🔼", text:"Chennai is <b>busier</b> than Madurai.", note:"busy → busier: y changes to i before -er." },
+      b: { label:"Superlative", icon:"🏆", text:"Mumbai is the <b>busiest</b> city in India.", note:"busy → busiest: y changes to i before -est." }
+    },
+    items: [
+      { before:"This street is", after:"than that one.", answer:"busier", choices:["busier","busyer"] },
+      { before:"Today is", after:"than yesterday.", answer:"happier", choices:["happier","happyer"] },
+      { before:"This puzzle is", after:"than the last one.", answer:"easier", choices:["easier","easyer"] },
+      { before:"His new phone is", after:"than his old one.", answer:"heavier", choices:["heavier","heavyer"] }
+    ]
+  },
+  {
+    name: "Superlative Degree — Adjectives Ending in -y", cefr: "a2",
+    explain: "For two-syllable adjectives ending in a consonant + y, change y to i and add -est to form the superlative.",
+    toggle: {
+      title: "Comparative -y vs Superlative -y",
+      a: { label:"Comparative", icon:"🔼", text:"This lesson is <b>trickier</b> than the last one.", note:"tricky → trickier." },
+      b: { label:"Superlative", icon:"🏆", text:"This is the <b>trickiest</b> lesson in the book.", note:"tricky → trickiest." }
+    },
+    items: [
+      { before:"This is the", after:"market in the city.", answer:"busiest", choices:["busiest","busyest"] },
+      { before:"That was the", after:"day of my life.", answer:"happiest", choices:["happiest","happyest"] },
+      { before:"This is the", after:"question on the test.", answer:"easiest", choices:["easiest","easyest"] },
+      { before:"That is the", after:"bag in the shop.", answer:"heaviest", choices:["heaviest","heavyest"] }
+    ]
+  },
+  {
+    name: "Doubling the Final Consonant (CVC Rule)", cefr: "a2",
+    explain: "When a short adjective ends in a single vowel + single consonant, double the final consonant before adding -er or -est (big → bigger, hot → hottest).",
+    toggle: {
+      title: "Doubled vs Not Doubled",
+      a: { label:"Doubled", icon:"🔁", text:"Today is <b>hotter</b> than yesterday.", note:"hot → hotter: double the final consonant." },
+      b: { label:"Not Doubled", icon:"➖", text:"This road is <b>longer</b> than that one.", note:"long already ends in two consonants, so no doubling." }
+    },
+    items: [
+      { before:"This box is", after:"than that box.", answer:"bigger", choices:["bigger","biger"] },
+      { before:"Today was the", after:"day of the summer.", answer:"hottest", choices:["hottest","hotest"] },
+      { before:"This is the", after:"animal in the zoo.", answer:"fattest", choices:["fattest","fatest"] },
+      { before:"My new haircut is", after:"than my old one.", answer:"thinner", choices:["thinner","thiner"] }
+    ]
+  },
+  {
+    name: "Irregular Comparatives", cefr: "a2",
+    explain: "Some common adjectives don't follow the regular -er/more pattern: good → better, bad → worse, little → less, many/much → more.",
+    toggle: {
+      title: "Irregular vs Regular",
+      a: { label:"Irregular", icon:"⭐", text:"This tea is <b>better</b> than that tea.", note:"good → better, not 'gooder'." },
+      b: { label:"Regular", icon:"🔤", text:"This tea is <b>sweeter</b> than that tea.", note:"Regular adjectives simply add -er." }
+    },
+    items: [
+      { before:"This coffee is", after:"than that coffee.", answer:"better", choices:["better","gooder"] },
+      { before:"Today's weather is", after:"than yesterday's.", answer:"worse", choices:["worse","badder"] },
+      { before:"I have", after:"time than you.", answer:"less", choices:["less","littler"] },
+      { before:"She has", after:"experience than him.", answer:"more", choices:["more","manier"] }
+    ]
+  },
+  {
+    name: "Irregular Superlatives", cefr: "a2",
+    explain: "The irregular superlative forms are: good → best, bad → worst, little → least, many/much → most.",
+    toggle: {
+      title: "Irregular vs Regular Superlative",
+      a: { label:"Irregular", icon:"⭐", text:"He is the <b>best</b> player on the team.", note:"good → best, not 'goodest'." },
+      b: { label:"Regular", icon:"🔤", text:"He is the <b>tallest</b> player on the team.", note:"Regular adjectives add -est." }
+    },
+    items: [
+      { before:"This is the", after:"restaurant in town.", answer:"best", choices:["best","goodest"] },
+      { before:"That was the", after:"decision he ever made.", answer:"worst", choices:["worst","baddest"] },
+      { before:"She showed the", after:"interest in the topic.", answer:"least", choices:["least","littlest"] },
+      { before:"He earns the", after:"money in the office.", answer:"most", choices:["most","maniest"] }
+    ]
+  },
+
+  // ───────────────── B1 ─────────────────
+  {
+    name: "Equal Comparison — as + adjective + as", cefr: "b1",
+    explain: "Use 'as + adjective + as' to say that two things are equal in some quality.",
+    toggle: {
+      title: "Equal vs Unequal",
+      a: { label:"Equal", icon:"⚖️", text:"Ravi is <b>as tall as</b> his brother.", note:"as + adjective + as: shows equality." },
+      b: { label:"Unequal", icon:"🔼", text:"Ravi is <b>taller than</b> his brother.", note:"comparative + than: shows inequality." }
+    },
+    items: [
+      { before:"This road is", after:"the highway.", answer:"as wide as", choices:["as wide as","wider than"] },
+      { before:"My phone is", after:"yours.", answer:"as fast as", choices:["as fast as","faster than"] },
+      { before:"Her voice is", after:"a singer's.", answer:"as sweet as", choices:["as sweet as","sweeter than"] },
+      { before:"This exam was", after:"the last one.", answer:"as difficult as", choices:["as difficult as","more difficult than"] }
+    ]
+  },
+  {
+    name: "Negative Equal Comparison — not as...as", cefr: "b1",
+    explain: "Use 'not as + adjective + as' (or 'not so...as') to say one thing has less of a quality than another.",
+    toggle: {
+      title: "Negative Equal vs Positive Equal",
+      a: { label:"Negative", icon:"❌", text:"This road is <b>not as wide as</b> the highway.", note:"not as + adjective + as: the first thing has less of the quality." },
+      b: { label:"Positive", icon:"✅", text:"This road is <b>as wide as</b> the highway.", note:"Positive equal comparison — no difference." }
+    },
+    items: [
+      { before:"This laptop is", after:"that one.", answer:"not as fast as", choices:["not as fast as","not faster as"] },
+      { before:"My cooking is", after:"my mother's.", answer:"not as good as", choices:["not as good as","not gooder as"] },
+      { before:"This town is", after:"the capital.", answer:"not as crowded as", choices:["not as crowded as","not so crowded than"] },
+      { before:"His English is", after:"hers.", answer:"not as fluent as", choices:["not as fluent as","not fluent than"] }
+    ]
+  },
+  {
+    name: "Comparative Degree — 'Farther' vs 'Further'", cefr: "b1",
+    explain: "'Farther' is used for physical distance, while 'further' is used for both distance and figurative or additional meaning (further information, further discussion).",
+    toggle: {
+      title: "Farther vs Further",
+      a: { label:"Farther", icon:"📏", text:"The village is <b>farther</b> from here than the town.", note:"Farther: physical distance." },
+      b: { label:"Further", icon:"➕", text:"We need <b>further</b> details before deciding.", note:"Further: additional or figurative meaning." }
+    },
+    items: [
+      { before:"My house is", after:"from the station than yours.", answer:"farther", choices:["farther","further"] },
+      { before:"We will discuss this", after:"tomorrow.", answer:"further", choices:["further","farther"] },
+      { before:"The next village is a little", after:"than this one.", answer:"farther", choices:["farther","further"] },
+      { before:"Without", after:"proof, we cannot decide.", answer:"further", choices:["further","farther"] }
+    ]
+  },
+  {
+    name: "Double Comparative — 'The more..., the more...'", cefr: "b1",
+    explain: "Use 'the + comparative, the + comparative' to show that two things change together — as one increases, so does the other.",
+    toggle: {
+      title: "Double Comparative vs Simple Comparative",
+      a: { label:"Double", icon:"🔗", text:"The <b>harder</b> you work, the <b>more</b> you earn.", note:"Two parallel comparatives linked with 'the'." },
+      b: { label:"Simple", icon:"🔼", text:"You will earn <b>more</b> if you work harder.", note:"Same idea expressed as a simple comparative." }
+    },
+    items: [
+      { before:"The", after:"you practice, the better you become.", answer:"more", choices:["more","most"] },
+      { before:"The bigger the house,", after:"the rent.", answer:"the higher", choices:["the higher","higher"] },
+      { before:"The sooner we leave,", after:"we will arrive.", answer:"the sooner", choices:["the sooner","sooner"] },
+      { before:"The", after:"the fruit, the sweeter it tastes.", answer:"riper", choices:["riper","more ripe"] }
+    ]
+  },
+  {
+    name: "Progressive Comparative — Continuous Increase", cefr: "b1",
+    explain: "Repeat the comparative form (colder and colder, more and more difficult) to show that a quality is continuously increasing or decreasing.",
+    toggle: {
+      title: "Short Adjective vs Long Adjective",
+      a: { label:"Short adj.", icon:"🔁", text:"The weather is getting <b>colder and colder</b>.", note:"Short adjectives: repeat the -er form." },
+      b: { label:"Long adj.", icon:"🔁", text:"The exam is becoming <b>more and more difficult</b>.", note:"Long adjectives: repeat 'more' before the adjective." }
+    },
+    items: [
+      { before:"The city is becoming", after:".", answer:"more and more crowded", choices:["more and more crowded","crowded and crowded"] },
+      { before:"The days are getting", after:"as summer approaches.", answer:"longer and longer", choices:["longer and longer","more and more long"] },
+      { before:"Her English is getting", after:"every month.", answer:"better and better", choices:["better and better","gooder and gooder"] },
+      { before:"Traffic in the city is", after:"every year.", answer:"getting worse and worse", choices:["getting worse and worse","getting more bad and bad"] }
+    ]
+  },
+
+  // ───────────────── B2 ─────────────────
+  {
+    name: "Intensifying the Comparative", cefr: "b2",
+    explain: "Use words like 'much', 'far', 'a lot', 'even', or 'still' before a comparative to emphasize a bigger difference. Do not use 'very' with a comparative.",
+    toggle: {
+      title: "Correct Intensifier vs 'Very' (common error)",
+      a: { label:"Correct", icon:"✅", text:"This exam was <b>much harder</b> than the last one.", note:"'Much' correctly intensifies a comparative." },
+      b: { label:"Incorrect", icon:"❌", text:"This exam was <b>very harder</b> than the last one.", note:"'Very' cannot be used directly before a comparative — a common error." }
+    },
+    items: [
+      { before:"Today's traffic is", after:"than yesterday's.", answer:"far worse", choices:["far worse","very worse"] },
+      { before:"This new phone is", after:"than the old model.", answer:"much faster", choices:["much faster","very faster"] },
+      { before:"Her second attempt was", after:"than her first.", answer:"a lot better", choices:["a lot better","very better"] },
+      { before:"The new bridge is", after:"than the old one.", answer:"even stronger", choices:["even stronger","very stronger"] }
+    ]
+  },
+  {
+    name: "Superlative Degree — 'One of the' + Superlative + Plural Noun", cefr: "b2",
+    explain: "Use 'one of the + superlative + plural noun' to say something belongs to a top group, without claiming it is the single best.",
+    toggle: {
+      title: "One of the vs Absolute Superlative",
+      a: { label:"One of the", icon:"🔝", text:"The Amazon is <b>one of the longest rivers</b> in the world.", note:"Belongs among the top group — plural noun after the superlative." },
+      b: { label:"Absolute", icon:"🏆", text:"The Nile is <b>the longest river</b> in the world.", note:"Claims the single top position — singular noun." }
+    },
+    items: [
+      { before:"The Taj Mahal is one of the", after:"monuments in the world.", answer:"most beautiful", choices:["most beautiful","most beautifulest"] },
+      { before:"She is one of the", after:"singers in the country.", answer:"most talented", choices:["most talented","talentedest"] },
+      { before:"This is one of the", after:"cities in Asia.", answer:"largest", choices:["largest","larger"] },
+      { before:"He is one of the", after:"scientists of his generation.", answer:"greatest", choices:["greatest","greater"] }
+    ]
+  },
+  {
+    name: "Comparative of Quantity — 'Fewer' vs 'Less'", cefr: "b2",
+    explain: "Use 'fewer' with countable nouns (fewer books) and 'less' with uncountable nouns (less water).",
+    toggle: {
+      title: "Fewer vs Less",
+      a: { label:"Fewer", icon:"🔢", text:"There are <b>fewer</b> students in this class.", note:"Fewer: used with countable, plural nouns." },
+      b: { label:"Less", icon:"💧", text:"There is <b>less</b> water in this tank.", note:"Less: used with uncountable nouns." }
+    },
+    items: [
+      { before:"I have", after:"time than you today.", answer:"less", choices:["less","fewer"] },
+      { before:"There are", after:"cars on the road this morning.", answer:"fewer", choices:["fewer","less"] },
+      { before:"She has", after:"experience than her colleague.", answer:"less", choices:["less","fewer"] },
+      { before:"This year there were", after:"complaints than last year.", answer:"fewer", choices:["fewer","less"] }
+    ]
+  },
+  {
+    name: "Formal Comparative Expressions — 'No Less Than' / 'No More Than'", cefr: "b2",
+    explain: "'No less than' emphasizes a surprisingly large amount; 'no more than' emphasizes a surprisingly small amount.",
+    toggle: {
+      title: "No Less Than vs No More Than",
+      a: { label:"Large amount", icon:"😲", text:"The project cost <b>no less than</b> ten million rupees.", note:"Emphasizes a surprisingly large amount." },
+      b: { label:"Small amount", icon:"🤏", text:"The whole trip took <b>no more than</b> two hours.", note:"Emphasizes a surprisingly small amount." }
+    },
+    items: [
+      { before:"The crowd numbered", after:"fifty thousand people.", answer:"no less than", choices:["no less than","no more than"] },
+      { before:"The repair took", after:"ten minutes.", answer:"no more than", choices:["no more than","no less than"] },
+      { before:"He donated", after:"half his salary.", answer:"no less than", choices:["no less than","no more than"] },
+      { before:"The whole test lasted", after:"twenty minutes.", answer:"no more than", choices:["no more than","no less than"] }
+    ]
+  },
+  {
+    name: "Emphasizing the Superlative — 'By Far' / 'Easily'", cefr: "b2",
+    explain: "Add 'by far' or 'easily' before or after a superlative to stress that it stands clearly above all others.",
+    toggle: {
+      title: "With Emphasis vs Plain Superlative",
+      a: { label:"Emphasis", icon:"🌟", text:"This is <b>by far the best</b> solution we have found.", note:"'By far' strengthens the superlative claim." },
+      b: { label:"Plain", icon:"🏆", text:"This is <b>the best</b> solution we have found.", note:"Plain superlative, without extra emphasis." }
+    },
+    items: [
+      { before:"She is by far the", after:"player on the team.", answer:"most skilled", choices:["most skilled","skilledest"] },
+      { before:"This is easily the", after:"restaurant in the city.", answer:"best", choices:["best","goodest"] },
+      { before:"He is by far the", after:"candidate for the job.", answer:"strongest", choices:["strongest","stronger"] },
+      { before:"That was easily the", after:"match of the tournament.", answer:"most exciting", choices:["most exciting","excitingest"] }
+    ]
+  },
+
+  // ───────────────── C1 ─────────────────
+  {
+    name: "'Elder/Eldest' vs 'Older/Oldest'", cefr: "c1",
+    explain: "'Elder' and 'eldest' are used mainly for family members (elder brother, eldest son) and cannot be followed by 'than'. 'Older' and 'oldest' are used more generally and can be followed by 'than'.",
+    toggle: {
+      title: "Elder (Family) vs Older (General)",
+      a: { label:"Elder", icon:"👨‍👩‍👧", text:"My <b>elder</b> brother lives abroad.", note:"Elder: used for family members, no 'than' allowed." },
+      b: { label:"Older", icon:"🧓", text:"This building is <b>older than</b> that one.", note:"Older: general use, can be followed by 'than'." }
+    },
+    items: [
+      { before:"He is my", after:"brother.", answer:"elder", choices:["elder","older"] },
+      { before:"This temple is", after:"than the fort.", answer:"older", choices:["older","elder"] },
+      { before:"She is the", after:"of the three sisters.", answer:"eldest", choices:["eldest","oldest"] },
+      { before:"This tree is the", after:"in the entire forest.", answer:"oldest", choices:["oldest","eldest"] }
+    ]
+  },
+  {
+    name: "Confusable Pairs — 'Latter' vs 'Later'", cefr: "c1",
+    explain: "'Latter' refers to the second of two things already mentioned; 'later' refers to time, meaning 'after' or 'afterward'.",
+    toggle: {
+      title: "Latter (Reference) vs Later (Time)",
+      a: { label:"Latter", icon:"🔖", text:"Of the two plans, I prefer the <b>latter</b>.", note:"Latter: refers to the second of two items mentioned." },
+      b: { label:"Later", icon:"⏰", text:"We will discuss this <b>later</b>.", note:"Later: refers to a point in time." }
+    },
+    items: [
+      { before:"Between tea and coffee, I chose the", after:".", answer:"latter", choices:["latter","later"] },
+      { before:"Please call me", after:"in the evening.", answer:"later", choices:["later","latter"] },
+      { before:"The", after:"half of the meeting was more useful.", answer:"latter", choices:["latter","later"] },
+      { before:"We can finish this discussion", after:".", answer:"later", choices:["later","latter"] }
+    ]
+  },
+  {
+    name: "Multiplicative Comparison — 'Twice/Three Times as...as'", cefr: "c1",
+    explain: "Use 'twice as + adjective + as' or 'number + times as + adjective + as' to compare quantities by exact multiples.",
+    toggle: {
+      title: "Twice as...as vs Simple Comparative",
+      a: { label:"Multiple", icon:"✖️", text:"This house is <b>twice as big as</b> that one.", note:"Twice as + adjective + as: shows an exact multiple." },
+      b: { label:"Simple", icon:"🔼", text:"This house is <b>bigger than</b> that one.", note:"Simple comparative: no exact multiple given." }
+    },
+    items: [
+      { before:"This car is", after:"as expensive as that one.", answer:"twice", choices:["twice","two times more"] },
+      { before:"His salary is", after:"as high as mine.", answer:"three times", choices:["three times","three time"] },
+      { before:"This road is", after:"as wide as the old one.", answer:"twice as wide", choices:["twice as wide","two wider"] },
+      { before:"The new stadium holds", after:"as many people as the old one.", answer:"twice as many", choices:["twice as many","two times as many people than"] }
+    ]
+  },
+  {
+    name: "Fixed Idiomatic Double Comparatives", cefr: "c1",
+    explain: "Certain double-comparative expressions are fixed idioms, such as 'the sooner, the better' or 'the more, the merrier', and are not usually changed.",
+    toggle: {
+      title: "Fixed Idiom vs Literal Double Comparative",
+      a: { label:"Idiom", icon:"💬", text:"Let's finish this today — <b>the sooner, the better</b>.", note:"Fixed idiomatic expression." },
+      b: { label:"Literal", icon:"🔗", text:"The sooner you start, the sooner you will finish.", note:"A regular, non-idiomatic double comparative." }
+    },
+    items: [
+      { before:"Invite everyone —", after:"the merrier!", answer:"the more", choices:["the more","more"] },
+      { before:"We should leave now;", after:"the better.", answer:"the sooner", choices:["the sooner","sooner"] },
+      { before:"Don't worry about the price;", after:"the better the quality.", answer:"the higher", choices:["the higher","higher"] },
+      { before:"Keep it simple;", after:"the clearer the message.", answer:"the simpler", choices:["the simpler","simpler"] }
+    ]
+  },
+  {
+    name: "Comparison of Nouns — 'More/Less' + Noun", cefr: "c1",
+    explain: "Use 'more' or 'less' directly before a noun (not an adjective) to compare quantities or amounts of that noun.",
+    toggle: {
+      title: "Comparing Nouns vs Comparing Adjectives",
+      a: { label:"Noun", icon:"📦", text:"She has <b>more patience</b> than her sister.", note:"Comparing an amount of a noun (patience)." },
+      b: { label:"Adjective", icon:"🔤", text:"She is <b>more patient</b> than her sister.", note:"Comparing a quality (adjective), not an amount." }
+    },
+    items: [
+      { before:"This job requires", after:"skill than the last one.", answer:"more", choices:["more","most"] },
+      { before:"He shows", after:"interest in sports than in music.", answer:"less", choices:["less","fewer"] },
+      { before:"This year's harvest brought in", after:"profit than last year's.", answer:"more", choices:["more","many"] },
+      { before:"There is", after:"traffic on this route than on the highway.", answer:"less", choices:["less","fewer"] }
+    ]
+  },
+
+  // ───────────────── C2 ─────────────────
+  {
+    name: "Absolute vs Relative Superlative", cefr: "c2",
+    explain: "A relative superlative (the most beautiful) compares within a group. An absolute superlative (extremely/very beautiful) expresses a very high degree without comparing to others.",
+    toggle: {
+      title: "Relative vs Absolute",
+      a: { label:"Relative", icon:"🏆", text:"She is <b>the most talented</b> singer in the competition.", note:"Relative superlative: compares her to the whole group." },
+      b: { label:"Absolute", icon:"✨", text:"She is an <b>extremely talented</b> singer.", note:"Absolute superlative: high degree, no explicit comparison group." }
+    },
+    items: [
+      { before:"He gave an", after:"impressive performance last night.", answer:"extremely", choices:["extremely","the most"] },
+      { before:"She is the", after:"qualified candidate on the shortlist.", answer:"most", choices:["most","extremely"] },
+      { before:"The results were", after:"disappointing to everyone.", answer:"deeply", choices:["deeply","the most"] },
+      { before:"Of all the entries, this one is the", after:"original.", answer:"most", choices:["most","very"] }
+    ]
+  },
+  {
+    name: "Comparative Ellipsis — Omitting the Repeated Verb", cefr: "c2",
+    explain: "In formal writing, the verb after 'than' or 'as' is often dropped when it repeats the main clause's verb, leaving just the subject (or subject + auxiliary).",
+    toggle: {
+      title: "Full Clause vs Ellipsis",
+      a: { label:"Full clause", icon:"📝", text:"She earns more than her husband earns.", note:"Full clause: the verb 'earns' is repeated." },
+      b: { label:"Ellipsis", icon:"✂️", text:"She earns more than <b>her husband does</b>.", note:"Formal ellipsis: 'does' replaces the repeated verb." }
+    },
+    items: [
+      { before:"He works harder than", after:".", answer:"his colleagues do", choices:["his colleagues do","his colleagues work harder"] },
+      { before:"She is more experienced than", after:".", answer:"he is", choices:["he is","he is experienced"] },
+      { before:"They spent less money than", after:".", answer:"we did", choices:["we did","we spent"] },
+      { before:"The new model performs better than", after:".", answer:"the old one did", choices:["the old one did","the old one performed better"] }
+    ]
+  },
+  {
+    name: "Comparative Degree in Academic Writing", cefr: "c2",
+    explain: "Academic writing often replaces everyday intensifiers like 'much' or 'a lot' with more formal words such as 'considerably', 'substantially', or 'markedly' before a comparative.",
+    toggle: {
+      title: "Formal vs Informal Intensifier",
+      a: { label:"Formal", icon:"🎓", text:"The results were <b>considerably higher</b> than expected.", note:"Formal register: 'considerably' before the comparative." },
+      b: { label:"Informal", icon:"💬", text:"The results were <b>a lot higher</b> than expected.", note:"Informal register: 'a lot' before the comparative." }
+    },
+    items: [
+      { before:"The new method proved", after:"more efficient than the old one.", answer:"substantially", choices:["substantially","a lot"] },
+      { before:"Sales this quarter were", after:"lower than projected.", answer:"markedly", choices:["markedly","way"] },
+      { before:"The revised policy is", after:"more transparent than the previous one.", answer:"considerably", choices:["considerably","a ton"] },
+      { before:"Response times were", after:"faster after the upgrade.", answer:"significantly", choices:["significantly","super"] }
+    ]
+  },
+  {
+    name: "Idiomatic Comparative Expressions", cefr: "c2",
+    explain: "English has fixed idiomatic expressions built on comparatives and superlatives, such as 'second to none' (unmatched) or 'nothing short of' (equivalent to a superlative meaning).",
+    toggle: {
+      title: "Idiom vs Literal Meaning",
+      a: { label:"Idiom", icon:"💬", text:"Her dedication is <b>second to none</b>.", note:"Idiom meaning 'the very best', built on a comparative structure." },
+      b: { label:"Literal", icon:"🔤", text:"Her dedication is <b>greater than</b> anyone else's.", note:"The same idea expressed literally with a comparative." }
+    },
+    items: [
+      { before:"In terms of quality, this product is", after:".", answer:"second to none", choices:["second to none","second than none"] },
+      { before:"His performance today was", after:"brilliant.", answer:"nothing short of", choices:["nothing short of","nothing shorter than"] },
+      { before:"For sheer scale, this project is", after:"in the region.", answer:"unrivaled", choices:["unrivaled","most rivaled"] },
+      { before:"When it comes to service, this hotel is", after:".", answer:"in a class of its own", choices:["in a class of its own","in the most class"] }
+    ]
+  },
+  {
+    name: "Mixed Review: All Degrees of Comparison", cefr: "c2",
+    explain: "The final round mixes positive, comparative, and superlative forms — regular, irregular, and idiomatic — across every level you've studied.",
+    toggle: {
+      title: "Comparative vs Superlative (Mixed)",
+      a: { label:"Comparative", icon:"🔼", text:"This year's rainfall was <b>heavier</b> than last year's.", note:"Comparative: comparing two things." },
+      b: { label:"Superlative", icon:"🏆", text:"This year's rainfall was the <b>heaviest</b> in a decade.", note:"Superlative: comparing against all others." }
+    },
+    items: [
+      { before:"Everest is the", after:"peak on Earth.", answer:"highest", choices:["highest","higher"] },
+      { before:"This laptop is", after:"than that one, but it is not the fastest on the market.", answer:"faster", choices:["faster","fastest"] },
+      { before:"She is by far the", after:"student in the entire school.", answer:"most brilliant", choices:["most brilliant","brillianter"] },
+      { before:"The more we practiced,", after:"we became.", answer:"the better", choices:["the better","better"] }
+    ]
+  }
+];
+
+const CEFR_LABEL = {a1:"A1",a2:"A2",b1:"B1",b2:"B2",c1:"C1",c2:"C2"};
+const CEFR_POINTS = {a1:8,a2:9,b1:10,b2:13,c1:16,c2:20};
+
+const TOTAL_RULES = RULE_GROUPS.length;
+
+const RANKS = [
+  {name:'Beginner Comparer 🌱',min:0},{name:'Sharp Observer 🔍',min:120},{name:'Skilled Comparer ⚖️',min:300},
+  {name:'Comparison Expert 📊',min:550},{name:'Master of Degrees 🎓',min:850},{name:'Comparison Virtuoso 🏆',min:1200}
+];
+
+const BEST_KEY = 'degreeQuestBest';
+
+/* ═══════ Supabase logging (edge function) ═══════ */
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+// quest_id is built per rule group at send time, using its fixed position in
+// RULE_GROUPS (1-30, stable regardless of shuffle order), prefixed "Degree" so
+// this game's entries never collide with other Quest quizzes in the same table:
+// "Quest Degree Rule N"  = mastered — all 4 sentences in the group solved on the first tap
+// "Quest Degree Rules N" = practiced — at least one sentence needed a retry after a wrong tap
+
+/* ═══════ Supabase client (for reading back a player's history) ═══════ */
+const SUPABASE_PROXY_URL = "https://yellow-lab-4999.andrewveda.workers.dev";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE";
+let supabaseClient = null;
+async function getSupabaseClient(){
+  if(supabaseClient) return supabaseClient;
+  const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm");
+  supabaseClient = createClient(SUPABASE_PROXY_URL, SUPABASE_ANON_KEY);
+  return supabaseClient;
+}
+
+let playerName = '';
+let playerDept = '';
+
+let deck = [];
+let currentGroupIdx = null;
+let currentGroup = null;      // active {name, cefr, explain, toggle, items}
+let currentItemIndex = 0;
+let current = null;           // active item {before, after, answer, choices}
+let currentTiles = [];        // shuffled choice tiles for this item
+
+let placedCount = 0;          // 0 or 1 — whether the current blank is filled
+let currentMistakes = 0;
+
+let score = 0, streak = 0, completedCount = 0, correctTaps = 0, wrongTaps = 0;
+let sentenceStart = 0;
+let completedList = [];       // flat log for share/end screen
+let ruleArchive = [];         // [{name, forms:[{text}]}] completed rule groups
+let currentForms = [];        // sentences completed so far in the group in progress
+let bestScore = parseInt(localStorage.getItem(BEST_KEY) || '0');
+
+let elapsedSeconds = 0;
+let timerInterval = null;
+let gameActive = true;
+
+// per-rule-group tracking for Supabase (mastered vs practiced)
+let ruleStartTime = 0, ruleScore = 0, ruleCorrectTaps = 0, ruleWrongTaps = 0, ruleHadMistake = false;
+
+// Study Glossary state
+// ruleIdx -> 'mastered' (all 4 items solved with zero mistakes at least once) | 'practiced' (solved, but only ever with a retry)
+let ruleStatus = new Map();
+// Historical baseline pulled from Supabase for the current player name — persists
+// across "New Round"/"Play Again" resets within the session, and seeds ruleStatus
+// each time newGame() runs so Study/Archive reflect prior sessions too.
+let loadedRuleStatus = new Map();
+let studyOpen = false;
+let studyFilterCefr = 'all';
+let studyFilterPracticed = 'all';
+let studySearchTerm = '';
+
+/* ═══════════════ PLAYER HISTORY (Supabase) ═══════════════ */
+// Reads report_card_view.quest_list for this player name and turns entries like
+// "Quest Degree Rule 3" (mastered) / "Quest Degree Rules 8" (practiced) into a
+// rule-index → status map.
+async function loadPlayerHistory(name){
+  loadedRuleStatus = new Map();
+  if(!name) return;
+  try{
+    const supabase = await getSupabaseClient();
+ const { data, error } = await supabase
+  .from("report_card_view")
+  .select("quest_list")
+  .eq("name", playerName)
+  .eq("department", playerDept)
+  .single();
+
+    if(error || !data){
+      console.warn("No prior history found for", name, error || '');
+      return;
+    }
+const questList = (data.quest_list || "")
+  .split(", ")
+  .filter(Boolean);
+    questList.forEach(q=>{
+      if(typeof q !== 'string') return;
+      let ruleNum = null, mastered = false;
+      if(q.startsWith("Quest Degree Rule ")){
+        ruleNum = parseInt(q.replace("Quest Degree Rule ",""),10);
+        mastered = true;
+      } else if(q.startsWith("Quest Degree Rules ")){
+        ruleNum = parseInt(q.replace("Quest Degree Rules ",""),10);
+        mastered = false;
+      }
+      if(ruleNum && !isNaN(ruleNum)){
+        const idx = ruleNum - 1;
+        if(mastered){
+          loadedRuleStatus.set(idx, 'mastered');
+        } else if(loadedRuleStatus.get(idx) !== 'mastered'){
+          loadedRuleStatus.set(idx, 'practiced');
+        }
+      }
+    });
+  }catch(err){
+    console.error("⚠️ Could not load player history:", err);
+  }
+}
+
+/* ═══════════════ NAME GATE ═══════════════ */
+async function beginQuiz(){
+  const nameEl = document.getElementById('nameInput');
+  const deptEl = document.getElementById('departmentSelect');
+  const errEl = document.getElementById('gateError');
+  const startBtn = document.getElementById('btnBeginQuiz');
+  const name = nameEl.value.trim();
+  const dept = deptEl.value;
+
+  if(!name){ errEl.textContent = 'Please enter your name.'; nameEl.focus(); return; }
+  if(!dept){ errEl.textContent = 'Please select your department.'; deptEl.focus(); return; }
+
+  errEl.textContent = '';
+  playerName = name;
+  playerDept = dept;
+  localStorage.setItem("userName", name);
+localStorage.setItem("userDept", dept);
+
+  startBtn.disabled = true;
+  startBtn.textContent = 'Loading your progress…';
+  await loadPlayerHistory(playerName);
+  startBtn.disabled = false;
+  startBtn.textContent = '✿ Start Quiz';
+
+  document.getElementById('nameForm').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame();
+}
+document.addEventListener("DOMContentLoaded", async () => {
+    const savedName = localStorage.getItem("userName");
+    const savedDept = localStorage.getItem("userDept");
+
+    if (savedName && savedDept) {
+        playerName = savedName;
+        playerDept = savedDept;
+
+        document.getElementById("nameForm").classList.remove("active");
+        document.getElementById("gameScreen").classList.add("active");
+
+        await loadPlayerHistory(playerName);
+        newGame();
+    }
+});
+
+document.getElementById('btnBeginQuiz').addEventListener('click', beginQuiz);
+
+function shuffledDeck(){
+  const idx = RULE_GROUPS.map((_,i)=>i);
+  for(let i=idx.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  return idx;
+}
+
+function newGame(focusRuleIdx){
+  clearInterval(timerInterval);
+  deck = shuffledDeck();
+  if(typeof focusRuleIdx === 'number'){
+    deck = deck.filter(i=>i!==focusRuleIdx);
+    deck.push(focusRuleIdx);
+  }
+  score=0; streak=0; completedCount=0; correctTaps=0; wrongTaps=0;
+  completedList=[]; ruleArchive=[]; elapsedSeconds=0; gameActive=true;
+  // Seed this round's status from the player's historical progress, so the
+  // Study Glossary and archive reflect earlier sessions immediately.
+  ruleStatus = new Map(loadedRuleStatus);
+  updateStats(); renderArchive();
+  loadNextRuleGroup();
+  updateTimerDisplay();
+  startStopwatch();
+}
+
+function loadNextRuleGroup(){
+  if(!deck.length) return;
+  const i = deck.pop();
+  currentGroupIdx = i;
+  currentGroup = RULE_GROUPS[i];
+  currentItemIndex = 0;
+  currentForms = [];
+  ruleStartTime = Date.now(); ruleScore = 0; ruleCorrectTaps = 0; ruleWrongTaps = 0; ruleHadMistake = false;
+  renderRuleCard();
+  renderContrastCard(currentGroup);
+  applyItemData();
+  renderParadigm();
+}
+
+function renderRuleCard(){
+  document.getElementById('rule-name').textContent = currentGroup.name;
+  const pill = document.getElementById('cefr-pill');
+  pill.textContent = CEFR_LABEL[currentGroup.cefr];
+  pill.className = 'cefr-pill ' + currentGroup.cefr;
+  document.getElementById('rule-explain').textContent = currentGroup.explain;
+}
+
+/* ═══════════════ FORM TOGGLE ═══════════════ */
+function renderContrastCard(group){
+  document.getElementById('contrast-title').textContent = group.toggle.title;
+  const wrap = document.getElementById('toggle-wrap');
+  wrap.innerHTML = '';
+  ['a','b'].forEach((key,idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (idx===0 ? ' active' : '');
+    btn.textContent = group.toggle[key].label;
+    btn.dataset.key = key;
+    btn.onclick = () => selectContrastOption(key, group);
+    wrap.appendChild(btn);
+  });
+  selectContrastOption('a', group);
+}
+
+function selectContrastOption(key, group){
+  document.querySelectorAll('#toggle-wrap .toggle-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.key === key);
+  });
+  const data = group.toggle[key];
+  document.getElementById('contrast-sentence').innerHTML = data.text;
+  document.getElementById('contrast-icon').textContent = data.icon;
+  document.getElementById('contrast-text').textContent = data.note;
+}
+
+/* ═══════════════ ITEM (single blank) LOGIC ═══════════════ */
+function applyItemData(){
+  current = currentGroup.items[currentItemIndex];
+  placedCount = 0; currentMistakes = 0;
+  sentenceStart = Date.now();
+
+  currentTiles = current.choices.map((c,i)=>({id:i+'-'+Date.now(), text:c, correct:c===current.answer, solved:false}));
+  shuffleArray(currentTiles);
+
+  renderSentence(); renderTray();
+  document.getElementById('mount-caption').textContent = 'tap the correct form';
+}
+
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+}
+
+/* ═══════════════ STOPWATCH ═══════════════ */
+function startStopwatch(){
+  timerInterval = setInterval(()=>{
+    if(!gameActive || studyOpen) return;
+    elapsedSeconds++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function updateTimerDisplay(){
+  const m = Math.floor(elapsedSeconds / 60);
+  const s = elapsedSeconds % 60;
+  document.getElementById('timerText').textContent = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+}
+
+/* ═══════════════ RENDER ═══════════════ */
+function renderSentence(){
+  const el = document.getElementById('sentence-line');
+  const blankHTML = placedCount
+    ? `<span class="blank-slot filled">${current.answer}</span>`
+    : `<span class="blank-slot">____</span>`;
+  el.innerHTML = `${current.before} ${blankHTML} ${current.after}`;
+}
+
+function renderTray(){
+  const wrap=document.getElementById('tray'); wrap.innerHTML='';
+  currentTiles.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='tile'+(t.solved?' solved':'');
+    el.innerHTML = `<span class="word">${t.text}</span>`;
+    el.onclick = ()=>tapTile(t.id, el);
+    wrap.appendChild(el);
+  });
+}
+
+/* ═══════════════ GAMEPLAY ═══════════════ */
+function tapTile(id, el){
+  if(!gameActive || placedCount || studyOpen) return;
+  const tile = currentTiles.find(t=>t.id===id);
+  if(!tile) return;
+
+  if(tile.correct){
+    tile.solved = true;
+    placedCount = 1;
+    correctTaps++; ruleCorrectTaps++;
+    renderSentence();
+    currentTiles.forEach(t=>{ if(!t.solved) t.solved = true; });
+    renderTray();
+    document.getElementById('mount').classList.remove('error');
+    completeItem();
+  } else {
+    wrongTaps++; ruleWrongTaps++; currentMistakes++; ruleHadMistake = true; streak = 0;
+    el.classList.add('wrong');
+    setTimeout(()=>el.classList.remove('wrong'),400);
+    document.getElementById('mount').classList.add('error');
+    setTimeout(()=>document.getElementById('mount').classList.remove('error'),350);
+    updateStats();
+    if(navigator.vibrate) navigator.vibrate(15);
+  }
+}
+
+function completeItem(){
+  const elapsedSec = (Date.now()-sentenceStart)/1000;
+  const base = CEFR_POINTS[currentGroup.cefr];
+  const speedBonus = Math.max(0, Math.round(8 - elapsedSec));
+  const penalty = currentMistakes*3;
+  const pts = Math.max(4, base+speedBonus-penalty);
+
+  score += pts; ruleScore += pts; completedCount++;
+  if(currentMistakes===0) streak++; else streak=0;
+
+  const text = current.before+' '+current.answer+' '+current.after;
+  completedList.push({text, pts, rule: currentGroup.name});
+  currentForms.push({text, answer: current.answer});
+
+  updateStats(); renderParadigm();
+
+  document.getElementById('mount').classList.add('success');
+  setTimeout(()=>document.getElementById('mount').classList.remove('success'),650);
+
+  let msg = `<b>+${pts} pts</b>${currentGroup.name}`;
+  if(streak>=3) msg = `<b>🔥 ${streak} streak! +${pts} pts</b>${currentGroup.name}`;
+  showToast(msg,'good',true);
+
+  if(navigator.vibrate) navigator.vibrate(streak>=3?[20,40,20]:18);
+
+  setTimeout(()=>{
+    if(!gameActive) return;
+    if(currentItemIndex < currentGroup.items.length - 1){
+      currentItemIndex++;
+      applyItemData();
+      renderParadigm();
+    } else {
+      ruleArchive.push({ name: currentGroup.name, forms: currentForms.slice() });
+      if(ruleHadMistake){
+        if(ruleStatus.get(currentGroupIdx) !== 'mastered') ruleStatus.set(currentGroupIdx, 'practiced');
+      } else {
+        ruleStatus.set(currentGroupIdx, 'mastered');
+      }
+      renderArchive();
+      submitRuleToSupabase();
+
+      if (ruleArchive.length >= TOTAL_RULES) {
+        showToast('🏆 Full Range Mastered! 30/30 rules completed', 'good');
+        setTimeout(endGame, 1400);
+      } else {
+        showToast('🏆 Rule Mastered!', 'good');
+        loadNextRuleGroup();
+      }
+    }
+  }, 700);
+}
+
+/* ═══════════════ PARADIGM PANEL ═══════════════ */
+function renderParadigm(){
+  const rows = document.getElementById('paradigm-rows');
+  rows.innerHTML = '';
+  currentGroup.items.forEach((item, idx) => {
+    const found = currentForms[idx];
+    const row = document.createElement('div');
+    row.className = 'paradigm-row' + (found ? ' done' : (idx === currentItemIndex ? ' active' : ''));
+    const num = `<span class="paradigm-num">${idx+1}</span>`;
+    const sentence = found
+      ? `<span class="paradigm-sentence">${item.before} <b>${found.answer}</b> ${item.after}</span><span class="paradigm-check">✓</span>`
+      : `<span class="paradigm-sentence pending">— not delivered yet —</span>`;
+    row.innerHTML = num + sentence;
+    rows.appendChild(row);
+  });
+  document.getElementById('paradigm-count').textContent = currentForms.length;
+  document.getElementById('specimen-num').textContent = ruleArchive.length + 1;
+}
+
+function renderArchive(){
+  const title = document.getElementById('archive-title');
+  const list = document.getElementById('archive-list');
+  list.innerHTML = '';
+  if(!ruleArchive.length){ title.style.display='none'; return; }
+  title.style.display='block';
+  ruleArchive.slice().reverse().forEach(rule=>{
+    const card = document.createElement('div');
+    card.className = 'archive-card';
+    card.innerHTML = `<div class="arc-rule">${rule.name}</div>` +
+      rule.forms.map(f=>`<div class="arc-line">${f.text}</div>`).join('');
+    list.appendChild(card);
+  });
+}
+
+/* ═══════════════ STATS / RANK ═══════════════ */
+function getRank(pts){
+  let r=RANKS[0];
+  for(const rk of RANKS) if(pts>=rk.min) r=rk;
+  return r;
+}
+
+function updateStats(){
+  document.getElementById('score').textContent=score;
+  document.getElementById('streak').textContent=streak;
+  if(score>bestScore){ bestScore=score; localStorage.setItem(BEST_KEY,bestScore); }
+  document.getElementById('best-score').textContent=bestScore;
+
+  const rank=getRank(score);
+  const idx=RANKS.indexOf(rank), next=RANKS[idx+1];
+  document.getElementById('rank-name').textContent=rank.name;
+
+  const fill=document.getElementById('rank-fill');
+  fill.style.width = next ? Math.min(100,((score-rank.min)/(next.min-rank.min))*100)+'%' : '100%';
+}
+
+/* ═══════════════ TOAST ═══════════════ */
+let toastTimer;
+function showToast(msg,type='',isHTML=false){
+  const t=document.getElementById('toast');
+  if(isHTML){ t.innerHTML=msg; } else { t.textContent=msg; }
+  t.className='toast show '+type;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ═══════════════ CONTROLS ═══════════════ */
+document.getElementById('btn-new').addEventListener('click',()=>{
+  if(confirm('Start a new round? Current progress will be lost.')) newGame();
+});
+document.getElementById('btn-end-game').addEventListener('click',()=>{
+  if(confirm('End the round and see results?')) endGame();
+});
+document.getElementById('btn-study').addEventListener('click', openStudy);
+document.getElementById('btn-study-close').addEventListener('click', closeStudy);
+document.getElementById('studyOverlay').addEventListener('click', function(e){
+  if(e.target === this) closeStudy();
+});
+
+/* ═══════════════ STUDY GLOSSARY ═══════════════ */
+async function openStudy(){
+  studyOpen = true;
+  document.getElementById('studyOverlay').classList.add('show');
+  // If a player has typed their name on the gate but hasn't started yet,
+  // opportunistically preview their history so badges show immediately.
+  if(!playerName){
+    const typedName = document.getElementById('nameInput').value.trim();
+    if(typedName){
+      await loadPlayerHistory(typedName);
+      ruleStatus = new Map(loadedRuleStatus);
+    }
+  }
+  renderStudyGrid();
+}
+function closeStudy(){
+  studyOpen = false;
+  document.getElementById('studyOverlay').classList.remove('show');
+}
+
+function handleStudySearch(){
+  studySearchTerm = document.getElementById('studySearch').value;
+  renderStudyGrid();
+}
+function setStudyCefrFilter(val, el){
+  studyFilterCefr = val;
+  document.querySelectorAll('#studyCefrRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+function setStudyPracticedFilter(val, el){
+  studyFilterPracticed = val;
+  document.querySelectorAll('#studyPracticedRow .study-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderStudyGrid();
+}
+
+function renderStudyGrid(){
+  const grid = document.getElementById('studyGrid');
+  const term = studySearchTerm.trim().toLowerCase();
+
+  const filtered = RULE_GROUPS
+    .map((g,i)=>({g,i}))
+    .filter(({g,i})=>{
+      if(studyFilterCefr !== 'all' && g.cefr !== studyFilterCefr) return false;
+      const status = ruleStatus.get(i);
+      if(studyFilterPracticed === 'mastered' && status !== 'mastered') return false;
+      if(studyFilterPracticed === 'practiced' && status !== 'practiced') return false;
+      if(studyFilterPracticed === 'unattempted' && status) return false;
+      if(term){
+        const hay = (g.name+' '+g.explain+' '+g.items.map(it=>it.before+' '+it.answer+' '+it.after).join(' ')).toLowerCase();
+        if(!hay.includes(term)) return false;
+      }
+      return true;
+    });
+
+  if(!filtered.length){
+    grid.innerHTML = '<div class="study-empty">No degree rules match your search.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(({g,i})=>buildStudyCard(g,i)).join('');
+}
+
+function buildStudyCard(g,i){
+  const status = ruleStatus.get(i); // undefined | 'practiced' | 'mastered'
+  const cardClass = status === 'mastered' ? ' mastered' : (status === 'practiced' ? ' attempted' : '');
+  const badge = status === 'mastered'
+    ? '<span class="study-mastered-badge">✓ Mastered</span>'
+    : status === 'practiced'
+      ? '<span class="study-practiced-badge">◐ Practiced</span>'
+      : '';
+  const sentences = g.items.map(it=>`<div class="study-line">${it.before} <b>${it.answer}</b> ${it.after}</div>`).join('');
+
+  return `<div class="study-card${cardClass}">
+    <div class="study-card-top">
+      <span class="study-card-name">${g.name}</span>
+      <span class="cefr-pill ${g.cefr}">${CEFR_LABEL[g.cefr]}</span>
+    </div>
+    <div class="study-card-explain">${g.explain}</div>
+    <div class="study-card-sentences">${sentences}</div>
+    <div class="study-card-actions">
+      <button class="study-practice-btn" onclick="window.practiceRuleFromStudy(${i})">▶ Practice this rule</button>
+      ${badge}
+    </div>
+  </div>`;
+}
+
+async function practiceRuleFromStudy(idx){
+  const midGame = document.getElementById('gameScreen').classList.contains('active');
+  if(midGame){
+    jumpToRule(idx);
+  } else {
+    await startFocusedGame(idx);
+  }
+}
+
+function jumpToRule(idx){
+  deck = deck.filter(i=>i!==idx);
+  currentGroupIdx = idx;
+  currentGroup = RULE_GROUPS[idx];
+  currentItemIndex = 0;
+  currentForms = [];
+  ruleStartTime = Date.now(); ruleScore = 0; ruleCorrectTaps = 0; ruleWrongTaps = 0; ruleHadMistake = false;
+  renderRuleCard();
+  renderContrastCard(currentGroup);
+  applyItemData();
+  renderParadigm();
+  closeStudy();
+  showToast(`Jumping to: ${RULE_GROUPS[idx].name}`, 'good');
+}
+
+async function startFocusedGame(idx){
+  const nameEl = document.getElementById('nameInput');
+  const deptEl = document.getElementById('departmentSelect');
+  const errEl = document.getElementById('gateError');
+  const name = nameEl.value.trim();
+  const dept = deptEl.value;
+
+  if(!name){ closeStudy(); errEl.textContent = 'Please enter your name.'; nameEl.focus(); return; }
+  if(!dept){ closeStudy(); errEl.textContent = 'Please select your department.'; deptEl.focus(); return; }
+
+  errEl.textContent = '';
+  playerName = name;
+  playerDept = dept;
+
+  await loadPlayerHistory(playerName);
+
+  closeStudy();
+  document.getElementById('nameForm').classList.remove('active');
+  document.getElementById('gameScreen').classList.add('active');
+  newGame(idx);
+}
+
+/* ═══════════════ SUPABASE LOGGING (per rule group) ═══════════════ */
+async function sendViaEdgeFunction(payload) {
+  try {
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) { console.error("❌ Edge Function Error:", await response.text()); return; }
+    console.log("✅ Saved to Supabase");
+  } catch (err) { console.error("⚠️ Edge Function Error:", err); }
+}
+
+// Sends exactly once per completed rule group (4 sentences = 1 "page").
+// quest_id is unique per rule group (1-30, its fixed position in RULE_GROUPS,
+// not shuffle order) and encodes the outcome with singular/plural only:
+// "Quest Degree Rule N"  = mastered — every one of the 4 sentences solved on the first tap
+// "Quest Degree Rules N" = practiced — at least one sentence needed a retry after a wrong tap
+function submitRuleToSupabase(){
+  const timeSpent = Math.round((Date.now()-ruleStartTime)/1000);
+  const ruleNumber = currentGroupIdx + 1;
+  const questId = (ruleHadMistake ? "Quest Degree Rules " : "Quest Degree Rule ") + ruleNumber;
+  const payload = {
+    student_name: playerName,
+    department: playerDept,
+    correct: ruleCorrectTaps,
+    wrong: ruleWrongTaps,
+    time_spent: timeSpent,
+    quest_id: questId,
+    score: ruleScore,
+    sentences_pressed: currentForms.length
+  };
+  sendViaEdgeFunction(payload);
+  // Keep the local historical baseline in sync so it's consistent for the
+  // rest of this session even before the server round-trip is confirmed.
+  if(ruleHadMistake){
+    if(loadedRuleStatus.get(currentGroupIdx) !== 'mastered') loadedRuleStatus.set(currentGroupIdx, 'practiced');
+  } else {
+    loadedRuleStatus.set(currentGroupIdx, 'mastered');
+  }
+}
+
+/* ═══════════════ END GAME ═══════════════ */
+function endGame(){
+  gameActive=false;
+  clearInterval(timerInterval);
+  setTimeout(showEndScreen,250);
+}
+
+function showEndScreen(){
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('endScreen').classList.add('active');
+
+  const tm=[[1200,'🏆 Comparison Virtuoso!'],[850,'🎓 Master of Degrees'],[550,'📊 Comparison Expert'],[300,'⚖️ Skilled Comparer'],[120,'🔍 Sharp Observer'],[0,'🌱 Beginner Comparer']];
+  document.getElementById('endTitle').textContent=(tm.find(([m])=>score>=m)||tm[tm.length-1])[1];
+  document.getElementById('endSubtitle').textContent=`${playerName} · ${playerDept} · ${getRank(score).name}`;
+  document.getElementById('endScore').textContent=score;
+  document.getElementById('endSentences').textContent=completedCount;
+
+  const totalTaps = correctTaps+wrongTaps;
+  document.getElementById('endAccuracy').textContent = totalTaps ? Math.round(correctTaps/totalTaps*100)+'%' : '100%';
+
+  const list=document.getElementById('endSentencesList');
+  list.innerHTML='';
+  const rulesToShow = ruleArchive.slice();
+  if(currentForms.length){
+    rulesToShow.push({ name: currentGroup.name, forms: currentForms.slice() });
+  }
+
+  if(!rulesToShow.length){
+    list.innerHTML='<span style="color:var(--ink-muted);font-size:.9rem;">No lines delivered this round.</span>';
+  } else {
+    rulesToShow.slice().reverse().forEach((rule,i)=>{
+      const div=document.createElement('div');
+      div.className='end-specimen-card';
+      div.style.animationDelay=(i*0.06)+'s';
+      div.innerHTML = `<div class="arc-rule">${rule.name}</div>` +
+        rule.forms.map(f=>`<div class="arc-line">${f.text}</div>`).join('');
+      list.appendChild(div);
+    });
+  }
+
+  document.getElementById('btnPlayAgain').onclick=()=>{
+    document.getElementById('endScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    newGame();
+  };
+  document.getElementById('btnShare').onclick=shareResult;
+}
+
+function shareResult(){
+  const top = completedList.slice().sort((a,b)=>b.pts-a.pts).slice(0,3).map(s=>`"${s.text}" (+${s.pts}) [${s.rule}]`).join('\n');
+  const msg=`📊 Degree Quest\n${playerName} (${playerDept})\nScore: ${score} pts · Time: ${document.getElementById('timerText').textContent} · ${completedCount} sentences · ${getRank(score).name}\n${top?'\nTop lines:\n'+top+'\n':''}\nCompare your own lines!`;
+  if(navigator.share){
+    navigator.share({title:'Degree Quest',text:msg}).catch(()=>{});
+  } else {
+    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  }
+}
+
+// Expose the handlers that are still wired via inline onclick="" in the HTML
+// (module scripts don't put top-level functions on window automatically).
+window.openStudy = openStudy;
+window.setStudyCefrFilter = setStudyCefrFilter;
+window.setStudyPracticedFilter = setStudyPracticedFilter;
+window.handleStudySearch = handleStudySearch;
+window.practiceRuleFromStudy = practiceRuleFromStudy;
+</script>
+</body>
+</html>
