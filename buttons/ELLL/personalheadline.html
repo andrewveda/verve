@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Campus Chronicle Challenge 🎤</title>
+
+<!-- External Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<!-- Auth Guard -->
+<script src="../../auth-guard.js"></script>
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    overflow-x: hidden;
+  }
+
+  /* ---------- BACKGROUND ANIMATION ---------- */
+  .bg-circles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
+  .circle { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.1); animation: float 20s infinite ease-in-out; }
+  .circle:nth-child(1) { width: 80px; height: 80px; left: 10%; animation-duration: 25s; }
+  .circle:nth-child(2) { width: 120px; height: 120px; right: 15%; top: 20%; animation-duration: 30s; animation-delay: 2s; }
+  .circle:nth-child(3) { width: 60px; height: 60px; left: 50%; top: 60%; animation-duration: 20s; animation-delay: 4s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+    25% { transform: translateY(-100px) translateX(50px); opacity: 0.5; }
+    50% { transform: translateY(-200px) translateX(-50px); opacity: 0.3; }
+    75% { transform: translateY(-100px) translateX(100px); opacity: 0.5; }
+  }
+
+  /* ---------- SECURITY & ANTI-CHEAT UI ---------- */
+  .cheat-overlay { display: none; position: fixed; inset: 0; background: rgba(220, 38, 38, 0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; color: white; backdrop-filter: blur(5px); }
+  .cheat-overlay.show { display: flex; }
+  .cheat-overlay h2 { font-size: 2rem; margin-bottom: 12px; }
+  .cheat-overlay p { font-size: 1.1rem; opacity: 0.9; margin-bottom: 24px; max-width: 400px; line-height: 1.5; }
+  
+  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-120px); background: #333; color: white; padding: 12px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 500; z-index: 400; transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.cheat { background: #dc2626; }
+
+  /* ---------- LAYOUT ---------- */
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+  .screen { display: none; width: 100%; animation: fadeIn 0.5s ease forwards; }
+  .screen.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .glass-card { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); backdrop-filter: blur(10px); margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.4); }
+  
+  h1 { text-align: center; color: #667eea; margin-bottom: 5px; font-size: 2rem; font-weight: 800; line-height: 1.2; }
+  h2 { text-align: center; color: #764ba2; margin-bottom: 5px; font-size: 1.3rem; font-weight: 600; }
+  h3 { text-align: center; color: #555; margin-bottom: 30px; font-size: 1rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ---------- GATE CARD ---------- */
+  .candidate-chip { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 12px; padding: 12px 16px; margin: 20px 0; display: flex; align-items: center; gap: 15px; }
+  .candidate-chip img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #667eea; }
+  .security-notice { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 0.85rem; color: #dc2626; }
+  
+  /* ---------- COMPONENTS ---------- */
+  .form-group { margin-bottom: 25px; }
+  label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 1.05rem; color: #444; }
+  
+  .links-list { margin-left: 20px; color: #555; line-height: 1.6; }
+  .links-list a { color: #667eea; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+  .links-list a:hover { color: #764ba2; text-decoration: underline; }
+
+  input, select, textarea { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 1rem; transition: all 0.3s ease; background: white; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.15); }
+  textarea { min-height: 400px; resize: vertical; line-height: 1.7; }
+
+  button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 16px 32px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; width: 100%; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(102,126,234,0.3); }
+  button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.4); }
+  button:active { transform: scale(0.98); }
+  button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); margin-top: 10px; }
+
+  /* ---------- STATS ---------- */
+  .stats-container { display: flex; gap: 15px; margin-bottom: 20px; }
+  .stat-box { flex: 1; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; border: 1px solid #e0e0e0; }
+  .stat-label { font-size: 0.85rem; color: #666; margin-bottom: 5px; font-weight: 600; text-transform: uppercase; }
+  .stat-value { font-size: 1.4rem; font-weight: 700; color: #667eea; }
+  .stat-value.warning { color: #dc2626; }
+
+  .word-count-warning { background: #fffbeb; border: 1px solid #fcd34d; color: #b45309; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: 600; font-size: 0.95rem; }
+  .validation-msg { color: #dc2626; font-size: 0.9rem; margin-top: 8px; font-weight: 500; text-align: center; }
+  .hidden { display: none !important; }
+
+  .swoc-instructions { background: #f0f4ff; border-left: 4px solid #667eea; padding: 15px 20px; margin-bottom: 20px; border-radius: 8px; font-size: 0.95rem; color: #444; }
+  .swoc-instructions ol { margin: 10px 0 0 20px; }
+  .swoc-instructions li { margin-bottom: 4px; }
+
+  /* ---------- SCORECARD ---------- */
+  .scorecard h3 { color: #667eea; font-size: 1.8rem; margin-bottom: 20px; text-transform: none; }
+  .scorecard p { margin-bottom: 12px; font-size: 1.05rem; padding: 12px 16px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea; }
+  
+  .cheat-report { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 15px; margin: 20px 0; }
+  .cheat-report h4 { color: #dc2626; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; }
+  .cheat-report ul { list-style: none; font-size: 0.85rem; color: #555; }
+  .cheat-report li { margin-bottom: 5px; }
+
+  @media (max-width: 768px) {
+    .container { padding: 20px 10px; }
+    .glass-card { padding: 25px 15px; }
+    h1 { font-size: 1.6rem; }
+    .stats-container { flex-direction: column; gap: 10px; }
+  }
+</style>
+<base target="_blank">
+</head>
+<body oncontextmenu="return false;">
+
+<div class="bg-circles">
+  <div class="circle"></div><div class="circle"></div><div class="circle"></div>
+</div>
+
+<!-- ANTI-CHEAT OVERLAYS -->
+<div class="cheat-overlay" id="cheatOverlay">
+  <h2>⚠ Security Alert</h2>
+  <p id="cheatMessage">Suspicious activity detected. Please return to the assessment immediately.</p>
+  <button style="background: white; color: #dc2626; width: auto; padding: 12px 24px;" onclick="resumeTest()">I Understand — Resume</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="container">
+  
+  <!-- SCREEN 1: GATE / AUTH -->
+  <div id="authScreen" class="screen active glass-card">
+    <h1>SRM Valliammai Engineering College</h1>
+    <h2>Department of English</h2>
+    <h3>English Language Learning Laboratory</h3>
+    
+    <div class="candidate-chip">
+      <img id="candidateAvatar" src="https://via.placeholder.com/150" alt="Avatar">
+      <div>
+        <strong id="candidateName" style="font-size: 1.1rem; color: #333;">Loading User...</strong><br>
+        <span id="candidateDept" style="color: #666; font-size: 0.85rem;">Verifying GitHub Auth...</span>
+      </div>
+    </div>
+    
+    <div class="security-notice">
+      <strong>🔒 Secure Environment</strong><br>
+      This assessment is actively monitored. Switching tabs, minimizing the window, right-clicking, or attempting to copy/paste content will be recorded in your final assessment report.
+    </div>
+
+    <!-- Fallback dropdown if dept is missing -->
+    <div class="form-group" id="deptSelectGroup" style="display: none;">
+      <label for="department">Select Your Department:</label>
+      <select id="department">
+        <option value="">-- Select Department --</option>
+        <option value="CSE">CSE</option>
+        <option value="IT">IT</option>
+        <option value="AI DS">AI DS</option>
+        <option value="ECE">ECE</option>
+        <option value="EEE">EEE</option>
+        <option value="EIE">EIE</option>
+        <option value="Mechanical">Mechanical</option>
+        <option value="Civil">Civil</option>
+        <option value="Cyber Security">Cyber Security</option>
+        <option value="Agri">Agri</option>
+        <option value="Medical Electronics">Medical Electronics</option>
+      </select>
+    </div>
+
+    <button id="startBtn" onclick="startAssessment()" disabled>Enter Challenge 🎤</button>
+  </div>
+
+  <!-- SCREEN 2: ASSESSMENT -->
+  <div id="assessmentScreen" class="screen">
+    <div class="glass-card" style="padding: 20px 30px; margin-bottom: 20px;">
+      <h2 style="text-align: left; margin-bottom: 15px; color: #667eea;">📰 Context & Inspiration</h2>
+      <p style="margin-bottom: 10px; color: #444;">Read similar news stories before creating your headline:</p>
+      <ul class="links-list">
+        <li><a href="https://www.indiatoday.in/education-today/news/story/500-rejections-23-year-old-northeast-openai-wfh-job-rs-20-lakh-monthly-2782491-2025-09-05">23-Year-Old Lands OpenAI WFH Job After 500 Rejections</a></li>
+        <li><a href="https://www.businesstoday.in/latest/trends/story/she-said-she-knows-nothing-student-lands-tech-job-in-5-minutes-after-bold-honesty-497873-2025-10-12">Student Lands Tech Job in 5 Minutes After Bold Honesty</a></li>
+        <li><a href="https://economictimes.indiatimes.com/magazines/panache/man-in-his-40s-lands-dream-job-after-two-years-of-struggle-shares-lessons-he-learned/articleshow/122416566.cms?from=mdr">Man in His 40s Lands Dream Job After 2 Years of Struggle</a></li>
+        <li><a href="https://www.indiatoday.in/education-today/news/story/bangalore-girl-fails-neet-lands-rs-72-lakh-rolls-royce-job-2757599-2025-07-18">Bangalore Girl Fails NEET, Lands ₹72 Lakh Rolls-Royce Job</a></li>
+      </ul>
+    </div>
+
+    <div class="stats-container">
+      <div class="stat-box">
+        <div class="stat-label">📝 Word Count</div>
+        <div class="stat-value" id="wordCount">0 / 300</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">🚫 Warnings</div>
+        <div class="stat-value warning" id="pasteCounter">0</div>
+      </div>
+    </div>
+   
+    <div id="wordWarning" class="word-count-warning">
+      ⚠️ Minimum 300 words required. Ensure you cover: Who, What, When, Where, Why, How.
+    </div>
+
+    <div class="glass-card">
+      <div class="form-group">
+        <label>Your Headline:</label>
+        <input type="text" id="letterSubject" placeholder="E.g., Tech Student Overcomes Setbacks to Land AI Role..." autocomplete="off">
+      </div>
+
+      <div class="swoc-instructions">
+        <strong>📰 How to Write Your SWOC Headline & Story:</strong>
+        <ol>
+          <li>Start strong: Pick your <strong>biggest strength</strong>.</li>
+          <li>Admit a weakness: Mention one <strong>real weakness</strong>.</li>
+          <li>Spot your opportunity: Include a <strong>future goal or chance</strong>.</li>
+          <li>Acknowledge a challenge: Name <strong>one obstacle</strong>.</li>
+          <li>Mix SWOC naturally in one headline, and expand on it in your story.</li>
+        </ol>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label>Your Story:</label>
+        <textarea id="letterBody" placeholder="Write your short news article here... (Minimum 300 words required)" oninput="updateWordCount()" autocomplete="off" spellcheck="true"></textarea>
+      </div>
+    </div>
+
+    <button onclick="submitAssessment()">Submit Article 📮</button>
+    <div id="submitError" class="validation-msg hidden"></div>
+  </div>
+
+  <!-- SCREEN 3: SCORECARD -->
+  <div id="scorecardScreen" class="screen glass-card">
+    <h1>Mission Accomplished.</h1>
+    <h2 style="color: #555; margin-bottom: 25px;">Submission Summary</h2>
+    
+    <div id="scorecardContent"></div>
+
+    <div class="cheat-report" id="cheatReportSection">
+      <h4>Security Audit</h4>
+      <ul id="cheatList"></ul>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 30px;">
+      <button onclick="downloadPDF()">📥 Download PDF Report</button>
+      <button onclick="location.reload()" class="btn-secondary">↻ Start Over</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ========== GLOBALS & AUTH ========== */
+let playerName = "Guest";
+let playerDept = "";
+let startTime = 0;
+let elapsedSeconds = 0;
+let timerInterval = null;
+const MIN_WORDS = 300;
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.GH) {
+    playerName = window.GH.name || window.GH.username || "Student";
+    playerDept = window.GH.dept || "";
+    
+    document.getElementById('candidateName').textContent = playerName;
+    
+    if (playerDept) {
+      document.getElementById('candidateDept').textContent = 'Department: ' + playerDept;
+    } else {
+      document.getElementById('candidateDept').textContent = 'Please select department below';
+      document.getElementById('deptSelectGroup').style.display = 'block';
+    }
+    
+    if (window.GH.avatar) {
+      document.getElementById('candidateAvatar').src = window.GH.avatar;
+    }
+    document.getElementById('startBtn').disabled = false;
+  } else {
+    setTimeout(() => {
+      playerName = localStorage.getItem("questPlayerName") || "Test Student";
+      playerDept = localStorage.getItem("questPlayerDept") || "";
+      document.getElementById('candidateName').textContent = playerName;
+      document.getElementById('deptSelectGroup').style.display = 'block';
+      document.getElementById('startBtn').disabled = false;
+    }, 500);
+  }
+});
+
+/* ========== ANTI-CHEAT SYSTEM ========== */
+let cheatEvents = [];
+let cheatCount = 0;
+let isPaused = false;
+let testSubmitted = false;
+
+function initAntiCheat() {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && !testSubmitted && startTime) {
+      recordCheat('Tab switched or minimized', 'tab');
+      showCheatOverlay('You switched tabs or minimized the window. This has been recorded.');
+    }
+  });
+
+  window.addEventListener('blur', () => {
+    if (!testSubmitted && startTime && !isPaused && !isMobile) {
+      recordCheat('Window lost focus', 'focus');
+    }
+  });
+
+  document.addEventListener('contextmenu', e => {
+    if (!testSubmitted && startTime) { 
+      e.preventDefault(); recordCheat('Right-click attempted', 'rightclick'); showToast('Right-click disabled', true); 
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (!testSubmitted && startTime) {
+      if (e.key === 'F12') { 
+        e.preventDefault(); recordCheat('DevTools accessed', 'devtools'); showToast('DevTools blocked', true); 
+      }
+      if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'u')) {
+        e.preventDefault(); recordCheat('DevTools shortcut blocked', 'shortcut'); showToast('Shortcuts restricted', true);
+      }
+      if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'a' || e.key === 'c' || e.key === 'v' || e.key === 'x')) { 
+        e.preventDefault(); recordCheat('System shortcut blocked: Ctrl+' + e.key, 'shortcut'); 
+        if(e.key === 'v' || e.key === 'c') { showToast('Copy/Paste disabled', true); }
+      }
+    }
+  });
+
+  ['copy', 'paste', 'cut', 'drop'].forEach(evt => {
+    document.addEventListener(evt, e => { 
+      if (!testSubmitted && startTime) { 
+        e.preventDefault(); recordCheat(`${evt.toUpperCase()} attempted`, evt); showToast(`${evt} is disabled`, true); 
+      } 
+    });
+  });
+
+  if (!isMobile) {
+    setInterval(() => {
+      if (testSubmitted || !startTime || isPaused) return;
+      const start = performance.now(); debugger; const end = performance.now();
+      if (end - start > 100) { 
+        recordCheat('Debugger accessed', 'console'); 
+        showCheatOverlay('Console access detected. Logged.'); 
+      }
+    }, 3000);
+  }
+}
+
+function recordCheat(description, type) {
+  cheatCount++;
+  cheatEvents.push({ type, description, timestamp: new Date().toISOString() });
+  document.getElementById('pasteCounter').innerText = cheatCount;
+}
+
+function showCheatOverlay(msg) {
+  isPaused = true;
+  document.getElementById('cheatMessage').textContent = msg;
+  document.getElementById('cheatOverlay').classList.add('show');
+}
+
+function resumeTest() {
+  isPaused = false;
+  document.getElementById('cheatOverlay').classList.remove('show');
+  showToast('Assessment resumed.');
+}
+
+function showToast(msg, isCheat = false) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast' + (isCheat ? ' cheat' : '');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+/* ========== APP LOGIC ========== */
+function startAssessment() {
+  if (!playerDept) {
+    const sel = document.getElementById('department').value;
+    if (!sel) {
+      alert("Please select your department first.");
+      return;
+    }
+    playerDept = sel;
+  }
+
+  document.getElementById('authScreen').classList.remove('active');
+  document.getElementById('assessmentScreen').classList.add('active');
+  
+  startTime = Date.now();
+  initAntiCheat();
+
+  // Hidden Background Timer
+  timerInterval = setInterval(() => {
+    if (!isPaused) elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+  }, 1000);
+}
+
+function updateWordCount() {
+  const text = document.getElementById('letterBody').value.trim();
+  const wordCount = text.length > 0 ? text.split(/\s+/).filter(w => w.length > 0).length : 0;
+  
+  document.getElementById('wordCount').innerText = `${wordCount} / ${MIN_WORDS}`;
+  
+  if (wordCount < MIN_WORDS) {
+    document.getElementById('wordWarning').classList.remove('hidden');
+  } else {
+    document.getElementById('wordWarning').classList.add('hidden');
+  }
+}
+
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+function submitAssessment() {
+  const title = document.getElementById('letterSubject').value.trim();
+  const body = document.getElementById('letterBody').value.trim();
+  const wordCount = body.length > 0 ? body.split(/\s+/).filter(w => w.length > 0).length : 0;
+  const errDiv = document.getElementById('submitError');
+
+  if (!title || !body) { 
+    errDiv.innerText = "Please complete both the headline and the story."; 
+    errDiv.classList.remove('hidden'); 
+    return; 
+  }
+  
+  if (wordCount < MIN_WORDS) { 
+    errDiv.innerText = `Story must have at least ${MIN_WORDS} words (Currently: ${wordCount}).`; 
+    errDiv.classList.remove('hidden'); 
+    return; 
+  }
+
+  errDiv.classList.add('hidden');
+  clearInterval(timerInterval);
+  testSubmitted = true;
+  triggerConfetti();
+
+  // Switch Screens
+  document.getElementById('assessmentScreen').classList.remove('active');
+  document.getElementById('scorecardScreen').classList.add('active');
+
+  // Populate Scorecard
+  document.getElementById('scorecardContent').innerHTML = `
+    <p><strong>👤 Author:</strong> ${playerName}</p>
+    <p><strong>🏫 Department:</strong> ${playerDept}</p>
+    <p><strong>📰 Headline:</strong> ${title}</p>
+    <p><strong>📝 Word Count:</strong> ${wordCount}</p>
+  `;
+
+  const cheatList = document.getElementById('cheatList');
+  if (cheatEvents.length === 0) { 
+    cheatList.innerHTML = '<li style="color:#10b981">✓ No suspicious activity detected</li>'; 
+  } else { 
+    cheatList.innerHTML = cheatEvents.map(e => `<li>⚠ ${e.description}</li>`).join(''); 
+  }
+
+  // Supabase / Cloudflare Payload
+  fetch(EDGE_FUNCTION_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      student_name: playerName, 
+      department: playerDept,
+      correct: 50, 
+      wrong: 0,
+      time_spent: elapsedSeconds, 
+      quest_id: "Quest Headline 1",
+      cheat_count: cheatCount,
+      cheat_events: cheatEvents
+    })
+  }).catch(() => {});
+}
+
+/* ========== PDF GENERATION ========== */
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const reportDate = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+  // Header
+  doc.setFillColor(118, 75, 162); 
+  doc.rect(0, 0, 210, 45, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('times', 'bold');
+  doc.setFontSize(16);
+  doc.text('SRM VALLIAMMAI ENGINEERING COLLEGE', 105, 16, { align: 'center' });
+  doc.setFontSize(12); doc.setFont('times', 'italic');
+  doc.text('Department of English', 105, 24, { align: 'center' });
+  doc.setFontSize(14); doc.setFont('times', 'bold');
+  doc.setTextColor(230, 230, 250); 
+  doc.text('English Language Learning Laboratory', 105, 32, { align: 'center' });
+  doc.setFontSize(12);
+  doc.text('Campus Chronicle Report', 105, 40, { align: 'center' });
+
+  // Info Table
+  doc.setTextColor(0, 0, 0); doc.setFontSize(11);
+  doc.text('CANDIDATE INFORMATION', 20, 55);
+  doc.autoTable({
+    startY: 58,
+    body: [ 
+      ['Student Name', playerName], 
+      ['Department', playerDept], 
+      ['Assessment', 'Quest Headline 1'], 
+      ['Completed On', reportDate] 
+    ],
+    theme: 'plain', styles: { fontSize: 10, font: 'times', cellPadding: 3 },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, textColor: [70, 70, 70] }, 1: { cellWidth: 130 } },
+    margin: { left: 20, right: 20 }
+  });
+
+  // Security Audit
+  let y = doc.lastAutoTable.finalY + 10;
+  let securityStatus = cheatCount === 0 ? "Verified (Clean)" : `Flagged (${cheatCount} Incidents)`;
+  const wordCount = document.getElementById('letterBody').value.trim().split(/\s+/).length;
+
+  doc.setFont('times', 'bold'); doc.text('ASSESSMENT METRICS', 20, y);
+  doc.autoTable({
+    startY: y + 3,
+    body: [
+      ['Total Word Count', wordCount.toString()], 
+      ['Score Achieved', '50 / 50'],
+      ['Security Audit', securityStatus]
+    ],
+    theme: 'grid', styles: { fontSize: 10, font: 'times', cellPadding: 3 }, margin: { left: 20, right: 20 }
+  });
+
+  y = doc.lastAutoTable.finalY + 12;
+
+  // Print Article
+  doc.setFont('times', 'bold'); doc.text('SUBMITTED ARTICLE', 20, y);
+  y += 6;
+  
+  const title = document.getElementById('letterSubject').value.trim();
+  doc.setFontSize(13); doc.setTextColor(102, 126, 234);
+  const titleLines = doc.splitTextToSize(`Headline: ${title}`, 170);
+  doc.text(titleLines, 20, y);
+  y += (titleLines.length * 6) + 4;
+
+  doc.setFontSize(11); doc.setTextColor(0, 0, 0); doc.setFont('times', 'normal');
+  const body = document.getElementById('letterBody').value.trim();
+  const bodyLines = doc.splitTextToSize(body, 170);
+  
+  // Pagination for long text
+  bodyLines.forEach(line => {
+    if (y > 275) { doc.addPage(); y = 20; }
+    doc.text(line, 20, y);
+    y += 6;
+  });
+
+  // Footer
+  if (y > 270) { doc.addPage(); y = 20; }
+  y += 10;
+  doc.setDrawColor(118, 75, 162); doc.setLineWidth(0.5); doc.line(20, 280, 190, 280);
+  doc.setFontSize(8); doc.setTextColor(128, 128, 128); doc.setFont('times', 'italic');
+  doc.text('This is a system-generated secure report.', 105, 287, { align: 'center' });
+
+  doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_Headline_Report.pdf`);
+}
+
+function triggerConfetti() {
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#667eea', '#764ba2', '#00c896'] });
+}
+</script>
+</body>
+</html>
