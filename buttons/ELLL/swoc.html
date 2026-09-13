@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>SWOC Profile Builder</title>
+<title>My Blueprint — SWOT Profile Builder</title>
 
 <!-- External Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <!-- Auth Guard to protect and load user session -->
 <script src="../../auth-guard.js"></script>
@@ -18,69 +19,50 @@
 
 <style>
   /* ---------- BASE TOKENS ---------- */
-  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
-  
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
   :root {
-    --paper: #f3ead4; 
-    --card: #fffbf2; 
+    --paper: #f3ead4;
+    --card: #fffbf2;
     --card-line: #e3d5b0;
-    --ink: #2d2620; 
+    --ink: #2d2620;
     --ink-muted: #8c7c62;
-    --forest: #2f5233; 
+    --forest: #2f5233;
     --moss: #6f8f5a;
-    --clay: #b5651d; 
-    --gold: #c9a227; 
+    --clay: #b5651d;
+    --gold: #c9a227;
     --rust: #a4392c;
     --prep: #2f6b3f;
-    
-    /* Security Colors */
-    --cheat: #dc2626;
-    --warning: #f59e0b;
-    --success: #10b981;
+    --accent: var(--forest);
 
     --shadow-sm: 0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);
     --shadow-md: 0 2px 6px rgba(45,38,32,.10),0 10px 26px rgba(45,38,32,.12);
     --ease: cubic-bezier(.16,1,.3,1);
   }
-  
+
   html, body { min-height: 100%; overscroll-behavior-x: none; }
-  
+
   body {
-    font-family: 'Inter', sans-serif; 
-    background: var(--paper); 
+    font-family: 'Inter', sans-serif;
+    background: var(--paper);
     color: var(--ink);
-    min-height: 100dvh; 
-    display: flex; 
-    flex-direction: column; 
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     background-image:
       radial-gradient(ellipse 70% 50% at 12% 8%, rgba(111,143,90,.14) 0%, transparent 60%),
       radial-gradient(ellipse 60% 45% at 92% 88%, rgba(181,101,29,.10) 0%, transparent 60%);
   }
 
-  /* ---------- SECURITY & ANTI-CHEAT UI ---------- */
-  .cheat-overlay { display: none; position: fixed; inset: 0; background: rgba(220, 38, 38, 0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; color: white; backdrop-filter: blur(5px); }
-  .cheat-overlay.show { display: flex; }
-  .cheat-overlay h2 { font-family: 'Fraunces', serif; font-size: 2rem; margin-bottom: 12px; }
-  .cheat-overlay p { font-size: 1.1rem; opacity: 0.9; margin-bottom: 24px; max-width: 400px; line-height: 1.5; }
-  
-  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-120px); background: var(--ink); color: white; padding: 12px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 500; z-index: 400; transition: transform 0.3s ease; box-shadow: var(--shadow-md); max-width: 90vw; text-align: center; }
+  /* ---------- TOAST (mascot pop-ins) ---------- */
+  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-120px); background: var(--forest); color: white; padding: 12px 18px; border-radius: 14px; font-size: 0.85rem; font-weight: 600; z-index: 400; transition: transform 0.3s var(--ease); box-shadow: var(--shadow-md); max-width: 88vw; text-align: center; }
   .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.cheat { background: var(--cheat); }
-
-  .security-notice { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 12px; margin-bottom: 20px; font-size: 0.75rem; color: var(--cheat); text-align: left; }
-  .security-notice strong { display: block; margin-bottom: 4px; font-size: 0.8rem; }
 
   /* ---------- LAYOUT ---------- */
-  .screen {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    min-height: 100dvh;
-  }
+  .screen { display: none; flex-direction: column; align-items: center; width: 100%; min-height: 100dvh; }
   .screen.active { display: flex; }
-  
+
   .col {
     display: flex; flex-direction: column; width: 100%; min-height: 100%; max-width: 520px; margin: 0 auto;
     padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
@@ -95,114 +77,138 @@
     display: flex; flex-direction: column; align-items: stretch; gap: 14px;
     animation: cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards; text-align: center;
   }
-  
-  .hero-quote { margin-bottom: 8px; }
+
+  .hero-quote { margin-bottom: 4px; }
   .hero-text { font-family: 'Fraunces', serif; font-weight: 900; font-size: 2.1rem; color: var(--forest); letter-spacing: -.5px; line-height: 1.1; }
-  .hero-author { font-size: 1rem; margin-top: 8px; color: var(--clay); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-  
-  .candidate-chip { background: #fffdf7; border: 1.5px solid var(--card-line); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; text-align: left; font-size: 0.85rem; color: var(--ink); display: flex; align-items: center; gap: 12px; }
+  .hero-author { font-size: .95rem; margin-top: 8px; color: var(--clay); font-weight: 600; }
+
+  .mascot-intro { display: flex; align-items: center; gap: 10px; background: #fffdf7; border: 1.5px dashed var(--card-line); border-radius: 14px; padding: 12px 14px; text-align: left; }
+  .mascot-face { font-size: 1.8rem; line-height: 1; flex-shrink: 0; }
+  .mascot-intro p { font-size: 0.85rem; color: var(--ink); line-height: 1.4; }
+
+  .candidate-chip { background: #fffdf7; border: 1.5px solid var(--card-line); border-radius: 12px; padding: 12px 14px; margin-bottom: 2px; text-align: left; font-size: 0.85rem; color: var(--ink); display: flex; align-items: center; gap: 12px; }
   .candidate-chip img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--forest); }
-  
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 24px; border: none; border-radius: 14px; font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; touch-action: manipulation; text-transform: uppercase; letter-spacing: .03em; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 24px; border: none; border-radius: 14px; font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; touch-action: manipulation; }
   .btn-primary { background: linear-gradient(135deg, var(--forest), var(--moss)); color: white; box-shadow: 0 4px 16px rgba(47,82,51,.25); }
   .btn-primary:active { transform: scale(0.97); }
   .btn-secondary { background: var(--card); color: var(--ink); border: 1.5px solid var(--card-line); }
-  .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
   /* ---------- QUIZ HUD ---------- */
   .top-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .brand { text-align: center; flex: 1; }
   .brand h1 { font-family: 'Fraunces', serif; font-weight: 700; font-size: clamp(1.15rem, 3.6dvh, 1.55rem); letter-spacing: -.3px; color: var(--forest); }
   .brand span { color: var(--clay); }
-  .brand .sub { font-family: 'Space Mono', monospace; font-size: .58rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); margin-top: 1px; }
+  .brand .sub { font-family: 'Space Mono', monospace; font-size: .58rem; letter-spacing: .1em; color: var(--ink-muted); margin-top: 1px; }
 
-  .icon-btn { width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--card-line); background: var(--card); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; transition: transform 0.15s, background 0.15s; color: var(--ink); box-shadow: var(--shadow-sm); }
-  .icon-btn:active { transform: scale(0.9); }
-  .icon-btn:hover { background: #f7ede0; }
+  .timer-pill { display: flex; align-items: center; gap: 6px; background: var(--card); border: 1.5px solid var(--card-line); border-radius: 99px; padding: 8px 14px; box-shadow: var(--shadow-sm); }
+  .timer-text { font-family: 'Space Mono', monospace; font-size: .85rem; font-weight: 700; color: var(--forest); white-space: nowrap; }
 
-  .timer-pill { display: flex; align-items: center; gap: 6px; background: var(--card); border: 1.5px solid var(--card-line); border-radius: 99px; padding: 8px 16px; box-shadow: var(--shadow-sm); }
-  .timer-text { font-family: 'Space Mono', monospace; font-size: .95rem; font-weight: 700; color: var(--forest); white-space: nowrap; }
+  /* ---------- PROGRESS ---------- */
+  .progress-rail { height: 7px; background: var(--card); border: 1px solid var(--card-line); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--forest), var(--gold)); border-radius: 99px; transition: width .5s var(--ease); }
 
-  /* ---------- STATS STRIP ---------- */
-  .stat-strip { background: var(--card); border: 1.5px solid var(--card-line); border-radius: 12px; padding: 9px 14px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; }
-  .stat-nums { font-family: 'Space Mono', monospace; font-size: .75rem; color: var(--ink-muted); font-weight: 700; }
+  .stat-strip { background: var(--card); border: 1.5px solid var(--card-line); border-radius: 12px; padding: 9px 14px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .stat-nums { font-family: 'Space Mono', monospace; font-size: .72rem; color: var(--ink-muted); font-weight: 700; }
   .stat-nums b { color: var(--clay); font-size: 1.1em; margin: 0 2px; }
-  
-  .cheat-counter { display: flex; align-items: center; gap: 4px; background: #fef2f2; color: var(--cheat); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; border: 1px solid #fecaca; }
-  .cheat-counter.active { background: var(--cheat); color: white; animation: shake 0.5s; }
+
+  .section-chip { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--card-line); background: #fffdf7; color: var(--accent); white-space: nowrap; }
 
   /* ---------- MOUNT (QUESTION CONTAINER) ---------- */
   .mount {
-    background: var(--card); border: 1.5px solid var(--card-line); border-radius: 14px; padding: 24px 18px; box-shadow: var(--shadow-md); position: relative;
+    background: var(--card); border: 1.5px solid var(--card-line); border-radius: 14px; padding: 22px 18px; box-shadow: var(--shadow-md); position: relative;
     display: flex; flex-direction: column; gap: 12px;
   }
   .mount::before { content: ''; position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px; border: 1px dashed #d8c69a; border-radius: 8px; pointer-events: none; }
-  
-  #qText { font-family: 'Fraunces', serif; color: var(--forest); font-size: 1.25rem; text-align: center; line-height: 1.4; position: relative; z-index: 1; margin-bottom: 4px; }
-  #qEncouragement { font-size: 0.85rem; color: var(--clay); text-align: center; font-weight: 600; position: relative; z-index: 1; margin-bottom: 12px; }
 
-  /* ---------- OPTIONS GRID ---------- */
-  .options-grid { display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; }
-  
-  .option-card {
-    background: #fffdf7; border: 1.5px solid var(--card-line); border-radius: 12px; padding: 14px 16px;
-    cursor: pointer; text-align: left; transition: all 0.2s var(--ease);
-    display: flex; flex-direction: column; gap: 6px; user-select: none;
-    box-shadow: var(--shadow-sm);
+  #qText { font-family: 'Fraunces', serif; color: var(--forest); font-size: 1.2rem; text-align: center; line-height: 1.4; position: relative; z-index: 1; }
+  #qEncouragement { font-size: 0.82rem; color: var(--clay); text-align: center; font-weight: 600; position: relative; z-index: 1; }
+
+  /* ---------- SWIPE STAGE ---------- */
+  #stage { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+
+  .dots-row { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #e3d5b0; transition: all .2s; }
+  .dot.filled-yes { background: var(--forest); }
+  .dot.filled-no { background: #d8c9ac; }
+  .dot.current { width: 10px; height: 10px; background: var(--gold); box-shadow: 0 0 0 3px rgba(201,162,39,.25); }
+
+  .card-well { position: relative; height: 190px; display: flex; align-items: center; justify-content: center; }
+  .back-btn { position: absolute; top: -2px; left: 0; z-index: 2; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--card-line); background: #fffdf7; color: var(--ink-muted); font-size: 1rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .back-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+  .swipe-card {
+    position: absolute; inset: 0; background: #fffdf7; border: 1.5px solid var(--card-line); border-radius: 14px;
+    padding: 18px 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px;
+    box-shadow: var(--shadow-sm); cursor: grab; touch-action: pan-y; user-select: none;
   }
-  .option-card:active { transform: scale(0.98); }
-  .option-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-  
-  .option-card.selected {
-    background: var(--forest); border-color: var(--forest);
-    box-shadow: 0 4px 16px rgba(47,82,51,.25);
-  }
-  .option-card.selected strong, .option-card.selected p { color: white; }
-  
-  .option-card strong { font-family: 'Fraunces', serif; font-size: 1.05rem; color: var(--prep); transition: color 0.2s; }
-  .option-card p { font-size: 0.85rem; color: var(--ink-muted); line-height: 1.4; transition: color 0.2s; }
+  .swipe-card:active { cursor: grabbing; }
+  .swipe-card strong { font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--prep); }
+  .swipe-card p { font-size: 0.85rem; color: var(--ink-muted); line-height: 1.4; }
+  .swipe-hint { font-family: 'Space Mono', monospace; font-size: .62rem; color: var(--ink-muted); letter-spacing: .06em; margin-top: 4px; }
+
+  .swipe-actions { display: flex; gap: 12px; }
+  .swipe-btn { flex: 1; padding: 14px; border-radius: 14px; border: none; font-weight: 700; font-family: inherit; font-size: .95rem; cursor: pointer; transition: transform .15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .swipe-btn:active { transform: scale(.96); }
+  .swipe-btn.skip { background: #fdeee9; color: var(--rust); border: 1.5px solid #f0d3c8; }
+  .swipe-btn.yes { background: linear-gradient(135deg, var(--forest), var(--moss)); color: white; box-shadow: 0 4px 14px rgba(47,82,51,.25); }
+
+  /* ---------- REVIEW / CHIPS ---------- */
+  .review-lead { font-size: 0.85rem; color: var(--ink-muted); text-align: center; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .chip { display: flex; align-items: center; gap: 6px; background: var(--forest); color: white; padding: 7px 8px 7px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+  .chip button { background: rgba(255,255,255,.2); border: none; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: .7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .empty-note { text-align: center; font-size: 0.85rem; color: var(--rust); background: #fdeee9; border: 1px solid #f0d3c8; border-radius: 12px; padding: 10px; }
+  .review-actions { display: flex; flex-direction: column; gap: 8px; }
+
+  /* ---------- SECTION BANNER ---------- */
+  #sectionBanner .col { justify-content: center; align-items: center; }
+  .banner-card { width: 100%; max-width: 460px; background: var(--card); border: 1.5px solid var(--card-line); border-radius: 22px; padding: 36px 28px; text-align: center; box-shadow: 0 20px 60px rgba(45,38,32,.16); animation: cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards; }
+  .banner-icon { font-size: 3rem; margin-bottom: 10px; }
+  .banner-title { font-family: 'Fraunces', serif; font-weight: 900; font-size: 2rem; color: var(--accent); margin-bottom: 8px; }
+  .banner-sub { font-size: 0.95rem; color: var(--ink); line-height: 1.5; margin-bottom: 6px; }
+  .banner-count { font-family: 'Space Mono', monospace; font-size: .7rem; color: var(--ink-muted); letter-spacing: .06em; margin-bottom: 18px; }
+  .banner-quip { display: flex; align-items: center; gap: 10px; background: #fffdf7; border: 1.5px dashed var(--card-line); border-radius: 14px; padding: 12px; text-align: left; margin-bottom: 20px; }
 
   /* ---------- ANIMATIONS ---------- */
-  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
   @keyframes gemPop { 0% { transform: scale(1); } 50% { transform: scale(1.3) rotate(10deg); color: var(--gold); } 100% { transform: scale(1) rotate(0deg); } }
   .gem-pop { animation: gemPop 0.5s ease; }
   @keyframes cardIn { from{opacity:0;transform:translateY(30px) scale(.96)} to{opacity:1;transform:none} }
 
   /* ---------- END SCREEN ---------- */
   #endScreen .end-card {
-    background: var(--card); border: 1.5px solid var(--card-line); border-radius: 20px; padding: 32px 26px; max-width: 520px;
+    background: var(--card); border: 1.5px solid var(--card-line); border-radius: 20px; padding: 28px 22px; max-width: 520px;
     width: 100%; box-shadow: 0 20px 60px rgba(45,38,32,.14); animation: cardIn .55s cubic-bezier(.34,1.4,.64,1) forwards;
   }
-  
-  .end-title { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 900; text-align: center; color: var(--forest); margin-bottom: 4px; }
-  .end-subtitle { text-align: center; font-family: 'Space Mono', monospace; font-size: .7rem; color: var(--ink-muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 20px; }
-  
+
+  .share-card {
+    background: linear-gradient(160deg, var(--forest), #234026);
+    border-radius: 18px; padding: 26px 20px; color: white; text-align: center; margin-bottom: 20px;
+    border: 1.5px solid rgba(255,255,255,.15); position: relative; overflow: hidden;
+  }
+  .share-card::before { content: ''; position: absolute; top: -40%; right: -20%; width: 60%; height: 140%; background: radial-gradient(circle, rgba(201,162,39,.25), transparent 65%); }
+  .share-icon { font-size: 2.6rem; margin-bottom: 6px; position: relative; }
+  .share-archetype { font-family: 'Fraunces', serif; font-weight: 900; font-size: 1.6rem; position: relative; margin-bottom: 4px; }
+  .share-name { font-size: 0.85rem; opacity: 0.85; position: relative; margin-bottom: 12px; }
+  .share-blurb { font-size: 0.85rem; opacity: 0.92; line-height: 1.45; position: relative; margin-bottom: 14px; padding: 0 4px; }
+  .share-traits { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; position: relative; }
+  .share-chip { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 5px 12px; font-size: 0.72rem; font-weight: 600; }
+
+  .end-subtitle { text-align: center; font-family: 'Space Mono', monospace; font-size: .68rem; color: var(--ink-muted); letter-spacing: .05em; margin-bottom: 16px; }
+
   .end-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
   .stat-box { background: var(--paper); border-radius: 12px; padding: 13px 8px; text-align: center; border: 1.5px solid var(--card-line); }
   .stat-num { font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 700; color: var(--forest); line-height: 1; }
   .stat-num.gem-val { color: var(--gold); }
   .stat-lbl { font-family: 'Space Mono', monospace; font-size: .6rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
-  
-  .cheat-report { background: #fef2f2; border: 1px solid #fecaca; border-radius: 14px; padding: 14px; margin-bottom: 20px; text-align: left; }
-  .cheat-report h4 { color: var(--cheat); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; font-family: 'Inter', sans-serif; }
-  .cheat-report ul { list-style: none; font-size: 0.8rem; color: var(--ink-muted); }
-  .cheat-report li { padding: 3px 0; display: flex; align-items: center; gap: 6px; }
-  .cheat-report li::before { content: "⚠"; color: var(--warning); font-size: 0.7rem; }
 
-  .end-btn-row { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+  .end-btn-row { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
 
 </style>
-<base target="_blank">
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-  <!-- ANTI-CHEAT OVERLAYS -->
-  <div class="cheat-overlay" id="cheatOverlay">
-    <h2>⚠ Security Alert</h2>
-    <p id="cheatMessage">Suspicious activity detected. Please return to the assessment immediately.</p>
-    <button class="btn" style="background: white; color: var(--cheat); width: auto;" onclick="resumeTest()">I Understand — Resume</button>
-  </div>
-  
   <div class="toast" id="toast"></div>
 
   <!-- NAME GATE (GitHub Auth) -->
@@ -210,9 +216,14 @@
     <div class="gate-card">
       <div class="hero-quote">
         <div class="hero-text">Discover Your<br>True Blueprint.</div>
-        <div class="hero-author">SWOT Profile Builder</div>
+        <div class="hero-author">A fun 5-minute self check-in</div>
       </div>
-      
+
+      <div class="mascot-intro">
+        <div class="mascot-face">🦊</div>
+        <p>Hey! I'm your guide for this one. No wrong answers, no clock chasing you — just swipe through and see what your professional blueprint looks like. Ready?</p>
+      </div>
+
       <div class="candidate-chip" id="candidateChip">
         <img id="candidateAvatar" src="https://via.placeholder.com/150" alt="Avatar">
         <div>
@@ -220,13 +231,25 @@
           <span id="candidateDept" style="color:var(--ink-muted);font-size:0.75rem;">Verifying GitHub Auth...</span>
         </div>
       </div>
-      
-      <div class="security-notice">
-        <strong>🔒 Secure Environment</strong>
-        This assessment is actively monitored. Switching tabs, minimizing the window, or attempting to copy content will be recorded in your final report.
+
+      <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>🚀 Start My Blueprint</button>
+    </div>
+  </div>
+
+  <!-- SECTION BANNER (interstitial between S/W/O/C) -->
+  <div class="screen" id="sectionBanner">
+    <div class="col">
+      <div class="banner-card">
+        <div class="banner-icon" id="bannerIcon">⚡</div>
+        <div class="banner-title" id="bannerTitle">Powers</div>
+        <div class="banner-sub" id="bannerSub">Your strengths — internal traits that make you, you.</div>
+        <div class="banner-count" id="bannerCount">7 quick questions</div>
+        <div class="banner-quip">
+          <div class="mascot-face">🦊</div>
+          <p id="bannerQuip">Let's find out what makes you great.</p>
+        </div>
+        <button class="btn btn-primary" onclick="enterSection()">Let's go →</button>
       </div>
-      
-      <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>✨ Start Assessment ✨</button>
     </div>
   </div>
 
@@ -234,29 +257,25 @@
   <div class="screen" id="quizContent">
     <div class="col">
       <div class="top-bar">
-        <div class="brand"><h1>The <span>Blueprint</span></h1><div class="sub">Professional Profiler</div></div>
-        <div style="display: flex; gap: 8px;">
-          <div class="timer-pill">
-            <div class="timer-text" id="timer">00:00</div>
-          </div>
+        <div class="brand"><h1>My <span>Blueprint</span></h1><div class="sub">Self-Discovery Builder</div></div>
+        <div class="timer-pill">
+          <div class="timer-text" id="timer">00:00</div>
         </div>
       </div>
 
+      <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+
       <div class="stat-strip">
         <span class="stat-nums">📍 <b id="progressTracker">1 of X</b></span>
-        <div class="cheat-counter" id="cheatCounter"><span>🛡</span><span id="cheatCount">0</span></div>
+        <div class="section-chip" id="sectionChip"><span>⚡</span><span>Powers</span></div>
         <span class="stat-nums" id="gemsCounter">💎 <b>0</b></span>
       </div>
 
       <div class="mount" id="dropContainer">
         <h2 id="qText">Loading question...</h2>
         <p id="qEncouragement">Select your options below</p>
-        
-        <div class="options-grid" id="optionsGrid">
-          <!-- Options injected here -->
-        </div>
-        
-        <button class="btn btn-primary" id="nextBtn" style="margin-top: 16px; display: none; position: relative; z-index: 1;" onclick="submitAnswer()">Confirm Selection</button>
+
+        <div id="stage"><!-- swipe card / review content injected here --></div>
       </div>
 
     </div>
@@ -266,23 +285,27 @@
   <div class="screen" id="endScreen">
     <div class="col" style="justify-content: center; align-items: center;">
       <div class="end-card">
-        <div class="end-title" id="endTitle">Profile Complete.</div>
+
+        <div class="share-card" id="shareCard">
+          <div class="share-icon" id="shareIcon">🧭</div>
+          <div class="share-archetype" id="shareArchetype">The Explorer</div>
+          <div class="share-name" id="shareName">Name · Department</div>
+          <div class="share-blurb" id="shareBlurb">Your blueprint is ready.</div>
+          <div class="share-traits" id="shareTraits"></div>
+        </div>
+
         <div class="end-subtitle" id="endSubtitle">Player details</div>
-        
+
         <div class="end-stats">
           <div class="stat-box"><div class="stat-num" id="endSelected">0</div><div class="stat-lbl">Traits Identified</div></div>
           <div class="stat-box"><div class="stat-num" id="endCategories">0</div><div class="stat-lbl">Categories</div></div>
           <div class="stat-box"><div class="stat-num gem-val" id="endGems">0</div><div class="stat-lbl">Gems Earned</div></div>
           <div class="stat-box"><div class="stat-num" id="endTime">0s</div><div class="stat-lbl">Total Time</div></div>
         </div>
-        
-        <div class="cheat-report" id="cheatReportSection">
-          <h4>Security Report</h4>
-          <ul id="cheatList"></ul>
-        </div>
 
         <div class="end-btn-row">
           <button class="btn btn-primary" onclick="downloadPDFReport()">📥 Download SWOT Report</button>
+          <button class="btn btn-secondary" onclick="saveCard()">🖼️ Save My Card</button>
           <button class="btn btn-secondary" onclick="location.reload()">↻ Retake Assessment</button>
         </div>
       </div>
@@ -300,7 +323,7 @@ window.addEventListener('DOMContentLoaded', () => {
     playerName = window.GH.name || window.GH.username || "Student";
     playerDept = window.GH.dept || "Department Unspecified";
     playerAvatar = window.GH.avatar || "https://via.placeholder.com/150";
-    
+
     document.getElementById('candidateName').textContent = playerName;
     document.getElementById('candidateDept').textContent = 'Department: ' + playerDept;
     if (playerAvatar) {
@@ -320,7 +343,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function triggerConfetti() {
-  confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 }, colors: ['#2f5233', '#c9a227'] });
+  confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 }, colors: ['#2f5233', '#c9a227'] });
 }
 function triggerMegaConfetti() {
   const duration = 3000;
@@ -337,117 +360,25 @@ function triggerMegaConfetti() {
   }, 250);
 }
 
-/* ========== ANTI-CHEAT SYSTEM ========== */
-let cheatEvents = [];
-let cheatCount = 0;
-let isPaused = false;
-let testSubmitted = false;
-
-function initAntiCheat() {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden && !testSubmitted && startTime) {
-      recordCheat('Tab switched / window minimized', 'tab');
-      showCheatOverlay('You switched tabs or minimized the window. This has been recorded.');
-    }
-  });
-
-  window.addEventListener('blur', () => {
-    if (!testSubmitted && startTime && !isPaused && !isMobile) {
-      recordCheat('Window lost focus', 'focus');
-    }
-  });
-
-  document.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    if (!testSubmitted && startTime) { 
-      recordCheat('Right-click attempted', 'rightclick'); 
-      showToast('Right-click is disabled', true); 
-    }
-  });
-
-  document.addEventListener('keydown', e => {
-    if (!testSubmitted && startTime) {
-      if (e.key === 'F12') { 
-        e.preventDefault(); recordCheat('F12 (DevTools) pressed', 'devtools'); showToast('Developer tools are blocked', true); 
-      }
-      if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'u')) {
-        e.preventDefault(); recordCheat('DevTools shortcut blocked: ' + e.key, 'shortcut'); showToast('Keyboard shortcuts are restricted', true);
-      }
-      if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'a' || e.key === 'c' || e.key === 'v' || e.key === 'x')) { 
-        e.preventDefault(); recordCheat('System shortcut: Ctrl+' + e.key, 'shortcut'); 
-      }
-    }
-  });
-
-  document.addEventListener('copy', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Copy attempted', 'copy'); showToast('Copying is disabled', true); } });
-  document.addEventListener('paste', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Paste attempted', 'paste'); } });
-  document.addEventListener('cut', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Cut attempted', 'cut'); } });
-
-  if (!isMobile) {
-    const detectConsole = () => {
-      if (testSubmitted || !startTime || isPaused) return;
-      const start = performance.now(); debugger; const end = performance.now();
-      if (end - start > 100) { 
-        recordCheat('Console/Debugger accessed', 'console'); 
-        showCheatOverlay('Console access detected. This incident has been logged.'); 
-      }
-    };
-    setInterval(detectConsole, 3000);
-  }
-}
-
-function recordCheat(description, type) {
-  cheatCount++;
-  cheatEvents.push({ type, description, timestamp: new Date().toISOString(), question: current + 1 });
-  updateCheatCounter();
-}
-
-function updateCheatCounter() {
-  document.getElementById('cheatCount').textContent = cheatCount;
-  const badge = document.getElementById('cheatCounter');
-  if (cheatCount > 0) { 
-    badge.classList.add('active'); 
-    setTimeout(() => badge.classList.remove('active'), 500); 
-  }
-}
-
-function showCheatOverlay(msg) {
-  isPaused = true;
-  document.getElementById('cheatMessage').textContent = msg;
-  document.getElementById('cheatOverlay').classList.add('show');
-}
-
-function resumeTest() {
-  isPaused = false;
-  document.getElementById('cheatOverlay').classList.remove('show');
-  showToast('Assessment resumed. Further violations will be flagged.');
-}
-
-function showToast(msg, isCheat = false) {
+function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
-  toast.className = 'toast' + (isCheat ? ' cheat' : '');
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
+  setTimeout(() => toast.classList.remove('show'), 2600);
 }
+
+const mascotQuips = [
+  "🦊 Nice pick! Blueprint's taking shape.",
+  "🦊 Love it — keep going, you're doing great.",
+  "🦊 That's a solid one. Onward!",
+  "🦊 Getting a clearer picture of you already.",
+  "🦊 Ooh, good self-awareness right there.",
+  "🦊 Noted and locked in. Next up!",
+  "🦊 You're on a roll.",
+];
 
 /* ========== DATA ========== */
 const quizData = [
-  {
-    "q": "Strengths are INTERNAL. Choose at least one from each of the following category.",
-    "options": [
-      "Personal Traits [Core attributes that define your professional persona]",
-      "Interpersonal Skills [Skills that enable effective collaboration and leadership]",
-      "Cognitive / Analytical Skills [Skills for problem-solving, critical thinking, and innovation]",
-      "Organizational / Work Management Skills [Skills to plan, prioritize, and execute tasks efficiently]",
-      "Technical / Digital Competencies [Expertise in engineering tools, programming, and technological solutions]",
-      "Achievements / Recognition-Oriented Strengths [Proven track record of high performance and measurable results]"
-    ],
-    "correct": [],
-    "encouragement": "Select the category that best represents your strongest professional abilities 🌟"
-  },
   {
     "q": "Select the strengths you possess from the Personal Traits category:",
     "options": [
@@ -567,19 +498,6 @@ const quizData = [
     ],
     "correct": [],
     "encouragement": "Select achievements that demonstrate your impact 🌟"
-  },
-  {
-    "q": "Weaknesses are INTERNAL. Choose at least one from all these categories.",
-    "options": [
-      "Personal Traits [Internal characteristics that may limit your professional effectiveness]",
-      "Interpersonal Skills [Areas where communication or collaboration could improve]",
-      "Cognitive / Analytical Skills [Thinking, problem-solving, or decision-making areas needing growth]",
-      "Organizational / Work Management Skills [Task management or process-oriented areas for improvement]",
-      "Technical / Digital Competencies [Engineering tools, programming, or tech skills to develop further]",
-      "Achievement / Recognition-Oriented Weaknesses [Areas where measurable impact could improve]"
-    ],
-    "correct": [],
-    "encouragement": "Identifying weaknesses is the first step toward professional growth 💡"
   },
   {
     "q": "Select the weaknesses you identify within Personal Traits:",
@@ -825,101 +743,276 @@ const quizData = [
   }
 ];
 
+/* ========== SECTION META (RPG framing) ========== */
+const sectionMeta = {
+  S: { icon: '⚡', label: 'Powers', accent: 'var(--forest)', sub: 'Your strengths — internal traits that make you, you.', start: 0, count: 6,
+       quip: "Let's find out what makes you great. Be honest, be generous with yourself." },
+  W: { icon: '🌱', label: 'Growth Quests', accent: 'var(--clay)', sub: 'Weaknesses are just powers still leveling up.', start: 6, count: 6,
+       quip: "This part isn't about being hard on yourself — it's just the next quest to unlock." },
+  O: { icon: '🔮', label: 'Power-Ups', accent: 'var(--gold)', sub: 'Opportunities waiting out in the world for you to grab.', start: 12, count: 7,
+       quip: "The world's full of power-ups. Let's map out which ones are yours for the taking." },
+  C: { icon: '🐉', label: 'Bosses to Beat', accent: 'var(--rust)', sub: 'External challenges standing between you and the next level.', start: 19, count: 6,
+       quip: "Every hero has a boss fight. Naming yours is half the battle." }
+};
+
+function getSectionKey(index) {
+  if (index <= 5) return 'S';
+  if (index <= 11) return 'W';
+  if (index <= 18) return 'O';
+  return 'C';
+}
+
+/* ========== ARCHETYPES (based on strongest strength sub-category) ========== */
+const archetypeMap = {
+  0: { title: 'The Grounded Original', icon: '🧭', blurb: "You lead with authentic character — steady, self-aware, and true to your word." },
+  1: { title: 'The Connector',         icon: '🤝', blurb: "You build the bridges — teams run better because you're in the room." },
+  2: { title: 'The Strategist',        icon: '🧠', blurb: "You spot the pattern first and think three moves ahead." },
+  3: { title: 'The Orchestrator',      icon: '🗂️', blurb: "Nothing slips through the cracks when you're running the show." },
+  4: { title: 'The Builder',           icon: '🛠️', blurb: "You turn ideas into working things — sharp, hands-on, always shipping." },
+  5: { title: 'The Record-Setter',     icon: '🏆', blurb: "You don't just do the work — you win at it." }
+};
+
+/* ========== STATE ========== */
 let current = 0;
+let optionIndex = 0;
+let selectedInQuestion = [];
+let swipeHistory = [];
+let lastSection = null;
+
 let userSelections = [];
 let totalSelectionsMade = 0;
 let gemsCount = 0;
 let startTime, timerInterval;
 let elapsedSeconds = 0;
 
-const optionsGridEl = document.getElementById("optionsGrid");
 const gemsCounterEl = document.getElementById("gemsCounter");
 const progressTracker = document.getElementById("progressTracker");
-const nextBtn = document.getElementById("nextBtn");
+const progressFillEl = document.getElementById("progressFill");
+const sectionChipEl = document.getElementById("sectionChip");
+const stageEl = document.getElementById("stage");
 
 function startQuiz() {
   document.getElementById("nameFormScreen").classList.remove("active");
-  document.getElementById("quizContent").classList.add("active");
-  
+
   current = 0; totalSelectionsMade = 0; gemsCount = 0; elapsedSeconds = 0;
-  userSelections = [];
-  cheatEvents = []; cheatCount = 0; testSubmitted = false;
-  
+  userSelections = []; lastSection = null;
+
   startTime = Date.now();
   updateGems();
   startTimer();
-  initAntiCheat();
+  window.addEventListener('keydown', handleArrowKeys);
   loadQuestion();
 }
 
+function handleArrowKeys(e) {
+  if (!document.getElementById('quizContent').classList.contains('active')) return;
+  const q = quizData[current];
+  if (optionIndex >= (q ? q.options.length : 0)) return;
+  if (e.key === 'ArrowRight') swipeAction(true);
+  if (e.key === 'ArrowLeft') swipeAction(false);
+}
+
+/* ========== QUESTION / SECTION FLOW ========== */
 function loadQuestion() {
   if (current >= quizData.length) return showScore();
 
-  progressTracker.innerHTML = `${current + 1} of ${quizData.length}`;
-  const data = quizData[current];
+  optionIndex = 0;
+  selectedInQuestion = [];
+  swipeHistory = [];
 
-  document.getElementById("qText").innerText = data.q;
-  document.getElementById("qEncouragement").innerText = data.encouragement;
-
-  optionsGridEl.innerHTML = "";
-  nextBtn.style.display = "none";
-
-  data.options.forEach((opt, index) => {
-    const card = document.createElement("div");
-    card.classList.add("option-card");
-    
-    // Parse formatting if format is "Title [Description]"
-    const match = opt.match(/(.*?)\s*\[(.*?)\]/);
-    if (match) {
-      card.innerHTML = `<strong>${match[1]}</strong><p>${match[2]}</p>`;
-      card.dataset.title = match[1].trim();
-      card.dataset.desc = match[2].trim();
-    } else {
-      card.innerHTML = `<strong>${opt}</strong>`;
-      card.dataset.title = opt;
-      card.dataset.desc = "";
-    }
-    
-    card.onclick = () => toggleOption(card);
-    optionsGridEl.appendChild(card);
-  });
+  const secKey = getSectionKey(current);
+  if (secKey !== lastSection) {
+    lastSection = secKey;
+    showSectionBanner(secKey);
+  } else {
+    renderQuestionUI();
+  }
 }
 
-function toggleOption(card) {
-  if(isPaused) return;
-  card.classList.toggle("selected");
-  
-  const selectedCount = document.querySelectorAll(".option-card.selected").length;
-  nextBtn.style.display = selectedCount > 0 ? "inline-flex" : "none";
+function showSectionBanner(secKey) {
+  const sec = sectionMeta[secKey];
+  document.getElementById('quizContent').classList.remove('active');
+  document.getElementById('sectionBanner').classList.add('active');
+
+  document.getElementById('bannerIcon').textContent = sec.icon;
+  document.getElementById('bannerTitle').textContent = sec.label;
+  document.getElementById('bannerSub').textContent = sec.sub;
+  document.getElementById('bannerCount').textContent = `${sec.count} quick question${sec.count > 1 ? 's' : ''}`;
+  document.getElementById('bannerQuip').textContent = sec.quip;
+
+  document.querySelector('#sectionBanner .banner-card').style.setProperty('--accent-local', sec.accent);
+  document.getElementById('bannerTitle').style.color = sec.accent;
 }
 
-function submitAnswer() {
-  if(isPaused) return;
-  
-  const selectedCards = document.querySelectorAll(".option-card.selected");
-  if(selectedCards.length === 0) return;
-  
-  const answers = Array.from(selectedCards).map(card => ({
-    title: card.dataset.title,
-    desc: card.dataset.desc
-  }));
+function enterSection() {
+  document.getElementById('sectionBanner').classList.remove('active');
+  document.getElementById('quizContent').classList.add('active');
+  renderQuestionUI();
+}
 
-  userSelections.push({
-    question: quizData[current].q,
-    answers: answers
+function renderQuestionUI() {
+  const q = quizData[current];
+  const secKey = getSectionKey(current);
+  const sec = sectionMeta[secKey];
+  const localIndex = current - sec.start + 1;
+
+  document.documentElement.style.setProperty('--accent', sec.accent);
+  sectionChipEl.innerHTML = `<span>${sec.icon}</span><span>${sec.label}</span>`;
+  sectionChipEl.style.color = sec.accent;
+
+  progressTracker.innerHTML = `Q${localIndex} of ${sec.count}`;
+  progressFillEl.style.width = `${Math.round((current / quizData.length) * 100)}%`;
+
+  document.getElementById("qText").innerText = q.q;
+  document.getElementById("qEncouragement").innerText = q.encouragement;
+
+  renderCard();
+}
+
+/* ========== OPTION PARSING ========== */
+function getParsed(qIndex) {
+  const q = quizData[qIndex];
+  if (!q._parsed) {
+    q._parsed = q.options.map(opt => {
+      const m = opt.match(/(.*?)\s*\[(.*?)\]/);
+      return m ? { title: m[1].trim(), desc: m[2].trim() } : { title: opt, desc: "" };
+    });
+  }
+  return q._parsed;
+}
+
+/* ========== SWIPE CARD RENDERING ========== */
+function renderCard() {
+  const q = quizData[current];
+  const parsed = getParsed(current);
+
+  if (optionIndex >= parsed.length) { renderReview(); return; }
+
+  const opt = parsed[optionIndex];
+
+  let dots = '';
+  for (let i = 0; i < parsed.length; i++) {
+    if (i < optionIndex) dots += `<div class="dot ${swipeHistory[i] ? 'filled-yes' : 'filled-no'}"></div>`;
+    else if (i === optionIndex) dots += `<div class="dot current"></div>`;
+    else dots += `<div class="dot"></div>`;
+  }
+
+  stageEl.innerHTML = `
+    <div class="dots-row">${dots}</div>
+    <div class="card-well">
+      <button class="back-btn" id="backBtn" onclick="goBackOption()" ${optionIndex === 0 ? 'disabled' : ''} aria-label="Back">←</button>
+      <div class="swipe-card" id="swipeCard">
+        <strong>${opt.title}</strong>
+        ${opt.desc ? `<p>${opt.desc}</p>` : ''}
+        <div class="swipe-hint">SWIPE OR TAP A BUTTON</div>
+      </div>
+    </div>
+    <div class="swipe-actions">
+      <button class="swipe-btn skip" onclick="swipeAction(false)">✕ Not me</button>
+      <button class="swipe-btn yes" onclick="swipeAction(true)">✓ That's me</button>
+    </div>
+  `;
+
+  attachSwipeHandlers(document.getElementById('swipeCard'));
+}
+
+function attachSwipeHandlers(cardEl) {
+  let startX = 0, dragging = false, currentX = 0;
+
+  cardEl.addEventListener('pointerdown', e => {
+    dragging = true; startX = e.clientX; currentX = 0;
+    cardEl.setPointerCapture(e.pointerId);
+    cardEl.style.transition = 'none';
   });
+  cardEl.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    currentX = e.clientX - startX;
+    cardEl.style.transform = `translateX(${currentX}px) rotate(${currentX / 22}deg)`;
+    cardEl.style.borderColor = currentX > 40 ? 'var(--forest)' : currentX < -40 ? 'var(--rust)' : 'var(--card-line)';
+  });
+  const release = () => {
+    if (!dragging) return;
+    dragging = false;
+    cardEl.style.transition = 'transform .3s var(--ease), border-color .3s';
+    if (currentX > 80) { flyCard(cardEl, 1); setTimeout(() => handleSwipe(true), 160); }
+    else if (currentX < -80) { flyCard(cardEl, -1); setTimeout(() => handleSwipe(false), 160); }
+    else { cardEl.style.transform = 'translateX(0) rotate(0)'; cardEl.style.borderColor = 'var(--card-line)'; }
+    currentX = 0;
+  };
+  cardEl.addEventListener('pointerup', release);
+  cardEl.addEventListener('pointercancel', release);
+}
 
-  // Calculate points
-  totalSelectionsMade += answers.length;
-  gemsCount += answers.length * 2; // Reward for effort
+function flyCard(cardEl, dir) {
+  cardEl.style.transition = 'transform .28s var(--ease), opacity .28s';
+  cardEl.style.transform = `translateX(${dir * 520}px) rotate(${dir * 25}deg)`;
+  cardEl.style.opacity = '0';
+}
+
+function swipeAction(liked) {
+  const cardEl = document.getElementById('swipeCard');
+  if (cardEl) flyCard(cardEl, liked ? 1 : -1);
+  setTimeout(() => handleSwipe(liked), liked !== undefined ? 180 : 0);
+}
+
+function handleSwipe(liked) {
+  swipeHistory[optionIndex] = liked;
+  if (liked) {
+    selectedInQuestion.push(getParsed(current)[optionIndex]);
+    if (navigator.vibrate) navigator.vibrate(8);
+  }
+  optionIndex++;
+  renderCard();
+}
+
+function goBackOption() {
+  if (optionIndex === 0) return;
+  optionIndex--;
+  if (swipeHistory[optionIndex]) selectedInQuestion.pop();
+  swipeHistory.length = optionIndex;
+  renderCard();
+}
+
+/* ========== REVIEW SCREEN ========== */
+function renderReview() {
+  const hasSelections = selectedInQuestion.length > 0;
+
+  const chips = selectedInQuestion.map((a, i) =>
+    `<div class="chip">${a.title}<button onclick="removeChip(${i})" aria-label="Remove">×</button></div>`
+  ).join('');
+
+  stageEl.innerHTML = `
+    <div class="review-lead">${hasSelections ? "Here's what you picked for this one:" : "Nothing picked here — that's okay, not everything applies to everyone."}</div>
+    ${hasSelections ? `<div class="chip-row">${chips}</div>` : ''}
+    <div class="review-actions">
+      <button class="btn btn-primary" id="continueBtn" onclick="continueReview()">${hasSelections ? 'Lock It In →' : 'Skip & Continue →'}</button>
+      <button class="btn btn-secondary" onclick="redoCategory()">↺ ${hasSelections ? 'Start this one over' : 'Look again'}</button>
+    </div>
+  `;
+}
+
+function removeChip(i) {
+  selectedInQuestion.splice(i, 1);
+  renderReview();
+}
+
+function redoCategory() {
+  optionIndex = 0;
+  selectedInQuestion = [];
+  swipeHistory = [];
+  renderCard();
+}
+
+function continueReview() {
+  userSelections.push({ question: quizData[current].q, answers: selectedInQuestion.slice() });
+  totalSelectionsMade += selectedInQuestion.length;
+  gemsCount += selectedInQuestion.length * 2;
   updateGems();
-  
   triggerConfetti();
+  showToast(mascotQuips[Math.floor(Math.random() * mascotQuips.length)]);
 
-  setTimeout(() => {
-    current++;
-    loadQuestion();
-  }, 400);
+  current++;
+  loadQuestion();
 }
 
 function updateGems() {
@@ -931,23 +1024,42 @@ function updateGems() {
 /* ========== TIMER & SCORE ========== */
 function startTimer() {
   timerInterval = setInterval(() => {
-    if(isPaused) return;
     elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
     const m = Math.floor(elapsedSeconds / 60);
     const s = elapsedSeconds % 60;
-    document.getElementById("timer").innerText = (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+    document.getElementById("timer").innerText = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
   }, 1000);
 }
 
 const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
 
+function computeArchetype() {
+  const catIndices = [0, 1, 2, 3, 4, 5];
+  let best = -1, bestIdx = 0;
+  catIndices.forEach(i => {
+    const len = (userSelections[i] && userSelections[i].answers.length) || 0;
+    if (len > best) { best = len; bestIdx = i; }
+  });
+  const meta = archetypeMap[bestIdx] || { title: 'The Explorer', icon: '🧭', blurb: 'Your blueprint is ready.' };
+  const traits = (userSelections[bestIdx] ? userSelections[bestIdx].answers.slice(0, 4) : []);
+  return { ...meta, traits };
+}
+
 function showScore() {
   clearInterval(timerInterval);
-  testSubmitted = true;
+  window.removeEventListener('keydown', handleArrowKeys);
   triggerMegaConfetti();
 
   document.getElementById("quizContent").classList.remove("active");
+  document.getElementById("sectionBanner").classList.remove("active");
   document.getElementById("endScreen").classList.add("active");
+
+  const arch = computeArchetype();
+  document.getElementById('shareIcon').textContent = arch.icon;
+  document.getElementById('shareArchetype').textContent = arch.title;
+  document.getElementById('shareName').textContent = `${playerName} · ${playerDept}`;
+  document.getElementById('shareBlurb').textContent = arch.blurb;
+  document.getElementById('shareTraits').innerHTML = arch.traits.map(t => `<div class="share-chip">${t.title}</div>`).join('');
 
   document.getElementById("endSubtitle").innerText = `${playerName} · ${playerDept}`;
   document.getElementById("endSelected").innerText = totalSelectionsMade;
@@ -955,27 +1067,32 @@ function showScore() {
   document.getElementById("endGems").innerText = gemsCount;
   document.getElementById("endTime").innerText = document.getElementById("timer").innerText;
 
-  const cheatList = document.getElementById('cheatList');
-  if (cheatEvents.length === 0) { 
-    cheatList.innerHTML = '<li style="color:var(--success)">✓ No suspicious activity detected</li>'; 
-  } else { 
-    cheatList.innerHTML = cheatEvents.map(e => '<li>' + e.description + ' (Sec ' + e.question + ')</li>').join(''); 
-  }
+  window._archetypeTitle = arch.title;
 
   fetch(EDGE_FUNCTION_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      student_name: playerName, 
+      student_name: playerName,
       department: playerDept,
-      correct: totalSelectionsMade, // mapping to generic metric payload 
+      correct: totalSelectionsMade,
       wrong: 0,
-      time_spent: elapsedSeconds, 
+      time_spent: elapsedSeconds,
       quest_id: "SWOT Profile",
-      cheat_count: cheatCount,
-      cheat_events: cheatEvents
+      archetype: arch.title
     })
   }).catch(() => {});
+}
+
+/* ========== SAVE SHARE CARD AS IMAGE ========== */
+function saveCard() {
+  const node = document.getElementById('shareCard');
+  html2canvas(node, { backgroundColor: null, scale: 2 }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = `${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_Blueprint_Card.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(() => showToast('🦊 Could not save the image — try a screenshot instead!'));
 }
 
 /* ========== PDF GENERATION ========== */
@@ -983,6 +1100,7 @@ function downloadPDFReport() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   const reportDate = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+  const archetypeTitle = window._archetypeTitle || 'The Explorer';
 
   // Header
   doc.setFillColor(47, 82, 51); // var(--forest)
@@ -1004,11 +1122,12 @@ function downloadPDFReport() {
   doc.text('CANDIDATE INFORMATION', 20, 55);
   doc.autoTable({
     startY: 58,
-    body: [ 
-      ['Student Name', playerName], 
-      ['Department', playerDept], 
-      ['Assessment Type', 'SWOT Self-Assessment'], 
-      ['Completed On', reportDate] 
+    body: [
+      ['Student Name', playerName],
+      ['Department', playerDept],
+      ['Blueprint Archetype', archetypeTitle],
+      ['Assessment Type', 'SWOT Self-Assessment'],
+      ['Completed On', reportDate]
     ],
     theme: 'plain', styles: { fontSize: 10, font: 'times', cellPadding: 3 },
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60, textColor: [70, 70, 70] }, 1: { cellWidth: 120 } },
@@ -1018,69 +1137,48 @@ function downloadPDFReport() {
   // Summary
   let y = doc.lastAutoTable.finalY + 10;
   doc.setFont('times', 'bold'); doc.text('ASSESSMENT SUMMARY', 20, y);
-  
-  let securityStatus = cheatCount === 0 ? "Verified (Clean)" : `Flagged (${cheatCount} Incidents)`;
-  
+
   doc.autoTable({
     startY: y + 3,
     body: [
-      ['Total Categories Analyzed', quizData.length.toString()], 
+      ['Total Categories Analyzed', quizData.length.toString()],
       ['Traits & Factors Identified', totalSelectionsMade.toString()],
-      ['Total Time', `${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`],
-      ['Security Audit', securityStatus]
+      ['Total Time', `${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`]
     ],
     theme: 'grid', styles: { fontSize: 10, font: 'times', cellPadding: 3 }, margin: { left: 20, right: 20 }
   });
 
-  // Cheat Events
-  y = doc.lastAutoTable.finalY + 10;
-  if (cheatCount > 0) {
-    if (y > 250) { doc.addPage(); y = 20; }
-    doc.setFont('times', 'bold'); doc.setTextColor(220, 38, 38);
-    doc.text('SECURITY INCIDENTS LOG', 20, y);
-    doc.setTextColor(0, 0, 0);
-    
-    const cheatBody = cheatEvents.map(e => [e.timestamp.split('T')[1].split('.')[0], `Section ${e.question}`, e.description]);
-    doc.autoTable({
-      startY: y + 3,
-      head: [['Time', 'Section', 'Violation Type']],
-      body: cheatBody,
-      theme: 'grid', styles: { fontSize: 9, font: 'times', cellPadding: 2 }, headStyles: { fillColor: [220, 38, 38] }, margin: { left: 20, right: 20 }
-    });
-    y = doc.lastAutoTable.finalY + 12;
-  }
-
   // Profile Contents
+  y = doc.lastAutoTable.finalY + 12;
   if (y > 250) { doc.addPage(); y = 20; }
   doc.setFont('times', 'bold'); doc.text('DETAILED SWOT PROFILE', 20, y);
   y += 6;
 
-  userSelections.forEach((sec, i) => {
+  userSelections.forEach((sec) => {
     if (y > 260) { doc.addPage(); y = 20; }
     doc.setFontSize(11); doc.setFont('times', 'bold'); doc.setTextColor(47, 82, 51);
-    
-    // Clean up category title for cleaner printing
+
     let categoryName = sec.question.replace('Select the strengths you possess from the ', '').replace('Select the weaknesses you identify within ', '').replace('Select the opportunities within ', '').replace('Select the challenges within ', '').replace(' category:', '').trim();
-    
+
     doc.text(`${categoryName}`, 20, y); y += 6;
-    
+
     doc.setTextColor(0, 0, 0); doc.setFont('times', 'normal');
-    
+
     sec.answers.forEach((ans) => {
       if (y > 275) { doc.addPage(); y = 20; }
       doc.setFont('times', 'bold');
-      doc.text(`• ${ans.title}`, 25, y); 
+      doc.text(`• ${ans.title}`, 25, y);
       y += 5;
       if (ans.desc) {
-         doc.setFont('times', 'normal');
-         const lines = doc.splitTextToSize(`  ${ans.desc}`, 160);
-         doc.text(lines, 25, y); 
-         y += (lines.length * 4.5) + 2;
+        doc.setFont('times', 'normal');
+        const lines = doc.splitTextToSize(`  ${ans.desc}`, 160);
+        doc.text(lines, 25, y);
+        y += (lines.length * 4.5) + 2;
       } else {
         y += 2;
       }
     });
-    
+
     y += 4; doc.setDrawColor(227, 213, 176); doc.setLineWidth(0.3);
     doc.line(20, y, 190, y); y += 6;
   });
