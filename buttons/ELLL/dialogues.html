@@ -16,17 +16,31 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+  :root {
+    --gold: #c9a227;
+    --gold-light: #e6c878;
+    --gold-dark: #a3791f;
+    --bronze: #b0793a;
+    --cream: #fdf6e6;
+    --cream-deep: #f7ecd0;
+    --ink: #5c4423;
+  }
+
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-color: var(--cream);
+    background-image:
+      repeating-linear-gradient(45deg, rgba(201,162,39,0.16) 0px, rgba(201,162,39,0.16) 1px, transparent 1px, transparent 42px),
+      repeating-linear-gradient(-45deg, rgba(201,162,39,0.16) 0px, rgba(201,162,39,0.16) 1px, transparent 1px, transparent 42px),
+      linear-gradient(135deg, #fdf6e6 0%, #f6e9c7 100%);
     min-height: 100vh;
-    color: #333;
+    color: #4a3a20;
     overflow-x: hidden;
   }
 
   /* ---------- BACKGROUND ANIMATION ---------- */
   .bg-circles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
-  .circle { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.1); animation: float 20s infinite ease-in-out; }
+  .circle { position: absolute; border-radius: 50%; background: rgba(201, 162, 39, 0.12); animation: float 20s infinite ease-in-out; }
   .circle:nth-child(1) { width: 80px; height: 80px; left: 10%; animation-duration: 25s; }
   .circle:nth-child(2) { width: 120px; height: 120px; right: 15%; top: 20%; animation-duration: 30s; animation-delay: 2s; }
   .circle:nth-child(3) { width: 60px; height: 60px; left: 50%; top: 60%; animation-duration: 20s; animation-delay: 4s; }
@@ -39,91 +53,122 @@
   }
 
   /* ---------- SECURITY & ANTI-CHEAT UI ---------- */
-  .cheat-overlay { display: none; position: fixed; inset: 0; background: rgba(220, 38, 38, 0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; color: white; backdrop-filter: blur(5px); }
+  .cheat-overlay { display: none; position: fixed; inset: 0; background: rgba(179, 38, 30, 0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; color: white; backdrop-filter: blur(5px); }
   .cheat-overlay.show { display: flex; }
   .cheat-overlay h2 { font-size: 2rem; margin-bottom: 12px; }
   .cheat-overlay p { font-size: 1.1rem; opacity: 0.9; margin-bottom: 24px; max-width: 400px; line-height: 1.5; }
-  
-  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-120px); background: #333; color: white; padding: 12px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 500; z-index: 400; transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
+
+  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-120px); background: #4a3a20; color: white; padding: 12px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 500; z-index: 400; transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
   .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.cheat { background: #dc2626; }
+  .toast.cheat { background: #b3261e; }
+
+  /* ---------- WARNING BADGE (top corner, minimal) ---------- */
+  .warning-badge { position: fixed; top: 14px; right: 14px; z-index: 70; background: rgba(255,255,255,0.9); border: 1px solid var(--gold-light); color: #a3432e; font-size: 0.8rem; font-weight: 700; padding: 5px 11px; border-radius: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 4px; }
 
   /* ---------- LAYOUT ---------- */
-  .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px 100px 20px; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
   .screen { display: none; width: 100%; animation: fadeIn 0.5s ease forwards; }
   .screen.active { display: block; }
 
   @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-  .glass-card { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); backdrop-filter: blur(10px); margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.4); }
-  
-  h1 { text-align: center; color: #667eea; margin-bottom: 5px; font-size: 2rem; font-weight: 800; line-height: 1.2; }
-  h2 { text-align: center; color: #764ba2; margin-bottom: 5px; font-size: 1.3rem; font-weight: 600; }
-  h3 { text-align: center; color: #555; margin-bottom: 30px; font-size: 1rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+  .glass-card { background: rgba(255, 253, 246, 0.96); border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(120, 95, 30, 0.18); backdrop-filter: blur(10px); margin-bottom: 20px; border: 1px solid var(--gold-light); }
+
+  h1 { text-align: center; color: var(--gold-dark); margin-bottom: 5px; font-size: 2rem; font-weight: 800; line-height: 1.2; }
+  h2 { text-align: center; color: var(--bronze); margin-bottom: 5px; font-size: 1.3rem; font-weight: 600; }
+  h3 { text-align: center; color: #8a7250; margin-bottom: 30px; font-size: 1rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
 
   /* ---------- GATE CARD ---------- */
-  .candidate-chip { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 12px; padding: 12px 16px; margin: 20px 0; display: flex; align-items: center; gap: 15px; }
-  .candidate-chip img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #667eea; }
-  .security-notice { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 0.85rem; color: #dc2626; }
-  
+  .candidate-chip { background: var(--cream-deep); border: 1px solid var(--gold-light); border-radius: 12px; padding: 12px 16px; margin: 20px 0; display: flex; align-items: center; gap: 15px; }
+  .candidate-chip img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); }
+  .security-notice { background: #fdf1e6; border: 1px solid #eccfa0; border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 0.85rem; color: #a3432e; }
+
   /* ---------- COMPONENTS ---------- */
   .form-group { margin-bottom: 25px; }
-  label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 1.05rem; color: #444; }
-  input, select, textarea { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 1rem; transition: all 0.3s ease; background: white; font-family: inherit; }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.15); }
-  
-  .form-description { font-size: 0.95rem; color: #555; background: #f0f4ff; padding: 15px; border-radius: 10px; border-left: 4px solid #667eea; margin-bottom: 20px; line-height: 1.5; }
+  label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 1.05rem; color: #5c4423; }
+  input, select, textarea { width: 100%; padding: 14px 16px; border: 2px solid var(--gold-light); border-radius: 12px; font-size: 1rem; transition: all 0.3s ease; background: white; font-family: inherit; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px rgba(201,162,39,0.15); }
 
-  button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 16px 32px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; width: 100%; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(102,126,234,0.3); margin-top: 10px; }
-  button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.4); }
+  .form-description { font-size: 0.95rem; color: #6b5636; background: var(--cream-deep); padding: 15px; border-radius: 10px; border-left: 4px solid var(--gold); margin-bottom: 20px; line-height: 1.5; }
+
+  button { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: #4a3510; border: none; padding: 16px 32px; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; width: 100%; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(201,162,39,0.35); margin-top: 10px; }
+  button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(201,162,39,0.45); }
   button:active { transform: scale(0.98); }
   button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-  
-  .btn-secondary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-  .btn-warning { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #333; }
+
+  .btn-secondary { background: linear-gradient(135deg, #d99a5e 0%, #b0793a 100%); color: white; }
+  .btn-warning { background: linear-gradient(135deg, #f0d488 0%, #d9a441 100%); color: #4a3510; }
+  .btn-ghost { background: white; color: var(--gold-dark); border: 2px solid var(--gold); box-shadow: none; }
+
+  /* ---------- EMOJI PICKER ---------- */
+  .emoji-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .emoji-option { width: 46px; height: 46px; border: 2px solid var(--gold-light); border-radius: 12px; background: white; font-size: 1.3rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; padding: 0; margin: 0; text-transform: none; letter-spacing: normal; box-shadow: none; }
+  .emoji-option:hover { transform: translateY(-1px); }
+  .emoji-option.selected { border-color: var(--gold-dark); background: var(--cream-deep); box-shadow: 0 0 0 3px rgba(201,162,39,0.2); }
+
+  /* ---------- WIZARD STEPS ---------- */
+  .wizard-step { display: none; }
+  .wizard-step.active { display: block; animation: fadeIn 0.4s ease forwards; }
+  .step-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 25px; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold-light); transition: all 0.3s ease; }
+  .step-dot.active { background: var(--gold-dark); width: 22px; border-radius: 5px; }
 
   /* ---------- DIALOGUE BUILDER UI ---------- */
-  .setting-display { background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align: center; font-style: italic; color: #667eea; font-weight: 600; font-size: 1.1rem; border: 1px solid #e0e0e0; }
-  
-  .hud-stats { display: flex; gap: 10px; margin-bottom: 15px; }
-  .paste-counter { flex: 1; background: #fff0f0; padding: 12px 15px; border-radius: 12px; text-align: center; font-size: 0.95rem; font-weight: 600; color: #dc2626; border: 1px solid #fecaca; }
-  
-  .progress-bar { background: rgba(255, 255, 255, 0.95); padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e0e0e0; }
-  .progress-text { color: #667eea; font-weight: 600; margin-bottom: 8px; text-align: center; font-size: 0.9rem; }
-  .progress-track { background: #e0e0e0; height: 8px; border-radius: 10px; overflow: hidden; }
-  .progress-fill { background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; transition: width 0.3s ease; border-radius: 10px; width: 0%; }
+  .sticky-hud { position: sticky; top: 0; z-index: 50; padding-top: 8px; padding-bottom: 4px; background: linear-gradient(180deg, #f6e9c7 0%, #f6e9c7 55%, rgba(246,233,199,0) 100%); margin: -8px -20px 15px -20px; padding-left: 20px; padding-right: 20px; }
 
-  .dialogue-container { display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; }
-  .dialogue-box { background: white; border-radius: 15px; padding: 5px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); position: relative; border: 1px solid #e0e0e0; transition: border-color 0.3s; }
-  .dialogue-box.left { margin-right: 80px; }
-  .dialogue-box.right { margin-left: 80px; }
-  
-  .dialogue-number { position: absolute; top: -10px; left: 20px; background: #333; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; }
-  
-  .character-header { display: flex; align-items: center; padding: 15px 20px 5px 20px; }
-  .character-badge { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; }
-  .character-badge.char2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-  
-  .dialogue-textarea { width: 100%; border: none; padding: 10px 20px 20px 20px; font-size: 1.05rem; line-height: 1.6; resize: none; overflow: hidden; background: transparent; min-height: 80px; box-shadow: none !important; }
-  .dialogue-textarea::placeholder { color: #aaa; font-style: italic; }
+  .setting-display { background: rgba(255, 253, 246, 0.96); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; text-align: center; font-style: italic; color: var(--gold-dark); font-weight: 600; font-size: 1rem; border: 1px solid var(--gold-light); }
+  .setting-display .title-line { display: block; font-style: normal; font-size: 1.1rem; color: #6b5636; font-weight: 800; margin-bottom: 2px; }
+  .plot-badge { display: inline-block; margin-top: 6px; background: linear-gradient(135deg, #d99a5e 0%, #b0793a 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-style: normal; }
+
+  .action-row { display: flex; gap: 15px; margin-top: 10px; }
+
+  /* ---------- CHAT BUBBLES (wider) ---------- */
+  .dialogue-container { display: flex; flex-direction: column; gap: 14px; margin-bottom: 15px; }
+  .dialogue-box { max-width: 94%; position: relative; }
+  .dialogue-box.left { align-self: flex-start; }
+  .dialogue-box.right { align-self: flex-end; }
+
+  .bubble-inner { background: white; border-radius: 18px; padding: 4px; box-shadow: 0 3px 10px rgba(120,95,30,0.1); border: 1px solid var(--gold-light); position: relative; }
+  .dialogue-box.left .bubble-inner { border-bottom-left-radius: 4px; }
+  .dialogue-box.right .bubble-inner { border-bottom-right-radius: 4px; }
+  .dialogue-box.right .bubble-inner { background: #fdf3de; }
+
+  .dialogue-number { position: absolute; top: -9px; left: 14px; background: var(--ink); color: var(--cream); padding: 2px 9px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; }
+  .dialogue-box.right .dialogue-number { left: auto; right: 14px; }
+
+  .character-header { display: flex; align-items: center; gap: 8px; padding: 13px 16px 4px 16px; }
+  .character-badge { background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%); color: #4a3510; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 5px; }
+  .character-badge.char2 { background: linear-gradient(135deg, #eec27e 0%, #b0793a 100%); color: #4a3510; }
+
+  .dialogue-textarea { width: 100%; border: none; padding: 8px 16px 16px 16px; font-size: 1.02rem; line-height: 1.55; resize: none; overflow: hidden; background: transparent; min-height: 70px; box-shadow: none !important; }
+  .dialogue-textarea::placeholder { color: #b8a377; font-style: italic; }
+
+  /* Floating finish button */
+  .float-finish { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); width: calc(100% - 40px); max-width: 500px; z-index: 60; transition: transform 0.35s ease; }
+  .float-finish.show { transform: translateX(-50%) translateY(0); }
+  .float-finish button { box-shadow: 0 10px 30px rgba(120,95,30,0.4); margin-top: 0; }
 
   /* ---------- SCORECARD ---------- */
-  .scorecard h3 { color: #667eea; font-size: 1.8rem; margin-bottom: 20px; text-transform: none; text-align: center; font-weight: 800; }
-  .scorecard p { margin-bottom: 12px; font-size: 1.05rem; padding: 12px 16px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #667eea; }
-  
-  .cheat-report { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 15px; margin: 20px 0; }
-  .cheat-report h4 { color: #dc2626; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; }
-  .cheat-report ul { list-style: none; font-size: 0.85rem; color: #555; }
+  .scorecard h3 { color: var(--gold-dark); font-size: 1.8rem; margin-bottom: 20px; text-transform: none; text-align: center; font-weight: 800; }
+  .scorecard p { margin-bottom: 12px; font-size: 1.05rem; padding: 12px 16px; background: var(--cream-deep); border-radius: 10px; border-left: 4px solid var(--gold); }
+
+  .reaction-badge { text-align: center; font-size: 2.4rem; margin-bottom: 4px; }
+  .reaction-label { text-align: center; font-weight: 700; color: var(--bronze); margin-bottom: 20px; font-size: 1.1rem; }
+
+  .cheat-report { background: #fdf1e6; border: 1px solid #eccfa0; border-radius: 10px; padding: 15px; margin: 20px 0; }
+  .cheat-report h4 { color: #a3432e; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; }
+  .cheat-report ul { list-style: none; font-size: 0.85rem; color: #6b5636; }
   .cheat-report li { margin-bottom: 5px; }
 
-  .validation-msg { color: #dc2626; font-size: 0.9rem; margin-top: 8px; font-weight: 500; text-align: center; }
+  .validation-msg { color: #a3432e; font-size: 0.9rem; margin-top: 8px; font-weight: 500; text-align: center; }
   .hidden { display: none !important; }
 
   @media (max-width: 768px) {
-    .container { padding: 20px 10px; }
+    .container { padding: 20px 10px 110px 10px; }
     .glass-card { padding: 25px 15px; }
     h1 { font-size: 1.6rem; }
-    .dialogue-box.left, .dialogue-box.right { margin-left: 0; margin-right: 0; }
+    .dialogue-box { max-width: 97%; }
+    .sticky-hud { margin: -8px -10px 15px -10px; padding-left: 10px; padding-right: 10px; }
   }
 </style>
 <base target="_blank">
@@ -138,26 +183,29 @@
 <div class="cheat-overlay" id="cheatOverlay">
   <h2>⚠ Security Alert</h2>
   <p id="cheatMessage">Suspicious activity detected. Please return to the assessment immediately.</p>
-  <button style="background: white; color: #dc2626; width: auto; padding: 12px 24px;" onclick="resumeTest()">I Understand — Resume</button>
+  <button style="background: white; color: #a3432e; width: auto; padding: 12px 24px;" onclick="resumeTest()">I Understand — Resume</button>
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- Minimal warning badge -->
+<div class="warning-badge" id="warningBadge">🚫 <span id="warningCount">0</span></div>
+
 <div class="container">
-  
+
   <!-- SCREEN 1: GATE / AUTH -->
   <div id="authScreen" class="screen active glass-card">
     <h1>SRM Valliammai Engineering College</h1>
     <h2>Department of English</h2>
     <h3>English Language Learning Laboratory</h3>
-    
+
     <div class="candidate-chip">
       <img id="candidateAvatar" src="https://via.placeholder.com/150" alt="Avatar">
       <div>
-        <strong id="candidateName" style="font-size: 1.1rem; color: #333;">Loading User...</strong><br>
-        <span id="candidateDept" style="color: #666; font-size: 0.85rem;">Verifying GitHub Auth...</span>
+        <strong id="candidateName" style="font-size: 1.1rem; color: #4a3a20;">Loading User...</strong><br>
+        <span id="candidateDept" style="color: #8a7250; font-size: 0.85rem;">Verifying GitHub Auth...</span>
       </div>
     </div>
-    
+
     <div class="security-notice">
       <strong>🔒 Secure Environment</strong><br>
       This assessment is actively monitored. Switching tabs, minimizing the window, right-clicking, or attempting to copy/paste content will be recorded in your final assessment report.
@@ -183,57 +231,91 @@
     </div>
 
     <p class="form-description">
-      🌌 <strong>The Creative Brief:</strong> Choose two fictional characters from entirely different worlds (a crossover). Think boldly: Iron Man meeting Harry Potter, or Batman meeting Sherlock Holmes. Set the scene and script their conversation!
+      🌌 <strong>The Creative Brief:</strong> Choose two fictional characters from entirely different worlds (a crossover). Think boldly: Iron Man meeting Harry Potter, or Batman meeting Sherlock Holmes. Give it a title, set the scene, pick a plot shape, and script their conversation!
     </p>
 
-    <div class="form-group">
-      <label>🎭 First Character Name:</label>
-      <input type="text" id="character1" placeholder="e.g., Sherlock Holmes">
-    </div>
-    <div class="form-group">
-      <label>🎭 Second Character Name:</label>
-      <input type="text" id="character2" placeholder="e.g., Dirk Gently">
-    </div>
-    <div class="form-group">
-      <label>📍 Setting / Location:</label>
-      <input type="text" id="setting" placeholder="e.g., A cozy, rainy coffee shop in London">
+    <div class="step-dots">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
     </div>
 
-    <div id="setupError" class="validation-msg hidden">Please fill out all character and setting fields.</div>
-    <button id="startBtn" onclick="startAssessment()" disabled>Begin Dialogue Challenge 🚀</button>
+    <!-- WIZARD STEP 1: CHARACTERS -->
+    <div class="wizard-step active" id="wizardStep1">
+      <div class="form-group">
+        <label>🎭 First Character Name:</label>
+        <input type="text" id="character1" placeholder="e.g., Sherlock Holmes">
+        <div class="emoji-picker" id="emojiPicker1"></div>
+      </div>
+      <div class="form-group">
+        <label>🎭 Second Character Name:</label>
+        <input type="text" id="character2" placeholder="e.g., Dirk Gently">
+        <div class="emoji-picker" id="emojiPicker2"></div>
+      </div>
+      <div id="step1Error" class="validation-msg hidden">Please name both characters first.</div>
+      <button id="toStep2Btn" onclick="goToStep2()">Next: Title, Setting & Plot →</button>
+    </div>
+
+    <!-- WIZARD STEP 2: TITLE + SETTING + PLOT -->
+    <div class="wizard-step" id="wizardStep2">
+      <div class="form-group">
+        <label>🎬 Script Title:</label>
+        <input type="text" id="scriptTitle" placeholder="e.g., The Case of the Missing Wand">
+      </div>
+      <div class="form-group">
+        <label>📍 Setting / Location:</label>
+        <input type="text" id="setting" placeholder="e.g., A cozy, rainy coffee shop in London">
+      </div>
+
+      <div class="form-group">
+        <label>📈 Choose Your Plot Shape:</label>
+        <select id="plotStructure">
+          <option value="full_arc">Full Arc — Beginning → Middle → End</option>
+          <option value="rising_action">Rising Action — Tension keeps building</option>
+          <option value="climax">Climax — Drop straight into the peak conflict</option>
+          <option value="falling_action">Falling Action — Dealing with the aftermath</option>
+          <option value="denouement">Denouement — A calm, reflective wind-down</option>
+          <option value="in_medias_res">In Medias Res — Start mid-action, explain later</option>
+        </select>
+      </div>
+
+      <div id="setupError" class="validation-msg hidden">Please fill out the title and setting fields.</div>
+      <div style="display:flex; gap: 12px;">
+        <button type="button" class="btn-ghost" style="flex:1;" onclick="goToStep1()">← Back</button>
+        <button id="startBtn" style="flex:2;" onclick="startAssessment()" disabled>Begin Dialogue Challenge 🚀</button>
+      </div>
+    </div>
   </div>
 
   <!-- SCREEN 2: ASSESSMENT -->
   <div id="assessmentScreen" class="screen">
-    
-    <div class="setting-display" id="settingDisplay"></div>
-    
-    <div class="hud-stats">
-      <div class="paste-counter" id="pasteCounter">🚫 Warnings: 0</div>
-    </div>
-    
-    <div class="progress-bar">
-      <div class="progress-text" id="progressText">Completed: 0 of 20 required dialogues</div>
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
+
+    <div class="sticky-hud">
+      <div class="setting-display" id="settingDisplay"></div>
     </div>
 
     <div class="dialogue-container" id="dialogueContainer"></div>
-    
-    <div style="display: flex; gap: 15px; margin-top: 10px;">
+
+    <div class="action-row hidden" id="actionButtonsRow">
       <button onclick="addMoreDialogue()" class="btn-warning" style="flex: 1;">➕ Add Dialogue</button>
       <button onclick="submitAssessment()" style="flex: 2;">Finish & Submit 🎬</button>
     </div>
-    
+
     <div id="submitError" class="validation-msg hidden" style="margin-top: 15px; font-size: 1rem;"></div>
+  </div>
+
+  <!-- Floating "jump to finish" button, appears once all required lines are filled -->
+  <div class="float-finish" id="floatFinish">
+    <button onclick="submitAssessment()">✅ All Set — Submit Script</button>
   </div>
 
   <!-- SCREEN 3: SCORECARD -->
   <div id="scorecardScreen" class="screen glass-card">
     <h1>Mission Accomplished.</h1>
-    <h2 style="color: #555; margin-bottom: 25px;">Submission Summary</h2>
-    
+    <h2 style="color: #8a7250; margin-bottom: 25px;">Submission Summary</h2>
+
+    <div class="reaction-badge" id="reactionBadge"></div>
+    <div class="reaction-label" id="reactionLabel"></div>
+
     <div id="scorecardContent"></div>
 
     <div class="cheat-report" id="cheatReportSection">
@@ -255,42 +337,100 @@ let playerName = "Guest";
 let playerDept = "";
 let character1 = "";
 let character2 = "";
+let scriptTitle = "";
 let setting = "";
+let plotStructure = "full_arc";
+let char1Emoji = "🦸";
+let char2Emoji = "🧙";
 let dialogueCount = 0;
 const MIN_DIALOGUES = 20;
 
 let startTime = 0;
 let elapsedSeconds = 0;
 let timerInterval = null;
+const autoAddedFlags = {};
+
+const EMOJI_CHOICES = ["🦸","🧙","🕵️","🤖","👽","🧛","🥷","🐉","👑","🎩","🦹","🧚"];
+const DRAFT_KEY = "dialogueBuilderDraft_v2";
 
 window.addEventListener('DOMContentLoaded', () => {
+  buildEmojiPickers();
+
   if (window.GH) {
     playerName = window.GH.name || window.GH.username || "Student";
     playerDept = window.GH.dept || "";
-    
+
     document.getElementById('candidateName').textContent = playerName;
-    
+
     if (playerDept) {
       document.getElementById('candidateDept').textContent = 'Department: ' + playerDept;
     } else {
       document.getElementById('candidateDept').textContent = 'Please select department below';
       document.getElementById('deptSelectGroup').style.display = 'block';
     }
-    
+
     if (window.GH.avatar) {
       document.getElementById('candidateAvatar').src = window.GH.avatar;
     }
-    document.getElementById('startBtn').disabled = false;
   } else {
     setTimeout(() => {
       playerName = localStorage.getItem("questPlayerName") || "Test Student";
       playerDept = localStorage.getItem("questPlayerDept") || "";
       document.getElementById('candidateName').textContent = playerName;
       document.getElementById('deptSelectGroup').style.display = 'block';
-      document.getElementById('startBtn').disabled = false;
     }, 500);
   }
 });
+
+/* ========== EMOJI PICKER ========== */
+function buildEmojiPickers() {
+  const p1 = document.getElementById('emojiPicker1');
+  const p2 = document.getElementById('emojiPicker2');
+  EMOJI_CHOICES.forEach(e => {
+    const b1 = document.createElement('button');
+    b1.type = 'button';
+    b1.className = 'emoji-option' + (e === char1Emoji ? ' selected' : '');
+    b1.textContent = e;
+    b1.onclick = () => { char1Emoji = e; refreshEmojiPicker('emojiPicker1', char1Emoji); };
+    p1.appendChild(b1);
+
+    const b2 = document.createElement('button');
+    b2.type = 'button';
+    b2.className = 'emoji-option' + (e === char2Emoji ? ' selected' : '');
+    b2.textContent = e;
+    b2.onclick = () => { char2Emoji = e; refreshEmojiPicker('emojiPicker2', char2Emoji); };
+    p2.appendChild(b2);
+  });
+}
+
+function refreshEmojiPicker(id, chosen) {
+  document.querySelectorAll(`#${id} .emoji-option`).forEach(btn => {
+    btn.classList.toggle('selected', btn.textContent === chosen);
+  });
+}
+
+/* ========== SETUP WIZARD ========== */
+function goToStep2() {
+  const c1 = document.getElementById('character1').value.trim();
+  const c2 = document.getElementById('character2').value.trim();
+  if (!c1 || !c2) {
+    document.getElementById('step1Error').classList.remove('hidden');
+    return;
+  }
+  document.getElementById('step1Error').classList.add('hidden');
+  document.getElementById('wizardStep1').classList.remove('active');
+  document.getElementById('wizardStep2').classList.add('active');
+  document.getElementById('dot1').classList.remove('active');
+  document.getElementById('dot2').classList.add('active');
+  document.getElementById('startBtn').disabled = false;
+}
+
+function goToStep1() {
+  document.getElementById('wizardStep2').classList.remove('active');
+  document.getElementById('wizardStep1').classList.add('active');
+  document.getElementById('dot2').classList.remove('active');
+  document.getElementById('dot1').classList.add('active');
+}
 
 /* ========== ANTI-CHEAT SYSTEM ========== */
 let cheatEvents = [];
@@ -315,31 +455,31 @@ function initAntiCheat() {
   });
 
   document.addEventListener('contextmenu', e => {
-    if (!testSubmitted && startTime) { 
-      e.preventDefault(); recordCheat('Right-click attempted', 'rightclick'); showToast('Right-click disabled', true); 
+    if (!testSubmitted && startTime) {
+      e.preventDefault(); recordCheat('Right-click attempted', 'rightclick'); showToast('Right-click disabled', true);
     }
   });
 
   document.addEventListener('keydown', e => {
     if (!testSubmitted && startTime) {
-      if (e.key === 'F12') { 
-        e.preventDefault(); recordCheat('DevTools accessed', 'devtools'); showToast('DevTools blocked', true); 
+      if (e.key === 'F12') {
+        e.preventDefault(); recordCheat('DevTools accessed', 'devtools'); showToast('DevTools blocked', true);
       }
       if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'u')) {
         e.preventDefault(); recordCheat('DevTools shortcut blocked', 'shortcut'); showToast('Shortcuts restricted', true);
       }
-      if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'a' || e.key === 'c' || e.key === 'v' || e.key === 'x')) { 
-        e.preventDefault(); recordCheat('System shortcut blocked: Ctrl+' + e.key, 'shortcut'); 
+      if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'a' || e.key === 'c' || e.key === 'v' || e.key === 'x')) {
+        e.preventDefault(); recordCheat('System shortcut blocked: Ctrl+' + e.key, 'shortcut');
         if(e.key === 'v' || e.key === 'c') { showToast('Copy/Paste disabled', true); }
       }
     }
   });
 
   ['copy', 'paste', 'cut', 'drop'].forEach(evt => {
-    document.addEventListener(evt, e => { 
-      if (!testSubmitted && startTime) { 
-        e.preventDefault(); recordCheat(`${evt.toUpperCase()} attempted`, evt); showToast(`${evt} is disabled`, true); 
-      } 
+    document.addEventListener(evt, e => {
+      if (!testSubmitted && startTime) {
+        e.preventDefault(); recordCheat(`${evt.toUpperCase()} attempted`, evt); showToast(`${evt} is disabled`, true);
+      }
     });
   });
 
@@ -347,9 +487,9 @@ function initAntiCheat() {
     setInterval(() => {
       if (testSubmitted || !startTime || isPaused) return;
       const start = performance.now(); debugger; const end = performance.now();
-      if (end - start > 100) { 
-        recordCheat('Debugger accessed', 'console'); 
-        showCheatOverlay('Console access detected. Logged.'); 
+      if (end - start > 100) {
+        recordCheat('Debugger accessed', 'console');
+        showCheatOverlay('Console access detected. Logged.');
       }
     }, 3000);
   }
@@ -358,7 +498,7 @@ function initAntiCheat() {
 function recordCheat(description, type) {
   cheatCount++;
   cheatEvents.push({ type, description, timestamp: new Date().toISOString() });
-  document.getElementById('pasteCounter').innerText = `🚫 Warnings: ${cheatCount}`;
+  document.getElementById('warningCount').textContent = cheatCount;
 }
 
 function showCheatOverlay(msg) {
@@ -391,9 +531,11 @@ function startAssessment() {
 
   character1 = document.getElementById("character1").value.trim();
   character2 = document.getElementById("character2").value.trim();
+  scriptTitle = document.getElementById("scriptTitle").value.trim();
   setting = document.getElementById("setting").value.trim();
+  plotStructure = document.getElementById("plotStructure").value;
 
-  if (!character1 || !character2 || !setting) {
+  if (!scriptTitle || !setting) {
     document.getElementById("setupError").classList.remove("hidden");
     return;
   }
@@ -401,8 +543,14 @@ function startAssessment() {
 
   document.getElementById('authScreen').classList.remove('active');
   document.getElementById('assessmentScreen').classList.add('active');
-  document.getElementById("settingDisplay").innerText = `📍 Setting: ${setting}`;
-  
+
+  const plotLabels = {
+    full_arc: "📈 Full Arc", rising_action: "📈 Rising Action", climax: "🔥 Climax",
+    falling_action: "📉 Falling Action", denouement: "🕊️ Denouement", in_medias_res: "⏪ In Medias Res"
+  };
+  document.getElementById("settingDisplay").innerHTML =
+    `<span class="title-line">🎬 ${scriptTitle}</span>📍 ${setting}<br><span class="plot-badge">${plotLabels[plotStructure] || plotStructure}</span>`;
+
   startTime = Date.now();
   initAntiCheat();
 
@@ -411,57 +559,65 @@ function startAssessment() {
     if (!isPaused) elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
   }, 1000);
 
-  // Initialize Dialogue Boxes
-  for (let i = 0; i < MIN_DIALOGUES; i++) {
-    addDialogueBox(i);
+  // Restore a saved draft, if one matches this same setup
+  const restored = tryRestoreDraft();
+
+  if (!restored) {
+    addDialogueBox(0); // Only the very first bubble to start with
   }
-  updateProgress();
+  checkRevealActions();
 }
 
-function addDialogueBox(index) {
+function addDialogueBox(index, prefillValue) {
   const container = document.getElementById("dialogueContainer");
   const isLeft = index % 2 === 0;
   const character = isLeft ? character1 : character2;
+  const emoji = isLeft ? char1Emoji : char2Emoji;
   const charClass = isLeft ? 'char1' : 'char2';
-  
+
   const dialogueBox = document.createElement("div");
   dialogueBox.className = `dialogue-box ${isLeft ? 'left' : 'right'}`;
   dialogueBox.innerHTML = `
-    <div class="dialogue-number">Line ${index + 1}</div>
-    <div class="character-header">
-      <div class="character-badge ${charClass}">${character}</div>
+    <div class="bubble-inner">
+      <div class="dialogue-number">Line ${index + 1}</div>
+      <div class="character-header">
+        <div class="character-badge ${charClass}">${emoji} ${character}</div>
+      </div>
+      <textarea
+        class="dialogue-textarea"
+        id="dialogue-${index}"
+        placeholder="${character}'s line..."
+        oninput="handleTextInput(this, event); autoResize(this); maybeAutoAddNext(${index}); updateFloatButton(); saveDraft();"
+        onpaste="return false;"
+        oncopy="return false;"
+        oncut="return false;"
+        ondrop="return false;"
+        autocomplete="off"
+        spellcheck="true"
+      >${prefillValue ? prefillValue.replace(/</g,'&lt;') : ''}</textarea>
     </div>
-    <textarea 
-      class="dialogue-textarea" 
-      id="dialogue-${index}" 
-      placeholder="What does ${character} say here?..."
-      oninput="handleTextInput(this, event); autoResize(this); updateProgress();"
-      onpaste="return false;"
-      oncopy="return false;"
-      oncut="return false;"
-      ondrop="return false;"
-      autocomplete="off"
-      spellcheck="true"
-    ></textarea>
   `;
-  
+
   container.appendChild(dialogueBox);
   dialogueCount++;
+
+  const ta = document.getElementById(`dialogue-${index}`);
+  autoResize(ta);
 }
 
 function autoResize(textarea) {
   textarea.style.height = 'auto';
-  textarea.style.height = Math.max(80, textarea.scrollHeight) + 'px';
+  textarea.style.height = Math.max(70, textarea.scrollHeight) + 'px';
 }
 
 function handleTextInput(textarea, event) {
   // Rapid typing / Paste fallback detection
   const currentValue = textarea.value;
   if (!textarea.lastValue) { textarea.lastValue = ''; textarea.lastInputTime = Date.now(); }
-  
+
   const inputDiff = currentValue.length - textarea.lastValue.length;
   const timeDiff = Date.now() - textarea.lastInputTime;
-  
+
   if (inputDiff > 15 && timeDiff < 100) {
     recordCheat('Rapid text insertion (Paste fallback)', 'paste');
     textarea.value = textarea.lastValue;
@@ -472,9 +628,30 @@ function handleTextInput(textarea, event) {
   textarea.lastInputTime = Date.now();
 }
 
+/* Reveal the next bubble automatically once the current (last) one has content */
+function maybeAutoAddNext(index) {
+  if (index !== dialogueCount - 1) return;
+  if (dialogueCount >= MIN_DIALOGUES) return;
+  if (autoAddedFlags[index]) return;
+
+  const ta = document.getElementById(`dialogue-${index}`);
+  if (ta && ta.value.trim().length > 0) {
+    autoAddedFlags[index] = true;
+    addDialogueBox(dialogueCount);
+    checkRevealActions();
+  }
+}
+
+/* Show the Add/Submit button row once 20 bubbles have appeared */
+function checkRevealActions() {
+  if (dialogueCount >= MIN_DIALOGUES) {
+    document.getElementById('actionButtonsRow').classList.remove('hidden');
+  }
+}
+
 function addMoreDialogue() {
   addDialogueBox(dialogueCount);
-  updateProgress();
+  updateFloatButton();
   setTimeout(() => {
     const newDialogue = document.getElementById(`dialogue-${dialogueCount - 1}`);
     newDialogue.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -482,72 +659,147 @@ function addMoreDialogue() {
   }, 100);
 }
 
-function updateProgress() {
+/* Reveal the floating finish button once every required line has content */
+function updateFloatButton() {
   let filledCount = 0;
   for (let i = 0; i < dialogueCount; i++) {
     const textarea = document.getElementById(`dialogue-${i}`);
     if (textarea && textarea.value.trim().length > 0) filledCount++;
   }
-  
-  const requiredFilled = Math.min(filledCount, MIN_DIALOGUES);
-  const percentage = (requiredFilled / MIN_DIALOGUES) * 100;
-  
-  document.getElementById("progressFill").style.width = percentage + "%";
-  document.getElementById("progressText").innerText = 
-    `Completed: ${requiredFilled} of ${MIN_DIALOGUES} required lines` +
-    (filledCount > MIN_DIALOGUES ? ` (+${filledCount - MIN_DIALOGUES} extra)` : '');
+  const floatBtn = document.getElementById('floatFinish');
+  if (filledCount >= MIN_DIALOGUES) {
+    floatBtn.classList.add('show');
+  } else {
+    floatBtn.classList.remove('show');
+  }
+}
+
+/* ========== DRAFT AUTOSAVE / RESUME ========== */
+let saveDraftTimeout = null;
+function saveDraft() {
+  clearTimeout(saveDraftTimeout);
+  saveDraftTimeout = setTimeout(() => {
+    const lines = [];
+    for (let i = 0; i < dialogueCount; i++) {
+      const ta = document.getElementById(`dialogue-${i}`);
+      lines.push(ta ? ta.value : '');
+    }
+    const draft = {
+      character1, character2, scriptTitle, setting, plotStructure, char1Emoji, char2Emoji,
+      dialogueCount, lines, savedAt: Date.now()
+    };
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (e) {}
+  }, 400);
+}
+
+function tryRestoreDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return false;
+    const draft = JSON.parse(raw);
+    if (!draft || draft.character1 !== character1 || draft.character2 !== character2 ||
+        draft.scriptTitle !== scriptTitle || draft.setting !== setting) {
+      return false; // Different script — don't cross-contaminate
+    }
+    const wantsResume = confirm("📝 We found a saved draft of this exact script. Resume where you left off?");
+    if (!wantsResume) { localStorage.removeItem(DRAFT_KEY); return false; }
+
+    const count = Math.max(draft.dialogueCount || 1, 1);
+    for (let i = 0; i < count; i++) {
+      addDialogueBox(i, draft.lines && draft.lines[i] ? draft.lines[i] : '');
+      if (draft.lines && draft.lines[i] && draft.lines[i].trim().length > 0) {
+        autoAddedFlags[i] = true;
+      }
+    }
+    updateFloatButton();
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
 }
 
 const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
 
+function getReaction(wordCount) {
+  if (wordCount >= 400) return { emoji: "📚", label: "Epic Screenwriter" };
+  if (wordCount >= 250) return { emoji: "🎬", label: "Full-Length Script" };
+  if (wordCount >= 150) return { emoji: "✍️", label: "Solid Storyteller" };
+  return { emoji: "💬", label: "Snappy Dialogue" };
+}
+
 function submitAssessment() {
   let emptyCount = 0;
   let totalWordsTyped = 0;
-  
+
   // Validate and Count Words
   for (let i = 0; i < dialogueCount; i++) {
     const textarea = document.getElementById(`dialogue-${i}`);
     if (!textarea.value.trim() && i < MIN_DIALOGUES) {
       emptyCount++;
-      textarea.parentNode.style.borderColor = "#f5576c";
+      textarea.closest('.bubble-inner').style.borderColor = "#c9524a";
     } else {
-      if (textarea.parentNode) textarea.parentNode.style.borderColor = "#e0e0e0";
+      const bubble = textarea.closest('.bubble-inner');
+      if (bubble) bubble.style.borderColor = "var(--gold-light)";
       const text = textarea.value.trim();
       if(text) totalWordsTyped += text.split(/\s+/).filter(w => w.length > 0).length;
     }
   }
-  
+
   const errDiv = document.getElementById("submitError");
-  if (emptyCount > 0) {
+  if (emptyCount > 0 || dialogueCount < MIN_DIALOGUES) {
     errDiv.classList.remove("hidden");
-    errDiv.innerText = `⚠️ Please complete all ${MIN_DIALOGUES} required lines. ${emptyCount} are still empty.`;
+    errDiv.innerText = `⚠️ Please complete all ${MIN_DIALOGUES} required lines. ${Math.max(emptyCount, MIN_DIALOGUES - dialogueCount)} are still needed.`;
+    // Scroll to first empty line
+    for (let i = 0; i < dialogueCount; i++) {
+      const ta = document.getElementById(`dialogue-${i}`);
+      if (ta && !ta.value.trim()) { ta.scrollIntoView({ behavior: 'smooth', block: 'center' }); ta.focus(); break; }
+    }
     return;
   }
-  
+
   errDiv.classList.add("hidden");
   clearInterval(timerInterval);
   testSubmitted = true;
   triggerConfetti();
+  clearDraft();
+  if (navigator.vibrate) navigator.vibrate([15, 40, 15]);
 
   // Switch Screens
   document.getElementById('assessmentScreen').classList.remove('active');
+  document.getElementById('floatFinish').classList.remove('show');
   document.getElementById('scorecardScreen').classList.add('active');
+
+  const plotLabels = {
+    full_arc: "Full Arc (Beginning → Middle → End)", rising_action: "Rising Action", climax: "Climax",
+    falling_action: "Falling Action", denouement: "Denouement", in_medias_res: "In Medias Res"
+  };
+
+  // Reaction badge
+  const reaction = getReaction(totalWordsTyped);
+  document.getElementById('reactionBadge').textContent = reaction.emoji;
+  document.getElementById('reactionLabel').textContent = reaction.label;
 
   // Populate Scorecard
   document.getElementById('scorecardContent').innerHTML = `
     <p><strong>👤 Author:</strong> ${playerName}</p>
     <p><strong>🏫 Department:</strong> ${playerDept}</p>
-    <p><strong>🎭 Characters:</strong> ${character1} & ${character2}</p>
+    <p><strong>🎬 Title:</strong> ${scriptTitle}</p>
+    <p><strong>🎭 Characters:</strong> ${char1Emoji} ${character1} & ${char2Emoji} ${character2}</p>
     <p><strong>📍 Setting:</strong> ${setting}</p>
+    <p><strong>📈 Plot Shape:</strong> ${plotLabels[plotStructure] || plotStructure}</p>
     <p><strong>💬 Total Lines Written:</strong> ${dialogueCount}</p>
     <p><strong>📝 Total Words:</strong> ${totalWordsTyped}</p>
   `;
 
   const cheatList = document.getElementById('cheatList');
-  if (cheatEvents.length === 0) { 
-    cheatList.innerHTML = '<li style="color:#10b981">✓ No suspicious activity detected</li>'; 
-  } else { 
-    cheatList.innerHTML = cheatEvents.map(e => `<li>⚠ ${e.description}</li>`).join(''); 
+  if (cheatEvents.length === 0) {
+    cheatList.innerHTML = '<li style="color:#3f8a5c">✓ No suspicious activity detected</li>';
+  } else {
+    cheatList.innerHTML = cheatEvents.map(e => `<li>⚠ ${e.description}</li>`).join('');
   }
 
   // Supabase / Cloudflare Payload
@@ -555,12 +807,14 @@ function submitAssessment() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      student_name: playerName, 
+      student_name: playerName,
       department: playerDept,
       correct: totalWordsTyped, // Mapping word count to 'correct' metric
       wrong: 0,
-      time_spent: elapsedSeconds, 
+      time_spent: elapsedSeconds,
       quest_id: "Quest Dialogues 1",
+      script_title: scriptTitle,
+      plot_structure: plotStructure,
       cheat_count: cheatCount,
       cheat_events: cheatEvents
     })
@@ -583,7 +837,7 @@ function downloadPDF() {
   }
 
   // Header Banner
-  doc.setFillColor(102, 126, 234); 
+  doc.setFillColor(201, 162, 39);
   doc.rect(0, 0, pageWidth, 40, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFont('times', 'bold');
@@ -592,22 +846,29 @@ function downloadPDF() {
   doc.setFontSize(12); doc.setFont('times', 'italic');
   doc.text('Department of English - Language Learning Laboratory', pageWidth / 2, 24, { align: 'center' });
   doc.setFontSize(14); doc.setFont('times', 'bold');
-  doc.setTextColor(230, 230, 250); 
+  doc.setTextColor(253, 246, 230);
   doc.text('Official Dialogue Script', pageWidth / 2, 33, { align: 'center' });
 
   yPos = 55;
-  
+
+  const plotLabels = {
+    full_arc: "Full Arc (Beginning -> Middle -> End)", rising_action: "Rising Action", climax: "Climax",
+    falling_action: "Falling Action", denouement: "Denouement", in_medias_res: "In Medias Res"
+  };
+
   // Info Block
   doc.setTextColor(0, 0, 0); doc.setFontSize(11);
   doc.text('SCRIPT METADATA', margin, yPos);
-  
+
   doc.autoTable({
     startY: yPos + 3,
-    body: [ 
-      ['Author', cleanText(playerName)], 
-      ['Department', cleanText(playerDept)], 
+    body: [
+      ['Author', cleanText(playerName)],
+      ['Department', cleanText(playerDept)],
+      ['Title', cleanText(scriptTitle)],
       ['Characters', `${cleanText(character1)} & ${cleanText(character2)}`],
-      ['Setting', cleanText(setting)]
+      ['Setting', cleanText(setting)],
+      ['Plot Shape', cleanText(plotLabels[plotStructure] || plotStructure)]
     ],
     theme: 'plain', styles: { fontSize: 10, font: 'times', cellPadding: 3 },
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40, textColor: [70, 70, 70] }, 1: { cellWidth: 140 } },
@@ -615,7 +876,7 @@ function downloadPDF() {
   });
 
   yPos = doc.lastAutoTable.finalY + 15;
-  doc.setDrawColor(102, 126, 234); doc.setLineWidth(0.5);
+  doc.setDrawColor(201, 162, 39); doc.setLineWidth(0.5);
   doc.line(margin, yPos - 5, pageWidth - margin, yPos - 5);
 
   // Print Dialogues
@@ -625,25 +886,25 @@ function downloadPDF() {
       const isChar1 = i % 2 === 0;
       const character = isChar1 ? character1 : character2;
       const text = cleanText(textarea.value.trim());
-      
+
       checkPageBreak(30);
 
       // Character Name
       doc.setFontSize(11); doc.setFont('times', 'bold');
-      doc.setTextColor(isChar1 ? 102 : 240, isChar1 ? 126 : 147, isChar1 ? 234 : 108); // Blue for Char1, Pink for Char2
+      doc.setTextColor(isChar1 ? 163 : 176, isChar1 ? 121 : 122, isChar1 ? 31 : 58); // Gold for Char1, Bronze for Char2
       doc.text(`${character.toUpperCase()}:`, margin, yPos);
       yPos += 6;
 
       // Dialogue Text
-      doc.setFont('times', 'normal'); doc.setTextColor(40, 40, 40);
+      doc.setFont('times', 'normal'); doc.setTextColor(60, 50, 30);
       const splitText = doc.splitTextToSize(text, pageWidth - (margin * 2) - 10);
-      
+
       splitText.forEach(line => {
         if (checkPageBreak(8)) {
           doc.setFontSize(11); doc.setFont('times', 'bold');
-          doc.setTextColor(isChar1 ? 102 : 240, isChar1 ? 126 : 147, isChar1 ? 234 : 108);
+          doc.setTextColor(isChar1 ? 163 : 176, isChar1 ? 121 : 122, isChar1 ? 31 : 58);
           doc.text(`${character.toUpperCase()} (cont.):`, margin, yPos);
-          yPos += 6; doc.setFont('times', 'normal'); doc.setTextColor(40, 40, 40);
+          yPos += 6; doc.setFont('times', 'normal'); doc.setTextColor(60, 50, 30);
         }
         doc.text(line, margin + 5, yPos);
         yPos += 6;
@@ -655,15 +916,15 @@ function downloadPDF() {
   // Footer
   checkPageBreak(20);
   yPos = pageHeight - 15;
-  doc.setDrawColor(102, 126, 234); doc.setLineWidth(0.5); doc.line(margin, yPos - 5, pageWidth - margin, yPos - 5);
-  doc.setTextColor(128, 128, 128); doc.setFontSize(8); doc.setFont('times', 'italic');
+  doc.setDrawColor(201, 162, 39); doc.setLineWidth(0.5); doc.line(margin, yPos - 5, pageWidth - margin, yPos - 5);
+  doc.setTextColor(128, 110, 70); doc.setFontSize(8); doc.setFont('times', 'italic');
   doc.text('This is a system-generated secure script.', pageWidth / 2, yPos, { align: 'center' });
 
   doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_Dialogue_Script.pdf`);
 }
 
 function triggerConfetti() {
-  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#667eea', '#764ba2', '#f093fb'] });
+  confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#c9a227', '#b0793a', '#f0d488'] });
 }
 </script>
 </body>
