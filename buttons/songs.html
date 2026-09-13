@@ -605,6 +605,7 @@ let stallStreak = 0;
 let bufferingSince = null;
 let resumeAttempts = 0;
 let audioOverrideUnlocked = false;
+let pendingQuestLink = new URLSearchParams(window.location.search).get('quest');
 
 function loadJSON(key, fallback) { try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
 function saveJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
@@ -616,6 +617,25 @@ function scoreKey(testId, mode) { return `${testId}__${mode}`; }
 function questionsForMode(test, modeKey) {
   const tier = MODES[modeKey].tier;
   return test.questions.filter(q => q.tier <= tier).slice().sort((a, b) => a.at - b.at);
+}
+
+/* ── OPTION SHUFFLING ── */
+function shuffleQuestionOptions(question) {
+  const options = question.options.map((text, index) => ({
+    text,
+    isCorrect: index === question.correct
+  }));
+
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]];
+  }
+
+  return {
+    ...question,
+    options: options.map(o => o.text),
+    correct: options.findIndex(o => o.isCorrect)
+  };
 }
 
 /* ── init ── */
@@ -649,12 +669,24 @@ async function init() {
   renderTopbarUser();
   document.getElementById('homeXpBadge').textContent = `⚡ ${totalXP} XP`;
   renderFilters();
-  renderHome('ALL');
-  showScreen('home');
+
   if (isSignedIn()) {
     await fetchCompletedQuests();
-    renderHome(activeFilter);
+    
+    // Check if the user loaded a direct link to a quest
+    if (pendingQuestLink) {
+      const t = TESTS.find(x => x.questId === pendingQuestLink || x.id === pendingQuestLink);
+      if (t) {
+        openIntro(t);
+        return; // skip home screen immediately
+      }
+    }
+
+    renderHome('ALL');
+    showScreen('home');
   } else {
+    renderHome('ALL');
+    showScreen('home');
     openModal(); // no guests: prompt sign-in immediately
   }
 }
@@ -672,12 +704,38 @@ function showScreen(which, title, dark) {
   document.getElementById('topbar').classList.toggle('dark', !!dark);
 }
 
+/* ── URL / HISTORY ROUTING ── */
+window.addEventListener('popstate', () => {
+  const questParam = new URLSearchParams(window.location.search).get('quest');
+  if (questParam && isSignedIn()) {
+    const t = TESTS.find(x => x.questId === questParam || x.id === questParam);
+    if (t) {
+      if (currentScreen === 'player') teardownPlayer();
+      openIntro(t);
+    } else {
+      goHome(true);
+    }
+  } else {
+    if (currentScreen === 'player') teardownPlayer();
+    goHome(true); 
+  }
+});
+
+function goHome(skipHistory = false) {
+  if (!skipHistory) {
+    const url = new URL(window.location);
+    url.searchParams.delete('quest');
+    history.pushState(null, '', url);
+  }
+  renderHome(activeFilter);
+  showScreen('home');
+}
+
 function confirmLeavePlayer() {
   const ok = window.confirm('Exit this practice? Your progress on this attempt will be lost.');
   if (!ok) return;
   teardownPlayer();
-  renderHome(activeFilter);
-  showScreen('home');
+  goHome();
 }
 
 function teardownPlayer() {
@@ -803,7 +861,16 @@ function renderHome(filter) {
   }).join('');
 
   container.querySelectorAll('.test-card').forEach(card => {
-    card.addEventListener('click', () => openIntro(TESTS.find(t => t.id === card.dataset.id)));
+    card.addEventListener('click', () => {
+      const t = TESTS.find(x => x.id === card.dataset.id);
+      
+      // Update browser URL
+      const url = new URL(window.location);
+      url.searchParams.set('quest', t.questId || t.id);
+      history.pushState({ quest: t.questId || t.id }, '', url);
+      
+      openIntro(t);
+    });
   });
 }
 
@@ -860,7 +927,7 @@ function openIntro(test) {
     </div>
   `;
 
-  document.getElementById('introBackLink').addEventListener('click', () => { renderHome(activeFilter); showScreen('home'); });
+  document.getElementById('introBackLink').addEventListener('click', () => { goHome(); });
   scroll.querySelectorAll('.mode-card').forEach(btn => {
     btn.addEventListener('click', () => startPlayer(test, btn.dataset.mode));
   });
@@ -872,7 +939,8 @@ function openIntro(test) {
 async function startPlayer(test, modeKey) {
   currentTest = test;
   currentMode = modeKey;
-  currentQuestions = questionsForMode(test, modeKey);
+  // Apply option shuffling here before presenting to the user
+  currentQuestions = questionsForMode(test, modeKey).map(shuffleQuestionOptions);
   selectedAnswers = {};
   currentQIndex = 0;
   videoEnded = false;
@@ -1121,9 +1189,22 @@ function renderQuestionPanel() {
   panel.querySelectorAll('.qpanel-option').forEach(btn => {
     btn.addEventListener('click', () => {
       selectedAnswers[currentQIndex] = parseInt(btn.dataset.oi);
-      renderQuestionPanel();
+      renderQuestionPanel(); // UI updates instantly to show selection
+      
+      // Auto-advance if this is not the last question
+      if (currentQIndex < total - 1) {
+        // Temporarily disable clicking on the newly rendered options to prevent double skips
+        document.querySelectorAll('.qpanel-option').forEach(b => b.style.pointerEvents = 'none');
+        
+        // 350ms wait gives the user time to see their button turn gold
+        setTimeout(() => {
+          currentQIndex++;
+          renderQuestionPanel(); 
+        }, 350);
+      }
     });
   });
+  
   panel.querySelectorAll('.qpanel-dot').forEach(dot => {
     dot.addEventListener('click', () => { currentQIndex = parseInt(dot.dataset.qi); renderQuestionPanel(); });
   });
@@ -1217,7 +1298,7 @@ function renderResults(test, modeKey, record) {
   `;
 
   requestAnimationFrame(() => { document.getElementById('ringFill').style.strokeDashoffset = offset; });
-  document.getElementById('btnHome').addEventListener('click', () => { renderHome(activeFilter); showScreen('home'); });
+  document.getElementById('btnHome').addEventListener('click', () => { goHome(); });
   document.getElementById('btnRetake').addEventListener('click', () => openIntro(test));
 }
 
@@ -1300,7 +1381,20 @@ async function afterLogin() {
   renderTopbarUser();
   closeModal();
   await fetchCompletedQuests();
-  renderHome(activeFilter);
+
+  if (pendingQuestLink) {
+    const t = TESTS.find(x => x.questId === pendingQuestLink || x.id === pendingQuestLink);
+    pendingQuestLink = null; // consume it
+    if (t) {
+      const url = new URL(window.location);
+      url.searchParams.set('quest', t.questId || t.id);
+      history.replaceState({ quest: t.questId || t.id }, '', url);
+      openIntro(t);
+      return;
+    }
+  }
+
+  goHome();
 }
 
 // Shared sign-in logic. "No guests": both a non-empty name AND a non-empty
