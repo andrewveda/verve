@@ -1,7 +1,7 @@
 const TESTS = [
 {
   id: "queen-bohemian-rhapsody",
-  questId: "Quest Video 25",
+  questId: "Quest Song 25",
   category: "Queen",
   difficulty: "Advanced",
   title: "Queen - Bohemian Rhapsody (Lyrics)",
@@ -69,7 +69,7 @@ const TESTS = [
 },
    {
   id: "queen-another-one-bites-the-dust",
-  questId: "Quest Video 27",
+  questId: "Quest Song 27",
   category: "Queen",
   difficulty: "Intermediate",
   title: "Queen - Another One Bites the Dust (Lyrics)",
@@ -149,7 +149,7 @@ const TESTS = [
 },
    {
   id: "queen-killer-queen",
-  questId: "Quest Video 32",
+  questId: "Quest Song 32",
   category: "Queen",
   difficulty: "Advanced",
   title: "Queen - Killer Queen (Lyrics)",
@@ -211,7 +211,7 @@ const TESTS = [
 },
    {
   id: "queen-crazy-little-thing-called-love",
-  questId: "Quest Video 36",
+  questId: "Quest Song 36",
   category: "Queen",
   difficulty: "Intermediate",
   title: "Queen - Crazy Little Thing Called Love (Lyrics)",
@@ -266,7 +266,7 @@ const TESTS = [
 },
    {
   id: "queen-we-are-the-champions",
-  questId: "Quest Video 34",
+  questId: "Quest Song 34",
   category: "Queen",
   difficulty: "Intermediate",
   title: "Queen - We Are the Champions (Lyrics)",
@@ -323,7 +323,7 @@ const TESTS = [
 },
    {
   id: "queen-dont-stop-me-now",
-  questId: "Quest Video 26",
+  questId: "Quest Song 26",
   category: "Queen",
   difficulty: "Intermediate",
   title: "Queen - Don't Stop Me Now (Lyrics)",
@@ -396,7 +396,7 @@ const TESTS = [
 },
    {
   id: "queen-who-wants-to-live-forever",
-  questId: "Quest Video 35",
+  questId: "Quest Song 35",
   category: "Queen",
   difficulty: "Intermediate",
   title: "Queen - Who Wants to Live Forever (Lyrics)",
@@ -437,7 +437,7 @@ const TESTS = [
   ]
 },
    {
-  id: "vast-the-show-must-go-on", questId: "Quest Video 24", category: "Queen", difficulty: "Intermediate",
+  id: "vast-the-show-must-go-on", questId: "Quest Song 24", category: "Queen", difficulty: "Intermediate",
   title: "Queen - The Show Must Go On (Lyrics)", youtubeId: "uKLMYZlbIb8", durationHint: 230,
   description: "A lyric video by Vast for Queen's powerful anthem 'The Show Must Go On'.",
   questions: [
@@ -470,7 +470,7 @@ const TESTS = [
 },
    {
   id: "abba-thank-you-for-the-music",
-  questId: "Quest Video 37",
+  questId: "Quest Song 37",
   category: "ABBA",
   difficulty: "Intermediate",
   title: "ABBA - Thank You for the Music (Lyrics)",
@@ -523,11 +523,11 @@ const TESTS = [
 },
    {
   id: "abba-eagle",
-  questId: "Quest Video 38",
+  questId: "Quest Song 38",
   category: "ABBA",
   difficulty: "Intermediate",
   title: "ABBA - Eagle (Lyrics)",
-  youtubeId: "dDIJMMd4m2E",
+  youtubeId: "dDI7x1nwTUw",
   durationHint: 274,
   description: "ABBA's soaring anthem 'Eagle', inspired by the freedom of flight and boundless imagination.",
   questions: [
@@ -579,7 +579,7 @@ const TESTS = [
 },
    {
   id: "abba-fernando",
-  questId: "Quest Video 39",
+  questId: "Quest Song 39",
   category: "ABBA",
   difficulty: "Intermediate",
   title: "ABBA - Fernando (Lyrics)",
@@ -634,7 +634,7 @@ const TESTS = [
 },
    {
   id: "abba-chiquitita",
-  questId: "Quest Video 40",
+  questId: "Quest Song 40",
   category: "ABBA",
   difficulty: "Intermediate",
   title: "ABBA - Chiquitita (Lyrics)",
@@ -699,11 +699,11 @@ const TESTS = [
 },
    {
   id: "abba-i-have-a-dream",
-  questId: "Quest Video 41",
+  questId: "Quest Song 41",
   category: "ABBA",
   difficulty: "Intermediate",
   title: "ABBA - I Have a Dream (Lyrics)",
-  youtubeId: "9p9JxQqWq4E",
+  youtubeId: "xl_FfF53Wec",
   durationHint: 277,
   description: "ABBA's inspirational classic 'I Have a Dream', about hope, imagination, perseverance, and believing in something better.",
   questions: [
