@@ -488,7 +488,7 @@ function showScore() {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       student_name: playerName, department: playerDept, correct: correctCount, wrong: totalWrongGuesses,
-      time_spent: elapsedSeconds, quest_id: Quest 16, cheat_count: cheatCount, cheat_events: cheatEvents
+      time_spent: elapsedSeconds, quest_id: "Quest 16", cheat_count: cheatCount, cheat_events: cheatEvents
     })
   }).catch(() => {});
 }
