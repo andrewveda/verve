@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,7 @@
   <title>V for Video 🌌</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Syne:wght@400;600;700&display=swap">
-<script src="../auth-guard.js"></script>
+  <script src="../auth-guard.js"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
     :root {
@@ -545,7 +544,7 @@
           </div>
           <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
           <div class="watch-status" id="watchStatus">▶ Press play to begin</div>
-          <button id="saveBtn" disabled onclick="manualSave()" style="
+          <button id="saveBtn" onclick="manualSave()" style="
             width:100%; margin-top:1rem; padding:.8rem;
             background: linear-gradient(135deg, #23d18b, #16a34a);
             color:#04200e; font-family:var(--font-body); font-size:.92rem; font-weight:700;
@@ -618,6 +617,19 @@ function extractId(url) {
   return m ? m[1] : url;
 }
 
+/* ── LOCAL STORAGE HELPERS ── */
+function getProgressKey(questId) {
+  return `vfv_prog_${questId}_${GH.username || 'anon'}`;
+}
+function getSavedProgress(questId) {
+  return parseFloat(localStorage.getItem(getProgressKey(questId))) || 0;
+}
+function saveProgressToLocal(questId, seconds) {
+  if (seconds >= 0) {
+    localStorage.setItem(getProgressKey(questId), seconds);
+  }
+}
+
 /* ── POPULATE IDENTITY UI ── */
 function populateIdentity() {
   const displayName = GH.name || GH.username || 'GitHub User';  
@@ -668,7 +680,7 @@ const dataPromise = (async () => {
     if (cached) { quizData = JSON.parse(cached); return quizData; }
   } catch(_){}
 const res = await fetch(
-  "https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/videoquests.json",
+  "verve/buttons/videoquests.json",
   { cache: "no-store" }
 );
 
@@ -768,7 +780,12 @@ function renderGrid() {
   grid.innerHTML = '';
   filtered.forEach((vid, i) => {
     const videoId = extractId(vid.video);
-    const watched = watchedMap[vid.questId] || 0;
+    
+    // Check local storage for initial UI calculation if not in memory
+    const savedLocal = getSavedProgress(vid.questId);
+    watchedMap[vid.questId] = Math.max(watchedMap[vid.questId] || 0, savedLocal);
+    const watched = watchedMap[vid.questId];
+    
     const pct     = vid.watchTarget > 0 ? Math.min((watched / vid.watchTarget) * 100, 100) : 0;
     const done    = completedSet.has(vid.questId);
     const card    = document.createElement('div');
@@ -804,7 +821,10 @@ function renderGrid() {
 /* ── PLAYER ── */
 async function openPlayer(vid) {
   currentVideo = vid;
-  watchTime    = watchedMap[vid.questId] || 0;
+  
+  // Load saved progress from local storage
+  watchTime = getSavedProgress(vid.questId);
+  watchedMap[vid.questId] = watchTime;
 
   document.getElementById('sideTitle').textContent    = vid.title;
   document.getElementById('sideCategory').textContent = vid.category;
@@ -815,8 +835,9 @@ async function openPlayer(vid) {
   statusEl.textContent = alreadyDone ? '✅ Already saved!' : '▶ Press play to begin';
   statusEl.className   = 'watch-status' + (alreadyDone ? ' ready' : '');
 
+  // Enable save button by default (no minimum watch time check)
   const saveBtn = document.getElementById('saveBtn');
-  saveBtn.disabled     = !alreadyDone;
+  saveBtn.disabled     = alreadyDone;
   saveBtn.textContent  = alreadyDone ? '✅ Score Saved' : '💾 Save Score';
   saveBtn.style.opacity = alreadyDone ? '.6' : '1';
 
@@ -839,36 +860,53 @@ async function openPlayer(vid) {
   document.getElementById('embedWrap').innerHTML = '<div id="ytPlayer"></div>';
   ytPlayer = new YT.Player('ytPlayer', {
     videoId: extractId(vid.video),
-    playerVars: { autoplay: 0, controls: 1, rel: 0 },
+    playerVars: { 
+      autoplay: 0, 
+      controls: 1, 
+      rel: 0,
+      start: Math.floor(watchTime) // Resume from saved state
+    },
     events: { onStateChange: onPlayerState }
   });
 }
 
 function onPlayerState(event) {
   if (event.data === YT.PlayerState.PLAYING) {
+    document.getElementById('watchStatus').textContent = '▶ Playing...';
     if (!watchInterval) {
       watchInterval = setInterval(() => {
-        watchTime++;
-        watchedMap[currentVideo.questId] = watchTime;
-        const pct = Math.min((watchTime / currentVideo.watchTarget) * 100, 100);
-        document.getElementById('progressFill').style.width = pct + '%';
-        document.getElementById('progressFill').classList.toggle('done', pct >= 100);
-        document.getElementById('watchVal').textContent = `${watchTime}s / ${currentVideo.watchTarget}s`;
+        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+          // Fetch exact time instead of incrementing to handle skipping/seeking cleanly
+          watchTime = Math.floor(ytPlayer.getCurrentTime());
+          watchedMap[currentVideo.questId] = watchTime;
+          
+          saveProgressToLocal(currentVideo.questId, watchTime);
+          
+          const pct = Math.min((watchTime / currentVideo.watchTarget) * 100, 100);
+          document.getElementById('progressFill').style.width = pct + '%';
+          document.getElementById('progressFill').classList.toggle('done', pct >= 100);
+          document.getElementById('watchVal').textContent = `${watchTime}s / ${currentVideo.watchTarget}s`;
 
-        if (watchTime >= currentVideo.watchTarget && !completedSet.has(currentVideo.questId)) {
-          const s = document.getElementById('watchStatus');
-          s.textContent = '✅ Target reached! Save when ready.';
-          s.className = 'watch-status ready';
-          const saveBtn = document.getElementById('saveBtn');
-          saveBtn.disabled = false;
-          saveBtn.style.opacity = '1';
+          if (watchTime >= currentVideo.watchTarget && !completedSet.has(currentVideo.questId)) {
+            const s = document.getElementById('watchStatus');
+            s.textContent = '✅ Target reached! Keep watching or save when ready.';
+            s.className = 'watch-status ready';
+          }
         }
       }, 1000);
     }
-  } else {
+  } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
     clearInterval(watchInterval); watchInterval = null;
+    
+    // Save state on pause/end
+    if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+      watchTime = Math.floor(ytPlayer.getCurrentTime());
+      saveProgressToLocal(currentVideo.questId, watchTime);
+    }
+
     if (!completedSet.has(currentVideo?.questId)) {
-      document.getElementById('watchStatus').textContent = '⏸ Paused — keep watching!';
+      document.getElementById('watchStatus').textContent = '⏸ Paused — Progress saved & syncing!';
+      autoSyncProgress(); // Trigger auto-save immediately on pause
     }
   }
 }
@@ -883,18 +921,16 @@ function manualSave() {
 
   fetch('https://orange-term-57cf.andrewveda.workers.dev/save', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-   body: JSON.stringify({
-  student_name:    GH.name || GH.username,   // GH.name not GH.userName
-  department:      GH.dept,
-  github_username: GH.username,
-  github_id:       GH.githubId,              // GH.githubId not GH.id
-  github_profile:  GH.profile,
-  quest_id:        currentVideo.questId,
-  time_spent:      watchTime
-})
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      student_name:  GH.name || GH.username, 
+      department:    GH.dept,
+      github_username: GH.username,
+      github_id:       GH.githubId,
+      github_profile:  GH.profile,
+      quest_id:        currentVideo.questId,
+      time_spent:      watchTime
+    })
   })
   .then(async r => {
     if (!r.ok) {
@@ -906,13 +942,9 @@ function manualSave() {
   .then(data => {
     if (data.ok) {
       completedSet.add(currentVideo.questId);
-
       saveBtn.textContent = '✅ Score Saved';
       saveBtn.style.opacity = '.6';
-
-      document.getElementById('watchStatus').textContent =
-        '✅ Score saved!';
-
+      document.getElementById('watchStatus').textContent = '✅ Score saved!';
       renderGrid();
     } else {
       throw new Error('Save failed');
@@ -920,10 +952,43 @@ function manualSave() {
   })
   .catch(err => {
     console.error(err);
-
     saveBtn.disabled = false;
     saveBtn.textContent = '❌ Failed — Try Again';
   });
+}
+
+function autoSyncProgress() {
+  if (!currentVideo || completedSet.has(currentVideo.questId)) return;
+
+  fetch('https://orange-term-57cf.andrewveda.workers.dev/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      student_name:  GH.name || GH.username,
+      department:    GH.dept,
+      github_username: GH.username,
+      github_id:       GH.githubId,
+      github_profile:  GH.profile,
+      quest_id:        currentVideo.questId,
+      time_spent:      watchTime
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      // If we met the target during this auto-sync, lock it visually so they don't have to keep pressing save
+      if (watchTime >= currentVideo.watchTarget) {
+         completedSet.add(currentVideo.questId);
+         const saveBtn = document.getElementById('saveBtn');
+         saveBtn.textContent = '✅ Score Saved';
+         saveBtn.disabled = true;
+         saveBtn.style.opacity = '.6';
+         document.getElementById('watchStatus').textContent = '✅ Score saved automatically!';
+         renderGrid();
+      }
+    }
+  })
+  .catch(err => console.error('Auto-sync failed:', err));
 }
 
 window.manualSave = manualSave;
@@ -950,7 +1015,13 @@ function buildNextList(current) {
 
 document.getElementById('backBtn').onclick = () => {
   clearInterval(watchInterval); watchInterval = null;
-  if (ytPlayer) { try { ytPlayer.stopVideo(); } catch(_){} }
+  // If leaving the screen, trigger final pause logic manually to ensure a sync
+  if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') { 
+    watchTime = Math.floor(ytPlayer.getCurrentTime());
+    saveProgressToLocal(currentVideo.questId, watchTime);
+    autoSyncProgress();
+    try { ytPlayer.stopVideo(); } catch(_){} 
+  }
   renderGrid();
   showScreen('screenLibrary');
 };
