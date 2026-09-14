@@ -156,7 +156,7 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 .player-left { flex-shrink: 0; background: #000; position: relative; }
 @media (min-width: 900px) { .player-left { width: 60%; display: flex; flex-direction: column; justify-content: center; padding: 20px; border-right: 1px solid rgba(255,255,255,0.1); } }
 
-/* The Iframe Container Fix (Preventing 150722.jpg issues) */
+/* The Iframe Container Fix (Preventing Layout Blowouts) */
 .embed-wrap {
   width: 100%; aspect-ratio: 16/9; background: #000; position: relative; overflow: hidden;
 }
@@ -268,8 +268,6 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 </div>
 
 <script>
-
-
 const EDGE_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
 let youtubeReady = false;
 window.onYouTubeIframeAPIReady = () => { youtubeReady = true; };
@@ -279,7 +277,23 @@ let activeCategory = 'ALL';
 let completedSet = new Set();
 let ytPlayer = null;
 let currentVideo = null;
+let watchInterval = null;
+let watchTime = 0;
 
+/* ── LOCAL STORAGE HELPERS ── */
+function getProgressKey(questId) {
+  return `vfv_prog_${questId}_${GH.username || 'anon'}`;
+}
+function getSavedProgress(questId) {
+  return parseFloat(localStorage.getItem(getProgressKey(questId))) || 0;
+}
+function saveProgressToLocal(questId, seconds) {
+  if (seconds >= 0) {
+    localStorage.setItem(getProgressKey(questId), seconds);
+  }
+}
+
+/* ── UTILS ── */
 function getInitials(name) { return String(name || '?').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase(); }
 function escHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function extractId(url) { const m = (url||'').match(/[?&]v=([^&]+)/); return m ? m[1] : url; }
@@ -375,6 +389,9 @@ async function openPlayer(qId) {
   document.getElementById('sideTitle').textContent = currentVideo.title;
   document.getElementById('sideCategory').textContent = currentVideo.category;
 
+  // Retrieve saved progress dynamically 
+  watchTime = getSavedProgress(currentVideo.questId);
+
   const done = completedSet.has(currentVideo.questId);
   const saveBtn = document.getElementById('saveBtn');
   saveBtn.disabled = done;
@@ -387,13 +404,42 @@ async function openPlayer(qId) {
     let t = 0; while (!youtubeReady && t < 80) { await new Promise(r=>setTimeout(r,100)); t++; }
   }
 
+  clearInterval(watchInterval); watchInterval = null;
   if (ytPlayer) { try { ytPlayer.destroy(); } catch(_){} ytPlayer = null; }
-  document.getElementById('embedWrap').innerHTML = '<div id="ytPlayer"></div>';
   
+  document.getElementById('embedWrap').innerHTML = '<div id="ytPlayer"></div>';
   ytPlayer = new YT.Player('ytPlayer', {
     videoId: extractId(currentVideo.video),
-    playerVars: { autoplay: 0, controls: 1, rel: 0, fs: 1, playsinline: 1 }
+    playerVars: { 
+      autoplay: 0, 
+      controls: 1, 
+      rel: 0, 
+      fs: 1, 
+      playsinline: 1,
+      start: Math.floor(watchTime) // Resume from local storage
+    },
+    events: { onStateChange: onPlayerStateChange }
   });
+}
+
+function onPlayerStateChange(event) {
+  if (event.data === YT.PlayerState.PLAYING) {
+    if (!watchInterval) {
+      watchInterval = setInterval(() => {
+        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+          // Track dynamically in the background without UI display
+          watchTime = Math.floor(ytPlayer.getCurrentTime());
+          saveProgressToLocal(currentVideo.questId, watchTime);
+        }
+      }, 1000);
+    }
+  } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+    clearInterval(watchInterval); watchInterval = null;
+    if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+      watchTime = Math.floor(ytPlayer.getCurrentTime());
+      saveProgressToLocal(currentVideo.questId, watchTime);
+    }
+  }
 }
 
 function manualSave() {
@@ -402,7 +448,12 @@ function manualSave() {
   saveBtn.disabled = true;
   saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
 
-  // Using the exact payload structure adapted from songs.html[cite: 1] merged with original keys
+  // Log final time state right before posting
+  if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+    watchTime = Math.floor(ytPlayer.getCurrentTime());
+    saveProgressToLocal(currentVideo.questId, watchTime);
+  }
+
   fetch(EDGE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -413,8 +464,7 @@ function manualSave() {
       github_id: GH.githubId,
       github_profile: GH.profile,
       quest_id: currentVideo.questId,
-      time_spent: 1,
-      correct: 1, wrong: 0, total: 1, mode: 'casual' // Padding missing fields to satisfy generic worker if needed
+      time_spent: watchTime // Sends the accurate time tracked in localStorage
     })
   }).then(r => r.json()).then(data => {
     if (data.ok) {
@@ -459,7 +509,13 @@ function toggleFullscreen() {
 }
 
 document.getElementById('backBtn').onclick = () => {
-  if (ytPlayer) { try { ytPlayer.stopVideo(); } catch(_){} }
+  clearInterval(watchInterval); watchInterval = null;
+  // Trigger final save on back
+  if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+    watchTime = Math.floor(ytPlayer.getCurrentTime());
+    saveProgressToLocal(currentVideo.questId, watchTime);
+    try { ytPlayer.stopVideo(); } catch(_){}
+  }
   renderApp();
   showScreen('screenHome');
 };
