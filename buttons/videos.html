@@ -661,14 +661,22 @@ let watchInterval= null;
 let currentVideo = null;
 let watchTime    = 0;
 
-/* ── PRELOAD DATA ── */
+
 const dataPromise = (async () => {
   try {
     const cached = sessionStorage.getItem('vfv_data');
     if (cached) { quizData = JSON.parse(cached); return quizData; }
   } catch(_){}
-  const res  = await fetch("https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/videoquests.json");
-  quizData   = await res.json();
+const res = await fetch(
+  "https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/videoquests.json",
+  { cache: "no-store" }
+);
+
+if (!res.ok) {
+  throw new Error(`videoquests.json HTTP ${res.status}`);
+}
+
+quizData = await res.json();
   try { sessionStorage.setItem('vfv_data', JSON.stringify(quizData)); } catch(_){}
   return quizData;
 })();
@@ -699,8 +707,9 @@ async function handleLaunch() {
     await dataPromise;
     buildLibrary();
     showScreen('screenLibrary');
-  } catch(e) {
-    alert('Failed to load. Please refresh.');
+ } catch(e) {
+  console.error('ARCHIVE LOAD ERROR:', e);
+  alert('Failed to load: ' + e.message);
     btn.disabled = false;
     btn.innerHTML = 'Enter the Archive 🚀';
   }
