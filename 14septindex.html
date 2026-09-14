@@ -158,7 +158,7 @@
       margin-bottom: 8px;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
       flex: 0 0 auto;
-      display: none; /* Shown/hidden by JS */
+      display: none;
     }
     .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .cal-nav-btn { background: var(--surface2); border: 1px solid var(--border-dim); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
@@ -437,7 +437,7 @@
 </script>
 
 <script>
-  // ===== Entry data - Updated to only keep 4 specific items in 'missions' =====
+  // ===== Entry data =====
   const ENTRIES = [
     // The Core 4 Missions
     { id: 'wordle',        label: 'Wordle',                    icon: '🟩', href: 'https://andrewveda.com/verve/buttons/wordledaily',                    cat: ['missions'] },
@@ -488,6 +488,7 @@
   ];
 
   let currentCat = 'missions';
+  const categoryOrder = ['missions', 'listening-speaking', 'reading-writing'];
 
   function buildRow(entry) {
     const a = document.createElement('a');
@@ -569,7 +570,7 @@
     });
   }
 
-  function setActiveChapter(cat, animate) {
+  window.setActiveChapter = function(cat, animate) {
     currentCat = cat;
 
     document.querySelectorAll('.tab').forEach(t => {
@@ -593,6 +594,46 @@
     if (!btn || btn.dataset.cat === currentCat) return;
     setActiveChapter(btn.dataset.cat, true);
   });
+
+  // --- Swipe Gesture Logic ---
+  let touchstartX = 0;
+  let touchstartY = 0;
+  let touchendX = 0;
+  let touchendY = 0;
+  
+  const appShell = document.getElementById('appShell');
+
+  appShell.addEventListener('touchstart', function(event) {
+      touchstartX = event.changedTouches[0].screenX;
+      touchstartY = event.changedTouches[0].screenY;
+  }, {passive: true});
+
+  appShell.addEventListener('touchend', function(event) {
+      touchendX = event.changedTouches[0].screenX;
+      touchendY = event.changedTouches[0].screenY;
+      handleGesture();
+  }, {passive: true});
+
+  function handleGesture() {
+      const deltaX = touchendX - touchstartX;
+      const deltaY = touchendY - touchstartY;
+
+      // Check if the swipe is primarily horizontal and significant enough
+      if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          const currentIndex = categoryOrder.indexOf(currentCat);
+          if (deltaX < 0) {
+              // Swiped left, move right in tabs
+              if (currentIndex < categoryOrder.length - 1) {
+                  setActiveChapter(categoryOrder[currentIndex + 1], true);
+              }
+          } else {
+              // Swiped right, move left in tabs
+              if (currentIndex > 0) {
+                  setActiveChapter(categoryOrder[currentIndex - 1], true);
+              }
+          }
+      }
+  }
 
   window.__initEntryList = function () { setActiveChapter('missions', false); };
 </script>
@@ -628,6 +669,61 @@
    14: "https://andrewveda.com/verve/buttons/clips/knowledgeispower",
    15: "https://andrewveda.com/verve/buttons/clips/powerriddle"
   };
+
+  // --- Aggressive Local Storage Vacuum ---
+  function extractAllNamesFromStorage(primaryName) {
+    let aliases = new Set();
+    if (primaryName) aliases.add(primaryName.trim().toLowerCase());
+    
+    for (let i = 0; i < localStorage.length; i++) {
+      let key = localStorage.key(i);
+      
+      const ignoreKeys = [
+        'cachedUserData', 'userIdentityMode', 'userIdentityIndex', 'userDept', 
+        'vfv_dept', 'userName', 'guest_mode', 'logged_in', 'auth_provider', 
+        'github_username', 'github_id', 'github_profile', 'avatar'
+      ];
+      if (ignoreKeys.includes(key)) continue;
+
+      let value = localStorage.getItem(key);
+      if (!value) continue;
+
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) {
+          parsed.forEach(n => aliases.add(String(n).trim().toLowerCase()));
+        } else if (typeof parsed === 'string') {
+          parsed.split(",").forEach(n => aliases.add(n.trim().toLowerCase()));
+        }
+      } catch (e) {
+        value.split(",").forEach(n => aliases.add(n.trim().toLowerCase()));
+      }
+    }
+    
+    return Array.from(aliases).filter(name => name.length > 0 && name.length < 50);
+  }
+
+  function mergeUserRecords(records) {
+    if (!records || records.length === 0) return null;
+    const merged = { ...records[0] };
+    let questSet = new Set();
+    let maxQuests = 0, maxVideos = 0, maxScore = 0, maxTime = 0;
+
+    records.forEach(r => {
+      parseList(r.quest_list).forEach(x => questSet.add(x));
+      maxQuests = Math.max(maxQuests, r.quests_completed || 0);
+      maxVideos = Math.max(maxVideos, r.videos_completed || 0);
+      maxScore = Math.max(maxScore, r.total_score || 0);
+      maxTime = Math.max(maxTime, r.total_time || 0);
+    });
+
+    merged.quest_list = [...questSet].join(",");
+    merged.quests_completed = Math.max(maxQuests, questSet.size);
+    merged.videos_completed = maxVideos;
+    merged.total_score = maxScore;
+    merged.total_time = maxTime;
+    return merged;
+  }
 
   function parseList(raw) {
     if (!raw) return [];
@@ -837,28 +933,38 @@
 
   async function fetchUserData(name) {
     try {
+      // 1. Aggressively scrape all stored aliases to merge quests & metrics
+      const aliases = extractAllNamesFromStorage(name);
+      
       const { data, error } = await supabase
         .from("report_card_view")
         .select("*");
 
       if (error) throw error;
 
-      const user = (data || []).find(u =>
-        u.name && u.name.trim().toLowerCase() === name.trim().toLowerCase()
+      // 2. Filter Supabase results against the entire set of local aliases
+      const matches = (data || []).filter(u =>
+        u.name && aliases.includes(u.name.trim().toLowerCase())
       );
 
-      if (user) {
-        document.getElementById("statQuests").textContent = user.quests_completed ?? 0;
-        document.getElementById("statVideos").textContent = user.videos_completed ?? 0;
-        document.getElementById("statScore").textContent = user.total_score ?? 0;
+      let mergedUser = null;
+      if (matches.length > 0) {
+        mergedUser = mergeUserRecords(matches);
+      }
 
-        const sec = user.total_time ?? 0;
+      if (mergedUser) {
+        // 3. Update top statistics strip with merged numbers
+        document.getElementById("statQuests").textContent = mergedUser.quests_completed ?? 0;
+        document.getElementById("statVideos").textContent = mergedUser.videos_completed ?? 0;
+        document.getElementById("statScore").textContent = mergedUser.total_score ?? 0;
+
+        const sec = mergedUser.total_time ?? 0;
         const h = Math.floor(sec / 3600);
         const m = Math.floor((sec % 3600) / 60);
         document.getElementById("statTime").textContent = `${h}h ${m}m`;
         
-        // Pass to Calendar State and Trigger Render
-        userDataForCal = user;
+        // 4. Pass merged quest_list to Calendar State and Trigger Render for Fire Emojis
+        userDataForCal = mergedUser;
         renderCalendar(currentMonth, currentYear);
       }
     } catch (e) {
