@@ -680,7 +680,7 @@ const dataPromise = (async () => {
     if (cached) { quizData = JSON.parse(cached); return quizData; }
   } catch(_){}
 const res = await fetch(
-  "andrewveda.com/verve/buttons/videoquests.json",
+  "https://raw.githubusercontent.com/andrewveda/verve/main/buttons/videoquests.json",
   { cache: "no-store" }
 );
 
