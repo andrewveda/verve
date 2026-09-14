@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>The Vanishing Glass - Preposition Mastery</title>
+
+<!-- External Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<!-- Auth Guard to protect and load user session -->
+<script src="../../auth-guard.js"></script>
+
+<!-- Typography matching Luxury Aesthetic -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  /* ---------- BASE TOKENS & NO SCROLLING LUXURY THEME ---------- */
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+  
+  :root {
+    --bg-dark: #090a0f; 
+    --card: #131722; 
+    --card-line: #cba153; /* Gold */
+    --ink: #f0e6d2; 
+    --ink-muted: #9ca3af;
+    --primary: #cba153; 
+    --primary-dark: #a67c30;
+    
+    /* Security Colors */
+    --cheat: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+
+    --shadow-sm: 0 4px 12px rgba(0,0,0,.4);
+    --shadow-md: 0 8px 32px rgba(0,0,0,.6);
+    --ease: cubic-bezier(.16,1,.3,1);
+  }
+  
+  /* STRICTLY NO SCROLLING */
+  html, body { 
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    overflow: hidden; width: 100vw; height: 100dvh; overscroll-behavior: none;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif; 
+    background: var(--bg-dark); color: var(--ink);
+    background-image:
+      radial-gradient(ellipse 80% 80% at 10% -10%, rgba(203,161,83,.10) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 60% at 90% 110%, rgba(203,161,83,.08) 0%, transparent 60%);
+  }
+
+  /* ---------- SECURITY & ANTI-CHEAT UI ---------- */
+  .cheat-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; color: white; backdrop-filter: blur(8px); }
+  .cheat-overlay.show { display: flex; }
+  .cheat-overlay h2 { font-family: 'Cinzel', serif; font-size: 2rem; margin-bottom: 12px; color: var(--cheat); }
+  .cheat-overlay p { font-size: 1rem; opacity: 0.9; margin-bottom: 24px; max-width: 400px; line-height: 1.5; }
+  
+  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-120px); background: var(--card); border: 1px solid var(--card-line); color: var(--ink); padding: 10px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 500; z-index: 400; transition: transform 0.3s ease; box-shadow: var(--shadow-md); max-width: 90vw; text-align: center; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.cheat { border-color: var(--cheat); color: var(--cheat); }
+
+  /* ---------- LAYOUT ---------- */
+  .screen {
+    display: none; width: 100%; height: 100%; flex-direction: column; overflow: hidden;
+  }
+  .screen.active { display: flex; }
+  
+  .col {
+    display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 500px; margin: 0 auto;
+    padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
+    gap: 12px; justify-content: space-between;
+  }
+
+  /* ---------- SHARED COMPONENTS ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px 20px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 700; font-family: 'Cinzel', serif; cursor: pointer; transition: all 0.2s; touch-action: manipulation; text-transform: uppercase; letter-spacing: .05em; flex-shrink: 0; }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: var(--bg-dark); box-shadow: 0 4px 16px rgba(203,161,83,.25); }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-secondary { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
+
+  /* ---------- GATE SCREENS ---------- */
+  #nameFormScreen .col { justify-content: center; }
+  .gate-card {
+    background: var(--card); border: 1px solid var(--card-line);
+    border-radius: 20px; padding: 28px 20px; box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    display: flex; flex-direction: column; gap: 14px;
+    animation: cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards; text-align: center;
+  }
+  .hero-text { font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.8rem; color: var(--primary); line-height: 1.2; }
+  .hero-author { font-size: 0.75rem; margin-top: 8px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  
+  .candidate-chip { background: rgba(255,255,255,0.05); border: 1px solid rgba(203,161,83,0.3); border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 12px; text-align: left; }
+  .candidate-chip img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary); }
+  .candidate-chip strong { font-size: 0.9rem; }
+  
+  /* ---------- QUIZ HUD ---------- */
+  .top-bar { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .brand { text-align: center; flex: 1; }
+  .brand h1 { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--primary); }
+  .brand .sub { font-size: .6rem; letter-spacing: .15em; text-transform: uppercase; color: var(--ink-muted); }
+
+  .icon-btn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(203,161,83,0.3); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--primary); }
+  .icon-btn:active { transform: scale(0.9); }
+  
+  .timer-pill { display: flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(203,161,83,0.3); border-radius: 99px; padding: 6px 14px; }
+  .timer-text { font-family: 'Inter', monospace; font-size: .9rem; font-weight: 700; color: var(--primary); }
+
+  .stat-strip { background: var(--card); border: 1px solid rgba(203,161,83,0.3); border-radius: 12px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .stat-nums { font-size: .7rem; color: var(--ink-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-nums b { color: var(--primary); font-size: 1.1em; font-family: 'Cinzel', serif; margin-left: 2px;}
+
+  /* ---------- COMPACT TEXT MOUNT ---------- */
+  .mount {
+    background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 18px 16px; 
+    font-family: 'Fraunces', serif; font-size: clamp(0.95rem, 2.5dvh, 1.1rem); line-height: 1.6; color: var(--ink);
+    position: relative; flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: justify;
+    box-shadow: var(--shadow-md);
+  }
+  .level-badge { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--bg-dark); border: 1px solid var(--card-line); color: var(--primary); padding: 2px 14px; border-radius: 20px; font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; white-space: nowrap; }
+
+  .blank-item {
+    display: inline-block; min-width: 45px; padding: 0 4px; border-bottom: 2px solid rgba(203,161,83,0.4);
+    font-weight: 700; color: rgba(255,255,255,0.1); text-align: center; transition: all 0.2s;
+    cursor: pointer; position: relative; margin: 0 2px;
+  }
+  .blank-item.filled { border-bottom-color: var(--primary); color: var(--primary); animation: tileIn .3s cubic-bezier(.2,1.5,.4,1); text-shadow: 0 0 6px rgba(203,161,83,0.4); }
+  .blank-item.error { animation: shake .35s ease; border-bottom-color: var(--cheat); }
+
+  /* ---------- COMPACT TRAY ---------- */
+  .tray-wrapper { flex-shrink: 0; background: rgba(19, 23, 34, 0.95); border: 1px solid rgba(203,161,83,0.4); border-radius: 14px; padding: 12px; }
+  .tray-caption { text-align: center; font-size: .6rem; color: var(--ink-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
+  .tray { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  
+  .tile {
+    display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border-radius: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(203,161,83,0.3); cursor: pointer; user-select: none;
+    animation: tileSpawn .3s cubic-bezier(.2,1.5,.4,1);
+  }
+  .tile:active { transform: scale(.94); }
+  .tile.selected { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-color: var(--primary); }
+  .tile.selected .word { color: var(--bg-dark); }
+  .tile.solved { display: none; }
+  
+  .tile .word { font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.9rem; color: var(--ink); }
+
+  /* ---------- END SCREEN ---------- */
+  .end-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0; }
+  .stat-box { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px 6px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+  .stat-num { font-family: 'Cinzel', serif; font-size: 1.6rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; line-height: 1;}
+  .stat-num.wrong-val { color: #fca5a5; }
+  .stat-num.gem-val { color: var(--primary); }
+  .stat-lbl { font-size: .6rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .1em; }
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 40%{transform:translateX(4px)} 60%{transform:translateX(-2px)} 80%{transform:translateX(2px)} }
+  @keyframes tileIn { from{transform:translateY(6px) scale(.8);opacity:0} to{transform:none;opacity:1} }
+  @keyframes tileSpawn { from{transform:scale(.6);opacity:0} to{transform:scale(1);opacity:1} }
+  @keyframes cardIn { from{opacity:0;transform:translateY(20px) scale(.98)} to{opacity:1;transform:none} }
+  @keyframes gemPop { 0% { transform: scale(1); } 50% { transform: scale(1.3); color: #fff; text-shadow: 0 0 10px var(--primary); } 100% { transform: scale(1); } }
+  .gem-pop { animation: gemPop 0.5s ease; }
+</style>
+<base target="_blank">
+</head>
+<body oncontextmenu="return false;">
+
+  <!-- ANTI-CHEAT OVERLAYS -->
+  <div class="cheat-overlay" id="cheatOverlay">
+    <h2>⚠ Security Alert</h2>
+    <p id="cheatMessage">Suspicious activity detected. Return to the test immediately.</p>
+    <button class="btn btn-secondary" style="border-color: var(--cheat); color: var(--cheat); width: 80%;" onclick="resumeTest()">I Understand</button>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <!-- NAME GATE (GitHub Auth) -->
+  <div class="screen active" id="nameFormScreen">
+    <div class="col">
+      <div class="gate-card">
+        <div>
+          <div class="hero-text">The Vanishing Glass</div>
+          <div class="hero-author">Preposition Mastery</div>
+        </div>
+        
+        <div class="candidate-chip">
+          <img id="candidateAvatar" src="https://via.placeholder.com/150" alt="Avatar">
+          <div style="flex:1;">
+            <strong id="candidateName">Loading User...</strong><br>
+            <span id="candidateDept" style="color:var(--ink-muted);font-size:0.75rem;">Verifying GitHub Auth...</span>
+          </div>
+        </div>
+        
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 10px; font-size: 0.7rem; color: #fca5a5; text-align: left;">
+          <strong style="display:block; color:var(--cheat); margin-bottom: 2px;">🔒 Ministry Monitored</strong>
+          Tab switching, minimizing, or copying is strictly monitored and heavily penalized.
+        </div>
+        
+        <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>✨ Begin Trial ✨</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="quizContent">
+    <div class="col">
+      <div class="top-bar">
+        <div class="brand"><h1>The Glass</h1><div class="sub">Prepositions</div></div>
+        <div style="display: flex; gap: 6px;">
+          <button id="muteBtn" class="icon-btn" onclick="toggleMute()">🔊</button>
+          <div class="timer-pill"><div class="timer-text" id="timer">00:00</div></div>
+        </div>
+      </div>
+
+      <div class="stat-strip">
+        <span class="stat-nums">Part <b id="progressTracker">1 / X</b></span>
+        <div style="display:flex; gap:6px;">
+          <div style="display:flex; align-items:center; gap:4px; color:var(--cheat); font-size:0.75rem; font-weight:700;"><span id="cheatCount">0</span> ⚠</div>
+          <span class="stat-nums" id="gemsCounter">✦ <b>0</b></span>
+        </div>
+      </div>
+
+      <div class="mount" id="dropContainer">
+        <div class="level-badge" id="levelBadge">Part 1</div>
+        <div id="paragraphText"></div>
+      </div>
+
+      <div class="tray-wrapper">
+        <div class="tray-caption" id="trayCaption">Select a glowing rune, then tap a blank</div>
+        <div class="tray" id="dragOptions">
+          <!-- Tiles injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div class="screen" id="endScreen">
+    <div class="col" style="justify-content: center;">
+      <div class="gate-card">
+        <div style="font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 700; color: var(--primary); margin-bottom: 4px;">Mischief Managed.</div>
+        <div id="endSubtitle" style="font-size: .7rem; color: var(--ink-muted); text-transform: uppercase;">Player details</div>
+        
+        <div class="end-stats">
+          <div class="stat-box"><div class="stat-num" id="endCorrect">0</div><div class="stat-lbl">Spells</div></div>
+          <div class="stat-box"><div class="stat-num wrong-val" id="endWrong">0</div><div class="stat-lbl">Misfires</div></div>
+          <div class="stat-box"><div class="stat-num gem-val" id="endGems">0</div><div class="stat-lbl">Gems</div></div>
+          <div class="stat-box"><div class="stat-num" id="endTime">0s</div><div class="stat-lbl">Time</div></div>
+        </div>
+        
+        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 12px; text-align: left;">
+          <h4 style="color: var(--cheat); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px;">Ministry Audit</h4>
+          <ul id="cheatList" style="list-style: none; font-size: 0.75rem; color: var(--ink-muted); line-height: 1.4;"></ul>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+          <button class="btn btn-primary" onclick="downloadPDFReport()">📥 Owl Post Report</button>
+          <button class="btn btn-secondary" onclick="location.reload()">↻ Re-enter Pensieve</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ========== GITHUB AUTH INTEGRATION ========== */
+let playerName = "Guest";
+let playerDept = "Unknown";
+let playerAvatar = "";
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.GH) {
+    playerName = window.GH.name || window.GH.username || "Student";
+    playerDept = window.GH.dept || "Department Unspecified";
+    playerAvatar = window.GH.avatar || "https://via.placeholder.com/150";
+    
+    document.getElementById('candidateName').textContent = playerName;
+    document.getElementById('candidateDept').textContent = playerDept;
+    if (playerAvatar) {
+      document.getElementById('candidateAvatar').src = playerAvatar;
+    }
+    document.getElementById('startBtn').disabled = false;
+  } else {
+    // Fallback
+    setTimeout(() => {
+      playerName = localStorage.getItem("questPlayerName") || "Harry Potter";
+      playerDept = localStorage.getItem("questPlayerDept") || "Gryffindor";
+      document.getElementById('candidateName').textContent = playerName;
+      document.getElementById('candidateDept').textContent = playerDept;
+      document.getElementById('startBtn').disabled = false;
+    }, 400);
+  }
+});
+
+/* ========== AUDIO & CONFETTI ========== */
+const applauseSound = new Audio('https://andrewveda.github.io/SRM-VEC-English-PWA/sounds/crowd.mp3');
+const wrongSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3');
+applauseSound.volume = 0.4; wrongSound.volume = 0.3;
+let isMuted = false;
+
+function toggleMute() {
+  isMuted = !isMuted; document.getElementById('muteBtn').textContent = isMuted ? '🔇' : '🔊';
+}
+function playSound(audio) { if (!isMuted) { audio.currentTime = 0; audio.play().catch(()=>{}); } }
+
+function triggerConfetti() { confetti({ particleCount: 50, spread: 50, origin: { y: 0.8 }, colors: ['#cba153', '#a67c30'] }); }
+function triggerMegaConfetti() {
+  const duration = 2500, end = Date.now() + duration;
+  const interval = setInterval(() => {
+    if (Date.now() > end) return clearInterval(interval);
+    confetti({ particleCount: 20, spread: 360, origin: { x: Math.random(), y: Math.random() - 0.2 }, colors: ['#cba153', '#7f1d1d', '#131722'] });
+  }, 250);
+}
+
+/* ========== ANTI-CHEAT ========== */
+let cheatEvents = [], cheatCount = 0, isPaused = false, testSubmitted = false, startTime, timerInterval;
+
+function initAntiCheat() {
+  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && !testSubmitted && startTime) { recordCheat('Tab switched', 'tab'); showCheatOverlay('You switched tabs. The Ministry is watching.'); }
+  });
+  window.addEventListener('blur', () => {
+    if (!testSubmitted && startTime && !isPaused && !isMobile) recordCheat('Window lost focus', 'focus');
+  });
+  document.addEventListener('contextmenu', e => { e.preventDefault(); if (!testSubmitted && startTime) recordCheat('Right-click block', 'rightclick'); });
+  document.addEventListener('copy', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Copy attempted', 'copy'); } });
+}
+function recordCheat(description, type) {
+  cheatCount++; cheatEvents.push({ type, description, timestamp: new Date().toISOString(), paragraph: current + 1 });
+  document.getElementById('cheatCount').textContent = cheatCount;
+}
+function showCheatOverlay(msg) { isPaused = true; document.getElementById('cheatMessage').textContent = msg; document.getElementById('cheatOverlay').classList.add('show'); }
+function resumeTest() { isPaused = false; document.getElementById('cheatOverlay').classList.remove('show'); }
+function showToast(msg) {
+  const toast = document.getElementById('toast'); toast.textContent = msg; toast.className = 'toast show';
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+/* ========== COMPACT TEXT CHUNKS (Guaranteed No Scroll) ========== */
+const rawTextChunks = [
+  "Nearly ten years had passed since the Dursleys had woken up to find their nephew on the front step, but Privet Drive had hardly changed at all. The sun rose on the same tidy front gardens...",
+  "...and lit up the brass number four on the Dursleys’ front door; it crept into their living-room, which was almost exactly the same as it had been on the night when Mr Dursley had seen that fateful news report about the owls.",
+  "Only the photographs on the mantelpiece really showed how much time had passed. Ten years ago, there had been lots of pictures of what looked like a large pink beach ball wearing different-coloured bobble hats...",
+  "...but Dudley Dursley was no longer a baby, and now the photographs showed a large, blond boy riding his first bicycle, on a roundabout at the fair, playing a computer game with his father, being hugged and kissed by his mother.",
+  "The room held no sign at all that another boy lived in the house, too. Yet Harry Potter was still there, asleep at the moment, but not for long. His Aunt Petunia was awake...",
+  "...and it was her shrill voice which made the first noise of the day. ‘Up! Get up! Now!’ Harry woke with a start. His aunt rapped on the door again. ‘Up!’ she screeched.",
+  "Harry heard her walking towards the kitchen and then the sound of the frying pan being put on the cooker. He rolled on to his back and tried to remember the dream he had been having. It had been a good one.",
+  "There had been a flying motorbike in it. He had a funny feeling he’d had the same dream before. His aunt was back outside the door. ‘Are you up yet?’ she demanded. ‘Nearly,’ said Harry.",
+  "‘Well, get a move on, I want you to look after the bacon. And don’t you dare let it burn, I want everything perfect on Duddy’s birthday.’ Harry groaned. ‘What did you say?’ his aunt snapped through the door.",
+  "‘Nothing, nothing …’ Dudley’s birthday – how could he have forgotten? Harry got slowly out of bed and started looking for socks. He found a pair under his bed and, after pulling a spider off one of them, put them on.",
+  "Harry was used to spiders, because the cupboard under the stairs was full of them, and that was where he slept."
+];
+
+// Comprehensive list of English prepositions
+const prepositions = new Set([
+  'about', 'above', 'across', 'after', 'against', 'along', 'among', 'around', 'at', 'before', 'behind', 'below', 'beneath', 'beside', 'between', 'by', 'down', 'during', 'except', 'for', 'from', 'in', 'inside', 'into', 'like', 'near', 'of', 'off', 'on', 'onto', 'out', 'outside', 'over', 'past', 'since', 'through', 'to', 'toward', 'towards', 'under', 'underneath', 'until', 'up', 'upon', 'with', 'within', 'without'
+]);
+
+let generatedQuizData = [], current = 0, correctCount = 0, totalWrongGuesses = 0, gemsCount = 0, selectedOption = null, elapsedSeconds = 0;
+
+function generateLevelData() {
+  return rawTextChunks.map(part => {
+     let words = part.split(/\s+/), html = "", answers = [];
+     words.forEach((w) => {
+        // Capture punctuation before and after the word
+        let match = w.match(/^([^a-zA-Z]*)([a-zA-Z]+-?[a-zA-Z]*)([^a-zA-Z]*)$/);
+        
+        if(match && prepositions.has(match[2].toLowerCase())) {
+           let cleanWord = match[2];
+           answers.push(cleanWord);
+           html += `${match[1]}<span class="blank-item" data-answer="${cleanWord.toLowerCase()}">____</span>${match[3]} `;
+        } else {
+           html += w + " ";
+        }
+     });
+     return { paragraph: html.trim(), answers: answers };
+  }).filter(data => data.answers.length > 0); // Ignore chunks with zero prepositions (if any)
+}
+
+function startQuiz() {
+  generatedQuizData = generateLevelData();
+  
+  document.getElementById("nameFormScreen").classList.remove("active");
+  document.getElementById("quizContent").classList.add("active");
+  
+  current = 0; correctCount = 0; totalWrongGuesses = 0; gemsCount = 0; elapsedSeconds = 0; cheatCount = 0; cheatEvents = [];
+  startTime = Date.now(); updateGems(); startTimer(); initAntiCheat(); loadParagraph();
+}
+
+function loadParagraph() {
+  if (current >= generatedQuizData.length) return showScore();
+
+  selectedOption = null;
+  document.getElementById("progressTracker").innerHTML = `${current + 1} / ${generatedQuizData.length}`;
+  const data = generatedQuizData[current];
+  document.getElementById("levelBadge").innerText = `Part ${current + 1}`;
+  
+  const paragraphContainer = document.getElementById("paragraphText");
+  paragraphContainer.innerHTML = data.paragraph;
+  
+  document.querySelectorAll(".blank-item").forEach(drop => { drop.onclick = () => placeOption(drop); });
+
+  const dragOptionsEl = document.getElementById("dragOptions");
+  dragOptionsEl.innerHTML = "";
+  const shuffledOptions = [...data.answers].sort(() => Math.random() - 0.5);
+  
+  shuffledOptions.forEach((ans) => {
+    const div = document.createElement("div"); div.classList.add("tile");
+    div.innerHTML = `<span class="word">${ans}</span>`;
+    div.onclick = () => selectOption(div, ans);
+    dragOptionsEl.appendChild(div);
+  });
+  
+  document.getElementById("trayCaption").innerText = "Select a glowing rune, then tap a blank";
+  document.getElementById("trayCaption").style.color = "var(--ink-muted)";
+}
+
+function selectOption(div, text) {
+  if(isPaused) return;
+  document.querySelectorAll(".tile").forEach(opt => opt.classList.remove("selected"));
+  selectedOption = { el: div, text: text };
+  div.classList.add("selected");
+}
+
+function placeOption(dropZone) {
+  if (isPaused || !selectedOption || dropZone.classList.contains("filled")) return;
+  const answer = selectedOption.text.toLowerCase(), correctAnswer = dropZone.dataset.answer.toLowerCase();
+  const caption = document.getElementById("trayCaption");
+
+  if (answer === correctAnswer) {
+    playSound(applauseSound); triggerConfetti();
+    correctCount++; gemsCount += 5; updateGems();
+    
+    caption.innerText = `Ten points to ${playerName}!`;
+    caption.style.color = "var(--success)";
+    
+    dropZone.innerHTML = `${selectedOption.text}`; 
+    dropZone.classList.add("correct", "filled");
+    selectedOption.el.classList.add("solved");
+    selectedOption = null;
+
+    if (document.querySelectorAll(".blank-item:not(.filled)").length === 0) {
+      setTimeout(() => { current++; loadParagraph(); }, 800);
+    }
+  } else {
+    playSound(wrongSound); totalWrongGuesses++; gemsCount -= 2; updateGems();
+    caption.innerText = "A slight misfire... Try again.";
+    caption.style.color = "var(--cheat)";
+    
+    dropZone.classList.add("error");
+    setTimeout(() => dropZone.classList.remove("error"), 350);
+    selectedOption.el.classList.remove("selected"); selectedOption = null;
+  }
+}
+
+function updateGems() {
+  const gemsEl = document.getElementById("gemsCounter");
+  gemsEl.innerHTML = `✦ <b>${gemsCount}</b>`;
+  gemsEl.classList.add('gem-pop'); setTimeout(() => gemsEl.classList.remove('gem-pop'), 500);
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    if(isPaused) return;
+    elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(elapsedSeconds / 60), s = elapsedSeconds % 60;
+    document.getElementById("timer").innerText = (m < 10 ? '0'+m : m) + ':' + (s < 10 ? '0'+s : s);
+  }, 1000);
+}
+
+/* ========== CLOUDFLARE EDGE FUNCTION PAYLOAD ========== */
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+function showScore() {
+  clearInterval(timerInterval); testSubmitted = true; triggerMegaConfetti();
+  document.getElementById("quizContent").classList.remove("active");
+  document.getElementById("endScreen").classList.add("active");
+
+  document.getElementById("endSubtitle").innerText = `${playerName} · ${playerDept} · Prepositions`;
+  document.getElementById("endCorrect").innerText = correctCount;
+  document.getElementById("endWrong").innerText = totalWrongGuesses;
+  document.getElementById("endGems").innerText = gemsCount;
+  document.getElementById("endTime").innerText = document.getElementById("timer").innerText;
+
+  const cheatList = document.getElementById('cheatList');
+  if (cheatEvents.length === 0) { cheatList.innerHTML = '<li style="color:var(--success)">✓ Clean record. No dark magic.</li>'; } 
+  else { cheatList.innerHTML = cheatEvents.map(e => '<li>⚠ ' + e.description + ' (Part ' + e.paragraph + ')</li>').join(''); }
+
+  fetch(EDGE_FUNCTION_URL, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      student_name: playerName, department: playerDept, correct: correctCount, wrong: totalWrongGuesses,
+      time_spent: elapsedSeconds, quest_id: `The Vanishing Glass - Prepositions`, cheat_count: cheatCount, cheat_events: cheatEvents
+    })
+  }).catch(() => {});
+}
+
+/* ========== PDF GENERATION ========== */
+function downloadPDFReport() {
+  const { jsPDF } = window.jspdf; const doc = new jsPDF();
+  doc.setFillColor(15, 23, 42); doc.rect(0, 0, 210, 45, 'F');
+  doc.setTextColor(203, 161, 83); doc.setFont('times', 'bold'); doc.setFontSize(22);
+  doc.text('HOGWARTS MINISTRY AUDIT', 105, 25, { align: 'center' });
+
+  doc.setTextColor(0, 0, 0); doc.setFontSize(11); doc.text('WIZARD INFORMATION', 20, 55);
+  doc.autoTable({
+    startY: 58,
+    body: [ 
+      ['Candidate Name', playerName], ['Department', playerDept],
+      ['Trial Subject', `The Vanishing Glass (Prepositions)`], ['Date', new Date().toLocaleString('en-GB')] 
+    ],
+    theme: 'plain', styles: { fontSize: 10, font: 'times', cellPadding: 3 },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60 } }, margin: { left: 20 }
+  });
+
+  let y = doc.lastAutoTable.finalY + 10;
+  doc.setFont('times', 'bold'); doc.text('TRIAL SUMMARY', 20, y);
+  
+  doc.autoTable({
+    startY: y + 3,
+    body: [
+      ['Successful Spells', correctCount.toString()], ['Misfires', totalWrongGuesses.toString()], 
+      ['Gems Retained', gemsCount.toString()], ['Trial Duration', `${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`],
+      ['Ministry Status', cheatCount === 0 ? "Verified Clean" : `Flagged (${cheatCount} Infractions)`]
+    ],
+    theme: 'grid', styles: { fontSize: 10, font: 'times' }, margin: { left: 20 }
+  });
+
+  if (cheatCount > 0) {
+    y = doc.lastAutoTable.finalY + 10;
+    doc.setFont('times', 'bold'); doc.setTextColor(220, 38, 38); doc.text('SECURITY INFRACTIONS', 20, y);
+    doc.autoTable({
+      startY: y + 3, head: [['Time', 'Phase', 'Violation']],
+      body: cheatEvents.map(e => [e.timestamp.split('T')[1].split('.')[0], `Part ${e.paragraph}`, e.description]),
+      theme: 'grid', styles: { fontSize: 9, font: 'times' }, headStyles: { fillColor: [220, 38, 38] }, margin: { left: 20 }
+    });
+  }
+  doc.save(`${playerName}_OWL_Report.pdf`);
+}
+</script>
+</body>
+</html>
