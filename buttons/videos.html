@@ -156,7 +156,6 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 .player-left { flex-shrink: 0; background: #000; position: relative; }
 @media (min-width: 900px) { .player-left { width: 60%; display: flex; flex-direction: column; justify-content: center; padding: 20px; border-right: 1px solid rgba(255,255,255,0.1); } }
 
-/* The Iframe Container Fix (Preventing Layout Blowouts) */
 .embed-wrap {
   width: 100%; aspect-ratio: 16/9; background: #000; position: relative; overflow: hidden;
 }
@@ -165,25 +164,14 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 
 .qpanel { 
   flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; 
-  padding: 24px; background: #0a0908; display: flex; flex-direction: column; gap: 24px;
+  padding: 24px; background: #0a0908; display: flex; flex-direction: column; gap: 20px;
 }
 @media (min-width: 900px) { .qpanel { width: 40%; padding: 40px; } }
 
 .side-cat { font-family: var(--mono); font-size: 10.5px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
-.side-title { font-family: var(--fell); font-style: italic; font-size: 1.6rem; color: #fff; line-height: 1.25; margin-top: -12px; }
+.side-title { font-family: var(--fell); font-style: italic; font-size: 1.6rem; color: #fff; line-height: 1.25; margin-top: -8px; }
 
-.qpanel-nav-btn { 
-  padding: 16px; border-radius: 12px; font-family: var(--mono); font-size: 11.5px; letter-spacing: 1.5px; text-transform: uppercase;
-  text-align: center; transition: all 0.2s var(--ease); width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-.qpanel-nav-btn.finish { background: var(--teal); color: #fff; border: 1px solid var(--teal-light); }
-.qpanel-nav-btn.finish:active:not([disabled]) { transform: scale(0.98); }
-.qpanel-nav-btn.finish[disabled] { opacity: 0.5; cursor: default; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); border-color: transparent; }
-
-.qpanel-nav-btn.fs-btn { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.15); margin-top: -10px; }
-.qpanel-nav-btn.fs-btn:active { background: rgba(255,255,255,0.15); }
-
-.divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 4px 0; }
+.divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 0; }
 .up-next-label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.5); }
 .next-list { display: flex; flex-direction: column; gap: 12px; }
 .next-item {
@@ -196,10 +184,14 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 .next-title { font-family: var(--serif); font-size: 15px; color: #fff; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; }
 .next-cat { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--gold); text-transform: uppercase; }
 
-.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.save-indicator {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 1px;
+  color: var(--teal-light); text-transform: uppercase; opacity: 0;
+  transition: opacity 0.3s;
+}
+.save-indicator.show { opacity: 1; }
 
-/* Fix Topbar Action */
 .tb-back-btn { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: inherit; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 .tb-back-btn:active { opacity: 0.7; }
 </style>
@@ -253,12 +245,12 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
     </div>
     <div class="qpanel">
       <div>
-        <div class="side-cat" id="sideCategory"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div class="side-cat" id="sideCategory"></div>
+          <div class="save-indicator" id="saveIndicator">✓ Progress Saved</div>
+        </div>
         <div class="side-title" id="sideTitle"></div>
       </div>
-      
-      <button class="qpanel-nav-btn fs-btn" onclick="toggleFullscreen()">⛶ Enter Fullscreen</button>
-      <button class="qpanel-nav-btn finish" id="saveBtn" onclick="manualSave()">Save Score</button>
       
       <hr class="divider">
       <div class="up-next-label">Up Next</div>
@@ -278,19 +270,32 @@ let completedSet = new Set();
 let ytPlayer = null;
 let currentVideo = null;
 let watchInterval = null;
-let watchTime = 0;
+
+// Track the actual real-world time spent watching this session cumulatively
+let cumulativeTimeSpent = 0;
 
 /* ── LOCAL STORAGE HELPERS ── */
 function getProgressKey(questId) {
   return `vfv_prog_${questId}_${GH.username || 'anon'}`;
 }
+function getTimeSpentKey(questId) {
+  return `vfv_spent_${questId}_${GH.username || 'anon'}`;
+}
+
+// Stores the video's absolute timestamp for resuming
 function getSavedProgress(questId) {
   return parseFloat(localStorage.getItem(getProgressKey(questId))) || 0;
 }
 function saveProgressToLocal(questId, seconds) {
-  if (seconds >= 0) {
-    localStorage.setItem(getProgressKey(questId), seconds);
-  }
+  if (seconds >= 0) localStorage.setItem(getProgressKey(questId), seconds);
+}
+
+// Stores the cumulative real-time seconds spent watching this video across sessions
+function getSavedTimeSpent(questId) {
+  return parseInt(localStorage.getItem(getTimeSpentKey(questId)), 10) || 0;
+}
+function saveTimeSpentToLocal(questId, seconds) {
+  if (seconds >= 0) localStorage.setItem(getTimeSpentKey(questId), seconds);
 }
 
 /* ── UTILS ── */
@@ -388,14 +393,11 @@ async function openPlayer(qId) {
   currentVideo = quizData.find(v => v.questId === qId);
   document.getElementById('sideTitle').textContent = currentVideo.title;
   document.getElementById('sideCategory').textContent = currentVideo.category;
+  document.getElementById('saveIndicator').classList.remove('show');
 
-  // Retrieve saved progress dynamically 
-  watchTime = getSavedProgress(currentVideo.questId);
-
-  const done = completedSet.has(currentVideo.questId);
-  const saveBtn = document.getElementById('saveBtn');
-  saveBtn.disabled = done;
-  saveBtn.innerHTML = done ? '✓ Score Saved' : 'Save Score';
+  // Load cumulative time spent and absolute resume position from local storage
+  cumulativeTimeSpent = getSavedTimeSpent(currentVideo.questId);
+  const startPosition = getSavedProgress(currentVideo.questId);
 
   buildNextList(currentVideo);
   showScreen('screenPlayer', 'Video Player', true);
@@ -416,7 +418,7 @@ async function openPlayer(qId) {
       rel: 0, 
       fs: 1, 
       playsinline: 1,
-      start: Math.floor(watchTime) // Resume from local storage
+      start: Math.floor(startPosition)
     },
     events: { onStateChange: onPlayerStateChange }
   });
@@ -424,36 +426,34 @@ async function openPlayer(qId) {
 
 function onPlayerStateChange(event) {
   if (event.data === YT.PlayerState.PLAYING) {
+    document.getElementById('saveIndicator').classList.remove('show');
     if (!watchInterval) {
       watchInterval = setInterval(() => {
         if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-          // Track dynamically in the background without UI display
-          watchTime = Math.floor(ytPlayer.getCurrentTime());
-          saveProgressToLocal(currentVideo.questId, watchTime);
+          // Increment tracking for actual time spent watching
+          cumulativeTimeSpent++;
+          saveTimeSpentToLocal(currentVideo.questId, cumulativeTimeSpent);
+          
+          // Save the absolute video position for resuming
+          saveProgressToLocal(currentVideo.questId, Math.floor(ytPlayer.getCurrentTime()));
         }
       }, 1000);
     }
   } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
     clearInterval(watchInterval); watchInterval = null;
+    
     if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-      watchTime = Math.floor(ytPlayer.getCurrentTime());
-      saveProgressToLocal(currentVideo.questId, watchTime);
+      saveProgressToLocal(currentVideo.questId, Math.floor(ytPlayer.getCurrentTime()));
     }
+    
+    autoSaveProgress();
   }
 }
 
-function manualSave() {
-  if (!currentVideo || completedSet.has(currentVideo.questId)) return;
-  const saveBtn = document.getElementById('saveBtn');
-  saveBtn.disabled = true;
-  saveBtn.innerHTML = '<span class="spinner"></span> Saving...';
-
-  // Log final time state right before posting
-  if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-    watchTime = Math.floor(ytPlayer.getCurrentTime());
-    saveProgressToLocal(currentVideo.questId, watchTime);
-  }
-
+function autoSaveProgress() {
+  if (!currentVideo) return;
+  
+  // Send the actual cumulative seconds the user has spent watching this video
   fetch(EDGE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -464,17 +464,19 @@ function manualSave() {
       github_id: GH.githubId,
       github_profile: GH.profile,
       quest_id: currentVideo.questId,
-      time_spent: watchTime // Sends the accurate time tracked in localStorage
+      time_spent: cumulativeTimeSpent 
     })
   }).then(r => r.json()).then(data => {
     if (data.ok) {
       completedSet.add(currentVideo.questId);
-      saveBtn.innerHTML = '✓ Score Saved';
-    } else { throw new Error('Failed'); }
-  }).catch(() => {
-    saveBtn.disabled = false;
-    saveBtn.innerHTML = 'Try Again';
-  });
+      
+      const indicator = document.getElementById('saveIndicator');
+      indicator.classList.add('show');
+      setTimeout(() => indicator.classList.remove('show'), 3000);
+      
+      buildNextList(currentVideo);
+    }
+  }).catch(e => console.error("Auto-sync failed", e));
 }
 
 function buildNextList(current) {
@@ -497,25 +499,15 @@ function buildNextList(current) {
   }).join('');
 }
 
-function toggleFullscreen() {
-  const wrap = document.getElementById('screenPlayer');
-  if (!document.fullscreenElement) {
-    if (wrap.requestFullscreen) { wrap.requestFullscreen(); }
-    else if (wrap.webkitRequestFullscreen) { wrap.webkitRequestFullscreen(); }
-  } else {
-    if (document.exitFullscreen) { document.exitFullscreen(); }
-    else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
-  }
-}
-
 document.getElementById('backBtn').onclick = () => {
   clearInterval(watchInterval); watchInterval = null;
-  // Trigger final save on back
+  
   if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-    watchTime = Math.floor(ytPlayer.getCurrentTime());
-    saveProgressToLocal(currentVideo.questId, watchTime);
+    saveProgressToLocal(currentVideo.questId, Math.floor(ytPlayer.getCurrentTime()));
+    autoSaveProgress();
     try { ytPlayer.stopVideo(); } catch(_){}
   }
+  
   renderApp();
   showScreen('screenHome');
 };
