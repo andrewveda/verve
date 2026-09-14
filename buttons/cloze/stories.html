@@ -16,6 +16,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
+<!-- Auth Guard to protect and load user session -->
+<script src="../../auth-guard.js"></script>
+
 <style>
   :root{
     --cream: #f4ecd8;
@@ -134,6 +137,26 @@
   .entry-note { margin-top: 1.25rem; font-size: 0.85rem; color: var(--ink-soft); }
   .entry-note a { color: var(--brown-deep); font-weight: 600; }
 
+  .signedin-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--paper);
+    border: 1.5px solid var(--tan);
+    border-radius: 14px;
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+    margin-bottom: 1.25rem;
+  }
+  .signedin-chip img {
+    width: 42px; height: 42px; border-radius: 50%;
+    object-fit: cover; border: 2px solid var(--brown);
+    background: var(--tan-line);
+    display: none;
+  }
+  .signedin-name { font-weight: 700; font-size: 0.98rem; color: var(--brown-deep); }
+  .signedin-sub { font-size: 0.78rem; color: var(--ink-soft); margin-top: 0.1rem; }
+
   /* =========================== PICKER SCREEN =========================== */
   #screen-picker {
     padding: calc(1.75rem + var(--safe-top)) 1.1rem calc(2rem + var(--safe-bottom));
@@ -173,6 +196,38 @@
   .quest-card .qc-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.1rem; color: var(--brown-deep); margin-bottom: 0.2rem; }
   .quest-card .qc-sub { font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 0.35rem; }
   .quest-card .qc-meta { font-size: 0.78rem; color: var(--gold); font-weight: 600; }
+
+  .qc-actions { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+  .qc-share-btn {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--brown-deep);
+    background: var(--cream-deep);
+    border: 1px solid var(--tan);
+    border-radius: 999px;
+    padding: 0.32rem 0.7rem;
+    cursor: pointer;
+  }
+  .qc-share-btn:active { background: var(--tan); }
+
+  .copy-toast {
+    position: fixed;
+    bottom: calc(1rem + var(--safe-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--brown-deep);
+    color: #fff;
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    z-index: 60;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   .empty-state { text-align: center; color: var(--ink-soft); padding: 2rem 1rem; font-size: 0.95rem; }
 
@@ -389,10 +444,12 @@
   <p class="org-sub" id="orgSubEl"></p>
   <p class="dept-name" id="deptNameEl"></p>
 
-  <div class="field-group">
-    <label class="field-label" for="nameInput">Your name</label>
-    <input type="text" id="nameInput" placeholder="Enter your name" autocomplete="name" />
-    <div class="error-text" id="nameError"></div>
+  <div class="signedin-chip" id="signedinChip">
+    <img id="ghAvatar" src="" alt="GitHub avatar" />
+    <div>
+      <div class="signedin-name" id="ghName">Verifying GitHub sign-in…</div>
+      <div class="signedin-sub" id="ghSub"></div>
+    </div>
   </div>
 
   <div class="field-group">
@@ -403,7 +460,7 @@
     <div class="error-text" id="deptError"></div>
   </div>
 
-  <button class="primary-btn" id="continueBtn">Continue</button>
+  <button class="primary-btn" id="continueBtn" disabled>Continue</button>
 
   <p class="entry-note">Read Mr Barath Chand Pacha's article <a href="https://barry-chand.github.io/Blog/logs/whoami.html" target="_blank" rel="noopener">here</a></p>
 </section>
@@ -444,6 +501,8 @@
   <button class="secondary-btn pdf-btn" id="downloadPdfBtn">📥 Download PDF Report</button>
   <button class="secondary-btn restart-btn" id="restartBtn">Start Another Quest</button>
 </section>
+
+<div class="copy-toast" id="copyToast"></div>
 
 <script type="module">
 import { APP_CONFIG, QUESTS } from './cloze-passage.js';
@@ -493,6 +552,38 @@ function bounce(node) {
   node.classList.add('tap-bounce');
 }
 
+/* Turns a questId like "Quest Story 20" into a stable, URL-safe slug. */
+function slugify(str) {
+  return String(str).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+function findQuestBySlug(slug) {
+  if (!slug) return null;
+  const target = slug.toLowerCase();
+  return QUESTS.find(q => slugify(q.questId) === target) || null;
+}
+/* Builds the unique, shareable link for a single quest. */
+function questLinkFor(quest) {
+  const url = new URL(location.href);
+  url.search = '';
+  url.hash = '';
+  url.searchParams.set('quest', slugify(quest.questId));
+  return url.toString();
+}
+function copyQuestLink(quest) {
+  const link = questLinkFor(quest);
+  const announce = () => {
+    const toast = el('copyToast');
+    toast.textContent = 'Link copied: ' + quest.title;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(announce).catch(() => window.prompt('Copy this link:', link));
+  } else {
+    window.prompt('Copy this link:', link);
+  }
+}
+
 /* --------------------------------------------------------------------- */
 /* STATE                                                                 */
 /* --------------------------------------------------------------------- */
@@ -512,6 +603,7 @@ let gemsCount = 0;
 let startTime;
 let timerInterval;
 let selectedChip = null;
+let deepLinkSlug = new URLSearchParams(location.search).get('quest');
 
 /* --------------------------------------------------------------------- */
 /* SCREEN 1: ENTRY                                                       */
@@ -527,36 +619,86 @@ APP_CONFIG.departments.forEach(d => {
   deptSelect.appendChild(opt);
 });
 
-(function autoFill() {
-  try {
-    const n = localStorage.getItem('cloze_playerName');
-    const d = localStorage.getItem('cloze_playerDept');
-    if (n) el('nameInput').value = n;
-    if (d) deptSelect.value = d;
-  } catch (e) {}
-})();
+/* --------------------------------------------------------------------- */
+/* GITHUB AUTH — seamless sign-in via auth-guard.js                      */
+/* --------------------------------------------------------------------- */
+let authReady = false;
+
+function maybeEnableContinue() {
+  el('continueBtn').disabled = !(authReady && deptSelect.value);
+}
+deptSelect.addEventListener('change', maybeEnableContinue);
+
+function applyAuthedUser() {
+  const gh = window.GH || {};
+  // The authenticated GitHub username is the single source of truth for
+  // this student's identity — it's what gets shown in the UI and what
+  // gets sent to Supabase / the PDF report as `student_name`.
+  playerName = gh.username || gh.login || gh.name || 'Student';
+  const friendlyName = gh.name && gh.name !== playerName ? gh.name : null;
+
+  const avatarUrl = gh.avatar || gh.avatar_url || '';
+  const avatarEl = el('ghAvatar');
+  if (avatarUrl) { avatarEl.src = avatarUrl; avatarEl.style.display = 'block'; }
+  el('ghName').textContent = 'Signed in as ' + playerName;
+  el('ghSub').textContent = friendlyName ? friendlyName + ' · via GitHub' : 'via GitHub';
+
+  authReady = true;
+
+  // If the auth session already carries a department, honour it and skip
+  // asking again; otherwise fall back to whatever was picked last time.
+  if (gh.dept && APP_CONFIG.departments.includes(gh.dept)) {
+    deptSelect.value = gh.dept;
+  } else {
+    try {
+      const savedDept = localStorage.getItem('cloze_playerDept');
+      if (savedDept) deptSelect.value = savedDept;
+    } catch (e) {}
+  }
+
+  maybeEnableContinue();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.GH) {
+    applyAuthedUser();
+  } else {
+    // Fallback for standalone/demo use without auth-guard.js present
+    setTimeout(() => {
+      let demoUser = 'Test Student';
+      try { demoUser = localStorage.getItem('cloze_playerName') || demoUser; } catch (e) {}
+      window.GH = { username: demoUser, name: demoUser };
+      applyAuthedUser();
+    }, 500);
+  }
+});
 
 el('continueBtn').addEventListener('click', () => {
-  const name = el('nameInput').value.trim();
   const dept = deptSelect.value;
-  el('nameError').textContent = '';
   el('deptError').textContent = '';
+  if (!dept) { el('deptError').textContent = 'Please select a department.'; return; }
 
-  let ok = true;
-  if (!name) { el('nameError').textContent = 'Please enter your name.'; ok = false; }
-  if (!dept) { el('deptError').textContent = 'Please select a department.'; ok = false; }
-  if (!ok) return;
-
-  playerName = name;
   playerDept = dept;
-  try {
-    localStorage.setItem('cloze_playerName', playerName);
-    localStorage.setItem('cloze_playerDept', playerDept);
-  } catch (e) {}
+  try { localStorage.setItem('cloze_playerDept', playerDept); } catch (e) {}
+
+  enterApp();
+});
+
+/* After sign-in + department are settled: jump straight into a quest if
+   the page was opened via a unique quest link, otherwise show the picker. */
+function enterApp() {
+  const target = findQuestBySlug(deepLinkSlug);
+  const targetVisible = target && (!target.deptList || target.deptList.includes(playerDept));
+
+  if (targetVisible) {
+    activeQuest = target;
+    startQuiz(target);
+    return;
+  }
 
   renderPicker();
   showScreen('screen-picker');
-});
+}
 
 /* --------------------------------------------------------------------- */
 /* SCREEN 2: QUEST PICKER                                                */
@@ -597,18 +739,31 @@ function renderPicker() {
 
   visible.forEach(q => {
     const isDone = completed.has(q.questId);
-    const card = document.createElement('button');
+    const card = document.createElement('div');
     card.className = 'quest-card' + (isDone ? ' is-done' : '');
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
     card.innerHTML = `
       ${isDone ? '<div class="done-badge">✓ Completed</div>' : ''}
       <div class="qc-title">${q.title}</div>
       <div class="qc-sub">${q.subheading || ''}</div>
       <div class="qc-meta">${q.date || ''}${q.author ? ' · ' + q.author : ''}${isDone ? ' · Tap to retake' : ''}</div>
+      <div class="qc-actions">
+        <button type="button" class="qc-share-btn">🔗 Copy link</button>
+      </div>
     `;
-    card.addEventListener('click', () => {
+    const openQuest = () => {
       bounce(card);
       activeQuest = q;
       setTimeout(() => startQuiz(q), 120);
+    };
+    card.addEventListener('click', openQuest);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openQuest(); }
+    });
+    card.querySelector('.qc-share-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      copyQuestLink(q);
     });
     list.appendChild(card);
   });
