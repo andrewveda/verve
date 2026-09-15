@@ -222,6 +222,47 @@
 }
 
 
+html, body { 
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  overflow: hidden; width: 100%; height: 100%; 
+  overscroll-behavior: none;
+}
+
+
+.col {
+  display: flex; flex-direction: column; width: 100%; height: 100%; 
+  max-height: 100%; 
+  max-width: 500px; margin: 0 auto;
+  padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);
+  gap: 12px; justify-content: space-between;
+  overflow: hidden; 
+}
+
+
+.mount {
+  background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 18px 16px; 
+  font-family: 'Fraunces', serif; font-size: clamp(0.95rem, 2.5dvh, 1.1rem); line-height: 1.6; color: var(--ink);
+  position: relative; 
+  text-align: justify;
+  box-shadow: var(--shadow-md);
+  
+  flex: 1 1 0; 
+  min-height: 0; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: flex-start; 
+}
+
+
+#paragraphText {
+  flex: 1 1 0;   
+  min-height: 0; 
+  overflow-y: auto;
+  height: 100%;
+  padding-top: 8px; 
+}
+
+
 
 </style>
 <base target="_blank">
