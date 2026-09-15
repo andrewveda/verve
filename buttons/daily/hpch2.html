@@ -187,6 +187,42 @@
   overflow-y: auto; 
 }
 
+/* ---------- COMPACT TEXT MOUNT ---------- */
+.mount {
+  background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 18px 16px; 
+  font-family: 'Fraunces', serif; font-size: clamp(0.95rem, 2.5dvh, 1.1rem); line-height: 1.6; color: var(--ink);
+  position: relative; 
+  text-align: justify;
+  box-shadow: var(--shadow-md);
+  
+  /* ---------- COMPACT TEXT MOUNT ---------- */
+.mount {
+  background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; padding: 18px 16px; 
+  font-family: 'Fraunces', serif; font-size: clamp(0.95rem, 2.5dvh, 1.1rem); line-height: 1.6; color: var(--ink);
+  position: relative; 
+  text-align: justify;
+  box-shadow: var(--shadow-md);
+  
+  
+  flex: 1 1 0; 
+  min-height: 0; 
+  
+  display: flex; 
+  flex-direction: column; 
+  
+  
+  justify-content: flex-start; 
+}
+
+
+#paragraphText {
+  overflow-y: auto;
+  height: 100%;
+  padding-top: 8px; /* Breathing room under the top border */
+}
+
+
+
 </style>
 <base target="_blank">
 </head>
