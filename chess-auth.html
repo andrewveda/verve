@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#140b08">
+<title>SRM VEC - Chess.com Login</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #140b08; 
+  --card-bg: linear-gradient(145deg, #241511, #120907);
+  --border-gold: #d4af37;
+  --border-dim: rgba(212, 175, 55, 0.3);
+  --gold-glow: rgba(212, 175, 55, 0.15);
+  --text-main: #fdf5e6; 
+  --text-muted: #c9bca7;
+  --button-grad: linear-gradient(135deg, #d4af37 0%, #a67c00 100%);
+  --button-hover: linear-gradient(135deg, #e5c358 0%, #c29500 100%);
+  
+  --font-head: 'Cinzel', serif;
+  --font-body: 'Cormorant Garamond', serif;
+  --r: 8px; 
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(56, 26, 17, 0.6), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(212, 175, 55, 0.05), transparent 25%);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--r);
+  padding: 2.5rem 2rem;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.9), 
+              inset 0 0 40px rgba(0,0,0,0.8);
+  outline: 1px solid var(--border-dim);
+  outline-offset: -8px;
+}
+
+.card::before {
+  content: '♞';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  color: var(--border-gold);
+  background: var(--bg);
+  padding: 0 15px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  border-radius: 50%;
+}
+
+.logo {
+  font-family: var(--font-head);
+  letter-spacing: 0.3em;
+  color: var(--border-gold);
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.title {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-main);
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.05em;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.4;
+  margin-bottom: 2.5rem;
+  padding: 0 10px;
+}
+
+.chess-btn, .continue-btn {
+  width: 100%;
+  border: 1px solid #ffeba1;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 1.1rem;
+  background: var(--button-grad);
+  color: #1a0b06;
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.5);
+}
+
+.chess-btn:hover, .continue-btn:hover {
+  transform: translateY(-2px);
+  background: var(--button-hover);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,255,255,0.6);
+}
+
+.chess-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.identity {
+  display: none;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border-dim);
+  border-radius: var(--r);
+  padding: 1.2rem;
+  background: rgba(0,0,0,0.4);
+  align-items: center;
+  gap: 1.2rem;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 2px solid var(--border-gold);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.identity-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--border-gold);
+  letter-spacing: 0.05em;
+}
+
+.identity-handle {
+  color: var(--text-main);
+  font-size: 1rem;
+  margin-top: 0.2rem;
+}
+
+.identity-badge {
+  margin-top: 0.5rem;
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  color: #8da377; 
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.6rem;
+  margin-top: 1.5rem;
+  color: var(--border-gold);
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-align: center;
+}
+
+select {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-dim);
+  background: rgba(0,0,0,0.5);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  appearance: none;
+  text-align: center;
+  cursor: pointer;
+  transition: border 0.3s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--border-gold);
+}
+
+select option {
+  background: #1a0b06;
+  color: var(--text-main);
+}
+
+.small {
+  margin-top: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">✦ SRM VEC ✦</div>
+  <div class="title">Verve</div>
+  <div class="subtitle">
+    Sign in with your Chess.com account to continue your quests, watch videos, and track your progress.
+  </div>
+
+  <div class="identity" id="identityCard">
+    <img id="avatar" class="avatar" src="" alt="Profile Picture">
+    <div>
+      <div class="identity-name" id="displayName"></div>
+      <div class="identity-handle" id="handle"></div>
+      <div class="identity-badge">Account Connected</div>
+    </div>
+  </div>
+
+  <button class="chess-btn" id="chessBtn">
+    Connect with Chess.com
+  </button>
+
+  <div id="deptSection" style="display:none;">
+    <label class="label">Which department are you in?</label>
+    <select id="deptSelect">
+      <option value="">— Choose your department —</option>
+      <option>Cyber Security</option>
+      <option>CSE-1</option>
+      <option>CSE-2</option>
+      <option>CSE-3</option>
+      <option>Mechanical Engineering</option>
+      <option>ECE-1</option>
+      <option>ECE-2</option>
+      <option>ECE-3</option>
+      <option>AI DS-1</option>
+      <option>AI DS-2</option>
+      <option>Civil</option>
+      <option>Agri</option>
+      <option>EEE</option>
+      <option>EIE</option>
+      <option>Medical Electronics</option>
+      <option>IT-1</option>
+      <option>IT-2</option>
+    </select>
+
+    <button class="continue-btn" id="continueBtn" style="margin-top: 1.5rem;">
+      Let's Go! 🚀
+    </button>
+  </div>
+
+  <div class="small">
+    We only use your Chess.com account to securely log you in and save your progress.
+  </div>
+</div>
+
+<script>
+// IMPORTANT: Replace with your actual Chess.com Client ID once approved.
+const CLIENT_ID = 'YOUR_CHESS_COM_CLIENT_ID'; 
+const REDIRECT_URI = `${window.location.origin}${window.location.pathname}`;
+const returnTo = new URLSearchParams(window.location.search).get('return') || window.location.pathname.replace('chess-auth.html', '');
+
+const chessBtn    = document.getElementById('chessBtn');
+const deptSection = document.getElementById('deptSection');
+const continueBtn = document.getElementById('continueBtn');
+
+function beginChessLogin() {
+  const state = Math.random().toString(36).slice(2);
+  sessionStorage.setItem('oauth_state', state);
+
+  const url = 
+    `https://oauth.chess.com/authorize?response_type=code&client_id=${CLIENT_ID}` +
+    `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+    `&state=${state}`;
+
+  window.location.href = url;
+}
+
+async function exchangeCode(code) {
+  // IMPORTANT: Ensure this points to your active Cloudflare Worker for Chess.com
+  const response = await fetch(
+   `https://your-worker.workers.dev/chess/callback?code=${code}`
+  );
+
+  if (!response.ok) {
+    throw new Error('OAuth failed');
+  }
+  return response.json();
+}
+
+function showIdentity(user) {
+  document.getElementById('identityCard').style.display = 'flex';
+  
+  document.getElementById('avatar').src = user.avatar || 'https://www.chess.com/bundles/web/images/user-image.svg';
+  document.getElementById('displayName').textContent = user.name || user.username;
+  document.getElementById('handle').textContent = '@' + user.username;
+
+  chessBtn.style.display = 'none';
+  deptSection.style.display = 'block';
+}
+
+function saveUser(user) {
+  localStorage.setItem('logged_in', 'true');
+  localStorage.setItem('auth_provider', 'chesscom');
+  localStorage.setItem('chess_username', user.username);
+  localStorage.setItem('chess_id', user.player_id || user.id); 
+  localStorage.setItem('chess_profile', user.url);
+  localStorage.setItem('avatar', user.avatar || '');
+  localStorage.setItem('userName', user.name || user.username);
+}
+
+continueBtn.addEventListener('click', () => {
+  const dept = document.getElementById('deptSelect').value;
+
+  if (!dept) {
+    alert('Please choose your department before continuing. 😊');
+    return;
+  }
+
+  localStorage.setItem('userDept', dept);
+  window.location.href = decodeURIComponent(returnTo);
+});
+
+chessBtn.addEventListener('click', beginChessLogin);
+
+(async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const code  = params.get('code');
+  const state = params.get('state');
+
+  if (!code) {
+    return;
+  }
+
+  const savedState = sessionStorage.getItem('oauth_state');
+
+  if (state !== savedState) {
+    alert('Oops! Something went wrong with the login. Please try again.');
+    return;
+  }
+
+  chessBtn.disabled = true;
+  chessBtn.textContent = 'Connecting...';
+
+  try {
+    const data = await exchangeCode(code);
+    saveUser(data);
+    showIdentity(data);
+
+    chessBtn.textContent = 'Connected';
+    window.history.replaceState({}, '', window.location.pathname);
+
+  } catch (err) {
+    console.error(err);
+    chessBtn.disabled = false;
+    chessBtn.textContent = 'Connect with Chess.com';
+    alert('We could not log you in. Please try again.');
+  }
+})();
+</script>
+
+</body>
+</html>
