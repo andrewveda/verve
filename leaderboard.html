@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -287,6 +286,62 @@ s.stories_completed = parseItems(s.story_list).length + storyQuests.length;
     return Object.keys(groupByDate(quests, videos, stories, cryptics, vocabs)).length;
   }
 
+  // ── QUEST-ONLY MISSION CALENDAR ──────────────────────────────────
+  // "Quest 1" corresponds to September 1, 2026; the calendar view itself
+  // also begins at September 2026. Only Quest completions are marked
+  // here (with a heart) — no videos, stories, cryptic or vocab.
+  const QUEST_CAL_START_DATE = new Date("2026-09-01");
+  const QUEST_CAL_VISIBLE_START = new Date("2026-09-01");
+
+  function questCalDateFor(number) {
+    const d = new Date(QUEST_CAL_START_DATE);
+    d.setDate(d.getDate() + (number - 1));
+    return d;
+  }
+
+  function questCalMarkedDates(s) {
+    const quests = parseItems(s.quest_list).filter(q => (q.type || "").toLowerCase() === "quest");
+    const marked = new Set();
+    quests.forEach(q => {
+      const d = questCalDateFor(q.number);
+      if (!isNaN(d.getTime())) marked.add(d.toDateString());
+    });
+    return marked;
+  }
+
+  function renderQuestCalMonth(baseDate, markedDates) {
+    const year = baseDate.getFullYear(), month = baseDate.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const numDays = new Date(year, month + 1, 0).getDate();
+    let html = `<div class="mini-cal-title">${baseDate.toLocaleString('en-IN', { month: 'long', year: 'numeric' })}</div><div class="mini-cal-grid"><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>`;
+    for (let i = 0; i < firstDay; i++) html += `<div class="mini-cal-empty"></div>`;
+    for (let d = 1; d <= numDays; d++) {
+      const date = new Date(year, month, d);
+      const key = date.toDateString();
+      if (markedDates.has(key)) {
+        html += `<div class="mini-cal-day marked"><div class="mini-cal-date">${d}</div><div class="mini-cal-items"><div>♥️</div></div></div>`;
+      } else {
+        html += `<div class="mini-cal-day">${d}</div>`;
+      }
+    }
+    html += "</div>";
+    return html;
+  }
+
+  function renderQuestCalendar(containerId, s) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = "";
+    const marked = questCalMarkedDates(s);
+    let cursor = new Date(QUEST_CAL_VISIBLE_START.getFullYear(), QUEST_CAL_VISIBLE_START.getMonth(), 1);
+    const today = new Date();
+    const end = new Date(today.getFullYear(), today.getMonth(), 1);
+    while (cursor <= end) {
+      container.innerHTML += renderQuestCalMonth(cursor, marked);
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+  }
+
   // ── CLASS-WIDE ANALYTICS DASHBOARD ──────────────────────────────
   function renderAnalytics(data) {
     if (data.length === 0) {
@@ -468,6 +523,12 @@ s.stories_completed = parseItems(s.story_list).length + storyQuests.length;
       </div>
 
       <div class="detail-box">
+        <h3>♥️ Quest Calendar</h3>
+        <p class="detail-caption">Each heart marks a day a Quest was completed, starting from Quest 1 on 1 Sep 2026.</p>
+        <div id="mission-calendar" class="mission-calendar"></div>
+      </div>
+
+      <div class="detail-box">
         <h3>📚 Library Log</h3>
         <div class="chip-list">
           ${s.book_list && s.book_list.length > 0 
@@ -481,6 +542,8 @@ s.stories_completed = parseItems(s.story_list).length + storyQuests.length;
         <p>${formatDate(s.last_test_taken)}</p>
       </div>
     `;
+
+    renderQuestCalendar("mission-calendar", s);
 
     const btnRow = document.createElement("div");
     btnRow.className = "action-btn-row";
@@ -975,6 +1038,15 @@ s.stories_completed = parseItems(s.story_list).length + storyQuests.length;
   .chip { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; font-weight: 600; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--border-soft); border-radius: 6px; padding: 3px 7px; white-space: nowrap; }
   .chip-empty { font-size: 10px; color: var(--text-dim); font-style: italic; }
 
+  .mission-calendar { display: flex; flex-direction: column; gap: 16px; max-height: 420px; overflow-y: auto; padding-right: 2px; }
+  .mini-cal-title { text-align: center; font-weight: 700; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 6px; }
+  .mini-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; font-size: 9px; }
+  .mini-cal-grid > div:nth-child(-n+7) { font-weight: 700; text-align: center; color: var(--text-dim); padding-bottom: 3px; }
+  .mini-cal-day { background: var(--surface); border: 1px solid var(--border-soft); border-radius: 5px; min-height: 34px; padding: 3px; font-size: 9px; color: var(--text-secondary); display: flex; flex-direction: column; align-items: flex-start; }
+  .mini-cal-day.marked { background: rgba(201,168,76,0.14); border-color: rgba(201,168,76,0.50); }
+  .mini-cal-date { font-weight: 700; margin-bottom: 2px; color: var(--text-primary); }
+  .mini-cal-items div { font-size: 11px; line-height: 1.1; }
+
   .action-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
   .pdf-btn, .wa-btn { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 12px 10px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.05em; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.18s ease; white-space: nowrap; border: none; }
   .pdf-btn { border: 1px solid var(--gold-border); background: var(--gold-dim); color: var(--gold-deep); }
@@ -1067,5 +1139,6 @@ s.stories_completed = parseItems(s.story_list).length + storyQuests.length;
   <div id="modal">
     <div id="modal-content"></div>
   </div>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"14ed74a8395a4caaabc04f8e17f83022","r":1,"spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
