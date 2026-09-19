@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no, interactive-widget=resizes-content">
 <meta name="theme-color" content="#0a0908">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,16 +25,28 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; overflow: hidden; background: var(--paper); color: var(--ink); font-family: var(--sans); overscroll-behavior: none; }
+
+/* Fixed positioning on root elements prevents browser scroll-into-view displacement */
+html, body { 
+  height: 100%; 
+  width: 100%; 
+  position: fixed; 
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow: hidden; 
+  background: var(--paper); 
+  color: var(--ink); 
+  font-family: var(--sans); 
+  overscroll-behavior: none; 
+}
 button { touch-action: manipulation; font-family: inherit; border: none; background: none; cursor: pointer; }
 textarea { font-family: inherit; }
 
-.screen { display: none; height: 100dvh; width: 100vw; }
+.screen { display: none; height: 100%; width: 100%; position: absolute; inset: 0; }
 .screen.active { display: flex; flex-direction: column; }
 
 /* ═══ TOP BAR ═══ */
 .topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 100;
   display: flex; align-items: center; justify-content: center;
   padding: calc(10px + var(--safe-top)) 16px 12px;
   background: linear-gradient(to bottom, rgba(248,245,239,0.97) 60%, rgba(248,245,239,0));
@@ -117,10 +129,9 @@ textarea { font-family: inherit; }
 #screenPlayer.active { display: flex; }
 
 /* Default (Mobile) Layout */
-.player-container { flex: 1; display: flex; flex-direction: column; height: 100dvh; width: 100%; position: relative; overflow: hidden; min-height: 0; }
+.player-container { flex: 1; display: flex; flex-direction: column; height: 100%; width: 100%; position: relative; overflow: hidden; min-height: 0; }
 
-/* Mobile: Fix video and controls in place. They won't shrink when keyboard appears. */
-.player-left { flex-shrink: 0; display: flex; flex-direction: column; width: 100%; }
+.player-left { flex-shrink: 0; display: flex; flex-direction: column; width: 100%; background: #0a0908; z-index: 10; }
 
 /* ── Visible video frame ── */
 .video-frame {
@@ -162,8 +173,7 @@ textarea { font-family: inherit; }
 .ctrl-icon { width: 26px; height: 26px; fill: currentColor; }
 
 /* ── Notes panel ── */
-/* When keyboard appears, notes-list will absorb the shrinkage, letting old notes be hidden while the composer stays in view */
-.notes-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.08); }
+.notes-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
 .notes-toolbar {
   flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
   padding: 14px 16px 10px; gap: 10px;
@@ -176,7 +186,6 @@ textarea { font-family: inherit; }
 }
 .btn-download:active { background: rgba(184,145,58,0.15); }
 
-/* The composer stays fixed beneath the video so typing is easy */
 .note-composer { flex-shrink: 0; padding: 0 16px 12px; }
 .composer-box {
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
@@ -200,7 +209,6 @@ textarea { font-family: inherit; }
 .btn-add-note:active { transform: scale(0.96); }
 .btn-add-note:disabled { opacity: 0.35; }
 
-/* The list of past notes shrinks when the keyboard pops up */
 .notes-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 16px calc(20px + var(--safe-bottom)); }
 .note-item {
   display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07);
@@ -224,24 +232,22 @@ textarea { font-family: inherit; }
   .video-frame { padding: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
   .video-box { width: 100%; height: 100%; border-radius: 0; aspect-ratio: auto; }
   
-  /* Make controls float nicely over the bottom of the fullscreen video */
   .controls-row { 
     position: absolute; bottom: 0; left: 0; right: 0; z-index: 10; 
     padding: 60px 40px 30px; 
     background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
   }
   
-  /* Float notes panel like a widget over the video */
   .notes-panel { 
     position: absolute; top: 80px; right: 32px; bottom: 120px; 
     width: 380px; z-index: 20;
     background: rgba(18, 16, 14, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.12); border-radius: 20px;
     box-shadow: 0 24px 54px rgba(0,0,0,0.6);
-    border-top: 1px solid rgba(255,255,255,0.12); /* Override mobile style */
+    border-top: 1px solid rgba(255,255,255,0.12); 
   }
   
-  .scrub-track { height: 6px; } /* Slightly thinner on desktop */
+  .scrub-track { height: 6px; } 
 }
 </style>
 </head>
@@ -251,26 +257,21 @@ textarea { font-family: inherit; }
   <span class="tb-title" id="tbTitle">Grit</span>
 </div>
 
-<!-- HOME (Sign-in gate) -->
 <div class="screen active" id="screenHome">
   <div class="gate-wrap" id="gateWrap"></div>
 </div>
 
-<!-- INTRO (Book details and Start/Resume) -->
 <div class="screen" id="screenIntro">
   <div class="intro-scroll" id="introScroll"></div>
 </div>
 
-<!-- PLAYER + NOTES -->
 <div class="screen" id="screenPlayer">
   <div class="player-container">
-    
-    <!-- Left/Background side: Video + Controls -->
     <div class="player-left">
         <div class="video-frame">
           <div class="video-box">
             <div class="audio-status" id="audioStatus" style="display:none;">Loading video...</div>
-            <div class="video-overlay"></div> <!-- Invisible shield blocking double-tap -->
+            <div class="video-overlay"></div>
             <div id="ytPlayer"></div>
           </div>
         </div>
@@ -292,7 +293,6 @@ textarea { font-family: inherit; }
         </div>
     </div>
 
-    <!-- Right/Overlay side: Notes Widget -->
     <div class="notes-panel">
       <div class="notes-toolbar">
         <span class="notes-heading">Notes</span>
@@ -313,11 +313,9 @@ textarea { font-family: inherit; }
         <div class="notes-empty">Notes you add will appear here, tagged with the video timestamp.</div>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- SIGN-IN MODAL -->
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal-card">
     <div class="modal-title">English Language Learning Laboratory</div>
@@ -365,14 +363,12 @@ function savePlayer(name, dept) {
 function isSignedIn() { return !!(playerName && playerDept); }
 function sanitizeName() { return playerName.replace(/\s+/g, ''); }
 
-/* ── Video progress (resume position) ── */
 function getProgressKey() { return `progress_${BOOK.id}_${sanitizeName()}`; }
 function getSavedProgress() { return parseFloat(localStorage.getItem(getProgressKey()) || 0); }
 function saveProgress(seconds) {
   if (seconds > 0 || seconds === 0) localStorage.setItem(getProgressKey(), seconds);
 }
 
-/* ── Notes storage ── */
 function getNotesKey() { return `notes_${BOOK.id}_${sanitizeName()}`; }
 function loadNotes() {
   try { return JSON.parse(localStorage.getItem(getNotesKey()) || '[]'); }
@@ -381,8 +377,6 @@ function loadNotes() {
 function saveNotes(notes) { localStorage.setItem(getNotesKey(), JSON.stringify(notes)); }
 
 let notes = [];
-
-// Global player vars
 let ytPlayer = null;
 let progressInterval = null;
 let saveInterval = null;
@@ -453,7 +447,6 @@ function backgroundSaveTick() {
   }
 }
 
-/* ── Tracking sessions to Supabase ── */
 function logCurrentSession() {
   if (playStartTime > 0) {
     const watchedSeconds = Math.floor((Date.now() - playStartTime) / 1000);
@@ -486,7 +479,6 @@ async function logQuestToSupabase(secondsWatched) {
   }
 }
 
-/* ── Sign-in gate ── */
 function renderSignInGate() {
   const wrap = document.getElementById('gateWrap');
   wrap.innerHTML = `
@@ -520,7 +512,6 @@ function renderSignInGate() {
   });
 }
 
-/* ── Intro screen ── */
 function openIntro() {
   if (!isSignedIn()) { renderSignInGate(); showScreen('home'); openModal(); return; }
 
@@ -552,7 +543,6 @@ function openIntro() {
   showScreen('intro', false);
 }
 
-/* ── Notes UI ── */
 function renderNotes() {
   const list = document.getElementById('notesList');
   if (!notes.length) {
@@ -566,7 +556,6 @@ function renderNotes() {
     </div>
   `).join('');
   
-  // set text content safely (avoid HTML injection from note text)
   const items = list.querySelectorAll('.note-text');
   items.forEach((el, i) => { el.textContent = notes[i].text; });
 }
@@ -598,7 +587,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-/* ── Download notes as HTML ── */
 function downloadNotes() {
   if (!notes.length) { alert('No notes yet — add a note first.'); return; }
 
@@ -629,7 +617,6 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-/* ── Player logic ── */
 async function startPlayer(startTimeSeconds) {
   showScreen('player', true);
   notes = loadNotes();
@@ -706,7 +693,6 @@ function updatePlayPauseUI() {
   else { iconPlay.style.display = 'block'; iconPause.style.display = 'none'; }
 }
 
-/* ── Sign-in modal ── */
 function openModal() {
   document.getElementById('nameInput').value  = playerName;
   document.getElementById('deptSelect').value = playerDept;
