@@ -456,7 +456,7 @@ function getState(v) {
   let s = null;
   try { s = JSON.parse(store.get(stateKey(v.id)) || 'null'); } catch (_) {}
   if (!s || typeof s !== 'object') {
-    s = { pos: 0, dur: 0, spent: 0, done: false, last: 0 };
+    s = { pos: 0, dur: 0, spent: 0, pending: 0, done: false, last: 0 };
     // Carry over progress saved by the old version (it was keyed by quest ID, which was
     // only reliable for the first video using that ID).
     if (v.legacyOk) {
@@ -690,6 +690,7 @@ function openVideo(id, { fromRoute = false, t = null } = {}) {
     if (!was) history.pushState({ p: 1 }, '', url); else history.replaceState(history.state, '', url);
   }
   cur = v; playerOpen = true;
+  if (!meter.timer) meter.timer = setInterval(meterPoll, 1000);
   $('screenHome').inert = true;
   $('screenPlayer').classList.add('open'); document.body.classList.add('player-open');
   $('themeColor').content = '#0a0908';
@@ -710,6 +711,7 @@ function openVideo(id, { fromRoute = false, t = null } = {}) {
 function closePlayerUI() {
   if (!playerOpen) { document.body.classList.remove('player-open'); return; }
   leaveCurrent(); closeNotes(true);
+  clearInterval(meter.timer); meter.timer = null;
   playerOpen = false; cur = null;
   $('screenPlayer').classList.remove('open'); $('screenHome').inert = false;
   renderList();
@@ -731,30 +733,73 @@ function buildNext(v) {
 }
 
 /* ═══════════════════════════════════════════
-   WATCH-TIME TRACKING + SYNC
+   PLAYING-TIME METER + SYNC
+   time_spent = seconds the video was actually PLAYING (not paused, buffering, or closed).
+   • Time comes from real clock timestamps, not counted timer ticks, so throttled timers can't drift.
+   • Every sample is cross-checked against how far the video's own clock moved, which drops
+     stalls and stretches where the page was frozen while the video wasn't really playing.
+   • Seeking doesn't add or remove time. Only wall-clock time spent in the PLAYING state counts
+     (at 2x speed, 1 minute of watching still counts as 1 minute).
 ═══════════════════════════════════════════ */
-let ticker = null, tickCount = 0;
-const synced = new Map();
+// 'delta': each report carries only NEW playing seconds (same as Grit-1). 'total': carries the running total.
+const REPORT_AS = 'delta';
+const SYNC_EVERY_S = 30;   // also report while playing, in case a phone kills the tab
+const meter = { v: null, running: false, wall: 0, media: 0, stall: 0, timer: null, lastSend: 0, n: 0 };
+const nowS = () => performance.now() / 1000;
+const getRate = () => { try { return ytPlayer.getPlaybackRate() || 1; } catch (_) { return 1; } };
+const getDur = () => { try { return ytPlayer.getDuration() || 0; } catch (_) { return 0; } };
+
+function meterStart(v) {
+  if (meter.running && meter.v === v) return;
+  meterStop();
+  meter.v = v; meter.running = true; meter.wall = nowS(); meter.media = curTime(); meter.stall = 0; meter.lastSend = nowS();
+}
+// Add the playing time since the last checkpoint to this video's totals.
+function meterCommit() {
+  if (!meter.running || !meter.v) return;
+  const t = nowS(), m = curTime(), rate = getRate();
+  const wall = t - meter.wall, mediaDelta = (m - meter.media) / rate;
+  meter.wall = t; meter.media = m;
+  if (wall <= 0) return;
+  let add = wall;
+  if (mediaDelta < -1.5) { meter.stall = 0; }                                     // jumped back: it was playing
+  else if (wall > 2 && wall - mediaDelta > 1.5) { add = Math.max(0, mediaDelta); meter.stall = 0; }  // long gap (frozen/throttled page): trust the video's clock
+  else if (mediaDelta < 0.25 * wall) {                                            // video clock isn't moving
+    const before = meter.stall; meter.stall += wall;
+    if (meter.stall > 4) add = before <= 4 ? -before : 0;                         // undo the seconds counted during this stall
+  } else meter.stall = 0;
+  const s = getState(meter.v);
+  s.spent = Math.max(0, (s.spent || 0) + add);
+  s.pending = Math.max(0, (s.pending || 0) + add);
+  s.last = Date.now();
+  if (meter.v === cur) {
+    s.pos = Math.floor(m); const d = getDur(); if (d > 0) s.dur = Math.floor(d);
+    if (s.dur && s.pos >= s.dur * 0.97) s.done = true;
+  }
+  if (++meter.n % 3 === 0) saveState(meter.v);
+}
+function meterStop() {
+  if (!meter.running) return;
+  meterCommit(); meter.running = false; meter.stall = 0;
+  if (meter.v) saveState(meter.v);
+}
+// Once a second: catch a missed state event, keep totals fresh, report periodically.
+function meterPoll() {
+  if (!cur || !ytReady) return;
+  if (playerState() === 1) { if (!meter.running || meter.v !== cur) meterStart(cur); else meterCommit(); }
+  else if (meter.running) meterStop();
+  if (meter.running && nowS() - meter.lastSend >= SYNC_EVERY_S) syncToServer(meter.v);
+}
+
 function onPlayerState(e) {
   if (!cur) return;
-  if (e.data === 1) { $('saved').classList.remove('show'); $('resume').hidden = true; startTicker(); }
-  else if (e.data === 2) { stopTicker(); flushState(); syncToServer(); }
+  if (e.data === 1) { $('saved').classList.remove('show'); $('resume').hidden = true; meterStart(cur); return; }
+  meterStop();                                     // paused, buffering, ended, cued: not playing
+  if (e.data === 2) { flushState(); syncToServer(); }
   else if (e.data === 0) {
-    stopTicker();
     const s = getState(cur); s.done = true; s.pos = 0; s.last = Date.now(); saveState(cur);
     syncToServer();
   }
-}
-function startTicker() { if (!ticker) ticker = setInterval(tick, 1000); }
-function stopTicker() { clearInterval(ticker); ticker = null; }
-function tick() {
-  if (!cur || playerState() !== 1) return;
-  const s = getState(cur);
-  s.spent++; s.pos = Math.floor(curTime());
-  try { const d = ytPlayer.getDuration(); if (d > 0) s.dur = Math.floor(d); } catch (_) {}
-  s.last = Date.now();
-  if (s.dur && s.pos >= s.dur * 0.97) s.done = true;
-  if (++tickCount % 3 === 0) saveState(cur);
 }
 function flushState() {
   if (!cur) return;
@@ -762,36 +807,41 @@ function flushState() {
   if (st === 1 || st === 2 || st === 3) {       // ignore cued/unstarted so saved progress isn't overwritten
     const s = getState(cur);
     s.pos = Math.floor(curTime());
-    try { const d = ytPlayer.getDuration(); if (d > 0) s.dur = Math.floor(d); } catch (_) {}
+    const d = getDur(); if (d > 0) s.dur = Math.floor(d);
     s.last = Date.now(); saveState(cur);
   }
 }
+// Sends only whole seconds that haven't been reported yet. Failed sends are put back and retried later.
 function syncToServer(v = cur) {
   if (!v) return;
-  const s = getState(v);
-  if (s.spent <= 0 || synced.get(v.id) === s.spent) return;
-  const sent = s.spent, g = gh();
+  if (meter.running && meter.v === v) meterCommit();
+  const s = getState(v), n = Math.floor(s.pending || 0);
+  if (n < 1) return;
+  s.pending -= n; saveState(v); meter.lastSend = nowS();
+  const g = gh();
   fetch(EDGE_URL, {
     method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       student_name: g.name || g.username, department: g.dept, github_username: g.username, github_id: g.githubId,
-      github_profile: g.profile, quest_id: v.questId, video_id: v.id, time_spent: sent
+      github_profile: g.profile, quest_id: v.questId, video_id: v.id,
+      time_spent: REPORT_AS === 'total' ? Math.round(s.spent) : n,
+      total_time_spent: Math.round(s.spent)
     })
-  }).then(r => r.json()).then(d => {
-    if (d && d.ok) {
-      synced.set(v.id, sent);
-      if (cur === v) { const el = $('saved'); el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3000); }
-    }
-  }).catch(e => console.error('Auto-sync failed', e));
+  }).then(async r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    let d = {}; try { d = await r.json(); } catch (_) {}
+    if (d && d.ok === false) throw new Error('rejected');
+    if (cur === v) { const el = $('saved'); el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3000); }
+  }).catch(e => { s.pending = (s.pending || 0) + n; saveState(v); console.error('Sync failed, will retry', e); });
 }
 function leaveCurrent() {
   if (!cur) return;
-  stopTicker(); flushState(); syncToServer(cur);
+  meterStop(); flushState(); syncToServer(cur);
   try { if (ytReady && playerState() === 1) ytPlayer.pauseVideo(); } catch (_) {}
 }
 // Phones often close tabs or switch apps without a pause event; save when the page is hidden.
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && cur) { flushState(); syncToServer(cur); } });
-window.addEventListener('pagehide', () => { if (cur) { flushState(); syncToServer(cur); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && cur) { meterCommit(); flushState(); syncToServer(cur); } });
+window.addEventListener('pagehide', () => { if (cur) { meterCommit(); flushState(); syncToServer(cur); } });
 
 /* ═══════════════════════════════════════════
    SHARE LINKS
