@@ -228,10 +228,12 @@ a { text-decoration: none; -webkit-tap-highlight-color: transparent; }
 .intro-tags { display: flex; gap: 6px; margin-bottom: 14px; align-items: center; }
 .intro-title { font-family: var(--fell); font-style: italic; font-size: 1.7rem; line-height: 1.15; margin-bottom: 10px; }
 .intro-desc { font-family: var(--serif); font-size: 15.5px; color: var(--ink-mid); line-height: 1.55; margin-bottom: 26px; }
+
+.link-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
 .intro-yt-link {
   display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 11px;
   letter-spacing: 0.5px; color: var(--teal); border: 1px solid var(--teal-border); background: var(--teal-pale);
-  padding: 6px 12px; border-radius: 20px; margin-bottom: 22px; transition: all 0.2s;
+  padding: 6px 12px; border-radius: 20px; transition: all 0.2s;
 }
 .intro-yt-link:active { transform: scale(0.97); }
 
@@ -551,9 +553,23 @@ function fmtTime(s) { s = Math.max(0, Math.floor(s || 0)); const m = Math.floor(
 function getInitials(name) { return String(name || '?').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase(); }
 function ytThumb(id) { return `https://img.youtube.com/vi/${id}/hqdefault.jpg`; }
 function scoreKey(testId, mode) { return `${testId}__${mode}`; }
+
+// Shuffles options and keeps track of the original correct answer index
 function questionsForMode(test, modeKey) {
   const tier = MODES[modeKey].tier;
-  return test.questions.filter(q => q.tier <= tier).slice().sort((a, b) => a.at - b.at);
+  return test.questions.filter(q => q.tier <= tier).map(q => {
+    const originalCorrectText = q.options[q.correct];
+    const shuffledOptions = [...q.options];
+    for (let i = shuffledOptions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+    }
+    return {
+      ...q,
+      options: shuffledOptions,
+      correct: shuffledOptions.indexOf(originalCorrectText)
+    };
+  }).sort((a, b) => (a.at || 0) - (b.at || 0));
 }
 
 let youtubeReady = false;
@@ -583,12 +599,25 @@ async function init() {
   renderTopbarUser();
   document.getElementById('homeXpBadge').textContent = `⚡ ${totalXP} XP`;
   renderFilters();
-  renderHome('ALL');
-  showScreen('home');
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const deepLinkTestId = urlParams.get('test');
+  let targetTest = null;
+  if (deepLinkTestId) {
+     targetTest = TESTS.find(t => t.id === deepLinkTestId);
+  }
+
   if (isSignedIn()) {
     await fetchCompletedQuests();
     renderHome(activeFilter);
+    if (targetTest) {
+       openIntro(targetTest, true);
+    } else {
+       showScreen('home');
+    }
   } else {
+    renderHome('ALL');
+    showScreen('home');
     openModal();
   }
 }
@@ -735,10 +764,17 @@ function renderHome(filter) {
   });
 }
 
-function openIntro(test) {
+function openIntro(test, skipPush = false) {
   if (!isSignedIn()) { openModal(); return; }
   currentTest = test;
   const scroll = document.getElementById('introScroll');
+  
+  if (!skipPush) {
+    const newUrl = window.location.pathname + '?test=' + test.id;
+    if (window.location.search !== '?test=' + test.id) {
+       window.history.pushState({ screen: 'intro', test: test.id }, '', newUrl);
+    }
+  }
 
   const modeCardsHtml = ['casual', 'hard', 'boss'].map(key => {
     const mode = MODES[key];
@@ -766,7 +802,12 @@ function openIntro(test) {
           <span class="tag-exam" style="background:var(--gold-pale);color:var(--gold);border:1px solid var(--gold-border);">${escHtml(test.category)}</span>
         </div>
         <div class="intro-title">${escHtml(test.title)}</div>
-        <a href="https://andrewveda.com/verve/buttons/songs?quest=${test.questId.replace(/ /g, '+')}" target="_blank" class="intro-yt-link">↗ Open original video</a>
+        
+        <div class="link-row">
+          <a href="https://andrewveda.com/verve/buttons/songs?quest=${test.questId.replace(/ /g, '+')}" target="_blank" class="intro-yt-link">↗ Open original video</a>
+          <button class="intro-yt-link" id="copyLinkBtn" style="cursor:pointer;">🔗 Copy Share Link</button>
+        </div>
+        
         <div class="intro-desc">${escHtml(test.description)}</div>
       </div>
       <div class="intro-right">
@@ -787,13 +828,41 @@ function openIntro(test) {
     </div>
   `;
 
-  document.getElementById('introBackLink').addEventListener('click', () => { renderHome(activeFilter); showScreen('home'); });
+  document.getElementById('introBackLink').addEventListener('click', () => { 
+    if (window.location.search) window.history.pushState({ screen: 'home' }, '', window.location.pathname);
+    renderHome(activeFilter); 
+    showScreen('home'); 
+  });
+  
+  document.getElementById('copyLinkBtn').addEventListener('click', (e) => {
+    const shareUrl = window.location.origin + window.location.pathname + '?test=' + test.id;
+    navigator.clipboard.writeText(shareUrl);
+    const btn = e.target;
+    const origText = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = origText, 2000);
+  });
+
   scroll.querySelectorAll('.mode-card').forEach(btn => {
     btn.addEventListener('click', () => startPlayer(test, btn.dataset.mode));
   });
 
   showScreen('intro', test.title, false);
 }
+
+// Handle Browser Back/Forward buttons for shareable deep links
+window.addEventListener('popstate', (e) => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const testId = urlParams.get('test');
+  if (testId) {
+    const t = TESTS.find(x => x.id === testId);
+    if (t) openIntro(t, true);
+  } else {
+    renderHome(activeFilter);
+    showScreen('home');
+  }
+});
+
 
 async function startPlayer(test, modeKey) {
   currentMode = modeKey;
@@ -1016,8 +1085,12 @@ function renderResults(test, modeKey, record) {
   `;
 
   requestAnimationFrame(() => { document.getElementById('ringFill').style.strokeDashoffset = offset; });
-  document.getElementById('btnHome').addEventListener('click', () => { renderHome(activeFilter); showScreen('home'); });
-  document.getElementById('btnRetake').addEventListener('click', () => openIntro(test));
+  document.getElementById('btnHome').addEventListener('click', () => { 
+    if (window.location.search) window.history.pushState({ screen: 'home' }, '', window.location.pathname);
+    renderHome(activeFilter); 
+    showScreen('home'); 
+  });
+  document.getElementById('btnRetake').addEventListener('click', () => openIntro(test, true)); // skip pushState on retake since they are already there
 }
 
 async function submitScore(test, record, modeKey) {
