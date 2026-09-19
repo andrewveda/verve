@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>The Antonym Trail</title>
+
+<!--
+  ============================================================
+  SUPABASE SETUP (do this once, takes ~3 minutes)
+  ============================================================
+  1. Create a free project at https://supabase.com
+  2. Project Settings -> API: copy the "Project URL" and "anon public" key
+     into SUPABASE_URL / SUPABASE_ANON_KEY below (in the <script> tag).
+  3. Authentication -> Providers: make sure "Email" is enabled (it is by
+     default) so magic-link sign-in works. No password needed.
+  4. SQL Editor: run this once to create the progress + leaderboard table:
+
+     create table if not exists public.trail_progress (
+       user_id uuid primary key references auth.users(id) on delete cascade,
+       display_name text,
+       total_correct int default 0,
+       total_wrong int default 0,
+       gems int default 0,
+       levels_completed int default 0,
+       best_streak int default 0,
+       updated_at timestamptz default now()
+     );
+     alter table public.trail_progress enable row level security;
+     create policy "read all progress" on public.trail_progress
+       for select using (true);
+     create policy "insert own progress" on public.trail_progress
+       for insert with check (auth.uid() = user_id);
+     create policy "update own progress" on public.trail_progress
+       for update using (auth.uid() = user_id);
+
+  Until you add real keys, the page runs happily in Guest Mode (no
+  accounts, no leaderboard) so you can preview and play right away.
+  ============================================================
+-->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
+
+<style>
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+
+  :root {
+    --paper: #fff6e6;
+    --card: #fffdf6;
+    --card-line: #ecdcb8;
+    --ink: #241e3d;
+    --ink-soft: #746c93;
+    --coral: #ff6a52;
+    --coral-deep: #d94a34;
+    --marigold: #f0a500;
+    --marigold-deep: #c8860a;
+    --violet: #7a4fe0;
+    --violet-deep: #5c34b3;
+    --teal: #12a594;
+    --rust: #d64545;
+    --shadow-flat: 3px 3px 0 rgba(36,30,61,.14);
+    --shadow-flat-lg: 5px 5px 0 rgba(36,30,61,.14);
+    --ease: cubic-bezier(.2,1,.3,1);
+  }
+
+  html, body { min-height: 100%; overscroll-behavior-x: none; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 8% 4%, rgba(255,106,82,.10) 0%, transparent 60%),
+      radial-gradient(ellipse 55% 40% at 95% 92%, rgba(122,79,224,.10) 0%, transparent 60%);
+  }
+
+  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-120px); background: var(--ink); color: #fff; padding: 11px 18px; border-radius: 12px; font-size: .85rem; font-weight: 600; z-index: 500; transition: transform .3s var(--ease); box-shadow: var(--shadow-flat); max-width: 90vw; text-align: center; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .screen { display: none; flex-direction: column; align-items: center; width: 100%; min-height: 100dvh; }
+  .screen.active { display: flex; }
+
+  .col { display: flex; flex-direction: column; width: 100%; min-height: 100%; max-width: 500px; margin: 0 auto;
+    padding: calc(env(safe-area-inset-top) + 16px) 18px calc(env(safe-area-inset-bottom) + 18px);
+    gap: clamp(12px, 1.8dvh, 18px); }
+
+  /* ---------- BUTTONS ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 22px; border: 2px solid var(--ink); border-radius: 14px; font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: transform .12s var(--ease), box-shadow .12s var(--ease); touch-action: manipulation; box-shadow: var(--shadow-flat-lg); background: var(--card); color: var(--ink); }
+  .btn:active { transform: translate(3px,3px); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  .btn-primary { background: var(--coral); color: #fff; }
+  .btn-violet { background: var(--violet); color: #fff; }
+  .btn-teal { background: var(--teal); color: #fff; }
+  .btn-ghost { background: transparent; box-shadow: none; border-style: dashed; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn small { display:block; font-weight: 500; font-size: .68rem; opacity: .85; margin-top: 2px; }
+
+  /* ---------- AUTH SCREEN ---------- */
+  #authScreen { justify-content: center; padding: 24px 18px; }
+  .gate-card { width: 100%; max-width: 420px; background: var(--card); border: 2px solid var(--ink); border-radius: 22px; padding: 30px 24px 26px; box-shadow: 7px 7px 0 rgba(36,30,61,.16); display: flex; flex-direction: column; gap: 14px; animation: cardIn .5s cubic-bezier(.3,1.4,.5,1) forwards; }
+
+  .hero-title { font-family: 'Fraunces', serif; font-weight: 900; font-size: clamp(2rem, 8vw, 2.6rem); line-height: 1.02; letter-spacing: -.5px; color: var(--ink); }
+  .hero-title em { font-style: normal; color: var(--coral); }
+  .hero-sub { font-size: .95rem; color: var(--ink-soft); line-height: 1.5; }
+
+  .field-label { font-size: .78rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; display:block; }
+  .field-input { width: 100%; padding: 13px 14px; border: 2px solid var(--card-line); border-radius: 12px; font-family: inherit; font-size: .95rem; background: #fff; color: var(--ink); }
+  .field-input:focus { outline: none; border-color: var(--coral); }
+
+  .divider { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: .75rem; margin: 2px 0; }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--card-line); }
+
+  .guest-note { font-size: .72rem; color: var(--ink-soft); text-align: center; line-height: 1.5; }
+  .mode-banner { background: #fff3e0; border: 1.5px dashed var(--marigold-deep); border-radius: 12px; padding: 10px 12px; font-size: .72rem; color: var(--marigold-deep); text-align: center; line-height: 1.5; }
+
+  /* ---------- LEVEL INTRO ---------- */
+  #levelIntroScreen { justify-content: center; }
+  .level-card { width: 100%; max-width: 460px; background: var(--card); border: 2px solid var(--ink); border-radius: 24px; padding: 34px 26px 28px; text-align: center; box-shadow: 7px 7px 0 rgba(36,30,61,.16); animation: cardIn .5s cubic-bezier(.3,1.4,.5,1) forwards; }
+  .level-badge { width: 84px; height: 84px; border-radius: 50%; border: 2.5px solid var(--ink); display: flex; align-items: center; justify-content: center; font-size: 2.4rem; margin: 0 auto 14px; box-shadow: var(--shadow-flat); }
+  .level-eyebrow { font-size: .72rem; color: var(--ink-soft); font-weight: 600; margin-bottom: 4px; }
+  .level-title { font-family: 'Fraunces', serif; font-weight: 800; font-size: 1.7rem; margin-bottom: 8px; }
+  .level-tagline { font-size: .92rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: 22px; }
+  .level-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 22px; flex-wrap: wrap; }
+  .level-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--card-line); }
+  .level-dot.done { background: var(--teal); }
+
+  /* ---------- TOP BAR / RIBBON ---------- */
+  .top-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .brand { display: flex; flex-direction: column; }
+  .brand-name { font-family: 'Fraunces', serif; font-weight: 800; font-size: 1.05rem; color: var(--ink); }
+  .brand-name em { font-style: normal; color: var(--coral); }
+  .ribbon { display: flex; gap: 4px; }
+  .ribbon-seg { height: 6px; width: 26px; border-radius: 4px; background: var(--card-line); }
+  .ribbon-seg.on { background: var(--current-accent, var(--coral)); }
+
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--ink); background: var(--card); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.05rem; box-shadow: var(--shadow-flat); transition: transform .12s var(--ease); }
+  .icon-btn:active { transform: translate(2px,2px); box-shadow: none; }
+
+  .stat-strip { background: var(--card); border: 2px solid var(--ink); border-radius: 14px; padding: 9px 14px; box-shadow: var(--shadow-flat); display: flex; justify-content: space-between; align-items: center; font-family: 'Space Grotesk', sans-serif; }
+  .stat-nums { font-size: .82rem; color: var(--ink-soft); font-weight: 600; }
+  .stat-nums b { color: var(--ink); font-size: 1.05em; margin: 0 3px; }
+
+  /* ---------- MOUNT / PAGE CARD ---------- */
+  .mount { background: var(--card); border: 2px solid var(--ink); border-radius: 16px; padding: 22px 18px 16px 24px; box-shadow: var(--shadow-flat-lg); position: relative; display: flex; flex-direction: column; gap: 16px; border-left-width: 8px; border-left-color: var(--current-accent, var(--coral)); }
+
+  .round-caption { font-size: .68rem; font-weight: 700; color: var(--ink-soft); text-transform: none; letter-spacing: .01em; }
+
+  .sentence-item { font-family: 'Fraunces', serif; font-size: 1.08rem; line-height: 1.65; text-align: left; position: relative; padding-bottom: 12px; border-bottom: 1.5px dashed var(--card-line); cursor: pointer; transition: opacity .3s; }
+  .sentence-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+  .sentence-item b { display: inline-block; min-width: 64px; padding: 1px 8px; border-bottom: 2.5px dashed #cdbf98; font-weight: 700; color: var(--ink-soft); text-align: center; transition: all .2s; }
+  .sentence-item.filled b { border-bottom-style: solid; border-bottom-color: var(--teal); color: var(--teal); animation: tileIn .25s cubic-bezier(.2,1.5,.4,1); }
+  .sentence-item.error { animation: shake .35s ease; }
+  .sentence-item.correct { animation: pop .4s var(--ease); }
+
+  .mount-hint { text-align: center; font-size: .72rem; color: var(--ink-soft); font-style: italic; }
+
+  /* ---------- TRAY ---------- */
+  .tray { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; min-height: 50px; align-content: flex-start; }
+  .tile { display: inline-flex; align-items: center; padding: 11px 20px; border-radius: 12px; background: #fff; border: 2px solid var(--ink); cursor: pointer; box-shadow: var(--shadow-flat); transition: transform .13s var(--ease), box-shadow .13s var(--ease); animation: tileSpawn .22s cubic-bezier(.2,1.5,.4,1); font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; color: var(--ink); }
+  .tile:active { transform: translate(2px,2px); box-shadow: none; }
+  .tile.selected { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .tile.solved { opacity: 0; pointer-events: none; }
+
+  /* ---------- MARGINALIA NOTE ---------- */
+  #noteCard { display: none; background: #fdf4de; border: 2px solid var(--marigold-deep); border-radius: 16px; padding: 18px 18px 16px; box-shadow: var(--shadow-flat); position: relative; transform: rotate(-.6deg); }
+  #noteCard.show { display: block; animation: cardIn .4s cubic-bezier(.3,1.4,.5,1) forwards; }
+  #noteCard .note-kicker { font-family: 'Caveat', cursive; font-weight: 700; font-size: 1.05rem; color: var(--marigold-deep); margin-bottom: 4px; }
+  #noteCard .note-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.08rem; margin-bottom: 6px; }
+  #noteCard .note-blurb { font-family: 'Caveat', cursive; font-size: 1.28rem; line-height: 1.35; color: var(--ink); margin-bottom: 12px; }
+  #noteCard a.note-link { font-size: .78rem; font-weight: 700; color: var(--marigold-deep); text-decoration: underline; }
+  #noteCard button { margin-top: 14px; }
+
+  /* ---------- LEVEL COMPLETE / END ---------- */
+  #levelCompleteScreen, #endScreen { justify-content: center; }
+  .recap-card { width: 100%; max-width: 480px; background: var(--card); border: 2px solid var(--ink); border-radius: 22px; padding: 30px 24px; box-shadow: 7px 7px 0 rgba(36,30,61,.16); animation: cardIn .5s cubic-bezier(.3,1.4,.5,1) forwards; }
+  .recap-title { font-family: 'Fraunces', serif; font-weight: 900; font-size: 1.7rem; text-align: center; margin-bottom: 4px; }
+  .recap-sub { text-align: center; font-size: .82rem; color: var(--ink-soft); margin-bottom: 20px; }
+  .recap-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin-bottom: 18px; }
+  .rstat { background: var(--paper); border: 2px solid var(--card-line); border-radius: 12px; padding: 12px 6px; text-align: center; }
+  .rstat b { display: block; font-family: 'Fraunces', serif; font-size: 1.35rem; }
+  .rstat span { font-size: .62rem; color: var(--ink-soft); font-weight: 600; }
+
+  .leaderboard { border: 2px dashed var(--card-line); border-radius: 14px; padding: 12px 14px; margin-bottom: 18px; }
+  .leaderboard h4 { font-size: .8rem; margin-bottom: 8px; }
+  .lb-row { display: flex; justify-content: space-between; font-size: .84rem; padding: 4px 0; }
+  .lb-row b { color: var(--violet-deep); }
+
+  .shelf { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; max-height: 320px; overflow-y: auto; padding-right: 4px; }
+  .shelf-item { border: 1.5px solid var(--card-line); border-radius: 12px; padding: 10px 12px; }
+  .shelf-item .t { font-family: 'Fraunces', serif; font-weight: 700; font-size: .95rem; }
+  .shelf-item .a { font-size: .72rem; color: var(--ink-soft); margin-bottom: 3px; }
+  .shelf-item p { font-size: .82rem; line-height: 1.4; margin-bottom: 4px; }
+  .shelf-item a { font-size: .74rem; color: var(--violet-deep); font-weight: 700; text-decoration: underline; }
+
+  .end-btn-row { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  @keyframes pop { 0%{transform:scale(1)} 45%{transform:scale(1.02)} 100%{transform:scale(1)} }
+  @keyframes tileIn { from{transform:translateY(6px) scale(.85);opacity:0} to{transform:none;opacity:1} }
+  @keyframes tileSpawn { from{transform:scale(.6);opacity:0} to{transform:scale(1);opacity:1} }
+  @keyframes cardIn { from{opacity:0;transform:translateY(24px) scale(.97)} to{opacity:1;transform:none} }
+  @keyframes gemPop { 0%{transform:scale(1)} 50%{transform:scale(1.28) rotate(8deg);color:var(--marigold-deep)} 100%{transform:scale(1) rotate(0)} }
+  .gem-pop { animation: gemPop .5s ease; }
+
+  @media (max-width: 360px) {
+    .hero-title { font-size: 1.8rem; }
+    .tile { padding: 10px 16px; font-size: .92rem; }
+  }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ================= AUTH SCREEN ================= -->
+<div class="screen active" id="authScreen">
+  <div class="col" style="justify-content:center; min-height:100dvh;">
+    <div class="gate-card">
+      <div>
+        <div class="hero-title">The Antonym <em>Trail</em></div>
+        <div class="hero-sub">A word game for readers. Warm up on plain opposites, then meet them again inside real philosophy and literature &mdash; blank by blank.</div>
+      </div>
+
+      <div id="modeBanner" class="mode-banner" style="display:none;">Running in Guest Mode &mdash; add Supabase keys in the file's &lt;head&gt; to unlock accounts and the leaderboard.</div>
+
+      <div id="signedOutBlock">
+        <label class="field-label" for="emailInput">Sign in with a magic link</label>
+        <input class="field-input" id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+        <div style="height:10px;"></div>
+        <button class="btn btn-primary" id="sendLinkBtn">Send magic link</button>
+        <div class="divider">or</div>
+        <label class="field-label" for="nameInput">Play as a guest</label>
+        <input class="field-input" id="nameInput" type="text" placeholder="Your name" autocomplete="name" />
+        <div style="height:10px;"></div>
+        <button class="btn btn-ghost" id="guestBtn">Continue as guest</button>
+      </div>
+
+      <div id="signedInBlock" style="display:none;">
+        <div class="candidate-chip" style="background:#fffdf7;border:1.5px solid var(--card-line);border-radius:12px;padding:12px 14px;font-size:.85rem;display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--violet);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'Fraunces',serif;" id="avatarInitial">?</div>
+          <div><strong id="playerLabel">Reader</strong><br><span style="color:var(--ink-soft);font-size:.72rem;" id="playerModeLabel">Signed in</span></div>
+        </div>
+        <div style="height:14px;"></div>
+        <button class="btn btn-primary" id="startBtn">Begin the trail</button>
+      </div>
+
+      <div class="guest-note">Three levels, easiest first. Takes about 8&ndash;10 minutes end to end.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LEVEL INTRO ================= -->
+<div class="screen" id="levelIntroScreen">
+  <div class="col">
+    <div class="level-card">
+      <div class="level-badge" id="liBadge">🔥</div>
+      <div class="level-eyebrow" id="liEyebrow">Level 1 of 3</div>
+      <div class="level-title" id="liTitle">Warm-Up</div>
+      <div class="level-tagline" id="liTagline">Match plain opposites to get your eye in.</div>
+      <div class="level-dots" id="liDots"></div>
+      <button class="btn btn-primary" id="liStartBtn">Start level</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= QUIZ SCREEN ================= -->
+<div class="screen" id="quizScreen">
+  <div class="col">
+    <div class="top-bar">
+      <div class="brand">
+        <span class="brand-name">The Antonym <em>Trail</em></span>
+        <div class="ribbon" id="ribbon"></div>
+      </div>
+      <button class="icon-btn" id="soundBtn" title="Toggle sound">🔊</button>
+    </div>
+
+    <div class="stat-strip">
+      <span class="stat-nums">📍 <b id="roundTracker">1 of 1</b></span>
+      <span class="stat-nums">🔥 <b id="streakCounter">0</b></span>
+      <span class="stat-nums" id="gemsCounter">💎 <b>0</b></span>
+    </div>
+
+    <div class="mount" id="mount">
+      <div class="round-caption" id="roundCaption">Round</div>
+      <div id="itemsWrap"></div>
+    </div>
+    <div class="mount-hint">Tap a tile, then tap the blank it belongs in.</div>
+
+    <div class="tray" id="tray"></div>
+
+    <div id="noteCard">
+      <div class="note-kicker">✎ worth a detour</div>
+      <div class="note-title" id="noteTitle"></div>
+      <div class="note-blurb" id="noteBlurb"></div>
+      <a class="note-link" id="noteLink" href="#">Look it up →</a>
+      <button class="btn btn-teal" id="noteContinueBtn">Keep going</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= LEVEL COMPLETE ================= -->
+<div class="screen" id="levelCompleteScreen">
+  <div class="col" style="justify-content:center;">
+    <div class="recap-card">
+      <div class="recap-title" id="lcTitle">Level clear!</div>
+      <div class="recap-sub" id="lcSub">Nice work.</div>
+      <div class="recap-stats">
+        <div class="rstat"><b id="lcCorrect">0</b><span>correct</span></div>
+        <div class="rstat"><b id="lcGems">0</b><span>gems</span></div>
+        <div class="rstat"><b id="lcStreak">0</b><span>best streak</span></div>
+      </div>
+      <button class="btn btn-violet" id="lcContinueBtn">Continue to next level</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= END SCREEN ================= -->
+<div class="screen" id="endScreen">
+  <div class="col" style="justify-content:center;">
+    <div class="recap-card">
+      <div class="recap-title">Trail complete 🎉</div>
+      <div class="recap-sub" id="endSub">Player</div>
+      <div class="recap-stats">
+        <div class="rstat"><b id="endCorrect">0</b><span>correct</span></div>
+        <div class="rstat"><b id="endWrong">0</b><span>wrong</span></div>
+        <div class="rstat"><b id="endGems">0</b><span>gems</span></div>
+      </div>
+
+      <div class="leaderboard" id="leaderboardBlock" style="display:none;">
+        <h4>Trail leaderboard</h4>
+        <div id="lbRows"></div>
+      </div>
+
+      <div style="font-family:'Fraunces',serif; font-weight:700; margin-bottom:8px;">Where these lines came from</div>
+      <div class="shelf" id="shelf"></div>
+
+      <div class="end-btn-row">
+        <button class="btn btn-teal" id="shareBtn">Copy my results</button>
+        <button class="btn btn-ghost" onclick="location.reload()">↻ Play again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   SUPABASE CONFIG — replace these two lines with your project's
+   values (Project Settings -> API). Leave as-is to run in
+   Guest Mode with no accounts or leaderboard.
+   ============================================================ */
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+let supa = null;
+let guestMode = true;
+try {
+  if (window.supabase && SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 20) {
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    guestMode = false;
+  }
+} catch (e) { guestMode = true; }
+
+let playerName = "Reader";
+let playerId = null;
+let playerIsGuest = true;
+
+/* ============================================================
+   CONTENT — three levels, easiest first
+   ============================================================ */
+const LEVELS = [
+  { n:1, key:"coral",  icon:"🔥", title:"Warm-Up",      tagline:"Match plain opposites to get your eye in." },
+  { n:2, key:"marigold", icon:"📖", title:"Wisdom Lines",  tagline:"Finish sentences inspired by philosophers, generals and habit-nerds." },
+  { n:3, key:"violet", icon:"🖋️", title:"The Classics",  tagline:"Complete real lines of literature, word by missing word." }
+];
+
+function pair(word, ans){ return { text: `The opposite of <b>${word}</b> is ___.`, answer: ans }; }
+
+const ROUNDS = [
+  // ---------------- LEVEL 1 ----------------
+  { level:1, items:[ pair("CONFORM","rebel"), pair("DILIGENT","indolent"), pair("OBSCURE","lucid") ] },
+  { level:1, items:[ pair("TRANSIENT","permanent"), pair("ACQUIRED","innate"), pair("OPTIMIST","pessimist") ] },
+  { level:1, items:[ pair("AMELIORATION","deterioration"), pair("GREAT","small"), pair("LARGE","petty") ] },
+  { level:1, items:[ pair("BELIEF","incredulity"), pair("WISDOM","foolishness"), pair("BEST","worst") ] },
+  { level:1, items:[ pair("TRUST","doubt"), pair("FREEDOM","slavery"), pair("EVERYTHING","nothing") ] },
+  { level:1, items:[ pair("HATE","love"), pair("ATTRACTION","repulsion"), pair("PAIN","pleasure") ] },
+  { level:1, items:[ pair("LESS","more"), pair("WAR","peace"), pair("LIGHT","darkness") ] },
+
+  // ---------------- LEVEL 2 ----------------
+  { level:2,
+    items:[
+      { text:"If you want to stagnate, ___ to comfort, and if you want to succeed, rebel against your limits.", answer:"conform" },
+      { text:"If you want to stagnate, conform to comfort, and if you want to succeed, ___ against your limits.", answer:"rebel" }
+    ],
+    note:{ kicker:"lines like this live in:", title:"Atlas Shrugged &amp; Illusions", blurb:"Two very different novels that agree on one thing: comfort is where ambition goes to die.", query:"Atlas Shrugged Ayn Rand" }
+  },
+  { level:2,
+    items:[
+      { text:"In ___ they sought war, and in war they prepared for peace.", answer:"peace" },
+      { text:"In peace they sought ___, and in war they prepared for peace.", answer:"war" },
+      { text:"In peace they sought war, and in ___ they prepared for peace.", answer:"war" },
+      { text:"In peace they sought war, and in war they prepared for ___.", answer:"peace" }
+    ],
+    note:{ kicker:"the old soldier's logic:", title:"Vegetius, De Re Militari", blurb:"A 4th-century Roman manual that basically invented \"hope for the best, prepare for the worst.\"", query:"Vegetius De Re Militari" }
+  },
+  { level:2,
+    items:[
+      { text:"True poverty is not having ___, but wanting more.", answer:"little" },
+      { text:"True poverty is not having little, but wanting ___.", answer:"more" }
+    ],
+    note:{ kicker:"a Stoic's take on money:", title:"Seneca, Letters from a Stoic", blurb:"2,000-year-old letters that read like they were written for your group chat about burnout.", query:"Seneca Letters from a Stoic" }
+  },
+  { level:2,
+    items:[
+      { text:"In the absence of ___, chaos is inevitable.", answer:"discipline" },
+      { text:"In the absence of discipline, ___ is inevitable.", answer:"chaos" }
+    ],
+    note:{ kicker:"strategy 101:", title:"Sun Tzu, The Art of War", blurb:"Less about battlefields than about not losing before you've even started.", query:"Sun Tzu The Art of War" }
+  },
+  { level:2,
+    items:[
+      { text:"The ___ student outran the indolent genius.", answer:"diligent" },
+      { text:"The diligent student outran the ___ genius.", answer:"indolent" }
+    ],
+    note:{ kicker:"a very old moral:", title:"Aesop's Fables", blurb:"The tortoise-and-hare energy is 2,600 years old and it still lands.", query:"Aesop's Fables" }
+  },
+  { level:2,
+    items:[
+      { text:"The path forward looks ___ initially but becomes lucid with persistence.", answer:"obscure" },
+      { text:"The path forward looks obscure initially but becomes ___ with persistence.", answer:"lucid" }
+    ],
+    note:{ kicker:"an emperor's journal:", title:"Marcus Aurelius, Meditations", blurb:"Private notes a Roman emperor wrote to himself, never meant to be published &mdash; and still hits harder than most self-help.", query:"Marcus Aurelius Meditations" }
+  },
+  { level:2,
+    items:[
+      { text:"Motivation is often ___, arriving in bursts and vanishing by morning; discipline is what must become permanent.", answer:"transient" },
+      { text:"Motivation is often transient, arriving in bursts and vanishing by morning; discipline is what must become ___.", answer:"permanent" }
+    ],
+    note:{ kicker:"habit science:", title:"James Clear, Atomic Habits", blurb:"The book everyone quotes about systems beating goals &mdash; for good reason.", query:"Atomic Habits James Clear" }
+  },
+  { level:2,
+    items:[
+      { text:"Every world-class performer was once a ___ in skill, not masterful in it &mdash; proof that mastery is built, not born.", answer:"novice" },
+      { text:"Every world-class performer was once a novice in skill, not ___ in it &mdash; proof that mastery is built, not born.", answer:"masterful" }
+    ],
+    note:{ kicker:"the research on talent:", title:"Anders Ericsson, Peak", blurb:"The scientist behind the \"10,000 hours\" idea, explaining what deliberate practice actually looks like.", query:"Peak Anders Ericsson" }
+  },
+
+  // ---------------- LEVEL 3 ----------------
+  { level:3,
+    items:[
+      { text:"It was the ___ of times, it was the worst of times,", answer:"best" },
+      { text:"It was the best of times, it was the ___ of times,", answer:"worst" },
+      { text:"it was the age of ___, it was the age of foolishness,", answer:"wisdom" },
+      { text:"it was the age of wisdom, it was the age of ___,", answer:"foolishness" },
+      { text:"it was the epoch of ___, it was the epoch of incredulity,", answer:"belief" },
+      { text:"it was the epoch of belief, it was the epoch of ___,", answer:"incredulity" }
+    ]
+  },
+  { level:3,
+    items:[
+      { text:"it was the season of ___, it was the season of Darkness,", answer:"Light" },
+      { text:"it was the season of Light, it was the season of ___,", answer:"Darkness" },
+      { text:"it was the spring of ___, it was the winter of despair,", answer:"hope" },
+      { text:"it was the spring of hope, it was the winter of ___,", answer:"despair" },
+      { text:"we had ___ before us, we had nothing before us &mdash;", answer:"everything" },
+      { text:"we had everything before us, we had ___ before us &mdash;", answer:"nothing" }
+    ],
+    note:{ kicker:"that opening you've heard a hundred times:", title:"Charles Dickens, A Tale of Two Cities", blurb:"One 119-word sentence that somehow still feels like it was written yesterday.", query:"A Tale of Two Cities Charles Dickens" }
+  },
+  { level:3,
+    items:[
+      { text:"If you can ___ yourself when all men doubt you, but make allowance for their doubting too &mdash;", answer:"trust" },
+      { text:"If you can trust yourself when all men ___ you, but make allowance for their doubting too &mdash;", answer:"doubt" }
+    ],
+    note:{ kicker:"the poem your grandfather probably framed:", title:"Rudyard Kipling, \u201cIf&mdash;\u201d", blurb:"A whole philosophy of steadiness packed into 32 short lines.", query:"Rudyard Kipling If poem" }
+  },
+  { level:3,
+    items:[
+      { text:"Better to ___ in Hell than serve in Heaven.", answer:"reign" },
+      { text:"Better to reign in ___ than serve in Heaven.", answer:"Hell" },
+      { text:"Better to reign in Hell than ___ in Heaven.", answer:"serve" },
+      { text:"Better to reign in Hell than serve in ___.", answer:"Heaven" }
+    ],
+    note:{ kicker:"Satan's most famous excuse:", title:"John Milton, Paradise Lost", blurb:"An epic poem that somehow makes the villain's logic sound almost reasonable.", query:"Paradise Lost John Milton" }
+  },
+  { level:3,
+    items:[
+      { text:"___ die many times before their deaths;", answer:"Cowards" },
+      { text:"Cowards die many times before their deaths; the ___ never taste of death but once.", answer:"valiant" }
+    ],
+    note:{ kicker:"advice ignored right before a stabbing:", title:"William Shakespeare, Julius Caesar", blurb:"Said right before Caesar walks into the one meeting he really should have skipped.", query:"Julius Caesar Shakespeare" }
+  },
+  { level:3,
+    items:[
+      { text:"I am no bird, and no net ___ me &mdash;", answer:"ensnares" },
+      { text:"I am no bird, and no net ensnares me: I am a ___ human being with an independent will.", answer:"free" }
+    ],
+    note:{ kicker:"one of literature's great mic-drops:", title:"Charlotte Bront\u00eb, Jane Eyre", blurb:"Said to the man who thinks he can keep her &mdash; and she means every word.", query:"Jane Eyre Charlotte Bronte" }
+  },
+  { level:3,
+    items:[
+      { text:"Without contraries there is no progression. ___ and Repulsion,", answer:"Attraction" },
+      { text:"Without contraries there is no progression. Attraction and ___,", answer:"Repulsion" },
+      { text:"reason and energy, ___ and Hate,", answer:"Love" },
+      { text:"reason and energy, Love and ___, are necessary to human existence.", answer:"Hate" }
+    ],
+    note:{ kicker:"a poet arguing that opposites are the point:", title:"William Blake, The Marriage of Heaven and Hell", blurb:"A strange, brilliant little book that flips good-and-evil on its head.", query:"The Marriage of Heaven and Hell William Blake" }
+  },
+  { level:3,
+    items:[
+      { text:"Never surrender to the ___ threat, and never surrender to the minor one &mdash;", answer:"mighty" },
+      { text:"Never surrender to the mighty threat, and never surrender to the ___ one &mdash; courage answers to neither size nor shadow.", answer:"minor" }
+    ],
+    note:{ kicker:"inspired by a speech that never mentions size, but should have:", title:"Winston Churchill's 1941 Harrow speech", blurb:"Famous for a four-word refrain. Worth hearing in his own words &mdash; the recording still exists.", query:"Winston Churchill Harrow 1941 never give in speech" }
+  },
+  { level:3,
+    items:[
+      { text:"When a society starts calling ___ \u2018honesty,\u2019 ask who benefits from the confusion.", answer:"deceit" },
+      { text:"When a society starts calling deceit \u2018___,\u2019 ask who benefits from the confusion.", answer:"honesty" }
+    ],
+    note:{ kicker:"inspired by a novel about words that mean their opposite:", title:"George Orwell, 1984", blurb:"The book that gave us \u201cdoublethink\u201d and \u201cnewspeak\u201d &mdash; still the sharpest warning about language as a weapon.", query:"1984 George Orwell" }
+  },
+  { level:3,
+    items:[
+      { text:"___ does not erase the darkness; it teaches us to build by lantern light until morning comes.", answer:"Hope" },
+      { text:"Hope does not erase the ___; it teaches us to build by lantern light until morning comes.", answer:"darkness" }
+    ],
+    note:{ kicker:"inspired by a speech built entirely on this idea:", title:"Dr. Martin Luther King Jr., \u201cI Have a Dream\u201d", blurb:"One of the most quoted speeches in history &mdash; and one that rewards hearing in full, in his voice.", query:"Martin Luther King I Have a Dream speech" }
+  },
+  { level:3,
+    items:[
+      { text:"Walk every fork in the road you're given &mdash; the ___ ones and the frightening ones &mdash;", answer:"comfortable" },
+      { text:"Walk every fork in the road you're given &mdash; the comfortable ones and the ___ ones &mdash; and leave none untried.", answer:"frightening" }
+    ],
+    note:{ kicker:"inspired by a book about a boy raised by ghosts:", title:"Neil Gaiman, The Graveyard Book", blurb:"A story about growing up and eventually having to leave the safest place you've ever known.", query:"The Graveyard Book Neil Gaiman" }
+  }
+];
+
+const SHELF = [
+  { t:"Atlas Shrugged", a:"Ayn Rand", p:"Long, divisive, and impossible to skim &mdash; a novel built entirely around the idea of never apologizing for ambition.", q:"Atlas Shrugged Ayn Rand" },
+  { t:"Illusions", a:"Richard Bach", p:"A slim, strange little book about a reluctant messiah that reads in an afternoon and lingers for years.", q:"Illusions Richard Bach" },
+  { t:"De Re Militari", a:"Vegetius", p:"A Roman military manual that quietly became one of the most quoted strategy texts in history.", q:"Vegetius De Re Militari" },
+  { t:"Letters from a Stoic", a:"Seneca", p:"Personal letters on money, death and anxiety that feel oddly current for something 2,000 years old.", q:"Seneca Letters from a Stoic" },
+  { t:"The Art of War", a:"Sun Tzu", p:"Short, aphoristic, and applicable to far more than warfare.", q:"Sun Tzu The Art of War" },
+  { t:"Aesop's Fables", a:"Aesop", p:"Stories short enough for children and sharp enough for adults.", q:"Aesop's Fables" },
+  { t:"Meditations", a:"Marcus Aurelius", p:"A Roman emperor's private notebook, never meant for an audience.", q:"Marcus Aurelius Meditations" },
+  { t:"Atomic Habits", a:"James Clear", p:"The modern standard reference on how small routines compound into identity.", q:"Atomic Habits James Clear" },
+  { t:"Peak", a:"Anders Ericsson", p:"The actual research behind \u201cdeliberate practice,\u201d minus the pop-science shortcuts.", q:"Peak Anders Ericsson" },
+  { t:"A Tale of Two Cities", a:"Charles Dickens", p:"Has one of the most recognizable opening lines in English literature &mdash; and a plot that earns it.", q:"A Tale of Two Cities Charles Dickens" },
+  { t:"\u201cIf&mdash;\u201d", a:"Rudyard Kipling", p:"A 32-line poem that's been framed on more office walls than almost anything else ever written.", q:"Rudyard Kipling If poem" },
+  { t:"Paradise Lost", a:"John Milton", p:"An epic retelling of the fall of Satan &mdash; who gets, unfairly, most of the best lines.", q:"Paradise Lost John Milton" },
+  { t:"Julius Caesar", a:"William Shakespeare", p:"Political betrayal, several excellent speeches, and one very bad day for Caesar.", q:"Julius Caesar Shakespeare" },
+  { t:"Jane Eyre", a:"Charlotte Bront\u00eb", p:"A quietly radical novel about refusing to be anyone's possession.", q:"Jane Eyre Charlotte Bronte" },
+  { t:"The Marriage of Heaven and Hell", a:"William Blake", p:"Part poem, part manifesto, arguing that good and evil need each other to mean anything.", q:"The Marriage of Heaven and Hell William Blake" },
+  { t:"1941 Harrow School speech", a:"Winston Churchill", p:"A short wartime address, still worth hearing for its famous refrain.", q:"Winston Churchill Harrow 1941 speech" },
+  { t:"1984", a:"George Orwell", p:"The novel that put \u201cBig Brother\u201d and \u201cdoublethink\u201d into everyday language.", q:"1984 George Orwell" },
+  { t:"\u201cI Have a Dream\u201d", a:"Dr. Martin Luther King Jr.", p:"One of the most consequential speeches of the 20th century, best experienced in full.", q:"Martin Luther King I Have a Dream speech" },
+  { t:"The Graveyard Book", a:"Neil Gaiman", p:"A boy raised by ghosts in a cemetery &mdash; warmer and sadder than that premise sounds.", q:"The Graveyard Book Neil Gaiman" }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentRoundIdx = 0;   // index into ROUNDS
+let selectedTile = null;
+let stats = { correct:0, wrong:0, gems:0, streak:0, bestStreak:0 };
+let levelStats = {};
+let isMuted = false;
+let audioCtx = null;
+
+function levelRounds(n){ return ROUNDS.filter(r => r.level === n); }
+function roundLevel(idx){ return ROUNDS[idx].level; }
+function roundIndexWithinLevel(idx){
+  let n = 0;
+  for (let i=0;i<idx;i++){ if (ROUNDS[i].level === ROUNDS[idx].level) n++; }
+  return n;
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+const modeBanner = document.getElementById("modeBanner");
+if (guestMode) modeBanner.style.display = "block";
+
+document.getElementById("sendLinkBtn").addEventListener("click", async () => {
+  const email = document.getElementById("emailInput").value.trim();
+  if (!email || !email.includes("@")) { showToast("Enter a valid email first"); return; }
+  if (guestMode || !supa) { showToast("Magic links need Supabase keys — try Guest mode below"); return; }
+  const btn = document.getElementById("sendLinkBtn");
+  btn.disabled = true; btn.textContent = "Sending…";
+  const { error } = await supa.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+  btn.disabled = false; btn.textContent = "Send magic link";
+  if (error) { showToast(error.message); return; }
+  showToast("Check your inbox for the link!");
+});
+
+document.getElementById("guestBtn").addEventListener("click", () => {
+  const name = document.getElementById("nameInput").value.trim() || "Reader";
+  playerName = name; playerIsGuest = true; playerId = null;
+  enterSignedInState("Guest");
+});
+
+async function initAuth(){
+  if (guestMode || !supa) return;
+  const { data:{ session } } = await supa.auth.getSession();
+  if (session && session.user) {
+    playerId = session.user.id;
+    playerIsGuest = false;
+    playerName = session.user.email ? session.user.email.split("@")[0] : "Reader";
+    enterSignedInState("Signed in");
+  }
+  supa.auth.onAuthStateChange((event, session) => {
+    if (session && session.user) {
+      playerId = session.user.id;
+      playerIsGuest = false;
+      playerName = session.user.email ? session.user.email.split("@")[0] : "Reader";
+      enterSignedInState("Signed in");
+    }
+  });
+}
+
+function enterSignedInState(modeLabel){
+  document.getElementById("signedOutBlock").style.display = "none";
+  document.getElementById("signedInBlock").style.display = "block";
+  document.getElementById("playerLabel").textContent = playerName;
+  document.getElementById("playerModeLabel").textContent = modeLabel;
+  document.getElementById("avatarInitial").textContent = playerName.charAt(0).toUpperCase();
+}
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  currentRoundIdx = 0;
+  stats = { correct:0, wrong:0, gems:0, streak:0, bestStreak:0 };
+  levelStats = {};
+  showLevelIntro(1);
+});
+
+/* ============================================================
+   LEVEL INTRO
+   ============================================================ */
+function showLevelIntro(levelNum){
+  const lvl = LEVELS[levelNum - 1];
+  document.getElementById("liBadge").textContent = lvl.icon;
+  document.getElementById("liBadge").style.borderColor = "var(--ink)";
+  document.getElementById("liBadge").style.background = accentVar(lvl.key, .16);
+  document.getElementById("liEyebrow").textContent = `Level ${lvl.n} of 3`;
+  document.getElementById("liTitle").textContent = lvl.title;
+  document.getElementById("liTagline").textContent = lvl.tagline;
+
+  const dotsWrap = document.getElementById("liDots");
+  dotsWrap.innerHTML = "";
+  levelRounds(levelNum).forEach(() => {
+    const d = document.createElement("div");
+    d.className = "level-dot";
+    dotsWrap.appendChild(d);
+  });
+
+  document.getElementById("liStartBtn").onclick = () => {
+    currentRoundIdx = ROUNDS.findIndex(r => r.level === levelNum);
+    levelStats[levelNum] = { correct:0, wrong:0, gems:0 };
+    document.documentElement.style.setProperty("--current-accent", accentVar(lvl.key, 1));
+    showScreen("quizScreen");
+    loadRound();
+  };
+
+  showScreen("levelIntroScreen");
+}
+
+function accentVar(key, alpha){
+  const map = { coral: "255,106,82", marigold: "240,165,0", violet: "122,79,224" };
+  return alpha >= 1 ? `rgb(${map[key]})` : `rgba(${map[key]},${alpha})`;
+}
+
+/* ============================================================
+   AUDIO (synthesized, no external files)
+   ============================================================ */
+function tone(freq, dur, type){
+  if (isMuted) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + dur);
+  } catch(e) {}
+}
+function correctSound(){ tone(660,.12,"triangle"); setTimeout(()=>tone(880,.16,"triangle"),90); }
+function wrongSound(){ tone(180,.22,"sawtooth"); }
+
+document.getElementById("soundBtn").addEventListener("click", () => {
+  isMuted = !isMuted;
+  document.getElementById("soundBtn").textContent = isMuted ? "🔇" : "🔊";
+});
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+function littleConfetti(){
+  if (window.confetti) confetti({ particleCount: 60, spread: 65, origin:{y:.65}, colors:['#ff6a52','#f0a500','#7a4fe0','#12a594'] });
+}
+function bigConfetti(){
+  if (!window.confetti) return;
+  const end = Date.now() + 1600;
+  (function frame(){
+    confetti({ particleCount: 5, angle: 60, spread: 60, origin:{x:0}, colors:['#ff6a52','#f0a500','#7a4fe0','#12a594'] });
+    confetti({ particleCount: 5, angle: 120, spread: 60, origin:{x:1}, colors:['#ff6a52','#f0a500','#7a4fe0','#12a594'] });
+    if (Date.now() < end) requestAnimationFrame(frame);
+  })();
+}
+
+/* ============================================================
+   GAME ENGINE
+   ============================================================ */
+const itemsWrap = document.getElementById("itemsWrap");
+const trayEl = document.getElementById("tray");
+const roundCaption = document.getElementById("roundCaption");
+const roundTracker = document.getElementById("roundTracker");
+
+function loadRound(){
+  const round = ROUNDS[currentRoundIdx];
+  const level = round.level;
+  selectedTile = null;
+
+  document.getElementById("noteCard").classList.remove("show");
+
+  const within = roundIndexWithinLevel(currentRoundIdx) + 1;
+  const total = levelRounds(level).length;
+  roundTracker.innerHTML = `Level ${level} &middot; round ${within} of ${total}`;
+  roundCaption.textContent = LEVELS[level-1].title;
+
+  renderRibbon(level, within, total);
+  updateStatStrip();
+
+  itemsWrap.innerHTML = "";
+  trayEl.innerHTML = "";
+
+  const items = round.items.map((it, i) => ({ ...it, _uid: currentRoundIdx + "-" + i }));
+
+  // tray tiles, shuffled
+  const shuffledAnswers = items.map(it => it.answer).sort(() => Math.random() - .5);
+  shuffledAnswers.forEach(ans => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.textContent = ans;
+    tile.onclick = () => selectTile(tile, ans);
+    trayEl.appendChild(tile);
+  });
+
+  // sentence items, shuffled
+  const shuffledItems = [...items].sort(() => Math.random() - .5);
+  shuffledItems.forEach(it => {
+    const div = document.createElement("div");
+    div.className = "sentence-item";
+    div.innerHTML = it.text.replace("___", "<b>____</b>");
+    div.dataset.answer = it.answer;
+    div.dataset.original = it.text;
+    div.onclick = () => placeTile(div);
+    itemsWrap.appendChild(div);
+  });
+}
+
+function renderRibbon(level, within, total){
+  const ribbon = document.getElementById("ribbon");
+  ribbon.innerHTML = "";
+  LEVELS.forEach(l => {
+    for (let i=0;i<levelRounds(l.n).length;i++){
+      const seg = document.createElement("div");
+      seg.className = "ribbon-seg";
+      const done = (l.n < level) || (l.n === level && i < within-1);
+      const active = (l.n === level && i === within-1);
+      if (done || active) {
+        seg.classList.add("on");
+        seg.style.background = accentVar(l.key, 1);
+      }
+      ribbon.appendChild(seg);
+    }
+  });
+}
+
+function updateStatStrip(){
+  document.getElementById("gemsCounter").innerHTML = `💎 <b>${stats.gems}</b>`;
+  document.getElementById("streakCounter").textContent = stats.streak;
+}
+
+function selectTile(el, text){
+  document.querySelectorAll(".tile").forEach(t => t.classList.remove("selected"));
+  selectedTile = { el, text };
+  el.classList.add("selected");
+}
+
+function placeTile(dropZone){
+  if (!selectedTile || dropZone.classList.contains("filled")) return;
+
+  const answer = selectedTile.text;
+  const correct = dropZone.dataset.answer;
+  const level = ROUNDS[currentRoundIdx].level;
+
+  if (answer === correct) {
+    correctSound(); littleConfetti();
+    stats.correct++; stats.gems++; stats.streak++;
+    stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
+    levelStats[level].correct++; levelStats[level].gems++;
+    updateStatStrip();
+    document.getElementById("gemsCounter").classList.add("gem-pop");
+    setTimeout(()=>document.getElementById("gemsCounter").classList.remove("gem-pop"),500);
+
+    dropZone.innerHTML = dropZone.dataset.original.replace("___", `<b>${answer}</b>`);
+    dropZone.classList.add("correct","filled");
+    selectedTile.el.classList.add("solved");
+    selectedTile = null;
+
+    if (document.querySelectorAll(".sentence-item:not(.filled)").length === 0) {
+      setTimeout(() => finishRound(), 700);
+    }
+  } else {
+    wrongSound();
+    stats.wrong++; stats.gems = Math.max(0, stats.gems - 1); stats.streak = 0;
+    levelStats[level].wrong++;
+    updateStatStrip();
+    dropZone.classList.add("error");
+    setTimeout(() => dropZone.classList.remove("error"), 350);
+    selectedTile.el.classList.remove("selected");
+    selectedTile = null;
+  }
+}
+
+function finishRound(){
+  const round = ROUNDS[currentRoundIdx];
+  if (round.note) {
+    showNote(round.note);
+  } else {
+    advanceRound();
+  }
+}
+
+function showNote(note){
+  document.getElementById("noteTitle").innerHTML = note.title;
+  document.getElementById("noteBlurb").innerHTML = note.blurb;
+  const link = document.getElementById("noteLink");
+  link.href = "https://www.google.com/search?q=" + encodeURIComponent(note.query);
+  document.querySelector("#noteCard .note-kicker").textContent = "✎ " + note.kicker;
+  document.getElementById("noteCard").classList.add("show");
+  document.getElementById("noteContinueBtn").onclick = () => {
+    document.getElementById("noteCard").classList.remove("show");
+    advanceRound();
+  };
+}
+
+function advanceRound(){
+  const finishedLevel = ROUNDS[currentRoundIdx].level;
+  const isLastInLevel = (currentRoundIdx === ROUNDS.length - 1) || ROUNDS[currentRoundIdx+1].level !== finishedLevel;
+
+  if (isLastInLevel) {
+    showLevelComplete(finishedLevel);
+  } else {
+    currentRoundIdx++;
+    loadRound();
+  }
+}
+
+function showLevelComplete(levelNum){
+  const ls = levelStats[levelNum];
+  document.getElementById("lcTitle").textContent = `${LEVELS[levelNum-1].title} complete`;
+  document.getElementById("lcSub").textContent = levelNum < 3 ? "On to the next level." : "That's the whole trail.";
+  document.getElementById("lcCorrect").textContent = ls.correct;
+  document.getElementById("lcGems").textContent = stats.gems;
+  document.getElementById("lcStreak").textContent = stats.bestStreak;
+
+  saveProgress();
+
+  const btn = document.getElementById("lcContinueBtn");
+  if (levelNum < 3) {
+    btn.textContent = `Continue to level ${levelNum+1}`;
+    btn.onclick = () => showLevelIntro(levelNum + 1);
+  } else {
+    btn.textContent = "See my results";
+    btn.onclick = () => showEndScreen();
+  }
+  bigConfetti();
+  showScreen("levelCompleteScreen");
+}
+
+/* ============================================================
+   PERSISTENCE + LEADERBOARD
+   ============================================================ */
+async function saveProgress(){
+  if (guestMode || !supa || playerIsGuest || !playerId) return;
+  try {
+    await supa.from("trail_progress").upsert({
+      user_id: playerId,
+      display_name: playerName,
+      total_correct: stats.correct,
+      total_wrong: stats.wrong,
+      gems: stats.gems,
+      levels_completed: Object.keys(levelStats).length,
+      best_streak: stats.bestStreak,
+      updated_at: new Date().toISOString()
+    });
+  } catch(e) { /* silent */ }
+}
+
+async function loadLeaderboard(){
+  if (guestMode || !supa) return;
+  try {
+    const { data, error } = await supa
+      .from("trail_progress")
+      .select("display_name,total_correct,gems")
+      .order("total_correct", { ascending:false })
+      .limit(5);
+    if (error || !data || !data.length) return;
+    const block = document.getElementById("leaderboardBlock");
+    const rows = document.getElementById("lbRows");
+    rows.innerHTML = "";
+    data.forEach((row,i) => {
+      const div = document.createElement("div");
+      div.className = "lb-row";
+      div.innerHTML = `<span>${i+1}. ${row.display_name || "Reader"}</span><b>${row.total_correct} correct</b>`;
+      rows.appendChild(div);
+    });
+    block.style.display = "block";
+  } catch(e) { /* silent */ }
+}
+
+/* ============================================================
+   END SCREEN
+   ============================================================ */
+function showEndScreen(){
+  document.getElementById("endSub").textContent = playerName;
+  document.getElementById("endCorrect").textContent = stats.correct;
+  document.getElementById("endWrong").textContent = stats.wrong;
+  document.getElementById("endGems").textContent = stats.gems;
+
+  const shelf = document.getElementById("shelf");
+  shelf.innerHTML = "";
+  SHELF.forEach(b => {
+    const div = document.createElement("div");
+    div.className = "shelf-item";
+    div.innerHTML = `<div class="t">${b.t}</div><div class="a">${b.a}</div><p>${b.p}</p><a href="https://www.google.com/search?q=${encodeURIComponent(b.q)}">Look it up →</a>`;
+    shelf.appendChild(div);
+  });
+
+  loadLeaderboard();
+  showScreen("endScreen");
+}
+
+document.getElementById("shareBtn").addEventListener("click", async () => {
+  const text = `I finished The Antonym Trail: ${stats.correct} correct, ${stats.gems} gems, best streak ${stats.bestStreak}. 🔥`;
+  try {
+    if (navigator.share) { await navigator.share({ text }); return; }
+    await navigator.clipboard.writeText(text);
+    showToast("Copied to clipboard!");
+  } catch(e) { showToast("Couldn't share — copy it manually"); }
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.documentElement.style.setProperty("--current-accent", accentVar("coral", 1));
+initAuth();
+</script>
+</body>
+</html>
