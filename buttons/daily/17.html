@@ -482,85 +482,94 @@ function showToast(msg, isCheat = false) {
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-/* ========== DATA ========== */
 const ROUNDS = [
-  { items:[
-      { text:"It was the ___ of times,", answer:"best" },
-      { text:"it was the ___ of times,", answer:"worst" },
-      { text:"it was the age of ___,", answer:"wisdom" },
-      { text:"it was the age of ___,", answer:"foolishness" },
-      { text:"it was the epoch of ___,", answer:"belief" },
-      { text:"it was the epoch of ___,", answer:"incredulity" },
-      { text:"it was the season of ___,", answer:"Light" },
-      { text:"it was the season of ___,", answer:"Darkness" },
-      { text:"it was the spring of ___,", answer:"hope" },
-      { text:"it was the winter of ___,", answer:"despair" },
-      { text:"we had ___ before us,", answer:"everything" },
-      { text:"we had ___ before us, we were all going direct to Heaven, we were all going direct the other way.", answer:"nothing" }
+  { 
+    items:[
+      { text:"It was the ___ of times, it was the worst of times,", answer:"best" },
+      { text:"It was the best of times, it was the ___ of times,", answer:"worst" },
+      { text:"it was the age of ___, it was the age of foolishness,", answer:"wisdom" },
+      { text:"it was the age of wisdom, it was the age of ___,", answer:"foolishness" },
+      { text:"it was the epoch of ___, it was the epoch of incredulity,", answer:"belief" },
+      { text:"it was the epoch of belief, it was the epoch of ___,", answer:"incredulity" },
+      { text:"it was the season of ___, it was the season of Darkness,", answer:"Light" },
+      { text:"it was the season of Light, it was the season of ___,", answer:"Darkness" },
+      { text:"it was the spring of ___, it was the winter of despair,", answer:"hope" },
+      { text:"it was the spring of hope, it was the winter of ___,", answer:"despair" },
+      { text:"we had ___ before us, we had nothing before us,", answer:"everything" },
+      { text:"we had everything before us, we had ___ before us, we were all going direct to Heaven, we were all going direct the other way.", answer:"nothing" }
     ],
     note:{ kicker:"that opening you've heard a hundred times:", title:"Charles Dickens, A Tale of Two Cities", blurb:"One 119-word sentence that somehow still feels like it was written yesterday.", query:"A Tale of Two Cities Charles Dickens" }
   },
-  { items:[
-      { text:"“If you can ___ yourself", answer:"trust" },
-      { text:"when all men ___ you, But make allowance for their doubting too”", answer:"doubt" }
+  { 
+    items:[
+      { text:"“If you can ___ yourself when all men doubt you,", answer:"trust" },
+      { text:"If you can trust yourself when all men ___ you, But make allowance for their doubting too”", answer:"doubt" }
     ],
-    note:{ kicker:"the poem your grandfather probably framed:", title:"Rudyard Kipling, \u201cIf&mdash;\u201d", blurb:"A whole philosophy of steadiness packed into 32 short lines.", query:"Rudyard Kipling If poem" }
+    note:{ kicker:"the poem your grandfather probably framed:", title:"Rudyard Kipling, “If—”", blurb:"A whole philosophy of steadiness packed into 32 short lines.", query:"Rudyard Kipling If poem" }
   },
-  { items:[
-      { text:"“Never give in, never give in, never, never, never, never-in nothing, ___", answer:"great" },
-      { text:"or ___,", answer:"small" },
-      { text:"___", answer:"large" },
-      { text:"or ___ — never give in except to convictions of honour and good sense.”", answer:"petty" }
+  { 
+    items:[
+      { text:"“Never give in, never give in, never, never, never, never-in nothing, ___ or small, large or petty", answer:"great" },
+      { text:"“Never give in, never give in, never, never, never, never-in nothing, great or ___, large or petty", answer:"small" },
+      { text:"“Never give in, never give in, never, never, never, never-in nothing, great or small, ___ or petty", answer:"large" },
+      { text:"“Never give in, never give in, never, never, never, never-in nothing, great or small, large or ___ — never give in except to convictions of honour and good sense.”", answer:"petty" }
     ],
-    note:{ kicker:"inspired by a speech that never mentions size, but should have:", title:"Winston Churchill's 1941 Harrow speech", blurb:"Famous for a four-word refrain. Worth hearing in his own words &mdash; the recording still exists.", query:"Winston Churchill Harrow 1941 never give in speech" }
+    note:{ kicker:"inspired by a speech that never mentions size, but should have:", title:"Winston Churchill's 1941 Harrow speech", blurb:"Famous for a four-word refrain. Worth hearing in his own words — the recording still exists.", query:"Winston Churchill Harrow 1941 never give in speech" }
   },
-  { items:[
-      { text:"“Better to ___", answer:"reign" },
-      { text:"in ___", answer:"Hell" },
-      { text:"than ___", answer:"serve" },
-      { text:"in ___.”", answer:"Heaven" }
+  { 
+    items:[
+      { text:"“Better to ___ in Hell than serve in Heaven.”", answer:"reign" },
+      { text:"“Better to reign in ___ than serve in Heaven.”", answer:"Hell" },
+      { text:"“Better to reign in Hell than ___ in Heaven.”", answer:"serve" },
+      { text:"“Better to reign in Hell than serve in ___.”", answer:"Heaven" }
     ],
     note:{ kicker:"Satan's most famous excuse:", title:"John Milton, Paradise Lost", blurb:"An epic poem that somehow makes the villain's logic sound almost reasonable.", query:"Paradise Lost John Milton" }
   },
-  { items:[
-      { text:"“___", answer:"War" },
-      { text:"is ___.", answer:"peace" },
-      { text:"___", answer:"Freedom" },
-      { text:"is ___. Ignorance is strength.”", answer:"slavery" }
+  { 
+    items:[
+      { text:"“___ is peace. Freedom is slavery.”", answer:"War" },
+      { text:"“War is ___. Freedom is slavery.”", answer:"peace" },
+      { text:"“War is peace. ___ is slavery. Ignorance is strength.”", answer:"Freedom" },
+      { text:"“War is peace. Freedom is ___. Ignorance is strength.”", answer:"slavery" }
     ],
-    note:{ kicker:"inspired by a novel about words that mean their opposite:", title:"George Orwell, 1984", blurb:"The book that gave us \u201cdoublethink\u201d and \u201cnewspeak\u201d &mdash; still the sharpest warning about language as a weapon.", query:"1984 George Orwell" }
+    note:{ kicker:"inspired by a novel about words that mean their opposite:", title:"George Orwell, 1984", blurb:"The book that gave us “doublethink” and “newspeak” — still the sharpest warning about language as a weapon.", query:"1984 George Orwell" }
   },
-  { items:[
-      { text:"“___ die many times before their deaths;", answer:"Cowards" },
-      { text:"The ___ never taste of death but once.”", answer:"valiant" }
+  { 
+    items:[
+      { text:"“___ die many times before their deaths; The valiant never taste of death but once.”", answer:"Cowards" },
+      { text:"“Cowards die many times before their deaths; The ___ never taste of death but once.”", answer:"valiant" }
     ],
     note:{ kicker:"advice ignored right before a stabbing:", title:"William Shakespeare, Julius Caesar", blurb:"Said right before Caesar walks into the one meeting he really should have skipped.", query:"Julius Caesar Shakespeare" }
   },
-  { items:[
-      { text:"“Face your life, its ___,", answer:"pain" },
-      { text:"its ___, leave no path untaken.”", answer:"pleasure" }
+  { 
+    items:[
+      { text:"“Face your life, its ___, its pleasure, leave no path untaken.”", answer:"pain" },
+      { text:"“Face your life, its pain, its ___, leave no path untaken.”", answer:"pleasure" }
     ],
     note:{ kicker:"inspired by a book about a boy raised by ghosts:", title:"Neil Gaiman, The Graveyard Book", blurb:"A story about growing up and eventually having to leave the safest place you've ever known.", query:"The Graveyard Book Neil Gaiman" }
   },
-  { items:[
-      { text:"“I am no bird; and no net ___ me:", answer:"ensnares" },
-      { text:"I am a ___ human being with an independent will.”", answer:"free" }
+  { 
+    items:[
+      { text:"“I am no bird; and no net ___ me: I am a free human being with an independent will.”", answer:"ensnares" },
+      { text:"“I am no bird; and no net ensnares me: I am a ___ human being with an independent will.”", answer:"free" }
     ],
-    note:{ kicker:"one of literature's great mic-drops:", title:"Charlotte Bront\u00eb, Jane Eyre", blurb:"Said to the man who thinks he can keep her &mdash; and she means every word.", query:"Jane Eyre Charlotte Bronte" }
+    note:{ kicker:"one of literature's great mic-drops:", title:"Charlotte Brontë, Jane Eyre", blurb:"Said to the man who thinks he can keep her — and she means every word.", query:"Jane Eyre Charlotte Bronte" }
   },
-  { items:[
-      { text:"“Darkness cannot drive out ___;", answer:"darkness" },
-      { text:"only ___ can do that.", answer:"light" },
-      { text:"Hate cannot drive out ___;", answer:"hate" },
-      { text:"only ___ can do that.”", answer:"love" }
+  { 
+    items:[
+      { text:"“Darkness cannot drive out ___; only light can do that.”", answer:"darkness" },
+      { text:"“Darkness cannot drive out darkness; only ___ can do that.”", answer:"light" },
+      { text:"“Hate cannot drive out ___; only love can do that.”", answer:"hate" },
+      { text:"“Hate cannot drive out hate; only ___ can do that.”", answer:"love" }
     ],
-    note:{ kicker:"inspired by a speech built entirely on this idea:", title:"Dr. Martin Luther King Jr., \u201cI Have a Dream\u201d", blurb:"One of the most quoted speeches in history &mdash; and one that rewards hearing in full, in his voice.", query:"Martin Luther King I Have a Dream speech" }
+    note:{ kicker:"inspired by a speech built entirely on this idea:", title:"Dr. Martin Luther King Jr., “I Have a Dream”", blurb:"One of the most quoted speeches in history — and one that rewards hearing in full, in his voice.", query:"Martin Luther King I Have a Dream speech" }
   },
-  { items:[
-      { text:"“Without contraries there is no progression. ___", answer:"Attraction" },
-      { text:"and ___,", answer:"Repulsion" },
-      { text:"reason and energy, ___", answer:"Love" },
-      { text:"and ___, are necessary to human existence.”", answer:"Hate" }
+  { 
+    items:[
+      { text:"“Without contraries there is no progression. ___ and Repulsion, reason and energy, Love and Hate, are necessary to human existence.”", answer:"Attraction" },
+      { text:"“Without contraries there is no progression. Attraction and ___, reason and energy, Love and Hate, are necessary to human existence.”", answer:"Repulsion" },
+      { text:"“Without contraries there is no progression. Attraction and Repulsion, reason and energy, ___ and Hate, are necessary to human existence.”", answer:"Love" },
+      { text:"“Without contraries there is no progression. Attraction and Repulsion, reason and energy, Love and ___, are necessary to human existence.”", answer:"Hate" }
     ],
     note:{ kicker:"a poet arguing that opposites are the point:", title:"William Blake, The Marriage of Heaven and Hell", blurb:"A strange, brilliant little book that flips good-and-evil on its head.", query:"The Marriage of Heaven and Hell William Blake" }
   }
@@ -568,17 +577,16 @@ const ROUNDS = [
 
 const SHELF = [
   { t:"A Tale of Two Cities", a:"Charles Dickens", p:"Has one of the most recognizable opening lines in English literature &mdash; and a plot that earns it.", q:"A Tale of Two Cities Charles Dickens" },
-  { t:"\u201cIf&mdash;\u201d", a:"Rudyard Kipling", p:"A 32-line poem that's been framed on more office walls than almost anything else ever written.", q:"Rudyard Kipling If poem" },
-  { t:"Paradise Lost", a:"John Milton", p:"An epic retelling of the fall of Satan &mdash; who gets, unfairly, most of the best lines.", q:"Paradise Lost John Milton" },
-  { t:"Julius Caesar", a:"William Shakespeare", p:"Political betrayal, several excellent speeches, and one very bad day for Caesar.", q:"Julius Caesar Shakespeare" },
-  { t:"Jane Eyre", a:"Charlotte Bront\u00eb", p:"A quietly radical novel about refusing to be anyone's possession.", q:"Jane Eyre Charlotte Bronte" },
-  { t:"The Marriage of Heaven and Hell", a:"William Blake", p:"Part poem, part manifesto, arguing that good and evil need each other to mean anything.", q:"The Marriage of Heaven and Hell William Blake" },
+  { t:"“If—”", a:"Rudyard Kipling", p:"A 32-line poem that's been framed on more office walls than almost anything else ever written.", q:"Rudyard Kipling If poem" },
   { t:"1941 Harrow School speech", a:"Winston Churchill", p:"A short wartime address, still worth hearing for its famous refrain.", q:"Winston Churchill Harrow 1941 speech" },
-  { t:"1984", a:"George Orwell", p:"The novel that put \u201cBig Brother\u201d and \u201cdoublethink\u201d into everyday language.", q:"1984 George Orwell" },
-  { t:"\u201cI Have a Dream\u201d", a:"Dr. Martin Luther King Jr.", p:"One of the most consequential speeches of the 20th century, best experienced in full.", q:"Martin Luther King I Have a Dream speech" },
-  { t:"The Graveyard Book", a:"Neil Gaiman", p:"A boy raised by ghosts in a cemetery &mdash; warmer and sadder than that premise sounds.", q:"The Graveyard Book Neil Gaiman" }
+  { t:"Paradise Lost", a:"John Milton", p:"An epic retelling of the fall of Satan &mdash; who gets, unfairly, most of the best lines.", q:"Paradise Lost John Milton" },
+  { t:"1984", a:"George Orwell", p:"The novel that put “Big Brother” and “doublethink” into everyday language.", q:"1984 George Orwell" },
+  { t:"Julius Caesar", a:"William Shakespeare", p:"Political betrayal, several excellent speeches, and one very bad day for Caesar.", q:"Julius Caesar Shakespeare" },
+  { t:"The Graveyard Book", a:"Neil Gaiman", p:"A boy raised by ghosts in a cemetery &mdash; warmer and sadder than that premise sounds.", q:"The Graveyard Book Neil Gaiman" },
+  { t:"Jane Eyre", a:"Charlotte Brontë", p:"A quietly radical novel about refusing to be anyone's possession.", q:"Jane Eyre Charlotte Bronte" },
+  { t:"“I Have a Dream”", a:"Dr. Martin Luther King Jr.", p:"One of the most consequential speeches of the 20th century, best experienced in full.", q:"Martin Luther King I Have a Dream speech" },
+  { t:"The Marriage of Heaven and Hell", a:"William Blake", p:"Part poem, part manifesto, arguing that good and evil need each other to mean anything.", q:"The Marriage of Heaven and Hell William Blake" }
 ];
-
 
 /* ========== STATE ========== */
 let selectedTile = null;
