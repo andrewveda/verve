@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>The Antonym Trail - Level 3</title>
+
+<!-- External Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<!-- Auth Guard to protect and load user session -->
+<script src="../../auth-guard.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
+
+<style>
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+
+  :root {
+    --paper: #fff6e6;
+    --card: #fffdf6;
+    --card-line: #ecdcb8;
+    --ink: #241e3d;
+    --ink-soft: #746c93;
+    --coral: #ff6a52;
+    --marigold: #f0a500;
+    --marigold-deep: #c8860a;
+    --violet: #7a4fe0;
+    --violet-deep: #5c34b3;
+    --teal: #12a594;
+    --rust: #d64545;
+
+    /* Security colors */
+    --cheat: #dc2626;
+    --warning: #f59e0b;
+    --success: #10b981;
+
+    /* This level's accent */
+    --current-accent: rgb(122,79,224);
+    --current-accent-soft: rgba(122,79,224, .16);
+
+    --shadow-flat: 3px 3px 0 rgba(36,30,61,.14);
+    --shadow-flat-lg: 5px 5px 0 rgba(36,30,61,.14);
+    --ease: cubic-bezier(.2,1,.3,1);
+  }
+
+  html, body { min-height: 100%; overscroll-behavior-x: none; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 8% 4%, rgba(255,106,82,.10) 0%, transparent 60%),
+      radial-gradient(ellipse 55% 40% at 95% 92%, rgba(122,79,224,.10) 0%, transparent 60%);
+  }
+
+  /* ---------- SECURITY & ANTI-CHEAT UI ---------- */
+  .cheat-overlay { display: none; position: fixed; inset: 0; background: rgba(220,38,38,.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; color: #fff; backdrop-filter: blur(5px); }
+  .cheat-overlay.show { display: flex; }
+  .cheat-overlay h2 { font-family: 'Fraunces', serif; font-size: 2rem; margin-bottom: 12px; }
+  .cheat-overlay p { font-size: 1.05rem; opacity: .92; margin-bottom: 24px; max-width: 400px; line-height: 1.5; }
+
+  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-120px); background: var(--ink); color: #fff; padding: 11px 18px; border-radius: 12px; font-size: .85rem; font-weight: 600; z-index: 500; transition: transform .3s var(--ease); box-shadow: var(--shadow-flat); max-width: 90vw; text-align: center; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.cheat { background: var(--cheat); }
+
+  .security-notice { background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 12px; font-size: .75rem; color: var(--cheat); text-align: left; line-height: 1.45; }
+  .security-notice strong { display: block; margin-bottom: 4px; font-size: .8rem; }
+
+  .cheat-counter { display: flex; align-items: center; gap: 4px; background: #fef2f2; color: var(--cheat); padding: 4px 10px; border-radius: 20px; font-size: .75rem; font-weight: 700; border: 1px solid #fecaca; }
+  .cheat-counter.active { background: var(--cheat); color: #fff; animation: shake .5s; }
+
+  .cheat-report { background: #fef2f2; border: 1px solid #fecaca; border-radius: 14px; padding: 14px; margin-bottom: 18px; text-align: left; }
+  .cheat-report h4 { color: var(--cheat); font-size: .8rem; letter-spacing: .02em; margin-bottom: 8px; }
+  .cheat-report ul { list-style: none; font-size: .8rem; color: var(--ink-soft); }
+  .cheat-report li { padding: 3px 0; display: flex; align-items: center; gap: 6px; }
+  .cheat-report li.warn::before { content: "\26A0"; color: var(--warning); font-size: .7rem; }
+
+  /* ---------- LAYOUT ---------- */
+  .screen { display: none; flex-direction: column; align-items: center; width: 100%; min-height: 100dvh; }
+  .screen.active { display: flex; }
+
+  .col { display: flex; flex-direction: column; width: 100%; min-height: 100%; max-width: 500px; margin: 0 auto;
+    padding: calc(env(safe-area-inset-top) + 16px) 18px calc(env(safe-area-inset-bottom) + 18px);
+    gap: clamp(12px, 1.8dvh, 18px); }
+
+  /* ---------- BUTTONS ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 22px; border: 2px solid var(--ink); border-radius: 14px; font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: transform .12s var(--ease), box-shadow .12s var(--ease); touch-action: manipulation; box-shadow: var(--shadow-flat-lg); background: var(--card); color: var(--ink); }
+  .btn:active { transform: translate(3px,3px); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  .btn-primary { background: var(--coral); color: #fff; }
+  .btn-teal { background: var(--teal); color: #fff; }
+  .btn-ghost { background: transparent; box-shadow: none; border-style: dashed; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  /* ---------- GATE CARD (GitHub auth + level intro) ---------- */
+  #nameFormScreen { justify-content: center; padding: 24px 18px; }
+  .gate-card { width: 100%; max-width: 420px; background: var(--card); border: 2px solid var(--ink); border-radius: 22px; padding: 30px 24px 26px; box-shadow: 7px 7px 0 rgba(36,30,61,.16); display: flex; flex-direction: column; align-items: stretch; gap: 14px; animation: cardIn .5s cubic-bezier(.3,1.4,.5,1) forwards; text-align: center; }
+
+  .level-badge { width: 72px; height: 72px; border-radius: 50%; border: 2.5px solid var(--ink); display: flex; align-items: center; justify-content: center; font-size: 2.1rem; margin: 0 auto; box-shadow: var(--shadow-flat); background: var(--current-accent-soft); }
+  .level-eyebrow { font-size: .75rem; color: var(--ink-soft); font-weight: 600; }
+  .hero-title { font-family: 'Fraunces', serif; font-weight: 900; font-size: clamp(1.9rem, 8vw, 2.4rem); line-height: 1.05; letter-spacing: -.5px; color: var(--ink); }
+  .hero-title em { font-style: normal; color: var(--coral); }
+  .hero-sub { font-size: .92rem; color: var(--ink-soft); line-height: 1.5; }
+
+  .candidate-chip { background: #fffdf7; border: 2px solid var(--card-line); border-radius: 12px; padding: 12px 14px; text-align: left; font-size: .85rem; color: var(--ink); display: flex; align-items: center; gap: 12px; }
+  .candidate-chip img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--ink); }
+
+  /* ---------- TOP BAR / RIBBON ---------- */
+  .top-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .brand { display: flex; flex-direction: column; gap: 1px; }
+  .brand-name { font-family: 'Fraunces', serif; font-weight: 800; font-size: 1.05rem; color: var(--ink); }
+  .brand-name em { font-style: normal; color: var(--coral); }
+  .brand-sub { font-size: .68rem; color: var(--ink-soft); font-weight: 600; }
+  .ribbon { display: flex; gap: 4px; width: 100%; }
+  .ribbon-seg { flex: 1; height: 6px; border-radius: 4px; background: var(--card-line); }
+  .ribbon-seg.on { background: var(--current-accent); }
+
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--ink); background: var(--card); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.05rem; box-shadow: var(--shadow-flat); transition: transform .12s var(--ease); color: var(--ink); }
+  .icon-btn:active { transform: translate(2px,2px); box-shadow: none; }
+
+  .timer-pill { display: flex; align-items: center; height: 40px; padding: 0 14px; border: 2px solid var(--ink); border-radius: 99px; background: var(--card); box-shadow: var(--shadow-flat); }
+  .timer-text { font-weight: 700; font-size: .9rem; font-variant-numeric: tabular-nums; }
+
+  .stat-strip { background: var(--card); border: 2px solid var(--ink); border-radius: 14px; padding: 9px 14px; box-shadow: var(--shadow-flat); display: flex; justify-content: space-between; align-items: center; }
+  .stat-nums { font-size: .82rem; color: var(--ink-soft); font-weight: 600; }
+  .stat-nums b { color: var(--ink); font-size: 1.05em; margin: 0 3px; }
+
+  /* ---------- MOUNT / PAGE CARD ---------- */
+  .mount { background: var(--card); border: 2px solid var(--ink); border-radius: 16px; padding: 22px 18px 16px 24px; box-shadow: var(--shadow-flat-lg); position: relative; display: flex; flex-direction: column; gap: 16px; border-left-width: 8px; border-left-color: var(--current-accent); }
+  .round-caption { font-size: .68rem; font-weight: 700; color: var(--ink-soft); letter-spacing: .01em; }
+
+  .sentence-item { font-family: 'Fraunces', serif; font-size: 1.08rem; line-height: 1.65; text-align: left; position: relative; padding-bottom: 12px; border-bottom: 1.5px dashed var(--card-line); cursor: pointer; transition: opacity .3s; }
+  .sentence-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .sentence-item b { display: inline-block; min-width: 64px; padding: 1px 8px; border-bottom: 2.5px dashed #cdbf98; font-weight: 700; color: var(--ink-soft); text-align: center; transition: all .2s; }
+  .sentence-item.filled b { border-bottom-style: solid; border-bottom-color: var(--teal); color: var(--teal); animation: tileIn .25s cubic-bezier(.2,1.5,.4,1); }
+  .sentence-item.error { animation: shake .35s ease; }
+  .sentence-item.correct { animation: pop .4s var(--ease); }
+
+  .mount-hint { text-align: center; font-size: .72rem; color: var(--ink-soft); font-style: italic; }
+
+  /* ---------- TRAY ---------- */
+  .tray { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; min-height: 50px; align-content: flex-start; }
+  .tile { display: inline-flex; align-items: center; padding: 11px 20px; border-radius: 12px; background: #fff; border: 2px solid var(--ink); cursor: pointer; box-shadow: var(--shadow-flat); transition: transform .13s var(--ease), box-shadow .13s var(--ease); animation: tileSpawn .22s cubic-bezier(.2,1.5,.4,1); font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; color: var(--ink); }
+  .tile:active { transform: translate(2px,2px); box-shadow: none; }
+  .tile.selected { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .tile.solved { opacity: 0; pointer-events: none; }
+
+  /* ---------- MARGINALIA NOTE ---------- */
+  #noteCard { display: none; background: #fdf4de; border: 2px solid var(--marigold-deep); border-radius: 16px; padding: 18px 18px 16px; box-shadow: var(--shadow-flat); position: relative; transform: rotate(-.6deg); }
+  #noteCard.show { display: block; animation: cardIn .4s cubic-bezier(.3,1.4,.5,1) forwards; }
+  #noteCard .note-kicker { font-family: 'Caveat', cursive; font-weight: 700; font-size: 1.05rem; color: var(--marigold-deep); margin-bottom: 4px; }
+  #noteCard .note-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.08rem; margin-bottom: 6px; }
+  #noteCard .note-blurb { font-family: 'Caveat', cursive; font-size: 1.28rem; line-height: 1.35; color: var(--ink); margin-bottom: 12px; }
+  #noteCard a.note-link { font-size: .78rem; font-weight: 700; color: var(--marigold-deep); text-decoration: underline; }
+  #noteCard button { margin-top: 14px; }
+
+  /* ---------- END SCREEN ---------- */
+  #endScreen { justify-content: center; }
+  .recap-card { width: 100%; max-width: 480px; background: var(--card); border: 2px solid var(--ink); border-radius: 22px; padding: 30px 24px; box-shadow: 7px 7px 0 rgba(36,30,61,.16); animation: cardIn .5s cubic-bezier(.3,1.4,.5,1) forwards; }
+  .recap-title { font-family: 'Fraunces', serif; font-weight: 900; font-size: 1.7rem; text-align: center; margin-bottom: 4px; }
+  .recap-sub { text-align: center; font-size: .82rem; color: var(--ink-soft); margin-bottom: 20px; }
+  .recap-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 18px; }
+  .rstat { background: var(--paper); border: 2px solid var(--card-line); border-radius: 12px; padding: 12px 6px; text-align: center; }
+  .rstat b { display: block; font-family: 'Fraunces', serif; font-size: 1.45rem; }
+  .rstat b.wrong-val { color: var(--rust); }
+  .rstat b.gem-val { color: var(--marigold-deep); }
+  .rstat span { font-size: .66rem; color: var(--ink-soft); font-weight: 600; }
+
+  .shelf { display: flex; flex-direction: column; gap: 10px; margin: 10px 0 18px; max-height: 320px; overflow-y: auto; padding-right: 4px; }
+  .shelf-item { border: 1.5px solid var(--card-line); border-radius: 12px; padding: 10px 12px; }
+  .shelf-item .t { font-family: 'Fraunces', serif; font-weight: 700; font-size: .95rem; }
+  .shelf-item .a { font-size: .72rem; color: var(--ink-soft); margin-bottom: 3px; }
+  .shelf-item p { font-size: .82rem; line-height: 1.4; margin-bottom: 4px; }
+  .shelf-item a { font-size: .74rem; color: var(--violet-deep); font-weight: 700; text-decoration: underline; }
+
+  .end-btn-row { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  @keyframes pop { 0%{transform:scale(1)} 45%{transform:scale(1.02)} 100%{transform:scale(1)} }
+  @keyframes tileIn { from{transform:translateY(6px) scale(.85);opacity:0} to{transform:none;opacity:1} }
+  @keyframes tileSpawn { from{transform:scale(.6);opacity:0} to{transform:scale(1);opacity:1} }
+  @keyframes cardIn { from{opacity:0;transform:translateY(24px) scale(.97)} to{opacity:1;transform:none} }
+  @keyframes gemPop { 0%{transform:scale(1)} 50%{transform:scale(1.28) rotate(8deg);color:var(--marigold-deep)} 100%{transform:scale(1) rotate(0)} }
+  .gem-pop { animation: gemPop .5s ease; }
+
+  @media (max-width: 360px) {
+    .tile { padding: 10px 16px; font-size: .92rem; }
+  }
+</style>
+<base target="_blank">
+</head>
+<body oncontextmenu="return false;">
+
+  <!-- ANTI-CHEAT OVERLAYS -->
+  <div class="cheat-overlay" id="cheatOverlay">
+    <h2>&#9888; Security Alert</h2>
+    <p id="cheatMessage">Suspicious activity detected. Please return to the test immediately.</p>
+    <button class="btn" style="background:#fff; color:var(--cheat); width:auto;" onclick="resumeTest()">I Understand &mdash; Resume Test</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- NAME GATE (GitHub Auth) + LEVEL INTRO -->
+  <div class="screen active" id="nameFormScreen">
+    <div class="gate-card">
+      <div class="level-badge">&#128395;&#65039;</div>
+      <div>
+        <div class="level-eyebrow">The Antonym Trail &middot; Level 3 of 3</div>
+        <div class="hero-title">The Classics</div>
+      </div>
+      <div class="hero-sub">Complete real lines of literature, word by missing word.</div>
+
+      <div class="candidate-chip" id="candidateChip">
+        <img id="candidateAvatar" src="https://via.placeholder.com/150" alt="Avatar">
+        <div>
+          <strong id="candidateName">Loading User...</strong><br>
+          <span id="candidateDept" style="color:var(--ink-soft);font-size:.75rem;">Verifying GitHub Auth...</span>
+        </div>
+      </div>
+
+      <div class="security-notice">
+        <strong>&#128274; Secure Test Environment</strong>
+        This test is actively monitored. Switching tabs, minimizing the window, or attempting to copy content will be recorded in your final assessment.
+      </div>
+
+      <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>Start level 3</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="quizScreen">
+    <div class="col">
+      <div class="top-bar">
+        <div class="brand">
+          <span class="brand-name">The Antonym <em>Trail</em></span>
+          <span class="brand-sub">Level 3 &middot; The Classics</span>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="icon-btn" id="soundBtn" title="Toggle sound">&#128266;</button>
+          <div class="timer-pill"><div class="timer-text" id="timer">00:00</div></div>
+        </div>
+      </div>
+      <div class="ribbon" id="ribbon"></div>
+
+      <div class="stat-strip">
+        <span class="stat-nums">&#128205; <b id="roundTracker">1 of X</b></span>
+        <div class="cheat-counter" id="cheatCounter"><span>&#128737;</span><span id="cheatCount">0</span></div>
+        <span class="stat-nums">&#128293; <b id="streakCounter">0</b></span>
+        <span class="stat-nums" id="gemsCounter">&#128142; <b>0</b></span>
+      </div>
+
+      <div class="mount" id="mount">
+        <div class="round-caption" id="roundCaption">Round</div>
+        <div id="itemsWrap"></div>
+      </div>
+      <div class="mount-hint">Tap a tile, then tap the blank it belongs in.</div>
+
+      <div class="tray" id="tray"></div>
+
+      <div id="noteCard">
+        <div class="note-kicker">&#9998; worth a detour</div>
+        <div class="note-title" id="noteTitle"></div>
+        <div class="note-blurb" id="noteBlurb"></div>
+        <a class="note-link" id="noteLink" href="#">Look it up &rarr;</a>
+        <button class="btn btn-teal" id="noteContinueBtn">Keep going</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div class="screen" id="endScreen">
+    <div class="col" style="justify-content:center;">
+      <div class="recap-card">
+        <div class="recap-title">Level 3 complete &#127881;</div>
+        <div class="recap-sub" id="endSub">Player details</div>
+
+        <div class="recap-stats">
+          <div class="rstat"><b id="endCorrect">0</b><span>correct</span></div>
+          <div class="rstat"><b class="wrong-val" id="endWrong">0</b><span>wrong</span></div>
+          <div class="rstat"><b class="gem-val" id="endGems">0</b><span>gems</span></div>
+          <div class="rstat"><b id="endTime">00:00</b><span>time</span></div>
+        </div>
+
+        <div class="cheat-report" id="cheatReportSection">
+          <h4>Security report</h4>
+          <ul id="cheatList"></ul>
+        </div>
+
+        <div style="font-family:'Fraunces',serif; font-weight:700;">Where these lines came from</div>
+        <div class="shelf" id="shelf"></div>
+
+        <div class="end-btn-row">
+          <button class="btn btn-teal" id="shareBtn">Copy my results</button>
+          <button class="btn btn-ghost" onclick="location.reload()">&#8635; Play again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ========== GITHUB AUTH INTEGRATION ========== */
+let playerName = "Guest";
+let playerDept = "Unknown";
+let playerAvatar = "";
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.GH) {
+    playerName = window.GH.name || window.GH.username || "Student";
+    playerDept = window.GH.dept || "Department Unspecified";
+    playerAvatar = window.GH.avatar || "https://via.placeholder.com/150";
+
+    document.getElementById('candidateName').textContent = playerName;
+    document.getElementById('candidateDept').textContent = 'Department: ' + playerDept;
+    if (playerAvatar) {
+      document.getElementById('candidateAvatar').src = playerAvatar;
+    }
+    document.getElementById('startBtn').disabled = false;
+  } else {
+    // Fallback for standalone demo
+    setTimeout(() => {
+      playerName = localStorage.getItem("questPlayerName") || "Test Student";
+      playerDept = localStorage.getItem("questPlayerDept") || "CSE";
+      document.getElementById('candidateName').textContent = playerName;
+      document.getElementById('candidateDept').textContent = 'Department: ' + playerDept;
+      document.getElementById('startBtn').disabled = false;
+    }, 500);
+  }
+});
+
+/* ========== LEVEL CONFIG ========== */
+const LEVEL_NUM = 3;
+const LEVEL_TITLE = "The Classics";
+const QUEST_ID = "Quest 23";
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+/* ========== AUDIO (synthesized, no external files) ========== */
+let isMuted = false;
+let audioCtx = null;
+
+function tone(freq, dur, type) {
+  if (isMuted) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type || "sine";
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
+}
+function correctSound() { tone(660, .12, "triangle"); setTimeout(() => tone(880, .16, "triangle"), 90); }
+function wrongSound() { tone(180, .22, "sawtooth"); }
+
+document.getElementById("soundBtn").addEventListener("click", () => {
+  isMuted = !isMuted;
+  document.getElementById("soundBtn").textContent = isMuted ? "\uD83D\uDD07" : "\uD83D\uDD0A";
+});
+
+/* ========== CONFETTI ========== */
+function littleConfetti() {
+  if (window.confetti) confetti({ particleCount: 60, spread: 65, origin: { y: .65 }, colors: ['#ff6a52', '#f0a500', '#7a4fe0', '#12a594'] });
+}
+function bigConfetti() {
+  if (!window.confetti) return;
+  const end = Date.now() + 1600;
+  (function frame() {
+    confetti({ particleCount: 5, angle: 60, spread: 60, origin: { x: 0 }, colors: ['#ff6a52', '#f0a500', '#7a4fe0', '#12a594'] });
+    confetti({ particleCount: 5, angle: 120, spread: 60, origin: { x: 1 }, colors: ['#ff6a52', '#f0a500', '#7a4fe0', '#12a594'] });
+    if (Date.now() < end) requestAnimationFrame(frame);
+  })();
+}
+
+/* ========== ANTI-CHEAT SYSTEM ========== */
+let cheatEvents = [];
+let cheatCount = 0;
+let isPaused = false;
+let testSubmitted = false;
+let startTime, timerInterval;
+let elapsedSeconds = 0;
+let currentRoundIdx = 0;
+
+function initAntiCheat() {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && !testSubmitted && startTime) {
+      recordCheat('Tab switched / window minimized', 'tab');
+      showCheatOverlay('You switched tabs or minimized the window. This has been recorded.');
+    }
+  });
+
+  window.addEventListener('blur', () => {
+    if (!testSubmitted && startTime && !isPaused && !isMobile) {
+      recordCheat('Window lost focus', 'focus');
+    }
+  });
+
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    if (!testSubmitted && startTime) {
+      recordCheat('Right-click attempted', 'rightclick');
+      showToast('Right-click is disabled during the test', true);
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (!testSubmitted && startTime) {
+      if (e.key === 'F12') {
+        e.preventDefault(); recordCheat('F12 (DevTools) pressed', 'devtools'); showToast('Developer tools are blocked', true);
+      }
+      if ((e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'u')) {
+        e.preventDefault(); recordCheat('DevTools shortcut blocked: ' + e.key, 'shortcut'); showToast('Keyboard shortcuts are restricted', true);
+      }
+      if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'a' || e.key === 'c' || e.key === 'v' || e.key === 'x')) {
+        e.preventDefault(); recordCheat('System shortcut: Ctrl+' + e.key, 'shortcut');
+      }
+    }
+  });
+
+  document.addEventListener('copy', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Copy attempted', 'copy'); showToast('Copying is disabled', true); } });
+  document.addEventListener('paste', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Paste attempted', 'paste'); } });
+  document.addEventListener('cut', e => { if (!testSubmitted && startTime) { e.preventDefault(); recordCheat('Cut attempted', 'cut'); } });
+
+  if (!isMobile) {
+    const detectConsole = () => {
+      if (testSubmitted || !startTime || isPaused) return;
+      const start = performance.now(); debugger; const end = performance.now();
+      if (end - start > 100) {
+        recordCheat('Console/Debugger accessed', 'console');
+        showCheatOverlay('Console access detected. This incident has been logged.');
+      }
+    };
+    setInterval(detectConsole, 3000);
+  }
+
+  document.addEventListener('keyup', e => {
+    if (e.key === 'PrintScreen') {
+      recordCheat('Screenshot/Print attempted', 'screenshot'); showToast('Screenshots are monitored', true);
+    }
+  });
+}
+
+function recordCheat(description, type) {
+  cheatCount++;
+  cheatEvents.push({ type, description, timestamp: new Date().toISOString(), question: currentRoundIdx + 1 });
+  updateCheatCounter();
+}
+
+function updateCheatCounter() {
+  document.getElementById('cheatCount').textContent = cheatCount;
+  const badge = document.getElementById('cheatCounter');
+  if (cheatCount > 0) {
+    badge.classList.add('active');
+    setTimeout(() => badge.classList.remove('active'), 500);
+  }
+}
+
+function showCheatOverlay(msg) {
+  isPaused = true;
+  document.getElementById('cheatMessage').textContent = msg;
+  document.getElementById('cheatOverlay').classList.add('show');
+}
+
+function resumeTest() {
+  isPaused = false;
+  document.getElementById('cheatOverlay').classList.remove('show');
+  showToast('Test resumed. Further violations will be flagged.');
+}
+
+function showToast(msg, isCheat = false) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast' + (isCheat ? ' cheat' : '');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+/* ========== DATA ========== */
+const ROUNDS = [
+  { items:[
+      { text:"It was the ___ of times, it was the worst of times,", answer:"best" },
+      { text:"It was the best of times, it was the ___ of times,", answer:"worst" },
+      { text:"it was the age of ___, it was the age of foolishness,", answer:"wisdom" },
+      { text:"it was the age of wisdom, it was the age of ___,", answer:"foolishness" },
+      { text:"it was the epoch of ___, it was the epoch of incredulity,", answer:"belief" },
+      { text:"it was the epoch of belief, it was the epoch of ___,", answer:"incredulity" }
+    ]
+  },
+  { items:[
+      { text:"it was the season of ___, it was the season of Darkness,", answer:"Light" },
+      { text:"it was the season of Light, it was the season of ___,", answer:"Darkness" },
+      { text:"it was the spring of ___, it was the winter of despair,", answer:"hope" },
+      { text:"it was the spring of hope, it was the winter of ___,", answer:"despair" },
+      { text:"we had ___ before us, we had nothing before us &mdash;", answer:"everything" },
+      { text:"we had everything before us, we had ___ before us &mdash;", answer:"nothing" }
+    ],
+    note:{ kicker:"that opening you've heard a hundred times:", title:"Charles Dickens, A Tale of Two Cities", blurb:"One 119-word sentence that somehow still feels like it was written yesterday.", query:"A Tale of Two Cities Charles Dickens" }
+  },
+  { items:[
+      { text:"If you can ___ yourself when all men doubt you, but make allowance for their doubting too &mdash;", answer:"trust" },
+      { text:"If you can trust yourself when all men ___ you, but make allowance for their doubting too &mdash;", answer:"doubt" }
+    ],
+    note:{ kicker:"the poem your grandfather probably framed:", title:"Rudyard Kipling, \u201cIf&mdash;\u201d", blurb:"A whole philosophy of steadiness packed into 32 short lines.", query:"Rudyard Kipling If poem" }
+  },
+  { items:[
+      { text:"Better to ___ in Hell than serve in Heaven.", answer:"reign" },
+      { text:"Better to reign in ___ than serve in Heaven.", answer:"Hell" },
+      { text:"Better to reign in Hell than ___ in Heaven.", answer:"serve" },
+      { text:"Better to reign in Hell than serve in ___.", answer:"Heaven" }
+    ],
+    note:{ kicker:"Satan's most famous excuse:", title:"John Milton, Paradise Lost", blurb:"An epic poem that somehow makes the villain's logic sound almost reasonable.", query:"Paradise Lost John Milton" }
+  },
+  { items:[
+      { text:"___ die many times before their deaths;", answer:"Cowards" },
+      { text:"Cowards die many times before their deaths; the ___ never taste of death but once.", answer:"valiant" }
+    ],
+    note:{ kicker:"advice ignored right before a stabbing:", title:"William Shakespeare, Julius Caesar", blurb:"Said right before Caesar walks into the one meeting he really should have skipped.", query:"Julius Caesar Shakespeare" }
+  },
+  { items:[
+      { text:"I am no bird, and no net ___ me &mdash;", answer:"ensnares" },
+      { text:"I am no bird, and no net ensnares me: I am a ___ human being with an independent will.", answer:"free" }
+    ],
+    note:{ kicker:"one of literature's great mic-drops:", title:"Charlotte Bront\u00eb, Jane Eyre", blurb:"Said to the man who thinks he can keep her &mdash; and she means every word.", query:"Jane Eyre Charlotte Bronte" }
+  },
+  { items:[
+      { text:"Without contraries there is no progression. ___ and Repulsion,", answer:"Attraction" },
+      { text:"Without contraries there is no progression. Attraction and ___,", answer:"Repulsion" },
+      { text:"reason and energy, ___ and Hate,", answer:"Love" },
+      { text:"reason and energy, Love and ___, are necessary to human existence.", answer:"Hate" }
+    ],
+    note:{ kicker:"a poet arguing that opposites are the point:", title:"William Blake, The Marriage of Heaven and Hell", blurb:"A strange, brilliant little book that flips good-and-evil on its head.", query:"The Marriage of Heaven and Hell William Blake" }
+  },
+  { items:[
+      { text:"Never surrender to the ___ threat, and never surrender to the minor one &mdash;", answer:"mighty" },
+      { text:"Never surrender to the mighty threat, and never surrender to the ___ one &mdash; courage answers to neither size nor shadow.", answer:"minor" }
+    ],
+    note:{ kicker:"inspired by a speech that never mentions size, but should have:", title:"Winston Churchill's 1941 Harrow speech", blurb:"Famous for a four-word refrain. Worth hearing in his own words &mdash; the recording still exists.", query:"Winston Churchill Harrow 1941 never give in speech" }
+  },
+  { items:[
+      { text:"When a society starts calling ___ \u2018honesty,\u2019 ask who benefits from the confusion.", answer:"deceit" },
+      { text:"When a society starts calling deceit \u2018___,\u2019 ask who benefits from the confusion.", answer:"honesty" }
+    ],
+    note:{ kicker:"inspired by a novel about words that mean their opposite:", title:"George Orwell, 1984", blurb:"The book that gave us \u201cdoublethink\u201d and \u201cnewspeak\u201d &mdash; still the sharpest warning about language as a weapon.", query:"1984 George Orwell" }
+  },
+  { items:[
+      { text:"___ does not erase the darkness; it teaches us to build by lantern light until morning comes.", answer:"Hope" },
+      { text:"Hope does not erase the ___; it teaches us to build by lantern light until morning comes.", answer:"darkness" }
+    ],
+    note:{ kicker:"inspired by a speech built entirely on this idea:", title:"Dr. Martin Luther King Jr., \u201cI Have a Dream\u201d", blurb:"One of the most quoted speeches in history &mdash; and one that rewards hearing in full, in his voice.", query:"Martin Luther King I Have a Dream speech" }
+  },
+  { items:[
+      { text:"Walk every fork in the road you're given &mdash; the ___ ones and the frightening ones &mdash;", answer:"comfortable" },
+      { text:"Walk every fork in the road you're given &mdash; the comfortable ones and the ___ ones &mdash; and leave none untried.", answer:"frightening" }
+    ],
+    note:{ kicker:"inspired by a book about a boy raised by ghosts:", title:"Neil Gaiman, The Graveyard Book", blurb:"A story about growing up and eventually having to leave the safest place you've ever known.", query:"The Graveyard Book Neil Gaiman" }
+  }
+];
+
+const SHELF = [
+  { t:"A Tale of Two Cities", a:"Charles Dickens", p:"Has one of the most recognizable opening lines in English literature &mdash; and a plot that earns it.", q:"A Tale of Two Cities Charles Dickens" },
+  { t:"\u201cIf&mdash;\u201d", a:"Rudyard Kipling", p:"A 32-line poem that's been framed on more office walls than almost anything else ever written.", q:"Rudyard Kipling If poem" },
+  { t:"Paradise Lost", a:"John Milton", p:"An epic retelling of the fall of Satan &mdash; who gets, unfairly, most of the best lines.", q:"Paradise Lost John Milton" },
+  { t:"Julius Caesar", a:"William Shakespeare", p:"Political betrayal, several excellent speeches, and one very bad day for Caesar.", q:"Julius Caesar Shakespeare" },
+  { t:"Jane Eyre", a:"Charlotte Bront\u00eb", p:"A quietly radical novel about refusing to be anyone's possession.", q:"Jane Eyre Charlotte Bronte" },
+  { t:"The Marriage of Heaven and Hell", a:"William Blake", p:"Part poem, part manifesto, arguing that good and evil need each other to mean anything.", q:"The Marriage of Heaven and Hell William Blake" },
+  { t:"1941 Harrow School speech", a:"Winston Churchill", p:"A short wartime address, still worth hearing for its famous refrain.", q:"Winston Churchill Harrow 1941 speech" },
+  { t:"1984", a:"George Orwell", p:"The novel that put \u201cBig Brother\u201d and \u201cdoublethink\u201d into everyday language.", q:"1984 George Orwell" },
+  { t:"\u201cI Have a Dream\u201d", a:"Dr. Martin Luther King Jr.", p:"One of the most consequential speeches of the 20th century, best experienced in full.", q:"Martin Luther King I Have a Dream speech" },
+  { t:"The Graveyard Book", a:"Neil Gaiman", p:"A boy raised by ghosts in a cemetery &mdash; warmer and sadder than that premise sounds.", q:"The Graveyard Book Neil Gaiman" }
+];
+
+
+/* ========== STATE ========== */
+let selectedTile = null;
+let stats = { correct: 0, wrong: 0, gems: 0, streak: 0, bestStreak: 0 };
+
+const itemsWrap = document.getElementById("itemsWrap");
+const trayEl = document.getElementById("tray");
+const roundCaption = document.getElementById("roundCaption");
+const roundTracker = document.getElementById("roundTracker");
+
+/* ========== START ========== */
+function startQuiz() {
+  document.getElementById("nameFormScreen").classList.remove("active");
+  document.getElementById("quizScreen").classList.add("active");
+
+  currentRoundIdx = 0;
+  stats = { correct: 0, wrong: 0, gems: 0, streak: 0, bestStreak: 0 };
+  elapsedSeconds = 0;
+  cheatEvents = []; cheatCount = 0; testSubmitted = false;
+
+  startTime = Date.now();
+  updateCheatCounter();
+  updateStatStrip();
+  startTimer();
+  initAntiCheat();
+  loadRound();
+}
+
+/* ========== TIMER ========== */
+function startTimer() {
+  timerInterval = setInterval(() => {
+    if (isPaused) return;
+    elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById("timer").innerText = formatTime(elapsedSeconds);
+  }, 1000);
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+}
+
+/* ========== GAME ENGINE ========== */
+function loadRound() {
+  const round = ROUNDS[currentRoundIdx];
+  selectedTile = null;
+
+  document.getElementById("noteCard").classList.remove("show");
+
+  roundTracker.innerHTML = `${currentRoundIdx + 1} of ${ROUNDS.length}`;
+  roundCaption.textContent = LEVEL_TITLE;
+
+  renderRibbon();
+  updateStatStrip();
+
+  itemsWrap.innerHTML = "";
+  trayEl.innerHTML = "";
+
+  const items = round.items.map((it, i) => ({ ...it, _uid: currentRoundIdx + "-" + i }));
+
+  // tray tiles, shuffled
+  const shuffledAnswers = items.map(it => it.answer).sort(() => Math.random() - .5);
+  shuffledAnswers.forEach(ans => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.textContent = ans;
+    tile.onclick = () => selectTile(tile, ans);
+    trayEl.appendChild(tile);
+  });
+
+  // sentence items, shuffled
+  const shuffledItems = [...items].sort(() => Math.random() - .5);
+  shuffledItems.forEach(it => {
+    const div = document.createElement("div");
+    div.className = "sentence-item";
+    div.innerHTML = it.text.replace("___", "<b>____</b>");
+    div.dataset.answer = it.answer;
+    div.dataset.original = it.text;
+    div.onclick = () => placeTile(div);
+    itemsWrap.appendChild(div);
+  });
+}
+
+function renderRibbon() {
+  const ribbon = document.getElementById("ribbon");
+  ribbon.innerHTML = "";
+  ROUNDS.forEach((_, i) => {
+    const seg = document.createElement("div");
+    seg.className = "ribbon-seg" + (i <= currentRoundIdx ? " on" : "");
+    ribbon.appendChild(seg);
+  });
+}
+
+function updateStatStrip() {
+  const gemsEl = document.getElementById("gemsCounter");
+  gemsEl.innerHTML = `&#128142; <b>${stats.gems}</b>`;
+  document.getElementById("streakCounter").textContent = stats.streak;
+}
+
+function selectTile(el, text) {
+  if (isPaused) return;
+  document.querySelectorAll(".tile").forEach(t => t.classList.remove("selected"));
+  selectedTile = { el, text };
+  el.classList.add("selected");
+}
+
+function placeTile(dropZone) {
+  if (isPaused || !selectedTile || dropZone.classList.contains("filled")) return;
+
+  const answer = selectedTile.text;
+  const correct = dropZone.dataset.answer;
+
+  if (answer === correct) {
+    correctSound(); littleConfetti();
+    stats.correct++; stats.gems++; stats.streak++;
+    stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
+    updateStatStrip();
+    const gemsEl = document.getElementById("gemsCounter");
+    gemsEl.classList.add("gem-pop");
+    setTimeout(() => gemsEl.classList.remove("gem-pop"), 500);
+
+    dropZone.innerHTML = dropZone.dataset.original.replace("___", `<b>${answer}</b>`);
+    dropZone.classList.add("correct", "filled");
+    selectedTile.el.classList.add("solved");
+    selectedTile = null;
+
+    if (document.querySelectorAll(".sentence-item:not(.filled)").length === 0) {
+      setTimeout(() => finishRound(), 700);
+    }
+  } else {
+    wrongSound();
+    stats.wrong++; stats.gems = Math.max(0, stats.gems - 1); stats.streak = 0;
+    updateStatStrip();
+    dropZone.classList.add("error");
+    setTimeout(() => dropZone.classList.remove("error"), 350);
+    selectedTile.el.classList.remove("selected");
+    selectedTile = null;
+  }
+}
+
+function finishRound() {
+  const round = ROUNDS[currentRoundIdx];
+  if (round.note) {
+    showNote(round.note);
+  } else {
+    advanceRound();
+  }
+}
+
+function showNote(note) {
+  document.getElementById("noteTitle").innerHTML = note.title;
+  document.getElementById("noteBlurb").innerHTML = note.blurb;
+  const link = document.getElementById("noteLink");
+  link.href = "https://www.google.com/search?q=" + encodeURIComponent(note.query);
+  document.querySelector("#noteCard .note-kicker").textContent = "\u270E " + note.kicker;
+
+  const isLast = currentRoundIdx === ROUNDS.length - 1;
+  const btn = document.getElementById("noteContinueBtn");
+  btn.textContent = isLast ? "See my results" : "Keep going";
+  document.getElementById("noteCard").classList.add("show");
+  btn.onclick = () => {
+    document.getElementById("noteCard").classList.remove("show");
+    advanceRound();
+  };
+}
+
+function advanceRound() {
+  if (currentRoundIdx >= ROUNDS.length - 1) {
+    showEndScreen();
+  } else {
+    currentRoundIdx++;
+    loadRound();
+  }
+}
+
+/* ========== END SCREEN + SUBMIT ========== */
+function showEndScreen() {
+  clearInterval(timerInterval);
+  testSubmitted = true;
+  elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+  bigConfetti();
+
+  document.getElementById("quizScreen").classList.remove("active");
+  document.getElementById("endScreen").classList.add("active");
+
+  document.getElementById("endSub").innerText = `${playerName} \u00B7 ${playerDept}`;
+  document.getElementById("endCorrect").innerText = stats.correct;
+  document.getElementById("endWrong").innerText = stats.wrong;
+  document.getElementById("endGems").innerText = stats.gems;
+  document.getElementById("endTime").innerText = formatTime(elapsedSeconds);
+
+  const cheatList = document.getElementById('cheatList');
+  if (cheatEvents.length === 0) {
+    cheatList.innerHTML = '<li style="color:var(--success)">\u2713 No suspicious activity detected</li>';
+  } else {
+    cheatList.innerHTML = cheatEvents.map(e => '<li class="warn">' + e.description + ' (Q' + e.question + ')</li>').join('');
+  }
+
+  const shelf = document.getElementById("shelf");
+  shelf.innerHTML = "";
+  SHELF.forEach(b => {
+    const div = document.createElement("div");
+    div.className = "shelf-item";
+    div.innerHTML = `<div class="t">${b.t}</div><div class="a">${b.a}</div><p>${b.p}</p><a href="https://www.google.com/search?q=${encodeURIComponent(b.q)}">Look it up &rarr;</a>`;
+    shelf.appendChild(div);
+  });
+
+  fetch(EDGE_FUNCTION_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      student_name: playerName,
+      department: playerDept,
+      correct: stats.correct,
+      wrong: stats.wrong,
+      time_spent: elapsedSeconds,
+      quest_id: QUEST_ID,
+      cheat_count: cheatCount,
+      cheat_events: cheatEvents
+    })
+  }).catch(() => {});
+}
+
+document.getElementById("shareBtn").addEventListener("click", async () => {
+  const text = `I finished The Antonym Trail, Level ${LEVEL_NUM}: ${stats.correct} correct, ${stats.gems} gems, best streak ${stats.bestStreak}. \uD83D\uDD25`;
+  try {
+    if (navigator.share) { await navigator.share({ text }); return; }
+    await navigator.clipboard.writeText(text);
+    showToast("Copied to clipboard!");
+  } catch (e) { showToast("Couldn't share \u2014 copy it manually"); }
+});
+</script>
+</body>
+</html>
