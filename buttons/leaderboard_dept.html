@@ -19,7 +19,7 @@
   --gold-border: rgba(184,134,11,0.25);
   --text: #1a1510;
   --text-mid: #5c4a2a;
-  --text-dim: #9c8060;
+  --text-dim: #8a6f4d;
   --risk-red: #c0392b;
   --risk-bg: rgba(192,57,43,0.07);
   --risk-border: rgba(192,57,43,0.22);
@@ -34,6 +34,7 @@ body {
   font-family: 'Crimson Pro', serif;
   min-height: 100vh;
 }
+:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
 
 /* HEADER */
 header {
@@ -109,6 +110,7 @@ input[type=text]:focus, select:focus, input[type=date]:focus {
   font-family:'Cinzel',serif; font-size:10px;
   letter-spacing:.13em; padding:13px 18px 11px;
   cursor:pointer; color:var(--text-dim);
+  background:none; border:none;
   border-bottom:2px solid transparent; margin-bottom:-2px;
   transition:all .18s; white-space:nowrap;
   display:flex; align-items:center; gap:6px;
@@ -125,6 +127,14 @@ input[type=text]:focus, select:focus, input[type=date]:focus {
 .main-wrap { padding:20px 18px 48px; }
 .tc { display:none; }
 .tc.active { display:block; }
+
+/* ERROR BANNER */
+#errBox {
+  display:none; margin:16px 18px 0; padding:14px 16px;
+  border-radius:12px; background:var(--risk-bg);
+  border:1px solid var(--risk-border); color:var(--risk-red);
+  font-size:15px; align-items:center; gap:14px; flex-wrap:wrap;
+}
 
 /* STATS BAR */
 .stats-bar {
@@ -143,6 +153,10 @@ input[type=text]:focus, select:focus, input[type=date]:focus {
 .sc.danger .num { color:var(--risk-red); }
 
 /* CALENDAR */
+.cal-legend {
+  font-size:14px; color:var(--text-mid); margin-bottom:14px;
+}
+.cal-legend strong { color:var(--gold); font-family:'Cinzel',serif; font-size:12px; }
 .month-block {
   margin-bottom:20px; padding:16px;
   border-radius:14px; background:var(--surface);
@@ -162,10 +176,13 @@ input[type=text]:focus, select:focus, input[type=date]:focus {
   font-size:9px; color:var(--text-dim); padding:3px 0; letter-spacing:.05em;
 }
 .day {
+  display:block; width:100%; text-align:left;
+  font:inherit; color:inherit;
   border-radius:8px; padding:6px; min-height:54px;
   border:1px solid var(--gold-border); position:relative;
   transition:all .18s; background:var(--surface-alt);
 }
+.day.today { outline:2px dashed var(--gold-light); outline-offset:1px; }
 .day.marked { cursor:pointer; border-color:var(--gold-light); }
 .day.marked:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(184,134,11,.15); }
 .day.selected { box-shadow:0 0 0 2px var(--gold)!important; }
@@ -173,12 +190,13 @@ input[type=text]:focus, select:focus, input[type=date]:focus {
 .day.medium { background:rgba(184,134,11,.17); }
 .day.heavy  { background:rgba(184,134,11,.27); }
 .day.peak   { background:rgba(184,134,11,.42); box-shadow:0 0 12px rgba(184,134,11,.22); }
-.dnum { font-weight:700; font-size:11px; color:var(--text); }
+.dnum { display:block; font-weight:700; font-size:11px; color:var(--text); }
 .dcount {
   position:absolute; bottom:5px; right:7px;
-  font-family:'Cinzel',serif; font-size:15px;
-  font-weight:900; color:var(--gold);
+  font-family:'Cinzel',serif; font-size:14px;
+  font-weight:900; color:var(--gold); white-space:nowrap;
 }
+.dcount .u { color:var(--text-mid); font-weight:600; font-size:12px; }
 
 /* DAY BREAKDOWN */
 #breakdown {
@@ -210,6 +228,7 @@ input[type=text]:focus, select:focus, input[type=date]:focus {
   padding:3px 0; border-bottom:1px solid var(--gold-border);
 }
 .srow:last-child{border-bottom:none}
+.rep { color:var(--gold); font-weight:700; font-size:12px; white-space:nowrap; }
 .rtag {
   font-size:9px; padding:1px 6px;
   background:var(--risk-bg); color:var(--risk-red);
@@ -228,14 +247,15 @@ thead th {
   font-family:'Cinzel',serif; font-size:9px; letter-spacing:.15em;
   color:var(--text-dim); padding:11px 12px; text-align:left;
   background:var(--surface-alt); border-bottom:1px solid var(--gold-border);
-  cursor:pointer; white-space:nowrap; user-select:none;
+  white-space:nowrap; user-select:none;
 }
-thead th:hover { color:var(--gold); }
+thead th[data-sort] { cursor:pointer; }
+thead th[data-sort]:hover { color:var(--gold); }
 tbody td { padding:9px 12px; border-bottom:1px solid rgba(184,134,11,.07); vertical-align:middle; }
 tbody tr:last-child td { border-bottom:none; }
 tbody tr:hover td { background:var(--gold-pale); }
 .riskrow td { background:var(--risk-bg)!important; }
-.ab-wrap { display:flex; align-items:center; gap:7px; min-width:90px; }
+.ab-wrap { display:flex; align-items:center; gap:7px; min-width:120px; }
 .ab { flex:1; height:5px; background:var(--gold-border); border-radius:3px; overflow:hidden; }
 .ab-fill { height:100%; background:var(--gold); border-radius:3px; }
 .streak-pill {
@@ -344,16 +364,21 @@ table.risk-tbl { border-color:var(--risk-border); }
   background:var(--gold); color:#fff; padding:11px 18px;
   border-radius:10px; font-family:'Cinzel',serif; font-size:11px;
   letter-spacing:.1em; box-shadow:0 8px 24px rgba(184,134,11,.35);
-  animation:fadeUp .3s ease;
+  animation:fadeUp .3s ease; transition:opacity .4s;
 }
 .notif.err { background:var(--risk-red); }
 
 @media(max-width:600px){
   .cal-grid{gap:3px}
-  .day{min-height:46px}
+  .day{min-height:46px; padding:4px}
+  .dcount{font-size:12px; right:4px}
+  .dcount .u{font-size:10px}
   .tabs{overflow-x:auto}
   .tab{font-size:9px;padding:11px 12px}
   .tsep{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important; transition:none!important}
 }
 </style>
 </head>
@@ -378,38 +403,43 @@ table.risk-tbl { border-color:var(--risk-border); }
 <!-- TOOLBAR -->
 <div class="toolbar">
   <div class="tg">
-    <span class="tlabel">Department</span>
-    <select id="deptSel" onchange="G.dept=this.value;G.render()"></select>
+    <label class="tlabel" for="deptSel">Department</label>
+    <select id="deptSel"></select>
   </div>
   <div class="tsep"></div>
   <div class="tg">
-    <span class="tlabel">Search</span>
-    <input type="text" id="searchBox" placeholder="Student name…"
-      oninput="G.search=this.value.toLowerCase();G.render()" style="width:155px">
+    <label class="tlabel" for="searchBox">Search</label>
+    <input type="text" id="searchBox" placeholder="Student name…" style="width:155px">
   </div>
   <div class="tsep"></div>
   <div class="tg">
-    <span class="tlabel">From</span>
-    <input type="date" id="dfrom" onchange="G.dateFrom=this.value?new Date(this.value):null;G.render()">
+    <label class="tlabel" for="dfrom">From</label>
+    <input type="date" id="dfrom">
     <span style="color:var(--text-dim);font-size:13px">–</span>
-    <input type="date" id="dto" onchange="G.dateTo=this.value?new Date(this.value):null;G.render()">
-    <button class="btn sm" onclick="clearDates()">✕ Clear</button>
+    <input type="date" id="dto" aria-label="To date">
+    <button class="btn sm" id="clearDatesBtn">✕ Clear</button>
   </div>
   <div class="tsep"></div>
   <div class="tg" style="margin-left:auto">
-    <button class="btn" onclick="exportCSV()">⬇ CSV</button>
-    <button class="btn primary" onclick="openPDF()">📄 Download Report</button>
+    <button class="btn" id="csvBtn">⬇ CSV</button>
+    <button class="btn primary" id="pdfBtn">📄 Download Report</button>
   </div>
 </div>
 
 <!-- TABS -->
-<div class="tabs">
-  <div class="tab active" id="t-cal"  onclick="switchTab('cal')">📅 Calendar</div>
-  <div class="tab"        id="t-lb"   onclick="switchTab('lb')">🏆 Leaderboard</div>
-  <div class="tab"        id="t-dept" onclick="switchTab('dept')">🏛 Departments</div>
-  <div class="tab"        id="t-risk" onclick="switchTab('risk')">
+<div class="tabs" role="tablist">
+  <button class="tab active" id="t-cal"  role="tab" data-tab="cal">📅 Calendar</button>
+  <button class="tab"        id="t-lb"   role="tab" data-tab="lb">🏆 Leaderboard</button>
+  <button class="tab"        id="t-dept" role="tab" data-tab="dept">🏛 Departments</button>
+  <button class="tab"        id="t-risk" role="tab" data-tab="risk">
     ⚠ At-Risk <span class="badge danger" id="riskBadge">0</span>
-  </div>
+  </button>
+</div>
+
+<!-- LOAD ERROR -->
+<div id="errBox" role="alert">
+  <span>Couldn't load student records. Check your connection, then try again.</span>
+  <button class="btn sm" id="retryBtn">Retry</button>
 </div>
 
 <!-- STATS BAR -->
@@ -422,6 +452,8 @@ table.risk-tbl { border-color:var(--risk-border); }
 
   <!-- CALENDAR -->
   <div class="tc active" id="tc-cal">
+    <p class="cal-legend">Each day shows <strong>activities · students</strong>.
+      In a day's breakdown, a number in brackets after a name is how many activities that student recorded that day.</p>
     <div id="calWrap"></div>
     <div id="breakdown"></div>
   </div>
@@ -432,15 +464,15 @@ table.risk-tbl { border-color:var(--risk-border); }
       <table id="lbTable">
         <thead>
           <tr>
-            <th onclick="sortBy('_rank')">#</th>
-            <th onclick="sortBy('name')">STUDENT ↕</th>
-            <th onclick="sortBy('dept')">DEPT ↕</th>
-            <th onclick="sortBy('total')">TOTAL ↕</th>
-            <th onclick="sortBy('quests')">QUESTS ↕</th>
-            <th onclick="sortBy('videos')">VIDEOS ↕</th>
-            <th onclick="sortBy('stories')">STORIES ↕</th>
-            <th onclick="sortBy('streak')">STREAK ↕</th>
-            <th onclick="sortBy('last')">LAST ACTIVE ↕</th>
+            <th data-sort="rank" tabindex="0">RANK ↕</th>
+            <th data-sort="name" tabindex="0">STUDENT ↕</th>
+            <th data-sort="dept" tabindex="0">DEPT ↕</th>
+            <th data-sort="total" tabindex="0" title="Total activities (active days)">TOTAL (DAYS) ↕</th>
+            <th data-sort="quests" tabindex="0">QUESTS ↕</th>
+            <th data-sort="videos" tabindex="0">VIDEOS ↕</th>
+            <th data-sort="stories" tabindex="0">STORIES ↕</th>
+            <th data-sort="streak" tabindex="0">STREAK ↕</th>
+            <th data-sort="last" tabindex="0">LAST ACTIVE ↕</th>
             <th>STATUS</th>
             <th>FLAG</th>
           </tr>
@@ -460,14 +492,13 @@ table.risk-tbl { border-color:var(--risk-border); }
     <div class="risk-controls">
       <span>Flag students with fewer than
         <strong id="thrDisplay">3</strong> activities in last 14 days</span>
-      <input type="range" min="1" max="15" value="3" id="thrSlider"
-        oninput="G.threshold=+this.value;document.getElementById('thrDisplay').textContent=this.value;G.render()">
+      <input type="range" min="1" max="15" value="3" id="thrSlider" aria-label="At-risk threshold">
     </div>
     <div class="lb-wrap">
       <table class="risk-tbl">
         <thead>
           <tr>
-            <th>STUDENT</th><th>DEPT</th><th>TOTAL</th>
+            <th>STUDENT</th><th>DEPT</th><th>TOTAL (DAYS)</th>
             <th>LAST 14 DAYS</th><th>STREAK</th><th>LAST ACTIVE</th><th>REASON</th>
           </tr>
         </thead>
@@ -480,23 +511,22 @@ table.risk-tbl { border-color:var(--risk-border); }
 </div><!-- /app -->
 
 <!-- PDF MODAL -->
-<div class="overlay" id="pdfOverlay" style="display:none"
-  onclick="if(event.target===this)closePDF()">
+<div class="overlay" id="pdfOverlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="pdfTitle">
   <div class="modal">
-    <h3>📄 GENERATE ACTIVITY REPORT</h3>
+    <h3 id="pdfTitle">📄 GENERATE ACTIVITY REPORT</h3>
     <p>Select sections to include. Report scope:<br>
       <strong id="pdfScope" style="color:var(--gold)">All Departments</strong>
     </p>
     <div>
-      <div class="pdf-check"><input type="checkbox" id="ps1" checked><span>Overview &amp; Statistics Summary</span></div>
-      <div class="pdf-check"><input type="checkbox" id="ps2" checked><span>Department Comparison</span></div>
-      <div class="pdf-check"><input type="checkbox" id="ps3" checked><span>Student Leaderboard (Top 30)</span></div>
-      <div class="pdf-check"><input type="checkbox" id="ps4" checked><span>At-Risk Student Alerts</span></div>
-      <div class="pdf-check"><input type="checkbox" id="ps5" checked><span>Attendance &amp; Streak Tracking</span></div>
+      <div class="pdf-check"><input type="checkbox" id="ps1" checked><label for="ps1">Overview &amp; Statistics Summary</label></div>
+      <div class="pdf-check"><input type="checkbox" id="ps2" checked><label for="ps2">Department Comparison</label></div>
+      <div class="pdf-check"><input type="checkbox" id="ps3" checked><label for="ps3">Student Leaderboard (Top 30)</label></div>
+      <div class="pdf-check"><input type="checkbox" id="ps4" checked><label for="ps4">At-Risk Student Alerts</label></div>
+      <div class="pdf-check"><input type="checkbox" id="ps5" checked><label for="ps5">Attendance &amp; Streak Tracking</label></div>
     </div>
     <div class="modal-actions">
-      <button class="btn" onclick="closePDF()">Cancel</button>
-      <button class="btn primary" onclick="generatePDF()">⬇ Download PDF</button>
+      <button class="btn" id="pdfCancel">Cancel</button>
+      <button class="btn primary" id="pdfGo">⬇ Download PDF</button>
     </div>
   </div>
 </div>
@@ -512,12 +542,31 @@ const sb = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE"
 );
 
-/* ── CONSTANTS ── */
-const START_DATE = new Date("2026-09-01");
-const CAL_START  = new Date("2026-09-01");
-const TODAY      = new Date();
+/* ── HELPERS ── */
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const dkey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const parseLocal = str => { const [y,m,d] = str.split("-").map(Number); return new Date(y, m-1, d); };
+const fmtDate = d => d ? d.toLocaleDateString("en-IN") : "—";
+
+/* ── CONSTANTS (all local-midnight dates, so no timezone drift) ── */
+const START_DATE = new Date(2026, 8, 1);   // 1 Sep 2026 = item number 1
+const CAL_START  = new Date(2026, 8, 1);
+const TODAY      = startOfDay(new Date());
+const CUT14      = addDays(TODAY, -13);    // today + previous 13 days
+const TYPES = [
+  ["quest_list", "Quest"],
+  ["video_list", "Video"],
+  ["story_list", "Story"],
+];
 
 /* ── STATE ── */
+let storedFlags = [];
+try { storedFlags = JSON.parse(localStorage.getItem("atRiskManual") || "[]"); } catch {}
+
 const G = window.G = {
   all: [],
   dept: "ALL",
@@ -527,86 +576,85 @@ const G = window.G = {
   threshold: 3,
   sortKey: "total",
   sortDir: -1,
-  atRisk: new Set(JSON.parse(localStorage.getItem("atRiskManual")||"[]")),
+  atRisk: new Set(storedFlags),
   selectedDay: null,
   dateMap: {},
   render,
 };
 
-/* ── PARSE HELPERS ── */
+/* ── PARSE + PRECOMPUTE (done once per student at load) ── */
 function parseItems(raw) {
   if (!raw || raw === "NULL") return [];
-  return raw.split(",").map(i=>i.trim()).filter(Boolean).map(i=>{
-    const [t,n] = i.split(" ");
-    return { type:t, number:+n };
-  });
+  return raw.split(",").map(i => i.trim()).filter(Boolean).map(i => {
+    const [t, n] = i.split(" ");
+    return { type: t, number: +n };
+  }).filter(i => Number.isFinite(i.number));
 }
 function n2date(n) {
-  const d = new Date(START_DATE);
-  d.setDate(d.getDate()+(n-1));
-  return d;
+  return new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate() + (n - 1));
 }
-function studentDates(s) {
-  return [
-    ...parseItems(s.quest_list),
-    ...parseItems(s.video_list),
-    ...parseItems(s.story_list)
-  ].map(i => n2date(i.number));
+function prepare(s) {
+  s._dept = (s.department || "UNKNOWN").toUpperCase();
+  s._acts = TYPES.flatMap(([field, label]) =>
+    parseItems(s[field]).map(i => ({ type: label, date: n2date(i.number) })));
+
+  // Only activity up to today counts towards recency, last active and streak.
+  const past = s._acts.filter(a => a.date <= TODAY);
+  s._r14 = past.filter(a => a.date >= CUT14).length;
+
+  const dayKeys = new Set(past.map(a => dkey(a.date)));
+  s._last = past.length ? new Date(Math.max(...past.map(a => a.date.getTime()))) : null;
+
+  // Current streak: consecutive active days ending today (or yesterday, so it
+  // doesn't reset to zero before the student has had a chance to act today).
+  let streak = 0;
+  let cur = dayKeys.has(dkey(TODAY)) ? TODAY : (dayKeys.has(dkey(addDays(TODAY, -1))) ? addDays(TODAY, -1) : null);
+  while (cur && dayKeys.has(dkey(cur))) { streak++; cur = addDays(cur, -1); }
+  s._streak = streak;
+  return s;
 }
-function filterDates(dates) {
-  return dates.filter(d => {
-    if (G.dateFrom && d < G.dateFrom) return false;
-    if (G.dateTo   && d > G.dateTo)   return false;
-    return true;
-  });
+
+/* ── DATE-FILTERED VIEWS ── */
+function inRange(d) {
+  if (G.dateFrom && d < G.dateFrom) return false;
+  if (G.dateTo   && d > G.dateTo)   return false;
+  return true;
 }
-function lastActive(s) {
-  const ds = studentDates(s).sort((a,b)=>b-a);
-  return ds[0] || null;
-}
-function calcStreak(s) {
-  const days = [...new Set(studentDates(s).map(d=>d.toDateString()))]
-    .map(x => new Date(x)).sort((a,b)=>b-a);
-  if (!days.length) return 0;
-  let st=1, cur=days[0];
-  for (let i=1; i<days.length; i++) {
-    const prev = new Date(cur); prev.setDate(prev.getDate()-1);
-    if (days[i].toDateString() === prev.toDateString()) { st++; cur=days[i]; }
-    else break;
-  }
-  return st;
-}
-function recent14(s) {
-  const cut = new Date(TODAY); cut.setDate(cut.getDate()-14);
-  return studentDates(s).filter(d=>d>=cut).length;
-}
-function countType(s, field) {
-  return filterDates(parseItems(s[field]).map(i=>n2date(i.number))).length;
-}
+const actsIn = s => s._acts.filter(a => inRange(a.date));
+const totalIn = s => actsIn(s).length;
 
 /* ── FILTER ── */
 function filtered() {
   return G.all.filter(s => {
-    if (G.dept !== "ALL" && (s.department||"UNKNOWN").toUpperCase() !== G.dept) return false;
-    if (G.search && !(s.name||"").toLowerCase().includes(G.search)) return false;
+    if (G.dept !== "ALL" && s._dept !== G.dept) return false;
+    if (G.search && !(s.name || "").toLowerCase().includes(G.search)) return false;
     return true;
   });
 }
 function isAtRisk(s) {
-  return G.atRisk.has(s.name) || recent14(s) < G.threshold;
+  return G.atRisk.has(s.name) || s._r14 < G.threshold;
 }
 
 /* ── LOAD ── */
 async function load() {
-  const {data, error} = await sb.from("report_card_view").select("*");
-  document.getElementById("loader").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  if (error) { notify("⚠ Data load failed", true); return; }
-  G.all = data || [];
-  const depts = [...new Set(G.all.map(s=>(s.department||"UNKNOWN").toUpperCase()))].sort();
-  const sel = document.getElementById("deptSel");
-  sel.innerHTML = `<option value="ALL">All Departments</option>`;
-  depts.forEach(d => sel.innerHTML += `<option value="${d}">${d}</option>`);
+  $("loader").style.display = "flex";
+  $("errBox").style.display = "none";
+  let data = null, error = null;
+  try {
+    ({ data, error } = await sb.from("report_card_view").select("*"));
+  } catch (e) { error = e; }
+  $("loader").style.display = "none";
+  $("app").style.display = "block";
+  if (error) {
+    $("errBox").style.display = "flex";
+    notify("⚠ Data load failed", true);
+    return;
+  }
+  G.all = (data || []).map(prepare);
+  const depts = [...new Set(G.all.map(s => s._dept))].sort();
+  $("deptSel").innerHTML = `<option value="ALL">All Departments</option>` +
+    depts.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
+  G.dept = "ALL";
   render();
 }
 window.addEventListener("load", load);
@@ -615,6 +663,7 @@ window.addEventListener("load", load);
 function render() {
   renderStats();
   renderCalendar();
+  renderBreakdown();
   renderLeaderboard();
   renderDepts();
   renderAtRisk();
@@ -623,206 +672,219 @@ function render() {
 /* ── STATS ── */
 function renderStats() {
   const data = filtered();
-  let total = 0;
-  data.forEach(s => total += filterDates(studentDates(s)).length);
+  const total = data.reduce((a, s) => a + totalIn(s), 0);
   const riskCount = data.filter(isAtRisk).length;
-  const avgStreak = data.length
-    ? Math.round(data.reduce((a,s)=>a+calcStreak(s),0)/data.length) : 0;
-  const avg = data.length ? Math.round(total/data.length) : 0;
+  const avgStreak = data.length ? Math.round(data.reduce((a, s) => a + s._streak, 0) / data.length) : 0;
+  const avg = data.length ? Math.round(total / data.length) : 0;
 
-  document.getElementById("statsBar").innerHTML = `
+  $("statsBar").innerHTML = `
     <div class="sc"><div class="num">${data.length}</div><div class="lbl">Students</div></div>
     <div class="sc"><div class="num">${total}</div><div class="lbl">Total Activities</div></div>
     <div class="sc"><div class="num">${avg}</div><div class="lbl">Avg / Student</div></div>
-    <div class="sc"><div class="num">${avgStreak}d</div><div class="lbl">Avg Streak</div></div>
+    <div class="sc"><div class="num">${avgStreak}d</div><div class="lbl">Avg Current Streak</div></div>
     <div class="sc danger"><div class="num">${riskCount}</div><div class="lbl">At-Risk</div></div>
   `;
-  document.getElementById("riskBadge").textContent = riskCount;
+  $("riskBadge").textContent = riskCount;
 }
 
-/* ── CALENDAR ── */
+/* ── CALENDAR ──
+   G.dateMap[dayKey] = { acts, students: Map(student -> {count, types}) }  */
 function renderCalendar() {
-  const data = filtered();
   const dm = {};
-  data.forEach(s => {
-    filterDates(studentDates(s)).forEach(d => {
-      const k = d.toDateString();
-      if (!dm[k]) dm[k] = [];
-      dm[k].push(s);
+  filtered().forEach(s => {
+    actsIn(s).forEach(a => {
+      const k = dkey(a.date);
+      const day = (dm[k] ??= { acts: 0, students: new Map() });
+      day.acts++;
+      const e = day.students.get(s) ?? { count: 0, types: {} };
+      e.count++;
+      e.types[a.type] = (e.types[a.type] || 0) + 1;
+      day.students.set(s, e);
     });
   });
   G.dateMap = dm;
+  if (G.selectedDay && !dm[G.selectedDay]) G.selectedDay = null;
 
-  const wrap = document.getElementById("calWrap");
-  wrap.innerHTML = "";
+  const parts = [];
   let cur = new Date(CAL_START.getFullYear(), CAL_START.getMonth(), 1);
-  const end = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+  const lastMonth = TODAY > CAL_START ? TODAY : CAL_START;
+  const end = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
   while (cur <= end) {
-    wrap.innerHTML += renderMonth(new Date(cur), dm);
-    cur.setMonth(cur.getMonth()+1);
+    parts.push(renderMonth(new Date(cur), dm));
+    cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
   }
+  $("calWrap").innerHTML = parts.join("");
 }
 
 function renderMonth(base, dm) {
-  const y=base.getFullYear(), m=base.getMonth();
-  const first = new Date(y,m,1).getDay();
-  const days  = new Date(y,m+1,0).getDate();
+  const y = base.getFullYear(), m = base.getMonth();
+  const first = new Date(y, m, 1).getDay();
+  const days  = new Date(y, m + 1, 0).getDate();
   const DAYS  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const todayKey = dkey(TODAY);
 
   let h = `<div class="month-block">
-    <div class="month-title">${base.toLocaleString('en-IN',{month:'long',year:'numeric'})}</div>
+    <div class="month-title">${esc(base.toLocaleString('en-IN', { month: 'long', year: 'numeric' }))}</div>
     <div class="cal-grid">
-    ${DAYS.map(d=>`<div class="dlbl">${d}</div>`).join('')}`;
+    ${DAYS.map(d => `<div class="dlbl">${d}</div>`).join('')}`;
 
-  for (let i=0; i<first; i++) h += `<div></div>`;
-  for (let d=1; d<=days; d++) {
-    const date = new Date(y,m,d);
-    const k    = date.toDateString();
-    const ents = dm[k];
-    const sel  = G.selectedDay === k;
-    if (ents) {
-      const n = ents.length;
-      const lvl = n>20?"peak":n>10?"heavy":n>5?"medium":"light";
-      h += `<div class="day marked ${lvl}${sel?" selected":""}" onclick="showDay('${k}')">
-              <div class="dnum">${d}</div><div class="dcount">${n}</div>
-            </div>`;
+  for (let i = 0; i < first; i++) h += `<div></div>`;
+  for (let d = 1; d <= days; d++) {
+    const date = new Date(y, m, d);
+    const k = dkey(date);
+    const info = dm[k];
+    const cls = (k === todayKey ? " today" : "");
+    if (info) {
+      const n = info.acts, u = info.students.size;
+      const lvl = n > 20 ? "peak" : n > 10 ? "heavy" : n > 5 ? "medium" : "light";
+      const sel = G.selectedDay === k ? " selected" : "";
+      h += `<button type="button" class="day marked ${lvl}${sel}${cls}" data-day="${k}"
+              aria-label="${d} ${esc(base.toLocaleString('en-IN', { month: 'long' }))}: ${n} activities by ${u} students">
+              <span class="dnum">${d}</span>
+              <span class="dcount">${n}<span class="u"> · ${u}</span></span>
+            </button>`;
     } else {
-      h += `<div class="day"><div class="dnum">${d}</div></div>`;
+      h += `<div class="day${cls}"><span class="dnum">${d}</span></div>`;
     }
   }
-  h += "</div></div>";
-  return h;
+  return h + "</div></div>";
 }
 
-window.showDay = function(key) {
+function showDay(key) {
   G.selectedDay = key;
   renderCalendar();
-  const ents = G.dateMap[key];
-  if (!ents) return;
-  const dmap = {};
-  ents.forEach(s => {
-    const d = (s.department||"UNKNOWN").toUpperCase();
-    if (!dmap[d]) dmap[d] = [];
-    dmap[d].push(s);
-  });
-  const panel = document.getElementById("breakdown");
+  renderBreakdown();
+  $("breakdown").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+function closeDay() {
+  G.selectedDay = null;
+  renderCalendar();
+  renderBreakdown();
+}
+
+function renderBreakdown() {
+  const panel = $("breakdown");
+  const info = G.selectedDay && G.dateMap[G.selectedDay];
+  if (!info) { panel.style.display = "none"; return; }
+
+  const byDept = {};
+  info.students.forEach((v, s) => { (byDept[s._dept] ??= []).push({ s, ...v }); });
+
+  const label = parseLocal(G.selectedDay).toLocaleDateString("en-IN",
+    { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
   let h = `<div class="bd-header">
-    📅 ${key}
-    <span style="font-weight:400;font-size:12px;color:var(--text-dim)">${ents.length} activities</span>
-    <button class="btn sm" onclick="closeDay()">✕ Close</button>
+    <span>📅 ${esc(label)}</span>
+    <span style="font-weight:400;font-size:12px;color:var(--text-dim)">${info.acts} activities · ${info.students.size} students</span>
+    <button class="btn sm" data-close-day>✕ Close</button>
   </div><div class="dept-cards">`;
-  Object.keys(dmap).sort().forEach(dept => {
-    const ss = dmap[dept].sort((a,b)=>a.name.localeCompare(b.name));
+
+  Object.keys(byDept).sort().forEach(dept => {
+    const list = byDept[dept].sort((a, b) => (a.s.name || "").localeCompare(b.s.name || ""));
     h += `<div class="dc">
-      <div class="dc-title">${dept}<span>${ss.length}</span></div>
-      <div class="slist">${ss.map(s=>`
-        <div class="srow">
-          <span>${s.name}</span>
-          ${G.atRisk.has(s.name)?'<span class="rtag">AT RISK</span>':""}
+      <div class="dc-title">${esc(dept)}<span>${list.length}</span></div>
+      <div class="slist">${list.map(({ s, count, types }) => `
+        <div class="srow" title="${esc(Object.entries(types).map(([t, n]) => `${t} ×${n}`).join(", "))}">
+          <span>${esc(s.name)}${count > 1 ? ` <span class="rep">(${count})</span>` : ""}</span>
+          ${G.atRisk.has(s.name) ? '<span class="rtag">AT RISK</span>' : ""}
         </div>`).join('')}
       </div>
     </div>`;
   });
-  h += "</div>";
-  panel.innerHTML = h;
+  panel.innerHTML = h + "</div>";
   panel.style.display = "block";
-  panel.scrollIntoView({behavior:"smooth", block:"nearest"});
-};
-
-window.closeDay = function() {
-  G.selectedDay = null;
-  document.getElementById("breakdown").style.display = "none";
-  renderCalendar();
-};
-
-/* ── LEADERBOARD ── */
-function buildRows() {
-  return filtered().map(s => {
-    const total   = filterDates(studentDates(s)).length;
-    const quests  = countType(s,"quest_list");
-    const videos  = countType(s,"video_list");
-    const stories = countType(s,"story_list");
-    const streak  = calcStreak(s);
-    const last    = lastActive(s);
-    const r14     = recent14(s);
-    const risk    = isAtRisk(s);
-    return { name:s.name, dept:(s.department||"?").toUpperCase(),
-      total, quests, videos, stories, streak, last, r14, risk };
-  });
 }
 
+/* ── ROWS (shared by leaderboard, CSV and PDF) ── */
+function buildRows() {
+  const rows = filtered().map(s => {
+    const a = actsIn(s);
+    const by = t => a.filter(x => x.type === t).length;
+    return {
+      name: s.name || "Unnamed", dept: s._dept,
+      total: a.length,
+      days: new Set(a.map(x => dkey(x.date))).size,
+      quests: by("Quest"), videos: by("Video"), stories: by("Story"),
+      streak: s._streak, last: s._last, r14: s._r14, risk: isAtRisk(s),
+    };
+  });
+  // Competition ranking by total activities (ties share a rank), independent of table sort.
+  const byTotal = [...rows].sort((a, b) => b.total - a.total);
+  byTotal.forEach((r, i) => {
+    r.rank = (i > 0 && r.total === byTotal[i - 1].total) ? byTotal[i - 1].rank : i + 1;
+  });
+  return rows;
+}
+const totalLabel = r => `${r.total} (${r.days}d)`;
+
+/* ── LEADERBOARD ── */
 function renderLeaderboard() {
   const rows = buildRows();
-  const max  = Math.max(...rows.map(r=>r.total), 1);
-  const sorted = [...rows].sort((a,b) => {
-    const av=a[G.sortKey], bv=b[G.sortKey];
-    if (av instanceof Date && bv instanceof Date) return G.sortDir*(av-bv);
-    if (typeof av === "string") return G.sortDir*av.localeCompare(bv||"");
-    return G.sortDir*((av||0)-(bv||0));
+  const max = Math.max(...rows.map(r => r.total), 1);
+  const key = G.sortKey;
+  const sorted = [...rows].sort((a, b) => {
+    const av = a[key], bv = b[key];
+    if (key === "last") return G.sortDir * ((av ? av.getTime() : 0) - (bv ? bv.getTime() : 0));
+    if (typeof av === "string") return G.sortDir * av.localeCompare(bv || "");
+    return G.sortDir * ((av || 0) - (bv || 0));
   });
-  const medals = ["🥇","🥈","🥉"];
-  document.getElementById("lbBody").innerHTML = sorted.map((r,i) => `
-    <tr class="${r.risk?"riskrow":""}">
-      <td>${medals[i]||`<span style="color:var(--text-dim)">${i+1}</span>`}</td>
-      <td><strong>${r.name}</strong>${G.atRisk.has(r.name)?'<span class="risk-badge">AT RISK</span>':''}</td>
-      <td>${r.dept}</td>
+  const medals = ["🥇", "🥈", "🥉"];
+  $("lbBody").innerHTML = sorted.map(r => `
+    <tr class="${r.risk ? "riskrow" : ""}">
+      <td>${r.total > 0 && r.rank <= 3 ? medals[r.rank - 1] : `<span style="color:var(--text-dim)">${r.rank}</span>`}</td>
+      <td><strong>${esc(r.name)}</strong>${G.atRisk.has(r.name) ? '<span class="risk-badge">FLAGGED</span>' : ''}</td>
+      <td>${esc(r.dept)}</td>
       <td>
-        <div class="ab-wrap">
-          <div class="ab"><div class="ab-fill" style="width:${Math.round(r.total/max*100)}%"></div></div>
-          <strong>${r.total}</strong>
+        <div class="ab-wrap" title="${r.total} activities across ${r.days} active days">
+          <div class="ab"><div class="ab-fill" style="width:${Math.round(r.total / max * 100)}%"></div></div>
+          <span><strong>${r.total}</strong> <span class="rep">(${r.days}d)</span></span>
         </div>
       </td>
       <td>${r.quests}</td><td>${r.videos}</td><td>${r.stories}</td>
-      <td>${r.streak>0?`<span class="streak-pill">🔥 ${r.streak}d</span>`:"—"}</td>
-      <td style="font-size:12px;color:var(--text-dim)">${r.last?r.last.toLocaleDateString("en-IN"):"—"}</td>
+      <td>${r.streak > 0 ? `<span class="streak-pill">🔥 ${r.streak}d</span>` : "—"}</td>
+      <td style="font-size:12px;color:var(--text-dim)">${fmtDate(r.last)}</td>
       <td>${r.risk
-        ?`<span style="color:var(--risk-red);font-size:13px">⚠ Low</span>`
-        :`<span style="color:var(--success);font-size:13px">✓ Active</span>`}</td>
+        ? `<span style="color:var(--risk-red);font-size:13px">⚠ Low</span>`
+        : `<span style="color:var(--success);font-size:13px">✓ Active</span>`}</td>
       <td>
-        <button class="flag-btn ${G.atRisk.has(r.name)?"on":""}"
-          onclick="toggleFlag('${r.name.replace(/'/g,"\\'")}')">
-          ${G.atRisk.has(r.name)?"✓ Flagged":"Flag"}
+        <button class="flag-btn ${G.atRisk.has(r.name) ? "on" : ""}" data-flag="${esc(r.name)}">
+          ${G.atRisk.has(r.name) ? "✓ Flagged" : "Flag"}
         </button>
       </td>
     </tr>`).join('');
 }
 
-window.sortBy = function(key) {
+function sortBy(key) {
   if (G.sortKey === key) G.sortDir *= -1;
-  else { G.sortKey = key; G.sortDir = -1; }
+  else { G.sortKey = key; G.sortDir = (key === "name" || key === "dept" || key === "rank") ? 1 : -1; }
   renderLeaderboard();
-};
+}
 
-window.toggleFlag = function(name) {
+function toggleFlag(name) {
   if (G.atRisk.has(name)) G.atRisk.delete(name);
   else G.atRisk.add(name);
-  localStorage.setItem("atRiskManual", JSON.stringify([...G.atRisk]));
+  try { localStorage.setItem("atRiskManual", JSON.stringify([...G.atRisk])); } catch {}
   render();
-};
+}
 
 /* ── DEPARTMENTS ── */
 function renderDepts() {
-  const data = filtered();
   const dmap = {};
-  data.forEach(s => {
-    const d = (s.department||"UNKNOWN").toUpperCase();
-    if (!dmap[d]) dmap[d] = [];
-    dmap[d].push(s);
-  });
+  filtered().forEach(s => { (dmap[s._dept] ??= []).push(s); });
   const allDepts = Object.keys(dmap).sort();
-  const maxTotal = Math.max(...allDepts.map(d =>
-    dmap[d].reduce((a,s)=>a+filterDates(studentDates(s)).length, 0)
-  ), 1);
+  const totals = {};
+  allDepts.forEach(d => { totals[d] = dmap[d].reduce((a, s) => a + totalIn(s), 0); });
+  const maxTotal = Math.max(...Object.values(totals), 1);
 
-  document.getElementById("deptGrid").innerHTML = allDepts.map(dept => {
-    const ss    = dmap[dept];
-    const total = ss.reduce((a,s)=>a+filterDates(studentDates(s)).length, 0);
-    const avg   = Math.round(total/ss.length);
+  $("deptGrid").innerHTML = allDepts.map(dept => {
+    const ss = dmap[dept];
+    const total = totals[dept];
+    const avg = Math.round(total / ss.length);
     const riskC = ss.filter(isAtRisk).length;
-    const avgSt = Math.round(ss.reduce((a,s)=>a+calcStreak(s),0)/ss.length);
-    const pct   = Math.round(total/maxTotal*100);
+    const avgSt = Math.round(ss.reduce((a, s) => a + s._streak, 0) / ss.length);
+    const pct = Math.round(total / maxTotal * 100);
     return `<div class="dept-card">
-      <div class="dept-card-name">${dept}</div>
+      <div class="dept-card-name">${esc(dept)}</div>
       <div class="dsr"><span>Students</span><strong>${ss.length}</strong></div>
       <div class="dsr"><span>Total Activities</span><strong>${total}</strong></div>
       <div class="dsr"><span>Avg / Student</span><strong>${avg}</strong></div>
@@ -831,87 +893,84 @@ function renderDepts() {
         <div class="bar-lbl"><span>Activity Share</span><span>${pct}%</span></div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
       </div>
-      ${riskC>0?`<div class="dept-risk-alert">⚠ ${riskC} student${riskC>1?"s":""} at risk</div>`:""}
+      ${riskC > 0 ? `<div class="dept-risk-alert">⚠ ${riskC} student${riskC > 1 ? "s" : ""} at risk</div>` : ""}
     </div>`;
   }).join('');
 }
 
 /* ── AT RISK ── */
 function renderAtRisk() {
-  const data = filtered().filter(isAtRisk);
-  document.getElementById("riskBadge").textContent = data.length;
-  const body = document.getElementById("riskBody");
-  if (!data.length) {
+  const rows = buildRows().filter(r => r.risk).sort((a, b) => a.r14 - b.r14);
+  $("riskBadge").textContent = rows.length;
+  const body = $("riskBody");
+  if (!rows.length) {
     body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:32px">No at-risk students — all students are active ✓</td></tr>`;
     return;
   }
-  body.innerHTML = data.sort((a,b)=>recent14(a)-recent14(b)).map(s => {
-    const r14    = recent14(s);
-    const st     = calcStreak(s);
-    const la     = lastActive(s);
-    const manual = G.atRisk.has(s.name);
-    const reason = manual ? "Manually flagged" : `Only ${r14} activities in 14 days`;
+  body.innerHTML = rows.map(r => {
+    const manual = G.atRisk.has(r.name);
+    const reason = manual ? "Manually flagged" : `Only ${r.r14} activities in 14 days`;
     return `<tr>
-      <td><strong>${s.name}</strong>${manual?'<span class="risk-badge">FLAGGED</span>':''}</td>
-      <td>${(s.department||"?").toUpperCase()}</td>
-      <td>${filterDates(studentDates(s)).length}</td>
-      <td style="color:var(--risk-red);font-weight:700">${r14}</td>
-      <td>${st>0?`🔥 ${st}d`:"—"}</td>
-      <td style="font-size:12px;color:var(--text-dim)">${la?la.toLocaleDateString("en-IN"):"—"}</td>
-      <td style="font-size:13px;color:var(--text-mid)">${reason}</td>
+      <td><strong>${esc(r.name)}</strong>${manual ? '<span class="risk-badge">FLAGGED</span>' : ''}</td>
+      <td>${esc(r.dept)}</td>
+      <td>${r.total} <span class="rep">(${r.days}d)</span></td>
+      <td style="color:var(--risk-red);font-weight:700">${r.r14}</td>
+      <td>${r.streak > 0 ? `🔥 ${r.streak}d` : "—"}</td>
+      <td style="font-size:12px;color:var(--text-dim)">${fmtDate(r.last)}</td>
+      <td style="font-size:13px;color:var(--text-mid)">${esc(reason)}</td>
     </tr>`;
   }).join('');
 }
 
 /* ── TAB SWITCH ── */
-window.switchTab = function(id) {
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.querySelectorAll(".tc").forEach(c=>c.classList.remove("active"));
-  document.getElementById("t-"+id).classList.add("active");
-  document.getElementById("tc-"+id).classList.add("active");
-};
-
-/* ── CLEAR DATES ── */
-window.clearDates = function() {
-  document.getElementById("dfrom").value = "";
-  document.getElementById("dto").value = "";
-  G.dateFrom = null; G.dateTo = null; G.render();
-};
+function switchTab(id) {
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.remove("active"); t.setAttribute("aria-selected", "false");
+  });
+  document.querySelectorAll(".tc").forEach(c => c.classList.remove("active"));
+  $("t-" + id).classList.add("active");
+  $("t-" + id).setAttribute("aria-selected", "true");
+  $("tc-" + id).classList.add("active");
+}
 
 /* ── CSV EXPORT ── */
-window.exportCSV = function() {
+function csvCell(v) {
+  let s = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;          // block spreadsheet formula injection
+  return '"' + s.replace(/"/g, '""') + '"';
+}
+function exportCSV() {
   const rows = buildRows();
-  const hdr = "Name,Department,Total,Quests,Videos,Stories,Streak (days),Last Active,Recent 14d,At Risk";
-  const body = rows.map(r =>
-    [r.name, r.dept, r.total, r.quests, r.videos, r.stories, r.streak,
-     r.last ? r.last.toLocaleDateString("en-IN") : "—",
-     r.r14, r.risk?"Yes":"No"].join(",")
-  ).join("\n");
-  const blob = new Blob([hdr+"\n"+body], {type:"text/csv"});
+  const head = ["Rank","Name","Department","Total","Active Days","Total (Active Days)",
+                "Quests","Videos","Stories","Current Streak (days)","Last Active","Last 14 Days","At Risk"];
+  const lines = rows.map(r => [
+    r.rank, r.name, r.dept, r.total, r.days, totalLabel(r),
+    r.quests, r.videos, r.stories, r.streak,
+    r.last ? fmtDate(r.last) : "—", r.r14, r.risk ? "Yes" : "No",
+  ].map(csvCell).join(","));
+  const csv = "\uFEFF" + [head.map(csvCell).join(","), ...lines].join("\r\n");
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `activity-${G.dept}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  a.download = `activity-${G.dept}-${dkey(new Date())}.csv`;
   a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   notify("CSV downloaded");
-};
+}
 
 /* ── PDF MODAL ── */
-window.openPDF = function() {
-  document.getElementById("pdfScope").textContent =
-    G.dept === "ALL" ? "All Departments" : G.dept;
-  document.getElementById("pdfOverlay").style.display = "flex";
-};
-window.closePDF = function() {
-  document.getElementById("pdfOverlay").style.display = "none";
-};
+function openPDF() {
+  $("pdfScope").textContent = G.dept === "ALL" ? "All Departments" : G.dept;
+  $("pdfOverlay").style.display = "flex";
+}
+function closePDF() { $("pdfOverlay").style.display = "none"; }
 
 /* ── PDF GENERATE ── */
-window.generatePDF = function() {
+function generatePDF() {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({orientation:"portrait", unit:"mm", format:"a4"});
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const W   = doc.internal.pageSize.getWidth();
-  const now = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
-  const scopeLabel = G.dept==="ALL" ? "All Departments" : G.dept;
+  const now = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" });
+  const scopeLabel = G.dept === "ALL" ? "All Departments" : G.dept;
   const data = filtered();
   const rows = buildRows();
   let y = 15;
@@ -921,207 +980,243 @@ window.generatePDF = function() {
   const DIM  = [100,80,60];
   const RRED = [192,57,43];
   const RBGR = [255,235,233];
-  const GBGR = [240,248,240];
+  const OK   = [46,125,50];
 
-  function chk(need=25) {
-    if (y+need > 272) { doc.addPage(); y = 15; }
-  }
-  function hdr(txt, size=13, col=GOLD) {
+  function chk(need = 25) { if (y + need > 272) { doc.addPage(); y = 15; } }
+  function hdr(txt, size = 13, col = GOLD) {
     chk(14);
-    doc.setFont("helvetica","bold");
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(size); doc.setTextColor(...col);
     doc.text(txt, 14, y); y += 8;
   }
-  function rule(col=GOLD) {
+  function rule(col = GOLD) {
     doc.setDrawColor(...col); doc.setLineWidth(0.35);
-    doc.line(14, y, W-14, y); y += 5;
+    doc.line(14, y, W - 14, y); y += 5;
   }
 
   /* COVER BAND */
   doc.setFillColor(...GOLD);
-  doc.rect(0,0,W,42,"F");
-  doc.setFont("helvetica","bold");
-  doc.setFontSize(20); doc.setTextColor(255,255,255);
-  doc.text("CLASS ACTIVITY REPORT", W/2, 17, {align:"center"});
+  doc.rect(0, 0, W, 42, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20); doc.setTextColor(255, 255, 255);
+  doc.text("CLASS ACTIVITY REPORT", W / 2, 17, { align: "center" });
   doc.setFontSize(11);
-  doc.text("Academic Year 2026–27", W/2, 26, {align:"center"});
-  doc.setFont("helvetica","normal"); doc.setFontSize(10);
-  doc.text(`Generated: ${now}   |   Scope: ${scopeLabel}`, W/2, 35, {align:"center"});
+  doc.text("Academic Year 2026-27", W / 2, 26, { align: "center" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+  doc.text(`Generated: ${now}   |   Scope: ${scopeLabel}`, W / 2, 35, { align: "center" });
   y = 52;
 
-  /* ── 1. OVERVIEW ── */
-  if (document.getElementById("ps1").checked) {
+  /* 1. OVERVIEW */
+  if ($("ps1").checked) {
     hdr("1. Overview & Statistics");
     rule();
-    let totalActs = 0;
-    data.forEach(s => totalActs += filterDates(studentDates(s)).length);
+    const totalActs = data.reduce((a, s) => a + totalIn(s), 0);
     const riskCnt = data.filter(isAtRisk).length;
-    const avgSt   = data.length
-      ? Math.round(data.reduce((a,s)=>a+calcStreak(s),0)/data.length) : 0;
-    const avgAct  = data.length ? Math.round(totalActs/data.length) : 0;
+    const avgSt = data.length ? Math.round(data.reduce((a, s) => a + s._streak, 0) / data.length) : 0;
+    const avgAct = data.length ? Math.round(totalActs / data.length) : 0;
+    const range = (G.dateFrom || G.dateTo)
+      ? `${G.dateFrom ? fmtDate(G.dateFrom) : "start"} to ${G.dateTo ? fmtDate(G.dateTo) : "today"}`
+      : "Full period";
 
     doc.autoTable({
       startY: y,
-      head: [["Metric","Value"]],
+      head: [["Metric", "Value"]],
       body: [
         ["Total Students", data.length],
         ["Total Activities (filtered)", totalActs],
         ["Average Activities / Student", avgAct],
-        ["Average Streak", `${avgSt} days`],
+        ["Average Current Streak", `${avgSt} days`],
         ["At-Risk Students", riskCnt],
         ["At-Risk Threshold", `< ${G.threshold} activities in 14 days`],
-        ["Date Range Filter", G.dateFrom||G.dateTo
-          ? `${G.dateFrom?G.dateFrom.toLocaleDateString("en-IN"):"start"} → ${G.dateTo?G.dateTo.toLocaleDateString("en-IN"):"today"}`
-          : "Full period"],
+        ["Date Range Filter", range],
         ["Manually Flagged", G.atRisk.size],
       ],
-      theme:"plain",
-      styles:{fontSize:10,cellPadding:3.5,textColor:DARK},
-      headStyles:{fillColor:GOLD,textColor:[255,255,255],fontStyle:"bold"},
-      alternateRowStyles:{fillColor:[250,248,244]},
-      margin:{left:14,right:14},
+      theme: "plain",
+      styles: { fontSize: 10, cellPadding: 3.5, textColor: DARK },
+      headStyles: { fillColor: GOLD, textColor: [255,255,255], fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [250,248,244] },
+      margin: { left: 14, right: 14 },
     });
     y = doc.lastAutoTable.finalY + 12;
   }
 
-  /* ── 2. DEPARTMENTS ── */
-  if (document.getElementById("ps2").checked) {
+  /* 2. DEPARTMENTS */
+  if ($("ps2").checked) {
     chk(20); hdr("2. Department Comparison"); rule();
     const dmap = {};
-    data.forEach(s => {
-      const d = (s.department||"UNKNOWN").toUpperCase();
-      if (!dmap[d]) dmap[d] = [];
-      dmap[d].push(s);
-    });
+    data.forEach(s => { (dmap[s._dept] ??= []).push(s); });
     const deptRows = Object.keys(dmap).sort().map(dept => {
-      const ss    = dmap[dept];
-      const total = ss.reduce((a,s)=>a+filterDates(studentDates(s)).length,0);
-      const avg   = Math.round(total/ss.length);
-      const risk  = ss.filter(isAtRisk).length;
-      const avgSt = Math.round(ss.reduce((a,s)=>a+calcStreak(s),0)/ss.length);
+      const ss = dmap[dept];
+      const total = ss.reduce((a, s) => a + totalIn(s), 0);
+      const avg = Math.round(total / ss.length);
+      const risk = ss.filter(isAtRisk).length;
+      const avgSt = Math.round(ss.reduce((a, s) => a + s._streak, 0) / ss.length);
       return [dept, ss.length, total, avg, `${avgSt}d`, risk];
     });
-
     doc.autoTable({
       startY: y,
-      head:[["Department","Students","Total Activities","Avg/Student","Avg Streak","At-Risk"]],
+      head: [["Department","Students","Total Activities","Avg/Student","Avg Streak","At-Risk"]],
       body: deptRows,
-      theme:"plain",
-      styles:{fontSize:9.5,cellPadding:3.2,textColor:DARK},
-      headStyles:{fillColor:GOLD,textColor:[255,255,255],fontStyle:"bold"},
-      columnStyles:{5:{textColor:RRED,fontStyle:"bold"}},
-      alternateRowStyles:{fillColor:[250,248,244]},
-      margin:{left:14,right:14},
+      theme: "plain",
+      styles: { fontSize: 9.5, cellPadding: 3.2, textColor: DARK },
+      headStyles: { fillColor: GOLD, textColor: [255,255,255], fontStyle: "bold" },
+      columnStyles: { 5: { textColor: RRED, fontStyle: "bold" } },
+      alternateRowStyles: { fillColor: [250,248,244] },
+      margin: { left: 14, right: 14 },
     });
     y = doc.lastAutoTable.finalY + 12;
   }
 
-  /* ── 3. LEADERBOARD ── */
-  if (document.getElementById("ps3").checked) {
-    chk(20); hdr("3. Student Leaderboard — Top 30 by Total Activity"); rule();
-    const top30 = [...rows].sort((a,b)=>b.total-a.total).slice(0,30);
+  /* 3. LEADERBOARD */
+  if ($("ps3").checked) {
+    chk(20); hdr("3. Student Leaderboard - Top 30 by Total Activity"); rule();
+    const top30 = [...rows].sort((a, b) => a.rank - b.rank).slice(0, 30);
     doc.autoTable({
       startY: y,
-      head:[["#","Name","Dept","Total","Quests","Videos","Stories","Streak","Last Active"]],
-      body: top30.map((r,i)=>[
-        i+1, r.name, r.dept, r.total, r.quests, r.videos, r.stories,
-        r.streak>0?`${r.streak}d`:"—",
-        r.last?r.last.toLocaleDateString("en-IN"):"—"
+      head: [["Rank","Name","Dept","Total (days)","Quests","Videos","Stories","Streak","Last Active"]],
+      body: top30.map(r => [
+        r.rank, r.name, r.dept, totalLabel(r), r.quests, r.videos, r.stories,
+        r.streak > 0 ? `${r.streak}d` : "-", fmtDate(r.last),
       ]),
-      theme:"plain",
-      styles:{fontSize:8.5,cellPadding:2.8,textColor:DARK},
-      headStyles:{fillColor:GOLD,textColor:[255,255,255],fontStyle:"bold"},
-      alternateRowStyles:{fillColor:[250,248,244]},
-      margin:{left:14,right:14},
+      theme: "plain",
+      styles: { fontSize: 8.5, cellPadding: 2.8, textColor: DARK },
+      headStyles: { fillColor: GOLD, textColor: [255,255,255], fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [250,248,244] },
+      margin: { left: 14, right: 14 },
     });
     y = doc.lastAutoTable.finalY + 12;
   }
 
-  /* ── 4. AT-RISK ── */
-  if (document.getElementById("ps4").checked) {
+  /* 4. AT-RISK */
+  if ($("ps4").checked) {
     chk(20); hdr("4. At-Risk Student Alerts", 13, RRED); rule(RRED);
-    const riskList = rows.filter(r=>r.risk).sort((a,b)=>a.r14-b.r14);
+    const riskList = rows.filter(r => r.risk).sort((a, b) => a.r14 - b.r14);
     if (!riskList.length) {
       chk(10);
-      doc.setFont("helvetica","normal"); doc.setFontSize(10);
-      doc.setTextColor(...[46,125,50]);
-      doc.text("No at-risk students detected. All students are active.", 14, y); y+=10;
+      doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+      doc.setTextColor(...OK);
+      doc.text("No at-risk students detected. All students are active.", 14, y); y += 10;
     } else {
       doc.autoTable({
         startY: y,
-        head:[["Name","Dept","Total","Last 14d","Streak","Last Active","Reason"]],
-        body: riskList.map(r=>[
-          r.name, r.dept, r.total, r.r14,
-          r.streak>0?`${r.streak}d`:"—",
-          r.last?r.last.toLocaleDateString("en-IN"):"—",
-          G.atRisk.has(r.name)?"Manually flagged":`Only ${r.r14} activities`
+        head: [["Name","Dept","Total (days)","Last 14d","Streak","Last Active","Reason"]],
+        body: riskList.map(r => [
+          r.name, r.dept, totalLabel(r), r.r14,
+          r.streak > 0 ? `${r.streak}d` : "-", fmtDate(r.last),
+          G.atRisk.has(r.name) ? "Manually flagged" : `Only ${r.r14} activities`,
         ]),
-        theme:"plain",
-        styles:{fontSize:8.5,cellPadding:2.8,textColor:DARK},
-        headStyles:{fillColor:RRED,textColor:[255,255,255],fontStyle:"bold"},
-        alternateRowStyles:{fillColor:RBGR},
-        margin:{left:14,right:14},
+        theme: "plain",
+        styles: { fontSize: 8.5, cellPadding: 2.8, textColor: DARK },
+        headStyles: { fillColor: RRED, textColor: [255,255,255], fontStyle: "bold" },
+        alternateRowStyles: { fillColor: RBGR },
+        margin: { left: 14, right: 14 },
       });
       y = doc.lastAutoTable.finalY + 12;
     }
   }
 
-  /* ── 5. STREAKS ── */
-  if (document.getElementById("ps5").checked) {
+  /* 5. STREAKS */
+  if ($("ps5").checked) {
     chk(20); hdr("5. Attendance & Streak Tracking"); rule();
-    const streakRows = [...rows].sort((a,b)=>b.streak-a.streak).map(r=>[
+    const streakRows = [...rows].sort((a, b) => b.streak - a.streak).map(r => [
       r.name, r.dept,
-      r.streak>0?`${r.streak}d`:"—",
+      r.streak > 0 ? `${r.streak}d` : "-",
       r.r14,
-      r.last?r.last.toLocaleDateString("en-IN"):"Never",
-      r.risk?"At Risk":"Active"
+      r.last ? fmtDate(r.last) : "Never",
+      r.risk ? "At Risk" : "Active",
     ]);
-
     doc.autoTable({
       startY: y,
-      head:[["Name","Dept","Current Streak","Last 14 Days","Last Active","Status"]],
+      head: [["Name","Dept","Current Streak","Last 14 Days","Last Active","Status"]],
       body: streakRows,
-      theme:"plain",
-      styles:{fontSize:8.5,cellPadding:2.8,textColor:DARK},
-      headStyles:{fillColor:GOLD,textColor:[255,255,255],fontStyle:"bold"},
-      alternateRowStyles:{fillColor:[250,248,244]},
-      didDrawCell(d) {
-        if (d.section==="body" && d.column.index===5) {
-          const v = d.cell.raw;
-          doc.setTextColor(v==="At Risk"?192:46, v==="At Risk"?57:125, v==="At Risk"?43:50);
-          doc.setFontSize(8.5);
-          doc.text(v, d.cell.x+d.cell.padding('left'), d.cell.y+d.cell.contentHeight/2+0.5);
+      theme: "plain",
+      styles: { fontSize: 8.5, cellPadding: 2.8, textColor: DARK },
+      headStyles: { fillColor: GOLD, textColor: [255,255,255], fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [250,248,244] },
+      didParseCell(d) {
+        if (d.section === "body" && d.column.index === 5) {
+          d.cell.styles.textColor = d.cell.raw === "At Risk" ? RRED : OK;
+          d.cell.styles.fontStyle = "bold";
         }
       },
-      margin:{left:14,right:14},
+      margin: { left: 14, right: 14 },
     });
     y = doc.lastAutoTable.finalY + 12;
   }
 
   /* FOOTER */
   const pages = doc.internal.getNumberOfPages();
-  for (let i=1; i<=pages; i++) {
+  for (let i = 1; i <= pages; i++) {
     doc.setPage(i);
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(8); doc.setTextColor(...DIM);
-    doc.text(
-      `Class Activity Console  ·  ${now}  ·  ${scopeLabel}  ·  Page ${i} of ${pages}`,
-      W/2, 289, {align:"center"}
-    );
+    doc.text(`Class Activity Console  |  ${now}  |  ${scopeLabel}  |  Page ${i} of ${pages}`,
+      W / 2, 289, { align: "center" });
   }
 
-  doc.save(`activity-report-${G.dept}-${new Date().toISOString().slice(0,10)}.pdf`);
+  doc.save(`activity-report-${G.dept}-${dkey(new Date())}.pdf`);
   closePDF();
   notify("PDF downloaded");
-};
+}
 
 /* ── NOTIFY ── */
-function notify(msg, err=false) {
+function notify(msg, err = false) {
   const n = document.createElement("div");
-  n.className = "notif"+(err?" err":"");
+  n.className = "notif" + (err ? " err" : "");
+  n.setAttribute("role", "status");
   n.textContent = msg;
   document.body.appendChild(n);
-  setTimeout(()=>{ n.style.opacity="0"; setTimeout(()=>n.remove(),400); }, 2800);
+  setTimeout(() => { n.style.opacity = "0"; setTimeout(() => n.remove(), 400); }, 2800);
 }
+
+/* ── EVENT WIRING ── */
+let searchTimer;
+$("searchBox").addEventListener("input", e => {
+  clearTimeout(searchTimer);
+  const v = e.target.value.trim().toLowerCase();
+  searchTimer = setTimeout(() => { G.search = v; render(); }, 180);
+});
+$("deptSel").addEventListener("change", e => { G.dept = e.target.value; render(); });
+$("dfrom").addEventListener("change", e => { G.dateFrom = e.target.value ? parseLocal(e.target.value) : null; render(); });
+$("dto").addEventListener("change", e => { G.dateTo = e.target.value ? parseLocal(e.target.value) : null; render(); });
+$("clearDatesBtn").addEventListener("click", () => {
+  $("dfrom").value = ""; $("dto").value = "";
+  G.dateFrom = null; G.dateTo = null; render();
+});
+$("thrSlider").addEventListener("input", e => {
+  G.threshold = +e.target.value;
+  $("thrDisplay").textContent = e.target.value;
+  render();
+});
+$("csvBtn").addEventListener("click", exportCSV);
+$("pdfBtn").addEventListener("click", openPDF);
+$("pdfCancel").addEventListener("click", closePDF);
+$("pdfGo").addEventListener("click", generatePDF);
+$("pdfOverlay").addEventListener("click", e => { if (e.target === $("pdfOverlay")) closePDF(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closePDF(); });
+$("retryBtn").addEventListener("click", load);
+
+document.querySelector(".tabs").addEventListener("click", e => {
+  const t = e.target.closest("[data-tab]"); if (t) switchTab(t.dataset.tab);
+});
+$("calWrap").addEventListener("click", e => {
+  const d = e.target.closest("[data-day]"); if (d) showDay(d.dataset.day);
+});
+$("breakdown").addEventListener("click", e => {
+  if (e.target.closest("[data-close-day]")) closeDay();
+});
+$("lbBody").addEventListener("click", e => {
+  const b = e.target.closest("[data-flag]"); if (b) toggleFlag(b.dataset.flag);
+});
+const lbHead = document.querySelector("#lbTable thead");
+lbHead.addEventListener("click", e => {
+  const th = e.target.closest("[data-sort]"); if (th) sortBy(th.dataset.sort);
+});
+lbHead.addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const th = e.target.closest("[data-sort]");
+  if (th) { e.preventDefault(); sortBy(th.dataset.sort); }
+});
 </script>
 </body>
 </html>
