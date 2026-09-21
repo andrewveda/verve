@@ -485,81 +485,84 @@ function showToast(msg, isCheat = false) {
 /* ========== DATA ========== */
 const ROUNDS = [
   { items:[
-      { text:"It was the ___ of times, it was the worst of times,", answer:"best" },
-      { text:"It was the best of times, it was the ___ of times,", answer:"worst" },
-      { text:"it was the age of ___, it was the age of foolishness,", answer:"wisdom" },
-      { text:"it was the age of wisdom, it was the age of ___,", answer:"foolishness" },
-      { text:"it was the epoch of ___, it was the epoch of incredulity,", answer:"belief" },
-      { text:"it was the epoch of belief, it was the epoch of ___,", answer:"incredulity" }
-    ]
-  },
-  { items:[
-      { text:"it was the season of ___, it was the season of Darkness,", answer:"Light" },
-      { text:"it was the season of Light, it was the season of ___,", answer:"Darkness" },
-      { text:"it was the spring of ___, it was the winter of despair,", answer:"hope" },
-      { text:"it was the spring of hope, it was the winter of ___,", answer:"despair" },
-      { text:"we had ___ before us, we had nothing before us &mdash;", answer:"everything" },
-      { text:"we had everything before us, we had ___ before us &mdash;", answer:"nothing" }
+      { text:"It was the ___ of times,", answer:"best" },
+      { text:"it was the ___ of times,", answer:"worst" },
+      { text:"it was the age of ___,", answer:"wisdom" },
+      { text:"it was the age of ___,", answer:"foolishness" },
+      { text:"it was the epoch of ___,", answer:"belief" },
+      { text:"it was the epoch of ___,", answer:"incredulity" },
+      { text:"it was the season of ___,", answer:"Light" },
+      { text:"it was the season of ___,", answer:"Darkness" },
+      { text:"it was the spring of ___,", answer:"hope" },
+      { text:"it was the winter of ___,", answer:"despair" },
+      { text:"we had ___ before us,", answer:"everything" },
+      { text:"we had ___ before us, we were all going direct to Heaven, we were all going direct the other way.", answer:"nothing" }
     ],
     note:{ kicker:"that opening you've heard a hundred times:", title:"Charles Dickens, A Tale of Two Cities", blurb:"One 119-word sentence that somehow still feels like it was written yesterday.", query:"A Tale of Two Cities Charles Dickens" }
   },
   { items:[
-      { text:"If you can ___ yourself when all men doubt you, but make allowance for their doubting too &mdash;", answer:"trust" },
-      { text:"If you can trust yourself when all men ___ you, but make allowance for their doubting too &mdash;", answer:"doubt" }
+      { text:"“If you can ___ yourself", answer:"trust" },
+      { text:"when all men ___ you, But make allowance for their doubting too”", answer:"doubt" }
     ],
     note:{ kicker:"the poem your grandfather probably framed:", title:"Rudyard Kipling, \u201cIf&mdash;\u201d", blurb:"A whole philosophy of steadiness packed into 32 short lines.", query:"Rudyard Kipling If poem" }
   },
   { items:[
-      { text:"Better to ___ in Hell than serve in Heaven.", answer:"reign" },
-      { text:"Better to reign in ___ than serve in Heaven.", answer:"Hell" },
-      { text:"Better to reign in Hell than ___ in Heaven.", answer:"serve" },
-      { text:"Better to reign in Hell than serve in ___.", answer:"Heaven" }
-    ],
-    note:{ kicker:"Satan's most famous excuse:", title:"John Milton, Paradise Lost", blurb:"An epic poem that somehow makes the villain's logic sound almost reasonable.", query:"Paradise Lost John Milton" }
-  },
-  { items:[
-      { text:"___ die many times before their deaths;", answer:"Cowards" },
-      { text:"Cowards die many times before their deaths; the ___ never taste of death but once.", answer:"valiant" }
-    ],
-    note:{ kicker:"advice ignored right before a stabbing:", title:"William Shakespeare, Julius Caesar", blurb:"Said right before Caesar walks into the one meeting he really should have skipped.", query:"Julius Caesar Shakespeare" }
-  },
-  { items:[
-      { text:"I am no bird, and no net ___ me &mdash;", answer:"ensnares" },
-      { text:"I am no bird, and no net ensnares me: I am a ___ human being with an independent will.", answer:"free" }
-    ],
-    note:{ kicker:"one of literature's great mic-drops:", title:"Charlotte Bront\u00eb, Jane Eyre", blurb:"Said to the man who thinks he can keep her &mdash; and she means every word.", query:"Jane Eyre Charlotte Bronte" }
-  },
-  { items:[
-      { text:"Without contraries there is no progression. ___ and Repulsion,", answer:"Attraction" },
-      { text:"Without contraries there is no progression. Attraction and ___,", answer:"Repulsion" },
-      { text:"reason and energy, ___ and Hate,", answer:"Love" },
-      { text:"reason and energy, Love and ___, are necessary to human existence.", answer:"Hate" }
-    ],
-    note:{ kicker:"a poet arguing that opposites are the point:", title:"William Blake, The Marriage of Heaven and Hell", blurb:"A strange, brilliant little book that flips good-and-evil on its head.", query:"The Marriage of Heaven and Hell William Blake" }
-  },
-  { items:[
-      { text:"Never surrender to the ___ threat, and never surrender to the minor one &mdash;", answer:"mighty" },
-      { text:"Never surrender to the mighty threat, and never surrender to the ___ one &mdash; courage answers to neither size nor shadow.", answer:"minor" }
+      { text:"“Never give in, never give in, never, never, never, never-in nothing, ___", answer:"great" },
+      { text:"or ___,", answer:"small" },
+      { text:"___", answer:"large" },
+      { text:"or ___ — never give in except to convictions of honour and good sense.”", answer:"petty" }
     ],
     note:{ kicker:"inspired by a speech that never mentions size, but should have:", title:"Winston Churchill's 1941 Harrow speech", blurb:"Famous for a four-word refrain. Worth hearing in his own words &mdash; the recording still exists.", query:"Winston Churchill Harrow 1941 never give in speech" }
   },
   { items:[
-      { text:"When a society starts calling ___ \u2018honesty,\u2019 ask who benefits from the confusion.", answer:"deceit" },
-      { text:"When a society starts calling deceit \u2018___,\u2019 ask who benefits from the confusion.", answer:"honesty" }
+      { text:"“Better to ___", answer:"reign" },
+      { text:"in ___", answer:"Hell" },
+      { text:"than ___", answer:"serve" },
+      { text:"in ___.”", answer:"Heaven" }
+    ],
+    note:{ kicker:"Satan's most famous excuse:", title:"John Milton, Paradise Lost", blurb:"An epic poem that somehow makes the villain's logic sound almost reasonable.", query:"Paradise Lost John Milton" }
+  },
+  { items:[
+      { text:"“___", answer:"War" },
+      { text:"is ___.", answer:"peace" },
+      { text:"___", answer:"Freedom" },
+      { text:"is ___. Ignorance is strength.”", answer:"slavery" }
     ],
     note:{ kicker:"inspired by a novel about words that mean their opposite:", title:"George Orwell, 1984", blurb:"The book that gave us \u201cdoublethink\u201d and \u201cnewspeak\u201d &mdash; still the sharpest warning about language as a weapon.", query:"1984 George Orwell" }
   },
   { items:[
-      { text:"___ does not erase the darkness; it teaches us to build by lantern light until morning comes.", answer:"Hope" },
-      { text:"Hope does not erase the ___; it teaches us to build by lantern light until morning comes.", answer:"darkness" }
+      { text:"“___ die many times before their deaths;", answer:"Cowards" },
+      { text:"The ___ never taste of death but once.”", answer:"valiant" }
+    ],
+    note:{ kicker:"advice ignored right before a stabbing:", title:"William Shakespeare, Julius Caesar", blurb:"Said right before Caesar walks into the one meeting he really should have skipped.", query:"Julius Caesar Shakespeare" }
+  },
+  { items:[
+      { text:"“Face your life, its ___,", answer:"pain" },
+      { text:"its ___, leave no path untaken.”", answer:"pleasure" }
+    ],
+    note:{ kicker:"inspired by a book about a boy raised by ghosts:", title:"Neil Gaiman, The Graveyard Book", blurb:"A story about growing up and eventually having to leave the safest place you've ever known.", query:"The Graveyard Book Neil Gaiman" }
+  },
+  { items:[
+      { text:"“I am no bird; and no net ___ me:", answer:"ensnares" },
+      { text:"I am a ___ human being with an independent will.”", answer:"free" }
+    ],
+    note:{ kicker:"one of literature's great mic-drops:", title:"Charlotte Bront\u00eb, Jane Eyre", blurb:"Said to the man who thinks he can keep her &mdash; and she means every word.", query:"Jane Eyre Charlotte Bronte" }
+  },
+  { items:[
+      { text:"“Darkness cannot drive out ___;", answer:"darkness" },
+      { text:"only ___ can do that.", answer:"light" },
+      { text:"Hate cannot drive out ___;", answer:"hate" },
+      { text:"only ___ can do that.”", answer:"love" }
     ],
     note:{ kicker:"inspired by a speech built entirely on this idea:", title:"Dr. Martin Luther King Jr., \u201cI Have a Dream\u201d", blurb:"One of the most quoted speeches in history &mdash; and one that rewards hearing in full, in his voice.", query:"Martin Luther King I Have a Dream speech" }
   },
   { items:[
-      { text:"Walk every fork in the road you're given &mdash; the ___ ones and the frightening ones &mdash;", answer:"comfortable" },
-      { text:"Walk every fork in the road you're given &mdash; the comfortable ones and the ___ ones &mdash; and leave none untried.", answer:"frightening" }
+      { text:"“Without contraries there is no progression. ___", answer:"Attraction" },
+      { text:"and ___,", answer:"Repulsion" },
+      { text:"reason and energy, ___", answer:"Love" },
+      { text:"and ___, are necessary to human existence.”", answer:"Hate" }
     ],
-    note:{ kicker:"inspired by a book about a boy raised by ghosts:", title:"Neil Gaiman, The Graveyard Book", blurb:"A story about growing up and eventually having to leave the safest place you've ever known.", query:"The Graveyard Book Neil Gaiman" }
+    note:{ kicker:"a poet arguing that opposites are the point:", title:"William Blake, The Marriage of Heaven and Hell", blurb:"A strange, brilliant little book that flips good-and-evil on its head.", query:"The Marriage of Heaven and Hell William Blake" }
   }
 ];
 
@@ -647,9 +650,9 @@ function loadRound() {
     trayEl.appendChild(tile);
   });
 
-  // sentence items, shuffled
-  const shuffledItems = [...items].sort(() => Math.random() - .5);
-  shuffledItems.forEach(it => {
+  // sentence items, IN ORDER to avoid quotes being jumbled
+  const inOrderItems = [...items];
+  inOrderItems.forEach(it => {
     const div = document.createElement("div");
     div.className = "sentence-item";
     div.innerHTML = it.text.replace("___", "<b>____</b>");
