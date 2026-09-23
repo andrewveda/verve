@@ -1,35 +1,108 @@
 [
-
-{
+  {
     "questId": "Video 221",
     "title": "Anand Gandhi - Why I make Films",
     "video": "https://www.youtube.com/watch?v=dJxOJqWoJ60",
     "category": "Ted",
     "watchTarget": 12
   },
-{
+  {
     "questId": "Video Musk Questions",
     "title": "Elon Musk - The Importance of Questions",
     "video": "https://www.youtube.com/watch?v=6j4F8idLq-0",
     "category": "Interviews",
     "watchTarget": 12
   },
-
-
-{
+  {
     "questId": "Video 223",
     "title": "TED Inside the Mind of a Master Procrastinator",
     "video": "https://www.youtube.com/watch?v=arj7oStGLkU",
     "category": "Sanjay's Space",
     "watchTarget": 12
   },
-
-{
+  {
     "questId": "Video 225",
     "title": "India vs The World? Dr. Jaishankar on Diplomacy, Superpowers & Global Strategy",
     "video": "https://m.youtube.com/watch?v=yVTNge3sXpg",
     "category": "Podcast - Lohendra's Space",
     "watchTarget": 1200
+  },
+  {
+    "questId": "Video 300",
+    "title": "Mordern Talking - Cheri Cheri Lady (official Video)",
+    "video": "https://www.youtube.com/watch?v=eNvUS-6PTbs",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 301",
+    "title": "Steve Lacy - the feeling (Official Video)",
+    "video": "https://www.youtube.com/watch?v=Qw20tg1v7Fc",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 302",
+    "title": "Breakdown - J. Cole",
+    "video": "https://www.youtube.com/watch?v=INJZ1VsLs-w",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 303",
+    "title": "J. Cole - only you (Official Audio)",
+    "video": "https://www.youtube.com/watch?v=wjAckFWVkSo",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 304",
+    "title": "I Wonder",
+    "video": "https://www.youtube.com/watch?v=MxEjnYdfLXU",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 305",
+    "title": "JID - Kody Blu 31 (Official Music Video)",
+    "video": "https://www.youtube.com/watch?v=ScDgJJi5Guc",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 306",
+    "title": "Michael Jackson - Off the wall (Audio)",
+    "video": "https://www.youtube.com/watch?v=_BfcRjZn6y4",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 307",
+    "title": "Juice WRLD - Burn (Official Music Video)",
+    "video": "https://www.youtube.com/watch?v=HA1srD2DwaI",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 308",
+    "title": "NF - DRIFTING (Audio)",
+    "video": "https://www.youtube.com/watch?v=AQ7-qKQMce4",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 309",
+    "title": "The Weeknd - Faith (Audio)",
+    "video": "https://www.youtube.com/watch?v=RcS_8-a-sMg",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
+  },
+  {
+    "questId": "Video 310",
+    "title": "Tame Impala - The Less I Know The Better (Official Video)",
+    "video": "https://www.youtube.com/watch?v=sBzrzS1Ag_g",
+    "category": "Karnesh's Space",
+    "watchTarget": 99
   },
 {
     "questId": "Video 224",
