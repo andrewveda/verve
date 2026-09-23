@@ -680,7 +680,7 @@ function markVerseSolved(id){ const s=getSolvedVerses(); if(!s.includes(id)){s.p
 
 /* MUTE HELPERS */
 function isChatMuted(){
-  try { return localStorage.getItem('pq_chat_muted') === '1'; } catch(e){ return false; }
+  try { return localStorage.getItem('pq_chat_muted') === '0'; } catch(e){ return false; }
 }
 function toggleMute(){
   const muted = !isChatMuted();
