@@ -185,7 +185,9 @@ textarea { font-family: inherit; }
 .speed-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
 .speed-lock-overlay {
     position: relative;
-    display: inline-block;
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 #speedLockText {
     position: absolute;
@@ -319,10 +321,10 @@ textarea { font-family: inherit; }
             <div class="speed-controls" style="flex: 1; justify-content: flex-end;">
               <div class="speed-lock-overlay">
                   <span id="speedLockText"></span>
-                  <button class="speed-btn active" id="btn1x" onclick="setSpeed(1)">1x</button>
+                  <button class="speed-btn" id="btn1x" onclick="setSpeed(1)" disabled>1x</button>
+                  <button class="speed-btn" id="btn15x" onclick="setSpeed(1.5)" disabled>1.5x</button>
               </div>
-              <button class="speed-btn" id="btn15x" onclick="setSpeed(1.5)" disabled>1.5x</button>
-              <button class="speed-btn" id="btn2x" onclick="setSpeed(2)" disabled>2x</button>
+              <button class="speed-btn active" id="btn2x" onclick="setSpeed(2)">2x</button>
             </div>
           </div>
         </div>
@@ -424,8 +426,7 @@ let playStartTime = 0;
 let hasAutoDownloaded = false;
 const SPEED_LOCK_DURATION = 180; // 3 minutes in seconds
 let isSpeedLocked = true;
-let speedLockTimer = null;
-let currentSpeed = 1;
+let currentSpeed = 2; // Default to 2x speed
 
 function fmtTime(s) {
   s = Math.max(0, Math.floor(s || 0));
@@ -503,10 +504,9 @@ function updateSpeedLockTimer(remainingSeconds) {
 function unlockSpeed() {
     isSpeedLocked = false;
     document.getElementById('speedLockText').style.display = 'none';
+    document.getElementById('btn1x').disabled = false;
     document.getElementById('btn15x').disabled = false;
-    document.getElementById('btn2x').disabled = false;
 }
-
 
 function backgroundSaveTick() {
   if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
@@ -698,9 +698,9 @@ async function startPlayer(startTimeSeconds) {
   } else {
       isSpeedLocked = true;
       document.getElementById('speedLockText').style.display = 'block';
+      document.getElementById('btn1x').disabled = true;
       document.getElementById('btn15x').disabled = true;
-      document.getElementById('btn2x').disabled = true;
-      setSpeed(1); // Ensure it starts at 1x if locked
+      setSpeed(2); // Ensure it starts at 2x if locked
   }
 
   try {
@@ -719,9 +719,7 @@ async function startPlayer(startTimeSeconds) {
     events: {
       onReady: (e) => { 
           e.target.playVideo(); 
-          if(currentSpeed !== 1 && !isSpeedLocked) {
-              ytPlayer.setPlaybackRate(currentSpeed);
-          }
+          ytPlayer.setPlaybackRate(currentSpeed);
       },
       onStateChange: onPlayerStateChange
     }
@@ -739,8 +737,9 @@ function onPlayerStateChange(e) {
     statusEl.style.display = 'none';
     updatePlayPauseUI();
     playStartTime = Date.now();
+    
     // Ensure speed is maintained when playback resumes
-    if(currentSpeed !== 1 && ytPlayer.getPlaybackRate() !== currentSpeed) {
+    if(ytPlayer.getPlaybackRate() !== currentSpeed) {
         ytPlayer.setPlaybackRate(currentSpeed);
     }
   }
@@ -781,15 +780,15 @@ function updatePlayPauseUI() {
 }
 
 function setSpeed(rate) {
-    if (isSpeedLocked && rate > 1) return; // Prevent speed change if locked
+    if (isSpeedLocked && rate < 2) return; // Prevent speed change to slower speeds if locked
     
     currentSpeed = rate;
     
     // Update button UI
     document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
-    let btnId = 'btn1x';
+    let btnId = 'btn2x';
+    if(rate === 1) btnId = 'btn1x';
     if(rate === 1.5) btnId = 'btn15x';
-    if(rate === 2) btnId = 'btn2x';
     document.getElementById(btnId).classList.add('active');
 
     if (ytPlayer && typeof ytPlayer.setPlaybackRate === 'function') {
