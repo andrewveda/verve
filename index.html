@@ -276,6 +276,9 @@
         New here? Creating a GitHub account takes under a minute — just tap
         <strong>"Sign in with Google"</strong> on GitHub's page.
       </p>
+      <button class="btn-github" id="chessBtn" onclick="startChessLogin()" style="margin-top:10px;">
+        <span class="btn-github-icon">♞</span> Continue with Chess.com
+      </button>
       <div class="auth-divider"><span>or</span></div>
       <button class="btn-skip" id="skipBtn" onclick="showGuestForm()">Skip for now →</button>
     </div>
@@ -285,7 +288,7 @@
       <div class="gh-info">
         <div class="gh-name" id="ghDisplayName">Loading…</div>
         <div class="gh-handle" id="ghHandleText"></div>
-        <div class="gh-badge">GitHub Authenticated</div>
+        <div class="gh-badge" id="ghBadgeText">GitHub Authenticated</div>
       </div>
     </div>
 
@@ -345,8 +348,9 @@
     <a class="drawer-link" href="https://andrewveda.com/cryptic"><span class="dl-icon">🔍</span> Cryptic Crossword</a>
     <div id="drawerGithubPrompt" style="display:none; margin-top:16px; padding:12px; border:1px dashed var(--gold); border-radius:10px; background:var(--gold-dim);">
       <div style="font-size:0.7rem; font-weight:700; color:var(--text); margin-bottom:4px;">Browsing as a guest</div>
-      <div style="font-size:0.65rem; color:var(--text-muted); line-height:1.5; margin-bottom:8px;">Sign in with GitHub to keep your progress permanently.</div>
+      <div style="font-size:0.65rem; color:var(--text-muted); line-height:1.5; margin-bottom:8px;">Sign in with GitHub or Chess.com to keep your progress permanently.</div>
       <button class="btn-github" style="padding:.6rem;" onclick="startGithubLogin()"><span class="btn-github-icon">🐙</span> Continue with GitHub</button>
+      <button class="btn-github" style="padding:.6rem; margin-top:8px;" onclick="startChessLogin()"><span class="btn-github-icon">♞</span> Continue with Chess.com</button>
     </div>
   </div>
   <div class="drawer-footer">
@@ -690,7 +694,8 @@ const ENTRIES = [
       const ignoreKeys = [
         'cachedUserData', 'userIdentityMode', 'userIdentityIndex', 'userDept', 
         'vfv_dept', 'userName', 'guest_mode', 'logged_in', 'auth_provider', 
-        'github_username', 'github_id', 'github_profile', 'avatar'
+        'github_username', 'github_id', 'github_profile',
+        'chess_username', 'chess_id', 'chess_profile', 'avatar'
       ];
       if (ignoreKeys.includes(key)) continue;
 
@@ -822,14 +827,27 @@ const ENTRIES = [
 
   function getGHFromStorage() {
     const loggedIn = localStorage.getItem('logged_in');
-    const githubUser = localStorage.getItem('github_username');
-    const githubId = localStorage.getItem('github_id');
-    if (loggedIn === 'true' && githubUser && githubId) {
+    const provider = localStorage.getItem('auth_provider'); // 'github' | 'chesscom'
+
+    const username = provider === 'chesscom'
+      ? localStorage.getItem('chess_username')
+      : localStorage.getItem('github_username');
+
+    const externalId = provider === 'chesscom'
+      ? localStorage.getItem('chess_id')
+      : localStorage.getItem('github_id');
+
+    const profileUrl = provider === 'chesscom'
+      ? localStorage.getItem('chess_profile')
+      : localStorage.getItem('github_profile');
+
+    if (loggedIn === 'true' && provider && username && externalId) {
       return {
         loggedIn: true,
-        username: githubUser,
-        githubId: githubId,
-        profile: localStorage.getItem('github_profile'),
+        provider: provider,
+        username: username,
+        githubId: externalId,
+        profile: profileUrl,
         avatar: localStorage.getItem('avatar'),
         name: localStorage.getItem('userName'),
         dept: localStorage.getItem('userDept')
@@ -838,10 +856,20 @@ const ENTRIES = [
     return null;
   }
 
+  function providerLabel(provider) {
+    return provider === 'chesscom' ? 'Chess.com' : 'GitHub';
+  }
+
   window.startGithubLogin = function () {
     const current = window.location.pathname + window.location.search;
     const returnTo = encodeURIComponent(current);
     window.location.href = `/verve/auth.html?return=${returnTo}`;
+  };
+
+  window.startChessLogin = function () {
+    const current = window.location.pathname + window.location.search;
+    const returnTo = encodeURIComponent(current);
+    window.location.href = `/verve/chess-auth.html?return=${returnTo}`;
   };
 
   window.showGuestForm = function () {
@@ -865,18 +893,21 @@ const ENTRIES = [
   };
 
   function populateIdentity() {
-    window.__authMode = 'github';
+    window.__authMode = window.GH?.provider || 'github';
+    const label = providerLabel(window.__authMode);
+
     document.getElementById('authChoice').style.display = 'none';
     document.getElementById('ghIdentityCard').style.display = 'flex';
     document.getElementById('deptRow').style.display = 'block';
     document.getElementById('launchBtn').style.display = 'block';
 
-    const displayName = window.GH?.name || window.GH?.username || 'GitHub User';
+    const displayName = window.GH?.name || window.GH?.username || `${label} User`;
     const handle = window.GH?.username ? `@${window.GH.username}` : '';
     const avatar = window.GH?.avatar || '';
 
     document.getElementById('ghDisplayName').textContent = displayName;
     document.getElementById('ghHandleText').textContent = handle;
+    document.getElementById('ghBadgeText').textContent = `${label} Authenticated`;
     const ghSlot = document.getElementById('ghAvatarSlot');
     ghSlot.innerHTML = '';
     ghSlot.appendChild(makeAvatar(avatar, displayName, 48));
@@ -910,7 +941,7 @@ const ENTRIES = [
     localStorage.setItem('vfv_dept', dept);
     localStorage.setItem('userDept', dept);
 
-    const displayName = window.GH?.name || window.GH?.username || 'GitHub User';
+    const displayName = window.GH?.name || window.GH?.username || `${providerLabel(window.__authMode)} User`;
     const avatar = window.GH?.avatar || '';
     enterApp(displayName, dept, avatar);
   };
@@ -994,7 +1025,8 @@ const ENTRIES = [
   window.logout = () => {
     ['vfv_dept', 'userDept', 'userName', 'guest_mode',
      'logged_in', 'auth_provider', 'github_username', 'github_id',
-     'github_profile', 'avatar'
+     'github_profile', 'chess_username', 'chess_id', 'chess_profile',
+     'avatar'
     ].forEach(k => localStorage.removeItem(k));
     window.location.reload();
   };
