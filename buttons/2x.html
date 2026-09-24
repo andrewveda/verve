@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- This meta tag is crucial for mobile optimization -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Custom Speed Player</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #121212;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Responsive 16:9 container for the YouTube iframe */
+  .video-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    background: #000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  }
+  
+  .video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  
+  .controls {
+    margin: 20px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px;
+  }
+  
+  button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    background-color: #e50914;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    touch-action: manipulation; /* Optimizes touch interactions on mobile */
+  }
+  
+  button:active {
+    transform: scale(0.95);
+    background-color: #b20710;
+  }
+</style>
+</head>
+<body>
+
+<!-- Video Wrapper -->
+<div class="video-container">
+  <div id="player"></div>
+</div>
+
+<!-- Speed Toggles -->
+<div class="controls">
+  <button onclick="setSpeed(1)">1x Speed</button>
+  <button onclick="setSpeed(2)">2x Speed</button>
+  <button onclick="setSpeed(4)">4x Speed</button>
+</div>
+
+<script>
+  // 1. Load the YouTube IFrame Player API code asynchronously.
+  var tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  var firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+  // 2. This function creates an <iframe> (and YouTube player) after the API code downloads.
+  var player;
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+      videoId: 'TWnkNyW78Nk', // The video ID extracted from your link
+      playerVars: {
+        'playsinline': 1, // Plays inline on iOS instead of going fullscreen automatically
+        'autoplay': 1     // Attempts to autoplay (mobile browsers often require user interaction first)
+      },
+      events: {
+        'onReady': onPlayerReady
+      }
+    });
+  }
+
+  // 3. The API will call this function when the video player is ready.
+  function onPlayerReady(event) {
+    // Set default requested speed to 4x
+    setSpeed(4);
+    
+    // Note: Most mobile browsers require the user to tap "play" manually to start video/audio
+    // event.target.playVideo(); 
+  }
+
+  // 4. Function to change the playback rate based on toggle buttons
+  function setSpeed(rate) {
+    if (player && player.setPlaybackRate) {
+      player.setPlaybackRate(rate);
+      console.log('Attempted to set speed to: ' + rate + 'x');
+      
+      // Let's verify what speed YouTube actually applied
+      setTimeout(() => {
+        let currentSpeed = player.getPlaybackRate();
+        console.log('Actual active speed: ' + currentSpeed + 'x');
+      }, 500);
+    }
+  }
+</script>
+
+</body>
+</html>
