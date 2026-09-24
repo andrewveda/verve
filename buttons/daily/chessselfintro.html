@@ -8,6 +8,9 @@
 <title>The Grandmaster of Words — Self-Introduction</title>
 
 <!-- Auth Guard to protect and load user session -->
+<!-- This quest is Chess.com-only: any other page in /verve/ still accepts
+     either GitHub or Chess.com, this one requires REQUIRED_AUTH_PROVIDER. -->
+<script>window.REQUIRED_AUTH_PROVIDER = 'chesscom';</script>
 <script src="../../auth-guard.js"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
@@ -564,9 +567,10 @@ html.light .prompt-textarea::placeholder, html.light .versionb-textarea::placeho
 </div>
 
 <script>
-/* ========== GITHUB AUTH INTEGRATION (mirrors 8.html) ==========
-   auth-guard.js has already redirected to /verve/auth.html if the person
-   isn't logged in, so by the time this code runs window.GH is populated. */
+/* ========== CHESS.COM AUTH INTEGRATION (mirrors 8.html) ==========
+   auth-guard.js has already redirected to /verve/chess-auth.html if the
+   person isn't logged in with Chess.com specifically (REQUIRED_AUTH_PROVIDER
+   above), so by the time this code runs window.GH is populated. */
 let playerName = "Guest";
 let playerDept = "Unknown";
 let playerAvatar = "";
@@ -586,11 +590,12 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     document.getElementById('startBtn').disabled = false;
   } else {
-    // No verified GitHub session — auth-guard.js should already have redirected
-    // to /verve/auth.html before this ever runs. If it somehow didn't, the gate
-    // stays locked rather than letting anyone in as a placeholder user.
+    // No verified Chess.com session — auth-guard.js should already have
+    // redirected to /verve/chess-auth.html before this ever runs. If it
+    // somehow didn't, the gate stays locked rather than letting anyone in
+    // as a placeholder user.
     document.getElementById('candidateName').textContent = 'Not signed in';
-    document.getElementById('candidateDept').textContent = 'GitHub login required';
+    document.getElementById('candidateDept').textContent = 'Chess.com login required';
     document.getElementById('startBtn').disabled = true;
   }
 });
