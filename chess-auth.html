@@ -283,8 +283,9 @@ select option {
 </div>
 
 <script>
-// IMPORTANT: Replace with your actual Chess.com Client ID once approved.
-const CLIENT_ID = 'YOUR_CHESS_COM_CLIENT_ID'; 
+// Approved Chess.com OAuth client (see the "Approved - OAuth client at Chess.com" email)
+const CLIENT_ID = 'fd4fdd9a-b794-11f1-b7f0-737b1b77b988';
+// Must exactly match the approved redirect URI: https://andrewveda.com/verve/chess-auth.html
 const REDIRECT_URI = `${window.location.origin}${window.location.pathname}`;
 const returnTo = new URLSearchParams(window.location.search).get('return') || window.location.pathname.replace('chess-auth.html', '');
 
@@ -292,28 +293,130 @@ const chessBtn    = document.getElementById('chessBtn');
 const deptSection = document.getElementById('deptSection');
 const continueBtn = document.getElementById('continueBtn');
 
-function beginChessLogin() {
+// --- PKCE helpers (Chess.com's OAuth server requires PKCE, S256 method) ---
+
+function base64UrlEncode(bytes) {
+  let str = '';
+  for (const b of bytes) str += String.fromCharCode(b);
+  return btoa(str)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+function generateCodeVerifier() {
+  const array = new Uint8Array(64);
+  crypto.getRandomValues(array);
+  return base64UrlEncode(array);
+}
+
+async function generateCodeChallenge(verifier) {
+  const data = new TextEncoder().encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return base64UrlEncode(new Uint8Array(digest));
+}
+
+async function beginChessLogin() {
   const state = Math.random().toString(36).slice(2);
   sessionStorage.setItem('oauth_state', state);
 
-  const url = 
+  const codeVerifier = generateCodeVerifier();
+  sessionStorage.setItem('pkce_verifier', codeVerifier);
+  const codeChallenge = await generateCodeChallenge(codeVerifier);
+
+  // "openid" is required to get an id_token back at all; "profile" asks
+  // for name/profile claims in it too (per the Chess.com OAuth docs).
+  const url =
     `https://oauth.chess.com/authorize?response_type=code&client_id=${CLIENT_ID}` +
     `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+    `&scope=${encodeURIComponent('openid profile')}` +
+    `&code_challenge=${codeChallenge}` +
+    `&code_challenge_method=S256` +
     `&state=${state}`;
 
   window.location.href = url;
 }
 
-async function exchangeCode(code) {
-  // IMPORTANT: Ensure this points to your active Cloudflare Worker for Chess.com
-  const response = await fetch(
-   `https://your-worker.workers.dev/chess/callback?code=${code}`
+function base64UrlDecode(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) str += '=';
+  return decodeURIComponent(
+    atob(str)
+      .split('')
+      .map((c) => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
+      .join('')
   );
+}
+
+function decodeIdToken(jwt) {
+  return JSON.parse(base64UrlDecode(jwt.split('.')[1]));
+}
+
+async function exchangeCode(code) {
+  const codeVerifier = sessionStorage.getItem('pkce_verifier');
+
+  // Chess.com's docs describe PKCE specifically for public clients like
+  // this one (no client_secret, per the approval email), and don't mention
+  // a server-side proxy — so this calls the token endpoint straight from
+  // the browser. If your browser's console shows a CORS error here, that
+  // means Chess.com doesn't allow browser calls after all, and you'll need
+  // a small server/Cloudflare Worker to forward this POST instead.
+  const response = await fetch('https://oauth.chess.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
+      code,
+      code_verifier: codeVerifier
+    })
+  });
 
   if (!response.ok) {
     throw new Error('OAuth failed');
   }
-  return response.json();
+
+  const tokenData = await response.json();
+
+  if (!tokenData.id_token) {
+    throw new Error('No id_token in response — check that scope includes "openid"');
+  }
+
+  // The id_token is a signed JWT; we trust it here because we just got it
+  // directly from oauth.chess.com over HTTPS (no independent signature
+  // check needed for that trust path). Claim names aren't fully spelled
+  // out in the docs, so this tries the likely OIDC-standard ones.
+  const claims = decodeIdToken(tokenData.id_token);
+  const username =
+    claims.preferred_username || claims.username || claims.nickname || claims.sub;
+
+  const profile = {
+    username,
+    id: claims.sub,
+    name: claims.name || username,
+    avatar: claims.picture || '',
+    url: `https://www.chess.com/member/${username}`
+  };
+
+  // Enrich with Chess.com's public, unauthenticated player API for a
+  // reliable avatar/name/id, since those id_token claims are unconfirmed.
+  try {
+    const pub = await fetch(
+      `https://api.chess.com/pub/player/${encodeURIComponent(username)}`
+    );
+    if (pub.ok) {
+      const p = await pub.json();
+      profile.avatar = p.avatar || profile.avatar;
+      profile.name = p.name || profile.name;
+      profile.url = p.url || profile.url;
+      profile.id = p.player_id ?? profile.id;
+    }
+  } catch (e) {
+    console.warn('Could not fetch public Chess.com profile', e);
+  }
+
+  return profile;
 }
 
 function showIdentity(user) {
@@ -331,7 +434,7 @@ function saveUser(user) {
   localStorage.setItem('logged_in', 'true');
   localStorage.setItem('auth_provider', 'chesscom');
   localStorage.setItem('chess_username', user.username);
-  localStorage.setItem('chess_id', user.player_id || user.id); 
+  localStorage.setItem('chess_id', user.id);
   localStorage.setItem('chess_profile', user.url);
   localStorage.setItem('avatar', user.avatar || '');
   localStorage.setItem('userName', user.name || user.username);
