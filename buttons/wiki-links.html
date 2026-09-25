@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiki Links</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --card: #fff;
+    --text: #202122;
+    --muted: #72777d;
+    --border: #c8ccd1;
+    --accent: #3366cc;
+    --success: #14866d;
+    --danger: #b32424;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px;
+  }
+  .top {
+    max-width: 1050px;
+    margin: auto;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  h1 { margin: 0; font-size: 24px; }
+  .stats {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .pill {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 11px;
+    background: #fff;
+    font-size: 14px;
+  }
+  main {
+    max-width: 1050px;
+    margin: auto;
+    padding: 18px;
+  }
+  .goal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px 18px;
+    margin-bottom: 14px;
+  }
+  .goal small { color: var(--muted); }
+  .route {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 5px;
+    font-size: 18px;
+  }
+  .target { color: var(--accent); font-weight: 700; }
+  button {
+    border: 0;
+    border-radius: 8px;
+    padding: 9px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    background: var(--accent);
+    color: white;
+  }
+  button:hover { opacity: .9; }
+  #newGame { background: #202122; }
+  #article {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    min-height: 500px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+  #article h1, #article h2, #article h3 { line-height: 1.25; }
+  #article img { max-width: 100%; height: auto; }
+  #article table {
+    max-width: 100%;
+    overflow: auto;
+    display: block;
+    border-collapse: collapse;
+  }
+  #article th, #article td {
+    border: 1px solid var(--border);
+    padding: 6px;
+  }
+  #article a {
+    color: var(--accent);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .loading {
+    text-align: center;
+    padding: 80px 10px;
+    color: var(--muted);
+  }
+  .message {
+    display: none;
+    margin-bottom: 14px;
+    padding: 13px 16px;
+    border-radius: 10px;
+    background: #eaf7f2;
+    border: 1px solid #a8d8ca;
+  }
+  .message.show { display: block; }
+  .message strong { color: var(--success); }
+  footer {
+    max-width: 1050px;
+    margin: 16px auto 30px;
+    padding: 0 18px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  @media (max-width: 650px) {
+    .top { align-items: flex-start; flex-direction: column; }
+    .stats { justify-content: flex-start; }
+    #article { padding: 16px; }
+    h1 { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <h1>🔗 Wiki Links</h1>
+    <div class="stats">
+      <span class="pill">Links: <b id="moves">0</b></span>
+      <span class="pill">Time: <b id="time">0:00</b></span>
+      <span class="pill">Best: <b id="best">—</b></span>
+      <button id="newGame">New Game</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="goal">
+    <small>Get from</small>
+    <div class="route">
+      <b id="start">Loading…</b>
+      <span>→</span>
+      <span class="target" id="target">Loading…</span>
+    </div>
+  </section>
+
+  <div id="success" class="message">
+    <strong>🎉 You made it!</strong>
+    <span id="result"></span>
+  </div>
+
+  <article id="article">
+    <div class="loading">Loading Wikipedia…</div>
+  </article>
+</main>
+
+<footer>
+  Article content is fetched from Wikipedia's public MediaWiki API.
+</footer>
+
+<script>
+const API = "https://en.wikipedia.org/w/rest.php/v1/page/";
+const ARTICLES = [
+  "Albert Einstein", "Isaac Newton", "Marie Curie", "Charles Darwin",
+  "William Shakespeare", "Leonardo da Vinci", "Aristotle", "Socrates",
+  "Plato", "Galileo Galilei", "Nikola Tesla", "Ada Lovelace",
+  "Alan Turing", "Steve Jobs", "The Beatles", "Michael Jackson",
+  "India", "Chennai", "London", "Paris", "New York City",
+  "United States", "France", "Japan", "China", "Egypt",
+  "World War II", "Internet", "Computer", "Mathematics",
+  "Physics", "Biology", "Music", "Film", "Literature",
+  "Harry Potter", "Pizza", "Coffee", "Chess"
+];
+
+let start, target, current;
+let moves = 0;
+let startedAt = null;
+let timer = null;
+let gameOver = false;
+
+const $ = id => document.getElementById(id);
+
+function getBest() {
+  const value = localStorage.getItem("wikiLinksBest");
+  return value ? Number(value) : null;
+}
+
+function showBest() {
+  const best = getBest();
+  $("best").textContent = best === null ? "—" : best;
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function startTimer() {
+  if (timer) clearInterval(timer);
+  startedAt = Date.now();
+  timer = setInterval(() => {
+    if (!gameOver) {
+      $("time").textContent =
+        formatTime(Math.floor((Date.now() - startedAt) / 1000));
+    }
+  }, 250);
+}
+
+function randomPair() {
+  let a, b;
+  do {
+    a = ARTICLES[Math.floor(Math.random() * ARTICLES.length)];
+    b = ARTICLES[Math.floor(Math.random() * ARTICLES.length)];
+  } while (a === b);
+  return [a, b];
+}
+
+function normaliseTitle(title) {
+  return decodeURIComponent(title.replace(/_/g, " "));
+}
+
+function wikiUrl(title) {
+  return "https://en.wikipedia.org/wiki/" +
+    encodeURIComponent(title.replace(/ /g, "_"));
+}
+
+async function loadArticle(title) {
+  current = title;
+  $("article").innerHTML = '<div class="loading">Loading Wikipedia…</div>';
+
+  try {
+    const response = await fetch(
+      API + encodeURIComponent(title) + "/html",
+      { headers: { "Api-User-Agent": "WikiLinksGame/1.0" } }
+    );
+
+    if (!response.ok) throw new Error("Wikipedia returned " + response.status);
+
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, "text/html");
+
+    // Keep the article body but remove Wikipedia chrome that isn't useful in the game.
+    const body = doc.body;
+    body.querySelectorAll(
+      "script, style, .mw-editsection, .navbox, .vertical-navbox, " +
+      ".metadata, .reflist, .reference, sup.reference"
+    ).forEach(el => el.remove());
+
+    $("article").innerHTML = body.innerHTML;
+
+    // Turn Wikipedia's internal links into game moves.
+    $("article").querySelectorAll("a").forEach(link => {
+      const href = link.getAttribute("href") || "";
+
+      if (href.startsWith("/wiki/") && !href.includes(":")) {
+        const rawTitle = href.substring(6).split("#")[0];
+        if (!rawTitle) return;
+
+        const nextTitle = normaliseTitle(rawTitle);
+
+        link.addEventListener("click", event => {
+          event.preventDefault();
+          if (gameOver) return;
+          makeMove(nextTitle);
+        });
+      } else {
+        // External/non-article links shouldn't take the player away.
+        link.removeAttribute("href");
+        link.style.cursor = "default";
+        link.style.textDecoration = "none";
+      }
+    });
+
+    // If the API gives us a page title heading, don't duplicate our game UI.
+    const firstHeading = $("article").querySelector("h1");
+    if (firstHeading) firstHeading.remove();
+
+    if (current.toLowerCase() === target.toLowerCase()) win();
+  } catch (error) {
+    $("article").innerHTML = `
+      <div class="loading">
+        <p>Could not load this Wikipedia article.</p>
+        <button onclick="loadArticle(current)">Try again</button>
+      </div>`;
+    console.error(error);
+  }
+}
+
+function makeMove(nextTitle) {
+  moves++;
+  $("moves").textContent = moves;
+  loadArticle(nextTitle);
+}
+
+function win() {
+  gameOver = true;
+  clearInterval(timer);
+
+  const seconds = Math.floor((Date.now() - startedAt) / 1000);
+  const oldBest = getBest();
+
+  if (oldBest === null || moves < oldBest) {
+    localStorage.setItem("wikiLinksBest", moves);
+    showBest();
+  }
+
+  $("result").textContent =
+    ` You reached ${target} in ${moves} link${moves === 1 ? "" : "s"} ` +
+    `and ${formatTime(seconds)}.`;
+
+  $("success").classList.add("show");
+}
+
+async function newGame() {
+  gameOver = false;
+  $("success").classList.remove("show");
+  moves = 0;
+  $("moves").textContent = "0";
+  $("time").textContent = "0:00";
+  showBest();
+
+  [start, target] = randomPair();
+  current = start;
+
+  $("start").textContent = start;
+  $("target").textContent = target;
+
+  startTimer();
+  await loadArticle(start);
+}
+
+$("newGame").addEventListener("click", newGame);
+showBest();
+newGame();
+</script>
+</body>
+</html>
