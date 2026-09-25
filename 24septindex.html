@@ -235,6 +235,95 @@
 
     @media (min-width: 700px) { .entry-list { grid-template-columns: repeat(5, 1fr); } }
     @media (prefers-reduced-motion: reduce) { .entry-row, .tab::after { transition: none !important; animation: none !important; } }
+
+    /* --- Desktop view: a conventional windowed app shell (fixed titlebar + persistent left nav), matching that this ships with an install button rather than being a scaled-up phone screen --- */
+    @media (min-width: 860px) {
+      .login-card { max-width: 440px; padding: 36px 32px; }
+      .splash-card { max-width: 460px; }
+
+      body { height: auto; min-height: 100dvh; overflow-y: auto; }
+
+      .app { max-width: none; width: 100%; height: auto; }
+
+      .topbar {
+        height: 60px;
+        padding: 0 28px;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 250;
+      }
+
+      /* The avatar button opened the slide-out drawer on mobile; on desktop
+         that same info already lives in the permanent sidebar below. */
+      .avatar-btn { display: none; }
+
+      .drawer-overlay { display: none !important; }
+
+      .drawer {
+        top: 60px;
+        left: 0;
+        right: auto;
+        height: calc(100dvh - 60px);
+        width: 260px;
+        border-left: none;
+        border-right: 1px solid var(--border);
+        border-radius: 0;
+        box-shadow: none;
+        transition: none;
+      }
+
+      .main {
+        display: grid;
+        grid-template-columns: 1fr;
+        column-gap: 28px;
+        row-gap: 12px;
+        align-items: start;
+        flex: none;
+        overflow-y: visible;
+        margin: 0 0 0 260px;
+        max-width: 960px;
+        padding: 20px 32px 40px;
+      }
+
+      .main > .entry-list {
+        flex: none;
+        overflow-y: visible;
+        grid-template-columns: repeat(6, 1fr);
+      }
+
+      /* Only reserve a calendar column on the tab that actually has one —
+         otherwise the tiles just take the full width, no leftover gap. */
+      .main.has-calendar {
+        grid-template-columns: 340px 1fr;
+      }
+
+      /* Full-width rows above the calendar/tiles */
+      .main > .student-strip,
+      .main > .stats-strip,
+      .main > .filter-shelf {
+        grid-column: 1 / -1;
+      }
+
+      .main.has-calendar > .cal-widget { grid-column: 1; margin-bottom: 0; }
+      .main.has-calendar > .entry-list {
+        grid-column: 2;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      /* A bit larger than the compact mobile size, since it now has its own column */
+      .cal-widget { max-width: none; padding: 14px 18px; }
+      .cal-month-label { font-size: 1rem; }
+      .cal-nav-btn { width: 30px; height: 30px; font-size: 0.75rem; }
+      .cal-dow div { font-size: 0.5rem; }
+      .cal-dow, .cal-days { gap: 4px; }
+      .cal-day { font-size: 0.72rem; }
+
+      /* Let the logout button scroll with the rest of the sidebar instead
+         of staying pinned at the bottom of the viewport. */
+      .drawer { display: block; overflow-y: auto; }
+      .drawer-body { flex: none; overflow-y: visible; }
+    }
   </style>
 </head>
 <body class="theme-missions">
@@ -583,9 +672,11 @@ const ENTRIES = [
 
     // Toggle Calendar Visibility
     const calWidget = document.getElementById('calendarWidget');
+    const showCal = cat === 'missions';
     if (calWidget) {
-      calWidget.style.display = (cat === 'missions') ? 'block' : 'none';
+      calWidget.style.display = showCal ? 'block' : 'none';
     }
+    document.querySelector('.main')?.classList.toggle('has-calendar', showCal);
 
     renderChapter(cat, animate);
   }
