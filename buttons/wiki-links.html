@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -273,15 +274,31 @@ async function loadArticle(title) {
     // Turn Wikipedia's internal links into game moves.
     $("article").querySelectorAll("a").forEach(link => {
       const href = link.getAttribute("href") || "";
+      let rawTitle = null;
 
-      if (href.startsWith("/wiki/") && !href.includes(":")) {
-        const rawTitle = href.substring(6).split("#")[0];
+      // Wikipedia REST HTML can return links in several forms:
+      // /wiki/Page, ./Page, or absolute https://en.wikipedia.org/wiki/Page
+      if (href.startsWith("/wiki/")) {
+        rawTitle = href.substring(6);
+      } else if (href.startsWith("./")) {
+        rawTitle = href.substring(2);
+      } else if (href.startsWith("https://en.wikipedia.org/wiki/")) {
+        rawTitle = href.split("/wiki/")[1];
+      }
+
+      if (rawTitle && !rawTitle.includes(":") && !rawTitle.startsWith("#")) {
+        rawTitle = rawTitle.split("#")[0];
         if (!rawTitle) return;
 
         const nextTitle = normaliseTitle(rawTitle);
 
+        // Make every playable Wikipedia link visibly clickable.
+        link.href = "#";
+        link.style.cursor = "pointer";
+        link.style.pointerEvents = "auto";
         link.addEventListener("click", event => {
           event.preventDefault();
+          event.stopPropagation();
           if (gameOver) return;
           makeMove(nextTitle);
         });
@@ -289,6 +306,7 @@ async function loadArticle(title) {
         // External/non-article links shouldn't take the player away.
         link.removeAttribute("href");
         link.style.cursor = "default";
+        link.style.pointerEvents = "none";
         link.style.textDecoration = "none";
       }
     });
