@@ -11,6 +11,9 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <!-- Auth Guard to protect and load user session -->
+<!-- This quest is Chess.com-only: any other page in /verve/ still accepts
+     either GitHub or Chess.com, this one requires REQUIRED_AUTH_PROVIDER. -->
+<script>window.REQUIRED_AUTH_PROVIDER = 'chesscom';</script>
 <script src="../auth-guard.js"></script>
 
 <!-- Typography matching Herbarium -->
@@ -327,17 +330,20 @@
   </div>
 
 <script>
-/* ========== GITHUB AUTH INTEGRATION ========== */
+/* ========== CHESS.COM AUTH INTEGRATION (mirrors chessselfintro) ==========
+   auth-guard.js has already redirected to /verve/chess-auth.html if the
+   person isn't logged in with Chess.com specifically (REQUIRED_AUTH_PROVIDER
+   above), so by the time this code runs window.GH is populated. */
 let playerName = "Guest";
 let playerDept = "Unknown";
 let playerAvatar = "";
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (window.GH) {
+  if (window.GH && window.GH.loggedIn) {
     playerName = window.GH.name || window.GH.username || "Student";
     playerDept = window.GH.dept || "Department Unspecified";
-    playerAvatar = window.GH.avatar || "https://via.placeholder.com/150";
-    
+    playerAvatar = window.GH.avatar || "";
+
     document.getElementById('candidateName').textContent = playerName;
     document.getElementById('candidateDept').textContent = 'Department: ' + playerDept;
     if (playerAvatar) {
@@ -345,14 +351,13 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     document.getElementById('startBtn').disabled = false;
   } else {
-    // Fallback for standalone demo
-    setTimeout(() => {
-      playerName = localStorage.getItem("questPlayerName") || "Test Student";
-      playerDept = localStorage.getItem("questPlayerDept") || "CSE";
-      document.getElementById('candidateName').textContent = playerName;
-      document.getElementById('candidateDept').textContent = 'Department: ' + playerDept;
-      document.getElementById('startBtn').disabled = false;
-    }, 500);
+    // No verified Chess.com session — auth-guard.js should already have
+    // redirected to /verve/chess-auth.html before this ever runs. If it
+    // somehow didn't, the gate stays locked rather than letting anyone in
+    // as a placeholder user.
+    document.getElementById('candidateName').textContent = 'Not signed in';
+    document.getElementById('candidateDept').textContent = 'Chess.com login required';
+    document.getElementById('startBtn').disabled = true;
   }
 });
 
