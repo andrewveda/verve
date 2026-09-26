@@ -246,8 +246,8 @@
   <div class="screen active" id="nameFormScreen">
     <div class="gate-card">
       <div class="hero-quote">
-        <div class="hero-text">Master the context,<br>master the word.</div>
-        <div class="hero-author">Context is everything.</div>
+       <div class="hero-text">Ever tried.<br>Ever failed.<br> No matter. Try again. <br>Fail again. <br> Fail better! </div>
+        <div class="hero-author">Samuel Beckett</div>
       </div>
       
       <div class="candidate-chip" id="candidateChip">
@@ -286,15 +286,15 @@
         <span class="stat-nums" id="gemsCounter">💎 <b>0</b></span>
       </div>
 
-      <div class="mount" id="dropContainer">
-        <!-- Sentences injected here -->
-      </div>
-      <div class="mount-caption">Select an option, then tap a blank to fill</div>
-
       <div class="tray" id="dragOptions">
-        <!-- Tiles injected here -->
-      </div>
+  <!-- Tiles injected here -->
+</div>
 
+<div class="mount-caption">Select an option, then tap a blank to fill</div>
+
+<div class="mount" id="dropContainer">
+  <!-- Sentences injected here -->
+</div>
       <div id="motivationBox" onclick="this.classList.remove('show')" title="Tap to dismiss"></div>
     </div>
   </div>
@@ -724,7 +724,7 @@ function showScore() {
       correct: correctCount, 
       wrong: totalWrongGuesses,
       time_spent: elapsedSeconds, 
-      quest_id: "Quest 16",
+      quest_id: "Quest 28",
       cheat_count: cheatCount,
       cheat_events: cheatEvents
     })
