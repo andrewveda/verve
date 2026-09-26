@@ -504,95 +504,21 @@ function showToast(msg, isCheat = false) {
 
 /* ========== DATA ========== */
 let quizData = [
-  {
-    questionItems: [
-      {word: "Please _______ the light before going to bed.", answer: "turn off"},
-      {word: "Professor McGonagall asked Filch to _______ the corridor leading to the forbidden classroom.", answer: "close off"},
-      {word: "Harry remembered to _______ the tap after washing his hands in the bathroom.", answer: "shut off"}
-    ],
-    answers: ["turn off", "close off", "shut off"]
-  },
-
-  {
-    questionItems: [
-      {word: "I need to _______ my homework tonight.", answer: "do"},
-      {word: "Harry and Ron decided to _______ a model of Hogwarts for their Muggle Studies project.", answer: "make"},
-      {word: "Hermione wanted to _______ a clever plan to distract the Death Eaters.", answer: "create"}
-    ],
-    answers: ["do", "make", "create"]
-  },
-
-  {
-    questionItems: [
-      {word: "The teacher asked us to _______ attention in class.", answer: "pay"},
-      {word: "Professor Dumbledore decided to _______ special attention to Harry's unusual scar.", answer: "give"},
-      {word: "Hermione told Ron to _______ note of the strange writing on the wall.", answer: "take"}
-    ],
-    answers: ["pay", "give", "take"]
-  },
-
-  {
-    questionItems: [
-      {word: "My mother likes to _______ breakfast early in the morning.", answer: "make"},
-      {word: "Harry had to _______ his homework before he could visit Hagrid.", answer: "do"},
-      {word: "Mrs Weasley taught Ron how to _______ a proper breakfast for his friends.", answer: "cook"}
-    ],
-    answers: ["make", "do", "cook"]
-  },
-
-  {
-    questionItems: [
-      {word: "We should _______ our teeth twice a day.", answer: "brush"},
-      {word: "Hermione helped Harry _______ his muddy glasses after the Quidditch match.", answer: "clean"},
-      {word: "Harry went to _______ his hands after handling the Mandrake plants.", answer: "wash"}
-    ],
-    answers: ["brush", "clean", "wash"]
-  },
-
-  {
-    questionItems: [
-      {word: "The children love to _______ games in the park.", answer: "play"},
-      {word: "Harry had to _______ his homework before joining Ron in the common room.", answer: "do"},
-      {word: "Fred and George decided to _______ a new game for the students at Hogwarts.", answer: "make"}
-    ],
-    answers: ["play", "do", "make"]
-  },
-
-  {
-    questionItems: [
-      {word: "Please _______ your shoes before entering the house.", answer: "take off"},
-      {word: "Harry decided to _______ his journey to the Forbidden Forest until the following night.", answer: "put off"},
-      {word: "Ron had to _______ the Hogwarts Express at King's Cross Station.", answer: "get off"}
-    ],
-    answers: ["take off", "put off", "get off"]
-  },
-
-  {
-    questionItems: [
-      {word: "I always _______ my bed after waking up.", answer: "make"},
-      {word: "Harry had to _______ his homework before breakfast.", answer: "do"},
-      {word: "Hermione used magic to _______ a protective barrier around the castle.", answer: "create"}
-    ],
-    answers: ["make", "do", "create"]
-  },
-
-  {
-    questionItems: [
-      {word: "Can you _______ me a favour and help with this bag?", answer: "do"},
-      {word: "Harry asked Hermione to _______ an exception for Ron because he was injured.", answer: "make"},
-      {word: "Hagrid decided to _______ Harry some useful advice before his first visit to the Forbidden Forest.", answer: "give"}
-    ],
-    answers: ["do", "make", "give"]
-  },
-
-  {
-    questionItems: [
-      {word: "We need to _______ a decision about our vacation plans.", answer: "make"},
-      {word: "Harry had to _______ a decision about whether to enter the Forbidden Forest.", answer: "take"},
-      {word: "Hermione knew they had to _______ everything possible to protect the Philosopher's Stone.", answer: "do"}
-    ],
-    answers: ["make", "take", "do"]
-  }
+ {
+  questionItems: [
+    {word: "Please _______ the light before going to bed.", options: ["turn off", "close off", "shut off"], answer: "turn off"},
+    {word: "I need to _______ my homework tonight.", options: ["make", "do", "create"], answer: "do"},
+    {word: "The teacher asked us to _______ attention in class.", options: ["give", "pay", "take"], answer: "pay"},
+    {word: "My mother likes to _______ breakfast early in the morning.", options: ["do", "make", "cook"], answer: "make"},
+    {word: "We should _______ our teeth twice a day.", options: ["wash", "clean", "brush"], answer: "brush"},
+    {word: "The children love to _______ games in the park.", options: ["do", "play", "make"], answer: "play"},
+    {word: "Please _______ your shoes before entering the house.", options: ["put off", "take off", "get off"], answer: "take off"},
+    {word: "I always _______ my bed after waking up.", options: ["do", "make", "create"], answer: "make"},
+    {word: "Can you _______ me a favour and help with this bag?", options: ["make", "do", "give"], answer: "do"},
+    {word: "We need to _______ a decision about our vacation plans.", options: ["take", "make", "do"], answer: "make"}
+  ],
+  answers: ["turn off", "do", "pay", "make", "brush", "play", "take off", "make", "do", "make"]
+}
 ];
 
 /* ========== MOTIVATION MESSAGES ========== */
