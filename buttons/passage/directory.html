@@ -569,6 +569,9 @@ function renderIdentityPill() {
 
 function selectQuestFromDash(key) {
   questKey = key;
+  
+    window.history.pushState({}, '', '?quest=' + key); 
+  
   initActiveQuest(key);
   dashboardViewEl.style.display = "none";
   launchQuiz();
