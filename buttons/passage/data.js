@@ -123,8 +123,8 @@ const QuestDatabase = {
   },
   "quest_atlas_shrugged": {
     questID: "Quest 31",
-    title: "The Atlas Shrugged Quest",
-    subtitle: "Exploring reason, achievement, and individualism",
+    title: "An Introduction to The Atlas Shrugged",
+    subtitle: "Exploring achievement and individualism",
     conversation: [
       {
         speaker: "teacher",
@@ -223,4 +223,265 @@ const QuestDatabase = {
       }
     ]
   },
+    "quest_john_galt": {
+    questID: "Quest 32",
+    title: "Who Is John Galt?",
+    subtitle: "Exploring independence, and purposeful action",
+    conversation: [
+      {
+        speaker: "teacher",
+        text: "Who is John Galt? is the first question readers encounter in Ayn Rand's Atlas Shrugged, and it quickly becomes one of the most memorable phrases in modern literature.",
+        targets: ["question", "readers", "memorable", "literature"]
+      },
+      {
+        speaker: "teacher",
+        text: "At first, the question is not really a request for information.",
+        targets: ["question", "request", "information"]
+      },
+      {
+        speaker: "teacher",
+        text: "It is a weary expression of defeat, similar to saying, \"Who knows?\" or \"What can anyone do?\"",
+        targets: ["weary", "expression", "defeat", "saying"]
+      },
+      {
+        speaker: "teacher",
+        text: "In a society burdened by economic decline, political interference, and fading confidence, people repeat the phrase whenever they face problems that seem impossible to understand or solve.",
+        targets: ["society", "decline", "interference", "impossible"]
+      },
+      {
+        speaker: "teacher",
+        text: "As the novel unfolds, however, the meaning of the question changes dramatically.",
+        targets: ["novel", "meaning", "question", "dramatically"]
+      },
+      {
+        speaker: "teacher",
+        text: "John Galt is revealed not as a myth but as a man who embodies reason, independence, ambition, and productive achievement.",
+        targets: ["revealed", "myth", "reason", "achievement"]
+      },
+      {
+        speaker: "teacher",
+        text: "Rand presents him as someone who refuses to surrender his mind or talents to the demands of others.",
+        targets: ["presents", "refuses", "surrender", "talents"]
+      },
+      {
+        speaker: "teacher",
+        text: "Her philosophy rests on the conviction that reason is humanity's primary means of understanding reality, a principle captured in the brief statement \"A is A.\"",
+        targets: ["philosophy", "conviction", "reason", "reality"]
+      },
+      {
+        speaker: "teacher",
+        text: "In Rand's view, progress depends on individuals who think for themselves, create value through productive work, and accept responsibility for their own lives rather than expecting others to think or act on their behalf.",
+        targets: ["progress", "individuals", "productive", "responsibility"]
+      },
+      {
+        speaker: "teacher",
+        text: "The phrase \"Who is John Galt?\" therefore evolves from a symbol of hopelessness into a challenge directed at every reader.",
+        targets: ["phrase", "evolves", "hopelessness", "challenge"]
+      },
+      {
+        speaker: "teacher",
+        text: "It asks whether we will respond to difficulty with resignation or with determination.",
+        targets: ["respond", "difficulty", "resignation", "determination"]
+      },
+      {
+        speaker: "teacher",
+        text: "As one interpretation suggests, each person possesses the capacity to become more rational, courageous, and purposeful.",
+        targets: ["interpretation", "capacity", "rational", "purposeful"]
+      },
+      {
+        speaker: "teacher",
+        text: "Instead of saying that nothing can be done, the question encourages the attitude of \"I can and I will.\"",
+        targets: ["question", "encourages", "attitude", "determination"]
+      },
+      {
+        speaker: "teacher",
+        text: "Whether readers ultimately agree with Rand's philosophy or reject it, the novel raises enduring questions about freedom, responsibility, innovation, and the role of the individual in society.",
+        targets: ["readers", "philosophy", "freedom", "innovation"]
+      },
+      {
+        speaker: "teacher",
+        text: "Its lasting appeal lies not merely in its political ideas but in its invitation to examine how conviction, effort, and independent thought can shape both personal success and social progress.",
+        targets: ["appeal", "conviction", "independent", "progress"]
+      }
+    ]
+  },
+    "quest_zen_motorcycle": {
+    questID: "Quest 33",
+    title: "An Introduction to Robert Piirsig",
+    subtitle: "Exploring quality and self-cultivation",
+    conversation: [
+      {
+        speaker: "teacher",
+        text: "Robert M. Pirsig's Zen and the Art of Motorcycle Maintenance is far more than a book about repairing motorcycles.",
+        targets: ["Pirsig", "motorcycles", "book", "repairing"]
+      },
+      {
+        speaker: "teacher",
+        text: "It is an exploration of one of life's most profound questions: What is quality?",
+        targets: ["exploration", "profound", "questions", "quality"]
+      },
+      {
+        speaker: "teacher",
+        text: "Pirsig suggests that quality cannot be fully defined, yet people instinctively recognize it whenever they encounter it.",
+        targets: ["quality", "defined", "instinctively", "recognize"]
+      },
+      {
+        speaker: "teacher",
+        text: "Rather than treating quality as merely a feature of an object, he presents it as the living connection between the observer and the observed.",
+        targets: ["quality", "feature", "observer", "connection"]
+      },
+      {
+        speaker: "teacher",
+        text: "This idea challenges the modern tendency to separate logic from emotion, work from enjoyment, and technology from humanity.",
+        targets: ["challenges", "logic", "emotion", "humanity"]
+      },
+      {
+        speaker: "teacher",
+        text: "The motorcycle in the book serves as a powerful metaphor for life itself.",
+        targets: ["motorcycle", "powerful", "metaphor", "life"]
+      },
+      {
+        speaker: "teacher",
+        text: "Pirsig argues that caring for a machine is not simply a mechanical task but an opportunity to cultivate patience, attentiveness, and respect for reality.",
+        targets: ["machine", "mechanical", "patience", "attentiveness"]
+      },
+      {
+        speaker: "teacher",
+        text: "He famously observes, \"The real cycle you're working on is a cycle called yourself.\"",
+        targets: ["observes", "cycle", "working", "yourself"]
+      },
+      {
+        speaker: "teacher",
+        text: "In other words, every challenge we solve and every skill we develop also shapes our character.",
+        targets: ["challenge", "solve", "skill", "character"]
+      },
+      {
+        speaker: "teacher",
+        text: "A person who approaches work carelessly often carries that same attitude into other parts of life, whereas someone who pursues excellence in small tasks gradually develops habits of discipline and wisdom.",
+        targets: ["carelessly", "attitude", "excellence", "discipline"]
+      },
+      {
+        speaker: "teacher",
+        text: "Pirsig also questions the belief that reason and creativity are opposites.",
+        targets: ["questions", "reason", "creativity", "opposites"]
+      },
+      {
+        speaker: "teacher",
+        text: "He distinguishes between the classical view, which values analysis, structure, and precision, and the romantic view, which appreciates beauty, intuition, and immediate experience.",
+        targets: ["classical", "analysis", "romantic", "intuition"]
+      },
+      {
+        speaker: "teacher",
+        text: "Both perspectives, he argues, are incomplete when taken alone.",
+        targets: ["perspectives", "incomplete", "alone"]
+      },
+      {
+        speaker: "teacher",
+        text: "Genuine understanding arises when analytical thinking and creative imagination work together.",
+        targets: ["understanding", "analytical", "imagination", "together"]
+      },
+      {
+        speaker: "teacher",
+        text: "This balanced approach encourages readers to look beyond simple either-or choices and to embrace complexity with curiosity rather than certainty.",
+        targets: ["balanced", "choices", "complexity", "curiosity"]
+      },
+      {
+        speaker: "teacher",
+        text: "Ultimately, Zen and the Art of Motorcycle Maintenance is a philosophical journey that invites readers to slow down, observe carefully, and take pride in doing ordinary things extraordinarily well.",
+        targets: ["philosophical", "journey", "observe", "extraordinarily"]
+      },
+      {
+        speaker: "teacher",
+        text: "Whether one is repairing an engine, writing a report, designing software, or building a bridge, the pursuit of quality remains the same.",
+        targets: ["repairing", "report", "software", "quality"]
+      },
+      {
+        speaker: "teacher",
+        text: "Pirsig reminds us that meaningful work is not defined solely by the final product but by the care, attention, and integrity invested in the process.",
+        targets: ["meaningful", "product", "attention", "integrity"]
+      },
+      {
+        speaker: "teacher",
+        text: "His ideas continue to inspire readers to see learning not merely as the acquisition of knowledge but as the lifelong practice of becoming a better thinker, creator, and human being.",
+        targets: ["learning", "knowledge", "lifelong", "creator"]
+      }
+    ]
+  },
+    "quest_nietzsche": {
+    questID: "Quest 34",
+    title: "An Introduction to Nietzsche",
+    subtitle: "Exploring strength, self-mastery, and transformation",
+    conversation: [
+      {
+        speaker: "teacher",
+        text: "Few philosophers have challenged conventional thinking as boldly as Friedrich Nietzsche.",
+        targets: ["philosophers", "challenged", "conventional", "Nietzsche"]
+      },
+      {
+        speaker: "teacher",
+        text: "Rather than asking people to seek comfort or conformity, he urged them to cultivate strength, creativity, and self-mastery.",
+        targets: ["comfort", "conformity", "strength", "self-mastery"]
+      },
+      {
+        speaker: "teacher",
+        text: "One of his most famous ideas is captured in the simple command: \"Become who you are.\"",
+        targets: ["famous", "ideas", "command", "Become"]
+      },
+      {
+        speaker: "teacher",
+        text: "Nietzsche believed that individuals should not merely accept the values handed down by society but should examine them critically and shape their own lives with courage and responsibility.",
+        targets: ["individuals", "values", "critically", "responsibility"]
+      },
+      {
+        speaker: "teacher",
+        text: "For him, a meaningful life was one of continual growth rather than passive obedience.",
+        targets: ["meaningful", "continual", "growth", "obedience"]
+      },
+      {
+        speaker: "teacher",
+        text: "Nietzsche regarded difficulties not as obstacles but as opportunities for transformation.",
+        targets: ["difficulties", "obstacles", "opportunities", "transformation"]
+      },
+      {
+        speaker: "teacher",
+        text: "His well-known observation, \"What does not kill me makes me stronger,\" expresses the idea that adversity can build resilience when faced with determination.",
+        targets: ["observation", "adversity", "resilience", "determination"]
+      },
+      {
+        speaker: "teacher",
+        text: "He also warned against following the crowd without reflection.",
+        targets: ["warned", "following", "crowd", "reflection"]
+      },
+      {
+        speaker: "teacher",
+        text: "Instead of seeking approval, individuals should strive for excellence through discipline, independent thought, and the constant pursuit of self-improvement.",
+        targets: ["approval", "excellence", "discipline", "self-improvement"]
+      },
+      {
+        speaker: "teacher",
+        text: "In his view, genuine achievement requires overcoming one's fears, weaknesses, and complacency.",
+        targets: ["achievement", "overcoming", "weaknesses", "complacency"]
+      },
+      {
+        speaker: "teacher",
+        text: "Perhaps Nietzsche's most enduring lesson is that life gains meaning through the challenges we willingly embrace.",
+        targets: ["enduring", "meaning", "challenges", "embrace"]
+      },
+      {
+        speaker: "teacher",
+        text: "He wrote, \"He who has a ‘why’ to live can bear almost any ‘how’,\" emphasizing the importance of purpose in overcoming hardship.",
+        targets: ["purpose", "importance", "overcoming", "hardship"]
+      },
+      {
+        speaker: "teacher",
+        text: "Although his ideas remain widely debated, his philosophy continues to inspire readers to question assumptions, think independently, and take responsibility for their own character.",
+        targets: ["debated", "philosophy", "assumptions", "character"]
+      },
+      {
+        speaker: "teacher",
+        text: "Rather than asking what the world owes us, Nietzsche invites us to ask what kind of person we choose to become.",
+        targets: ["world", "owes", "person", "become"]
+      }
+    ]
+  }
 };
