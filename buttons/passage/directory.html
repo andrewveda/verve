@@ -184,6 +184,7 @@ body::before {
   display: flex; align-items: flex-start; gap: 0.75rem; width: 100%;
   opacity: 0; transform: translateY(14px);
   animation: bubbleReveal 0.5s var(--transition) forwards; padding: 0.5rem 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 @keyframes bubbleReveal { to { opacity: 1; transform: translateY(0); } }
 .bubble-row.left  { flex-direction: row; padding-right: 4rem; }
@@ -416,7 +417,6 @@ let conversation = activeQuest ? activeQuest.conversation : [];
 let quizDataStore = [];
 
 let currentLine = 0, correctCount = 0, totalWrongGuesses = 0, gemsCount = 0;
-let activeLineAttempts = [];
 let startTime, timerInterval;
 let playerName = "", playerDept = "";
 let selectedCard = null;
@@ -458,7 +458,6 @@ window.addEventListener('DOMContentLoaded', () => {
   resendPendingSubmissions();
 
   if (playerName && playerDept) {
-    // Identity already known — skip the gate entirely
     if (activeQuest && questKey) {
       initActiveQuest(questKey);
       launchQuiz();
@@ -466,7 +465,6 @@ window.addEventListener('DOMContentLoaded', () => {
       showDashboard();
     }
   } else {
-    // First-time visitor — capture identity before showing anything else
     pendingDirectQuestKey = (activeQuest && questKey) ? questKey : null;
     fillFormFromCurrentIdentity();
     showIdentityGate(false);
@@ -491,7 +489,6 @@ function markQuestCompleted(key) {
   } catch(e) {}
 }
 
-// ── IDENTITY ──────────────────────────────────────────────────────
 function loadIdentity() {
   try {
     playerName = localStorage.getItem('playerName') || "";
@@ -519,7 +516,6 @@ function showIdentityGate(showBack) {
   nameFormEl.style.display = "flex";
 }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────
 function showDashboard() {
   clearInterval(timerInterval);
   if (topStripEl) topStripEl.style.display = "none";
@@ -586,7 +582,6 @@ function initActiveQuest(key) {
   document.title = `${activeQuest.title} — SRM Valliammai Engineering College`;
 }
 
-// ── SERVER-SIDE COMPLETION SYNC ──────────────────────────────────
 async function fetchServerCompletedQuestIDs(name) {
   if (!_supabaseClient || !name) return new Set();
   try {
@@ -626,7 +621,6 @@ async function syncCompletionFromServer() {
   if (changed) renderQuestGrid(getCompletedQuests());
 }
 
-// ── IDENTITY FORM SUBMIT ─────────────────────────────────────────
 function beginQuiz() {
   if (!nameInputEl.value.trim()) { nameInputEl.focus(); nameInputEl.style.borderColor = "var(--error)"; return; }
   if (!deptSelectEl.value) { deptSelectEl.style.borderColor = "var(--error)"; return; }
@@ -668,7 +662,6 @@ function launchQuiz() {
 
 function startQuiz() {
   currentLine = 0; correctCount = 0; totalWrongGuesses = 0; gemsCount = 0;
-  activeLineAttempts = [];
   startTime = Date.now();
   timerEl.textContent = "⏳ 0s";
   gemsCounterEl.textContent = "💎 0";
@@ -701,18 +694,11 @@ function showNextLine() {
 
   const line = conversation[currentLine];
   
-  // 1. Determine available targets we haven't tried yet
-  let availableTargets = line.targets ? line.targets.filter(t => !activeLineAttempts.includes(t)) : [];
-  if (availableTargets.length === 0 && line.targets) availableTargets = line.targets; // Reset if all exhausted
-
-  const hasBlank = availableTargets && availableTargets.length > 0;
+  // Pick a random target to blank out from the target array (no exhaustive tracking required)
+  const hasBlank = line.targets && line.targets.length > 0;
   
-  // 2. Select the blank and dynamically format the text
   if (hasBlank) {
-      line.answer = availableTargets[Math.floor(Math.random() * availableTargets.length)];
-      activeLineAttempts.push(line.answer);
-      
-      // Replace the chosen word with the blank indicator, matching whole words
+      line.answer = line.targets[Math.floor(Math.random() * line.targets.length)];
       const regex = new RegExp(`\\b${line.answer}\\b`, 'i');
       line.display_text = line.text.replace(regex, '___');
   } else {
@@ -724,6 +710,7 @@ function showNextLine() {
   row.className = `bubble-row ${side}`;
   row.dataset.lineIndex = currentLine;
 
+  let bub;
   if (side !== 'narrator') {
     const emoji = line.emotion || (line.speaker === 'teacher' ? '🧘' : '📚');
     const speakerName = line.speaker === 'teacher' ? 'Teacher' : 'Scholar';
@@ -733,43 +720,78 @@ function showNextLine() {
     col.className = 'bubble-col';
     const nameEl = document.createElement('div');
     nameEl.className = 'speaker-name'; nameEl.textContent = speakerName;
-    const bub = document.createElement('div');
+    bub = document.createElement('div');
     bub.className = 'bubble';
-    
-    // Pass the modified display_text to the bubble builder
-    if (hasBlank) buildBubbleWithBlank(bub, line, currentLine);
-    else bub.textContent = line.display_text;
     
     col.appendChild(nameEl); col.appendChild(bub);
     row.appendChild(avatar); row.appendChild(col);
   } else {
-    const bub = document.createElement('div');
-    bub.className = 'bubble'; bub.textContent = line.display_text;
+    bub = document.createElement('div');
+    bub.className = 'bubble';
     row.appendChild(bub);
   }
 
   chatAreaEl.appendChild(row);
-  setTimeout(() => row.scrollIntoView({ behavior: 'smooth', block: 'end' }), 60);
-
-  if (hasBlank) {
-    const target = row.querySelector('.bubble-col') || row;
-    buildChoiceDeck(target, currentLine);
-    nextPageBtn.style.display = 'none';
-  } else {
-    setTimeout(() => { nextPageBtn.style.display = 'inline-block'; }, 350);
-  }
+  
+  // Render text word-by-word, and show the choice deck once finished typing
+  buildBubbleWordByWord(bub, line, currentLine, hasBlank, () => {
+      if (hasBlank) {
+        const target = row.querySelector('.bubble-col') || row;
+        buildChoiceDeck(target, currentLine);
+        nextPageBtn.style.display = 'none';
+      } else {
+        setTimeout(() => { nextPageBtn.style.display = 'inline-block'; }, 200);
+      }
+  });
 }
 
-function buildBubbleWithBlank(bub, line, lineIndex) {
-  const parts = line.display_text.split('___'); // Read the dynamically blanked text
-  bub.appendChild(document.createTextNode(parts[0]));
-  const dz = document.createElement('button');
-  dz.className = 'drop-zone ready';
-  dz.dataset.answer = line.answer;
-  dz.dataset.lineIndex = lineIndex;
-  dz.onclick = () => { if (selectedCard) placeAnswer(dz); };
-  bub.appendChild(dz);
-  if (parts[1]) bub.appendChild(document.createTextNode(parts[1]));
+function buildBubbleWordByWord(bub, line, lineIndex, hasBlank, onComplete) {
+  const tokens = line.display_text.split(' ');
+  bub.innerHTML = ''; 
+  let i = 0;
+
+  function nextWord() {
+    if (i >= tokens.length) {
+      if (onComplete) onComplete();
+      return;
+    }
+    
+    let word = tokens[i];
+    
+    if (hasBlank && word.includes('___')) {
+      const parts = word.split('___');
+      if (parts[0]) bub.appendChild(document.createTextNode(parts[0]));
+      
+      const dz = document.createElement('button');
+      dz.className = 'drop-zone ready';
+      dz.dataset.answer = line.answer;
+      dz.dataset.lineIndex = lineIndex;
+      dz.onclick = () => { if (selectedCard) placeAnswer(dz); };
+      bub.appendChild(dz);
+      
+      if (parts[1]) bub.appendChild(document.createTextNode(parts[1]));
+      bub.appendChild(document.createTextNode(' '));
+    } else {
+      const span = document.createElement('span');
+      span.textContent = word + ' ';
+      span.style.opacity = '0';
+      span.style.transition = 'opacity 0.2s ease';
+      bub.appendChild(span);
+      
+      // Trigger reflow to animate fade-in properly
+      void span.offsetWidth;
+      span.style.opacity = '1';
+    }
+    
+    // Maintain scroll position as text expands
+    const row = bub.closest('.bubble-row');
+    if (row) row.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
+    i++;
+    setTimeout(nextWord, 80); // 80ms delay between words
+  }
+  
+  nextWord();
 }
 
 function buildChoiceDeck(targetEl, lineIndex) {
@@ -777,13 +799,16 @@ function buildChoiceDeck(targetEl, lineIndex) {
   const pool = conversation.flatMap(l => l.targets || []).filter(a => a && a !== correct);
   const distractors = [];
   const seen = new Set([correct]);
+  
   for (const w of pool.sort(() => Math.random() - 0.5)) {
     if (!seen.has(w)) { seen.add(w); distractors.push(w); }
     if (distractors.length >= 3) break;
   }
+  
   const choices = [correct, ...distractors].sort(() => Math.random() - 0.5);
   const deck = document.createElement('div');
   deck.className = 'choice-deck'; deck.dataset.deckIndex = lineIndex;
+  
   choices.forEach((word, i) => {
     const card = document.createElement('div');
     card.className = 'choice-card'; card.textContent = word;
@@ -795,8 +820,8 @@ function buildChoiceDeck(targetEl, lineIndex) {
       card.style.opacity = '1'; card.style.transform = 'translateY(0)';
     }, i * 60 + 30);
   });
+  
   targetEl.appendChild(deck);
-  setTimeout(() => deck.opacity = '1', 20);
 }
 
 function selectCard(card, lineIndex) {
@@ -822,15 +847,16 @@ function placeAnswer(dz) {
     setTimeout(() => ring.remove(), 900);
     spawnGlowParticles(dz);
     selectedCard.classList.add('used'); selectedCard.classList.remove('selected'); selectedCard = null;
+    
     setTimeout(() => {
       const deck = chatAreaEl.querySelector(`.choice-deck[data-deck-index="${dz.dataset.lineIndex}"]`);
       if (deck) { deck.querySelectorAll('.choice-card:not(.used)').forEach(c => c.classList.add('dismissed')); setTimeout(() => deck.remove(), 250); }
       
-      activeLineAttempts = [];
       currentLine++;
       if (currentLine >= conversation.length) showScore();
       else setTimeout(showNextLine, 420);
     }, 520);
+    
   } else {
     totalWrongGuesses++; gemsCount--;
     gemsCounterEl.textContent = `💎 ${gemsCount}`; animatePill(gemsCounterEl);
@@ -842,17 +868,23 @@ function placeAnswer(dz) {
     setTimeout(() => { if (selectedCard) { selectedCard.style.transform = ''; selectedCard.classList.remove('selected'); } }, 200);
     selectedCard = null;
 
-    // Retry Logic: Lock the old attempt and spawn a new dialogue variation
+    // In-place retry logic: clear the current row gracefully and rebuild it
     setTimeout(() => {
         dz.classList.remove('ready');
         dz.disabled = true;
         
-        // Remove the choice deck for the failed attempt
-        const deck = chatAreaEl.querySelector(`.choice-deck[data-deck-index="${dz.dataset.lineIndex}"]`);
-        if (deck) deck.remove();
-
-        // Re-run the line without advancing currentLine
-        showNextLine();
+        const row = chatAreaEl.querySelector(`.bubble-row[data-line-index="${dz.dataset.lineIndex}"]`);
+        if (row) {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                row.remove();
+                // Re-run the line to type out a new blank in its place
+                showNextLine(); 
+            }, 300);
+        } else {
+            showNextLine();
+        }
     }, 800);
   }
 }
@@ -901,7 +933,6 @@ async function showScore() {
   clearInterval(timerInterval);
   const totalTime = Math.floor((Date.now() - startTime) / 1000);
 
-  // Mark quest as completed in localStorage
   if (questKey) markQuestCompleted(questKey);
 
   document.getElementById('savingSpinner').style.display = 'block';
@@ -937,7 +968,6 @@ async function showScore() {
   const flawless = totalWrongGuesses === 0;
   const trophy = flawless ? '🏆' : correctCount >= conversation.length * 0.8 ? '🌟' : '📖';
 
-  // Determine next quest for the prominent button
   const keys = Object.keys(db);
   const currentIndex = keys.indexOf(questKey);
   const nextKey = (currentIndex !== -1 && currentIndex < keys.length - 1) ? keys[currentIndex + 1] : keys[0];
@@ -992,7 +1022,6 @@ async function showScore() {
         ${flawless ? `<div class="flawless-strip">✦ &nbsp; Flawless — zero errors</div>` : ''}
       </div>
 
-      <!-- Prominent Next Quest Action -->
       <div class="next-quest-banner">
         <div class="next-quest-label">Continue Your Journey</div>
         <a href="?quest=${nextKey}" class="next-quest-btn">
