@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>The Daily Quest — SRM Valliammai Engineering College</title>
+<script src="../../auth-guard.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500&family=Cormorant:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -491,9 +492,20 @@ function markQuestCompleted(key) {
 
 function loadIdentity() {
   try {
-    playerName = localStorage.getItem('playerName') || "";
-    playerDept = localStorage.getItem('playerDept') || "";
-  } catch(e) { playerName = ""; playerDept = ""; }
+    if (window.GH) {
+      playerName = window.GH.name || window.GH.username || "";
+      playerDept = window.GH.dept || "";
+      
+      localStorage.setItem('playerName', playerName);
+      localStorage.setItem('playerDept', playerDept);
+    } else {
+      playerName = localStorage.getItem('playerName') || "";
+      playerDept = localStorage.getItem('playerDept') || "";
+    }
+  } catch(e) {
+    playerName = "";
+    playerDept = "";
+  }
 }
 
 function fillFormFromCurrentIdentity() {
@@ -625,12 +637,17 @@ async function syncCompletionFromServer() {
 }
 
 function beginQuiz() {
-  if (!nameInputEl.value.trim()) { nameInputEl.focus(); nameInputEl.style.borderColor = "var(--error)"; return; }
-  if (!deptSelectEl.value) { deptSelectEl.style.borderColor = "var(--error)"; return; }
-  nameInputEl.style.borderColor = ""; deptSelectEl.style.borderColor = "";
-  playerName = nameInputEl.value.trim();
-  playerDept = deptSelectEl.value;
-  try { localStorage.setItem('playerName', playerName); localStorage.setItem('playerDept', playerDept); } catch(e) {}
+  if (window.GH) {
+    playerName = window.GH.name || window.GH.username || "";
+    playerDept = window.GH.dept || "";
+  } else {
+    if (!nameInputEl.value.trim()) { nameInputEl.focus(); nameInputEl.style.borderColor = "var(--error)"; return; }
+    if (!deptSelectEl.value) { deptSelectEl.style.borderColor = "var(--error)"; return; }
+    nameInputEl.style.borderColor = ""; deptSelectEl.style.borderColor = "";
+    playerName = nameInputEl.value.trim();
+    playerDept = deptSelectEl.value;
+    try { localStorage.setItem('playerName', playerName); localStorage.setItem('playerDept', playerDept); } catch(e) {}
+  }
 
   const card = nameFormEl.querySelector('.form-card');
   card.style.transition = "opacity 0.3s ease, transform 0.3s ease";
