@@ -128,6 +128,9 @@
     .topbar-brand .dept { font-family: 'Playfair Display', serif; font-size: 0.85rem; font-weight: 700; color: #1f1f1f; }
     .avatar-btn { width: 38px; height: 38px; border-radius: 50%; background: var(--gold-dim); border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; color: var(--gold); font-family: 'Playfair Display', serif; font-weight: 700; overflow: hidden; }
     .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+    /* Desktop-only: name + department shown once in the topbar. Hidden on
+       mobile, where that same information already lives in .student-strip. */
+    .topbar-identity { display: none; }
     .main { flex: 1 1 0%; min-height: 0; padding: 6px 8px; max-width: 650px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; }
     .student-strip { text-align: center; padding: 2px 0 4px; flex: 0 0 auto; }
     .student-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 900; line-height: 1.1; }
@@ -257,6 +260,31 @@
       /* The avatar button opened the slide-out drawer on mobile; on desktop
          that same info already lives in the permanent sidebar below. */
       .avatar-btn { display: none; }
+
+      /* Three-part topbar: Verve at the far left, the student's name +
+         department centered, the college/department info at the far right.
+         A 3-column grid (rather than flexbox order tricks) is what makes
+         the middle item sit at the true visual center regardless of how
+         wide the left/right items are. Identity used to also repeat in the
+         sidebar (.drawer-top) and centered in .main (.student-strip) —
+         those stay switched off below; this is its one home on desktop. */
+      .topbar { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; }
+      .topbar-verve { justify-self: end; order: 3; }
+      .topbar-identity { display: flex !important; flex-direction: column; justify-self: center; text-align: center; order: 2; }
+      .topbar-identity .t-name { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 0.95rem; line-height: 1.1; color: var(--text); }
+      .topbar-identity .t-dept { font-size: 0.52rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-top: 3px; }
+      .topbar-right { justify-self: start; order: 1; }
+      .topbar-brand { text-align: left; }
+      .topbar-brand .org { font-weight: 700; }
+
+      /* Sidebar no longer repeats the VERVE wordmark or the student's
+         name/department — both already sit in the topbar above it. */
+      .drawer-top { display: none; }
+      .drawer-body { padding-top: 20px; }
+
+      /* Same reasoning: don't repeat name/department a third time,
+         centered in the main column. */
+      .student-strip { display: none; }
 
       .drawer-overlay { display: none !important; }
 
@@ -451,6 +479,10 @@
 <div class="app" id="appShell" style="display:none;">
   <div class="topbar">
     <div class="topbar-verve">Verve</div>
+    <div class="topbar-identity">
+      <div class="t-name" id="topbarName">—</div>
+      <div class="t-dept" id="topbarDept">—</div>
+    </div>
     <div class="topbar-right">
       <div class="topbar-brand">
         <span class="org">SRM Valliammai Engineering College</span>
@@ -1049,6 +1081,9 @@ const ENTRIES = [
 
     document.getElementById('drawerName').textContent = name;
     document.getElementById('drawerDept').textContent = dept;
+
+    document.getElementById('topbarName').textContent = name;
+    document.getElementById('topbarDept').textContent = dept;
 
     const isGuest = window.__authMode === 'guest';
     document.getElementById('drawerGithubPrompt').style.display = isGuest ? 'block' : 'none';
