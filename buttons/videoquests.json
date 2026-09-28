@@ -27,6 +27,13 @@
     "category": "Podcast - Lohendra's Space",
     "watchTarget": 1200
   },
+{
+    "questId": "Video 400",
+    "title": "Monty Python - Argument Clinic",
+    "video": "https://www.youtube.com/watch?v=evPZ-0UhL1E",
+    "category": "Critical thinking",
+    "watchTarget": 99
+  },
   {
     "questId": "Video 300",
     "title": "Mordern Talking - Cheri Cheri Lady (official Video)",
