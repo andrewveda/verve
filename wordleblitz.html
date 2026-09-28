@@ -202,7 +202,7 @@ canvas.fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     <div class="rule-row"><span class="rule-icon">⏰</span> Fewer guesses = more time back<span class="rule-pts">+15s on 1 try</span></div>
     <div class="rule-row"><span class="rule-icon">🟩</span> Green = right place · 🟨 Yellow = wrong place · ⬛ Absent</div>
     <div class="divider"></div>
-    <button id="startBtn">⚡ START BLITZ</button>
+    <button type="button" id="startBtn">⚡ START BLITZ</button>
   </div>
 </div>
 
@@ -238,7 +238,7 @@ canvas.fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 
   <div class="bottom-bar">
     <div class="hint-bar" id="hint"></div>
-    <button class="skip-btn" id="skipBtn">⏭ Skip</button>
+   <button type="button" class="skip-btn" id="skipBtn">⏭ Skip</button>
   </div>
 </div>
 
@@ -273,9 +273,9 @@ canvas.fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
       <p id="leaderboardText"></p>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" id="playAgainBtn">⚡ Play Again</button>
-      <button class="btn btn-wa"      id="shareBtn">📲 WhatsApp</button>
-      <button class="btn btn-secondary" id="leaderboardBtn">🏆 Leaderboard</button>
+     <button type="button" class="btn btn-primary" id="playAgainBtn">⚡ Play Again</button>
+<button type="button" class="btn btn-wa" id="shareBtn">📲 WhatsApp</button>
+<button type="button" class="btn btn-secondary" id="leaderboardBtn">🏆 Leaderboard</button>
     </div>
   </div>
 </div>
@@ -934,7 +934,12 @@ document.getElementById('skipBtn').onclick=()=>{
   transitioning=true; // set immediately — blocks any race condition
   setTimeout(()=>{transitioning=false;nextWord();},700);
 };
-
+document.getElementById('fallbackName').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault(); // Stop any default browser behavior
+    document.getElementById('fallbackDept').focus(); // Move to the dropdown
+  }
+});
 /* ── INIT ── */
 document.getElementById('startBtn').onclick=startGame;
 (async function init(){
