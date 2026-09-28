@@ -1,0 +1,496 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>CSE-2 Roster · Mapper &amp; Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{
+  --cream:#faf7f2;--surface:#fff;--gold:#c9a84c;--gold-deep:#a07a28;
+  --gold-dim:rgba(201,168,76,.12);--gold-border:rgba(201,168,76,.35);
+  --text:#1a1714;--text-2:#7a6a52;--text-dim:#b0a090;
+  --border:rgba(0,0,0,.08);--ok:#15803D;--bad:#B91C1C;--bad-bg:rgba(185,28,28,.07);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--cream:#171310;--surface:#221c15;--text:#f2ece0;--text-2:#c9bba0;--text-dim:#8a7c64;--border:rgba(255,255,255,.1);--gold-dim:rgba(201,168,76,.16);}}
+:root[data-theme="dark"]{--cream:#171310;--surface:#221c15;--text:#f2ece0;--text-2:#c9bba0;--text-dim:#8a7c64;--border:rgba(255,255,255,.1);--gold-dim:rgba(201,168,76,.16);}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cream);color:var(--text);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-tap-highlight-color:transparent;}
+.wrap{max-width:560px;margin:0 auto;min-height:100%;}
+.toptabs{display:flex;position:sticky;top:0;z-index:8;background:var(--surface);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top,0px);}
+.toptab{flex:1;padding:13px 6px;text-align:center;font-weight:800;font-size:12.5px;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;}
+.toptab.active{color:var(--gold-deep);border-bottom-color:var(--gold);}
+.screen{display:none;}.screen.active{display:block;}
+header{padding:14px 16px 10px;background:var(--surface);border-bottom:1px solid var(--border);}
+.eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);font-weight:700;}
+h1{font-size:19px;font-weight:800;margin-top:2px;color:var(--gold-deep);}
+.stat-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.stat{flex:1;min-width:70px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;padding:8px 10px;}
+.stat b{display:block;font-size:17px;font-weight:800;color:var(--gold-deep);}
+.stat span{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);}
+.stat.danger b{color:var(--bad);}
+input[type=text],select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--cream);color:var(--text);font-family:inherit;font-size:14px;}
+input:focus,select:focus{outline:none;border-color:var(--gold);}
+#status{font-size:11px;color:var(--text-dim);padding:6px 16px;}
+#list{padding:8px 12px 40px;display:flex;flex-direction:column;gap:8px;}
+.row{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 12px;display:flex;align-items:center;gap:10px;}
+.row.click{cursor:pointer;}
+.row:active{background:var(--gold-dim);}
+.row.risk{background:var(--bad-bg);}
+.row-main{flex:1;min-width:0;}
+.row-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-sub{font-size:11px;color:var(--text-dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-sub b{color:var(--gold-deep);font-weight:700;}
+.row-aliases{font-size:10px;color:var(--text-dim);margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.badge{flex-shrink:0;font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;white-space:nowrap;}
+.badge.linked{background:rgba(21,128,61,.14);color:var(--ok);border:1px solid rgba(21,128,61,.3);}
+.badge.none{background:var(--bad-bg);color:var(--bad);border:1px solid rgba(185,28,28,.25);}
+.chev{color:var(--text-dim);font-size:16px;flex-shrink:0;}
+.streakpill{background:rgba(21,128,61,.12);color:var(--ok);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;}
+.flagbtn{font-size:10px;font-weight:700;padding:5px 10px;border-radius:8px;border:1px solid var(--bad);background:none;color:var(--bad);cursor:pointer;flex-shrink:0;}
+.flagbtn.on{background:var(--bad);color:#fff;}
+.btn{font-size:12px;font-weight:700;padding:9px 13px;border-radius:9px;border:1px solid var(--gold-border);background:var(--surface);color:var(--gold-deep);cursor:pointer;white-space:nowrap;}
+.btn.primary{background:var(--gold);color:#fff;border-color:var(--gold);}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--surface);}
+.subtabs{display:flex;gap:6px;padding:10px 16px 0;}
+.subtab{font-size:11px;font-weight:700;padding:7px 13px;border-radius:999px;border:1px solid var(--border);background:var(--cream);color:var(--text-2);cursor:pointer;}
+.subtab.active{background:var(--gold);color:#fff;border-color:var(--gold);}
+.risk-ctl{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:12px;color:var(--text-2);}
+.risk-ctl input[type=range]{flex:1;accent-color:var(--bad);}
+.month{margin:12px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);}
+.month-title{text-align:center;font-weight:800;font-size:12px;color:var(--gold-deep);margin-bottom:8px;}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:10px;}
+.dlbl{text-align:center;color:var(--text-dim);font-weight:700;}
+.dcell{min-height:38px;border-radius:6px;padding:3px;position:relative;background:var(--cream);border:1px solid var(--border);}
+.dcell.marked{cursor:pointer;}
+.dcell.l1{background:rgba(201,168,76,.12);}.dcell.l2{background:rgba(201,168,76,.22);}.dcell.l3{background:rgba(201,168,76,.35);}.dcell.l4{background:rgba(201,168,76,.5);}
+.dcell .dn{font-weight:700;font-size:10px;}
+.dcell .dc{position:absolute;bottom:2px;right:3px;font-size:9px;font-weight:800;color:var(--gold-deep);}
+#dayBreak{margin:0 12px 16px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);display:none;font-size:12.5px;}
+.bd-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:20;align-items:flex-end;}
+#sheet.open{display:flex;}
+.sheet-panel{background:var(--surface);width:100%;max-height:88vh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px);}
+.sheet-head{padding:14px 16px 10px;border-bottom:1px solid var(--border);}
+.sheet-head .name{font-size:16px;font-weight:800;}
+.sheet-head .hint{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.sheet-summary{padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border);}
+.sheet-summary .chip{font-size:10.5px;font-weight:700;background:var(--gold-dim);color:var(--gold-deep);border:1px solid var(--gold-border);border-radius:999px;padding:4px 10px;}
+.sheet-search{padding:10px 16px;}
+.sheet-list{overflow-y:auto;padding:4px 12px 12px;flex:1;}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer;}
+.opt:active{background:var(--gold-dim);}
+.opt input{width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:var(--gold-deep);}
+.opt .lbl{flex:1;min-width:0;}
+.opt .lbl b{font-size:13.5px;font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.opt .lbl .metarow{font-size:10.5px;color:var(--text-dim);margin-top:2px;}
+.opt .lbl .metarow em{font-style:normal;color:var(--gold-deep);font-weight:700;}
+.empty{padding:20px;text-align:center;color:var(--text-dim);font-size:13px;}
+.sheet-actions{display:flex;gap:8px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border);}
+.sheet-actions .btn{flex:1;}
+.saving-toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--text);color:var(--cream);font-size:12px;font-weight:700;padding:9px 16px;border-radius:999px;z-index:30;opacity:0;pointer-events:none;transition:opacity .2s ease;}
+.saving-toast.show{opacity:.92;}
+</style>
+</head>
+<body>
+<div class="toptabs">
+  <div class="toptab active" id="tt-map" data-scr="map">🔗 Map Usernames</div>
+  <div class="toptab" id="tt-console" data-scr="console">📊 Activity Console</div>
+</div>
+
+<!-- ============ MAP SCREEN ============ -->
+<div class="screen active" id="screen-map">
+<div class="wrap">
+  <header>
+    <div class="eyebrow">CSE-2 · Mission: Veni, Vidi, Vici!</div>
+    <h1>Username Mapper</h1>
+    <div class="stat-row">
+      <div class="stat"><b id="stat-linked">0</b><span>Linked</span></div>
+      <div class="stat"><b id="stat-unlinked">0</b><span>Unlinked</span></div>
+      <div class="stat"><b id="stat-aliases">0</b><span>Aliases Used</span></div>
+    </div>
+    <div style="margin-top:10px"><input type="text" id="rosterSearch" placeholder="Search roster..." /></div>
+  </header>
+  <div id="status">Loading leaderboard entries...</div>
+  <div id="list"></div>
+</div>
+</div>
+
+<!-- ============ CONSOLE SCREEN ============ -->
+<div class="screen" id="screen-console">
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Identity-Merged · Real Students Only</div>
+    <h1>Activity Console</h1>
+    <div class="stat-row">
+      <div class="stat"><b id="c-students">0</b><span>Students</span></div>
+      <div class="stat"><b id="c-total">0</b><span>Activities</span></div>
+      <div class="stat"><b id="c-streak">0</b><span>Avg Streak</span></div>
+      <div class="stat danger"><b id="c-risk">0</b><span>At-Risk</span></div>
+    </div>
+  </header>
+  <div class="toolbar">
+    <button class="btn" id="exportCSV">⬇ CSV</button>
+    <button class="btn primary" id="exportPDF">📄 PDF</button>
+  </div>
+  <div class="subtabs">
+    <div class="subtab active" id="sub-cal" data-sub="cal">📅 Calendar</div>
+    <div class="subtab" id="sub-lb" data-sub="lb">🏆 Leaderboard</div>
+  </div>
+  <div class="risk-ctl">
+    <span>At-risk: fewer than <b id="thrVal">3</b> activities / 14d</span>
+    <input type="range" min="1" max="15" value="3" id="thrSlider">
+  </div>
+  <div id="sub-view-cal">
+    <div id="calWrap"></div>
+    <div id="dayBreak"></div>
+  </div>
+  <div id="sub-view-lb" style="display:none">
+    <div style="padding:0 16px 6px"><select id="sortSel">
+      <option value="total">Sort: Total activities</option>
+      <option value="r14">Sort: Last 14 days</option>
+      <option value="streak">Sort: Streak</option>
+      <option value="name">Sort: Name</option>
+    </select></div>
+    <div id="lbList" style="padding:8px 12px 40px;display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+</div>
+</div>
+
+<!-- ============ PICKER SHEET ============ -->
+<div id="sheet">
+  <div class="sheet-panel">
+    <div class="sheet-head">
+      <div class="name" id="sheet-name"></div>
+      <div class="hint">Tap all leaderboard entries (GitHub / chess.com / name) that belong to this student</div>
+    </div>
+    <div class="sheet-summary" id="sheetSummary"></div>
+    <div class="sheet-search"><input type="text" id="optSearch" placeholder="Filter leaderboard entries..." /></div>
+    <div class="sheet-list" id="optList"></div>
+    <div class="sheet-actions">
+      <button class="btn" id="btnCancel">Cancel</button>
+      <button class="btn primary" id="btnSave">Save Links</button>
+    </div>
+  </div>
+</div>
+<div class="saving-toast" id="toast">Saved</div>
+
+<script id="mappings-data" type="application/json">{}</script>
+<script>
+const ROSTER = ["KALEELUR RAHMAN S","KAMESHH V","KANISHKA M","KARTHIKEYAN S (14-03-2008)","KARTHIKEYAN S (04-03-2009)","KASI VISWANATHAN","KATHIKSHA V","KAVINILA M","KAVITHA S","KAVITHASHREE B","K KAVIYA SRI","KEERTHIKA M","KHAJA MOHIDEEN P","B KIRTHIKA SRI","B KIRUTHIKA","KISHOR S S","KISHORE KUMAR D E","KISHORE V","A KOHULAN","KOWSHIK KAMAL L","KRISHNAVARSHINI S V","T LAKSHITHA DEVI","LAVANYA G","LAVANYA R","LOHENDRA TG","LOKESHWER V K","MADHAAVAN D","P MADHUKRISHNA","MADHUMATHI S","MANISH M","MEGARSHITH PACHA","MOHAMMED MAGTHUM P","MOHANA KRISHNA MURTHY S","MUGUNTHA PRIYAN S","A MUHAMMAD NAWFAL RIYAZ","MUKILAN S","NANDHINI M","R NANDITA","NARENDRAN K","NAVEENA M S","NETHRA S","NITHYAPRIYA S","NIVETHA T","NIVETHA V","NIWIN KUMAR S","OVIYA P","PAVITHRA S","PHILIP P","POORNASHRI S","PRABAKAR A","PRASANNA KUMAR P","PRASANTH R","PRAVEEN KUMAR M","PRAWIN KUMAR K","PREETHI SRI.A","PRINCY J","RAGAV KRISHNA V","RAGAVI E","RAGUL R"];
+
+let RAW = JSON.parse(document.getElementById('mappings-data').textContent || "{}");
+let mappings = RAW.links || RAW || {};
+let flags = new Set(RAW.flags || []);
+let threshold = RAW.threshold || 3;
+let leaderboardEntries = [];
+let currentStudent = null;
+let artifactApi = null;
+let consoleSub = 'cal';
+let sortKey = 'total';
+let selectedDay = null;
+let lastDM = null;
+
+async function initCapability(){ try{ if(window.claude){ artifactApi = await window.claude.use("artifact"); } }catch(e){ artifactApi=null; } }
+
+async function loadLeaderboard(){
+  const statusEl = document.getElementById('status');
+  const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE";
+  const fields = "name,department,total_score,accuracy,quests_completed,videos_completed,stories_completed,cryptic_completed,wordle_completed,vocab_completed,total_time,last_test_taken,quest_list,video_list,story_list,cryptic_list,wordle_list";
+  try{
+    const res = await fetch("https://yellow-lab-4999.andrewveda.workers.dev/rest/v1/report_card_view?select="+fields, {headers:{apikey:KEY, Authorization:"Bearer "+KEY}});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    const seen = new Set();
+    leaderboardEntries = (data||[]).filter(r=>{ const k=(r.name||"")+"|"+(r.department||""); if(seen.has(k)||!r.name) return false; seen.add(k); return true; });
+    statusEl.textContent = leaderboardEntries.length + " leaderboard entries loaded.";
+  }catch(e){ console.error(e); statusEl.textContent = "⚠️ Could not load leaderboard entries."; }
+}
+
+function esc(s){ return String(s??"").replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function formatTimeCompact(sec){ sec=Math.round(sec||0); const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60); return h>0?(h+"h "+m+"m"):(m+"m"); }
+function formatDateShort(dateStr){ if(!dateStr) return "never"; return new Date(dateStr).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}); }
+function findEntry(m){ return leaderboardEntries.find(e=>e.name===m.name && (e.department||"")===(m.department||"")); }
+
+function aggregateFor(studentName){
+  const links = mappings[studentName] || [];
+  const entries = links.map(findEntry).filter(Boolean);
+  const sum = k => entries.reduce((a,e)=>a+(Number(e[k])||0),0);
+  let lastSeen = null;
+  entries.forEach(e=>{ if(e.last_test_taken){ const t=new Date(e.last_test_taken).getTime(); if(!lastSeen||t>lastSeen) lastSeen=t; } });
+  return { count:links.length, aliases:links.map(l=>l.name), score:sum('total_score'), quests:sum('quests_completed'), videos:sum('videos_completed'), time:sum('total_time'), lastSeen: lastSeen? new Date(lastSeen).toISOString() : null };
+}
+
+function renderMapStats(){
+  const linked = ROSTER.filter(n=>(mappings[n]||[]).length>0).length;
+  const aliases = Object.values(mappings).reduce((a,arr)=>a+(arr?arr.length:0),0);
+  document.getElementById('stat-linked').textContent = linked;
+  document.getElementById('stat-unlinked').textContent = ROSTER.length - linked;
+  document.getElementById('stat-aliases').textContent = aliases;
+}
+
+function renderList(){
+  const q = document.getElementById('rosterSearch').value.trim().toLowerCase();
+  const list = document.getElementById('list');
+  list.innerHTML = "";
+  ROSTER.filter(n=>n.toLowerCase().includes(q)).forEach(name=>{
+    const agg = aggregateFor(name);
+    const row = document.createElement('div');
+    row.className = 'row click';
+    const subLine = agg.count ? `<b>${agg.score}</b> pts · ${agg.quests} quests · ${formatTimeCompact(agg.time)} · seen ${formatDateShort(agg.lastSeen)}` : `No usernames linked yet`;
+    const aliasLine = agg.count ? esc(agg.aliases.join(' · ')) : "";
+    row.innerHTML = `<div class="row-main"><div class="row-name">${esc(name)}</div><div class="row-sub">${subLine}</div>${aliasLine?`<div class="row-aliases">${aliasLine}</div>`:""}</div><div class="badge ${agg.count?'linked':'none'}">${agg.count? agg.count+' linked':'Unlinked'}</div><div class="chev">›</div>`;
+    row.onclick = () => openSheet(name);
+    list.appendChild(row);
+  });
+  renderMapStats();
+}
+
+function openSheet(name){ currentStudent=name; document.getElementById('sheet-name').textContent=name; document.getElementById('optSearch').value=""; renderOptions(); renderSheetSummary(); document.getElementById('sheet').classList.add('open'); }
+function closeSheet(){ document.getElementById('sheet').classList.remove('open'); currentStudent=null; }
+function renderSheetSummary(){ const agg=aggregateFor(currentStudent); const box=document.getElementById('sheetSummary'); if(!agg.count){ box.innerHTML=`<span class="chip">No aliases linked yet</span>`; return; } box.innerHTML=`<span class="chip">${agg.score} pts</span><span class="chip">${agg.quests} quests</span><span class="chip">${agg.videos} videos</span><span class="chip">${formatTimeCompact(agg.time)}</span><span class="chip">seen ${formatDateShort(agg.lastSeen)}</span>`; }
+
+function renderOptions(){
+  const q = document.getElementById('optSearch').value.trim().toLowerCase();
+  const optList = document.getElementById('optList');
+  const current = new Set((mappings[currentStudent]||[]).map(m=>m.name+'|'+(m.department||"")));
+  const filtered = leaderboardEntries.filter(e=>e.name.toLowerCase().includes(q));
+  optList.innerHTML = "";
+  if(filtered.length===0){ optList.innerHTML = `<div class="empty">No matching leaderboard entries.</div>`; return; }
+  filtered.forEach(e=>{
+    const key = e.name+'|'+(e.department||"");
+    const opt = document.createElement('label');
+    opt.className='opt';
+    const acc = Math.round((e.accuracy||0)*100);
+    opt.innerHTML = `<input type="checkbox" ${current.has(key)?'checked':''} data-name="${esc(e.name)}" data-dept="${esc(e.department||'')}"/><div class="lbl"><b>${esc(e.name)}</b><div class="metarow">${esc(e.department||'—')}</div><div class="metarow"><em>${e.total_score??0} pts</em> · ${acc}% acc · ${e.quests_completed??0} quests · seen ${formatDateShort(e.last_test_taken)}</div></div>`;
+    optList.appendChild(opt);
+  });
+}
+
+async function saveCurrent(){
+  const checked = [...document.querySelectorAll('#optList input:checked')].map(i=>({name:i.dataset.name, department:i.dataset.dept||""}));
+  if(checked.length) mappings[currentStudent]=checked; else delete mappings[currentStudent];
+  renderList(); closeSheet(); await persist();
+}
+
+async function persist(){
+  const stateObj = { links: mappings, flags: [...flags], threshold };
+  document.getElementById('mappings-data').textContent = JSON.stringify(stateObj);
+  if(!artifactApi) return;
+  try{
+    const clone = document.documentElement.cloneNode(true);
+    clone.querySelector('#mappings-data').textContent = JSON.stringify(stateObj);
+    await artifactApi.publish("<!DOCTYPE html>"+clone.outerHTML);
+    showToast("Saved");
+  }catch(e){ console.error(e); showToast("Save failed (kept locally)"); }
+}
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
+
+/* ===== CONSOLE (identity-merged) ===== */
+const START_DATE = new Date(2026,8,1);
+const TODAY = (()=>{ const d=new Date(); return new Date(d.getFullYear(),d.getMonth(),d.getDate()); })();
+const CUT14 = (()=>{ const d=new Date(TODAY); d.setDate(d.getDate()-13); return d; })();
+const LIST_FIELDS = ["quest_list","video_list","story_list","cryptic_list","wordle_list"];
+
+function parseListItems(raw){ if(!raw||raw==="NULL") return []; return raw.split(",").map(s=>s.trim()).filter(Boolean).map(it=>{ const n=Number(it.split(" ")[1]); return Number.isFinite(n)?n:null; }).filter(n=>n!==null); }
+function n2date(n){ return new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate()+(n-1)); }
+function dkey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function addDays(d,n){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n); }
+
+function buildMerged(){
+  return ROSTER.map(name=>{
+    const aliases = mappings[name] || [];
+    const raws = aliases.map(findEntry).filter(Boolean);
+    const dept = raws[0]?.department || "UNASSIGNED";
+    let acts = [];
+    raws.forEach(e=> LIST_FIELDS.forEach(f=> parseListItems(e[f]).forEach(n=> acts.push(n2date(n)))));
+    acts = acts.filter(d=>d<=TODAY);
+    const dayset = new Set(acts.map(dkey));
+    const r14 = acts.filter(d=>d>=CUT14).length;
+    const last = acts.length ? new Date(Math.max(...acts.map(d=>d.getTime()))) : null;
+    let streak=0, cur = dayset.has(dkey(TODAY)) ? TODAY : (dayset.has(dkey(addDays(TODAY,-1))) ? addDays(TODAY,-1) : null);
+    while(cur && dayset.has(dkey(cur))){ streak++; cur=addDays(cur,-1); }
+    return { name, dept, acts, total:acts.length, days:dayset.size, r14, last, streak, aliasCount:aliases.length };
+  });
+}
+function isAtRisk(s){ return flags.has(s.name) || s.r14 < threshold; }
+
+function renderConsole(){
+  const merged = buildMerged();
+  const atRisk = merged.filter(isAtRisk).length;
+  const totalActs = merged.reduce((a,s)=>a+s.total,0);
+  const avgStreak = merged.length ? Math.round(merged.reduce((a,s)=>a+s.streak,0)/merged.length) : 0;
+  document.getElementById('c-students').textContent = merged.length;
+  document.getElementById('c-total').textContent = totalActs;
+  document.getElementById('c-streak').textContent = avgStreak + 'd';
+  document.getElementById('c-risk').textContent = atRisk;
+  if(consoleSub==='cal') renderCalendar(merged); else renderLBList(merged);
+}
+
+function buildDateMap(merged){
+  const dm = {};
+  merged.forEach(s=>{
+    const counts={};
+    s.acts.forEach(d=>{ const k=dkey(d); counts[k]=(counts[k]||0)+1; });
+    Object.entries(counts).forEach(([k,c])=>{ (dm[k] ??= {acts:0, students:[]}); dm[k].acts+=c; dm[k].students.push({name:s.name, dept:s.dept, count:c}); });
+  });
+  return dm;
+}
+function renderMonth(base, dm){
+  const y=base.getFullYear(), m=base.getMonth();
+  const first=new Date(y,m,1).getDay(); const days=new Date(y,m+1,0).getDate();
+  const DAYS=['S','M','T','W','T','F','S'];
+  let h = `<div class="month"><div class="month-title">${base.toLocaleString('en-IN',{month:'long',year:'numeric'})}</div><div class="cgrid">` + DAYS.map(d=>`<div class="dlbl">${d}</div>`).join('');
+  for(let i=0;i<first;i++) h += `<div></div>`;
+  for(let d=1; d<=days; d++){
+    const date = new Date(y,m,d); const k=dkey(date); const info=dm[k];
+    if(info){ const n=info.acts; const lvl = n>15?'l4':n>8?'l3':n>3?'l2':'l1'; h += `<div class="dcell marked ${lvl}" data-day="${k}"><span class="dn">${d}</span><span class="dc">${n}</span></div>`; }
+    else { h += `<div class="dcell"><span class="dn">${d}</span></div>`; }
+  }
+  return h + "</div></div>";
+}
+function renderCalendar(merged){
+  const dm = buildDateMap(merged); lastDM = dm;
+  if(selectedDay && !dm[selectedDay]) selectedDay = null;
+  let html=''; let cur = new Date(START_DATE.getFullYear(),START_DATE.getMonth(),1);
+  const endBase = TODAY > START_DATE ? TODAY : START_DATE;
+  const end = new Date(endBase.getFullYear(), endBase.getMonth(), 1);
+  while(cur<=end){ html += renderMonth(cur, dm); cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1); }
+  document.getElementById('calWrap').innerHTML = html;
+  renderDayBreak(dm);
+}
+function renderDayBreak(dm){
+  const box = document.getElementById('dayBreak');
+  const info = selectedDay && dm[selectedDay];
+  if(!info){ box.style.display='none'; return; }
+  const label = new Date(selectedDay+"T00:00:00").toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+  const rows = info.students.sort((a,b)=>a.name.localeCompare(b.name)).map(s=>`<div class="bd-row"><span>${esc(s.name)} <small style="color:var(--text-dim)">· ${esc(s.dept)}</small></span><span>${s.count>1?'×'+s.count:''}</span></div>`).join('');
+  box.innerHTML = `<div style="font-weight:800;color:var(--gold-deep);margin-bottom:6px;">${esc(label)} — ${info.acts} activities, ${info.students.length} students</div>${rows}`;
+  box.style.display = 'block';
+}
+
+function renderLBList(merged){
+  const rows = merged.map(s=>({...s, risk:isAtRisk(s)}));
+  rows.sort((a,b)=>{
+    if(sortKey==='name') return a.name.localeCompare(b.name);
+    if(sortKey==='last') return (b.last?b.last.getTime():0) - (a.last?a.last.getTime():0);
+    return (b[sortKey]||0) - (a[sortKey]||0);
+  });
+  document.getElementById('lbList').innerHTML = rows.map(r=>`
+    <div class="row ${r.risk?'risk':''}">
+      <div class="row-main">
+        <div class="row-name">${esc(r.name)} <small style="color:var(--text-dim);font-weight:400">· ${esc(r.dept)}</small></div>
+        <div class="row-sub"><b>${r.total}</b> acts (${r.days}d) · 14d: ${r.r14} · ${r.streak>0?`<span class="streakpill">🔥${r.streak}d</span>`:'no streak'} · seen ${r.last?r.last.toLocaleDateString('en-IN'):'never'}</div>
+        ${!r.aliasCount ? `<div class="row-aliases" style="color:var(--bad)">Unmapped — link a username on the Map tab</div>` : ""}
+      </div>
+      <button class="flagbtn ${flags.has(r.name)?'on':''}" data-flagname="${esc(r.name)}">${flags.has(r.name)?'✓':'Flag'}</button>
+    </div>`).join('');
+}
+
+function exportCSV(){
+  const rows = buildMerged().map(s=>({...s, risk:isAtRisk(s)}));
+  const esc2 = v => { let s=String(v??""); if(/^[=+\-@\t\r]/.test(s)) s="'"+s; return '"'+s.replace(/"/g,'""')+'"'; };
+  const head = ["Name","Dept","Total","Active Days","Last14","Streak","Last Active","Aliases Linked","At Risk"];
+  const lines = rows.map(r=>[r.name,r.dept,r.total,r.days,r.r14,r.streak,r.last?r.last.toLocaleDateString('en-IN'):'Never',r.aliasCount,r.risk?'Yes':'No'].map(esc2).join(","));
+  const mainCsv = [head.map(esc2).join(","), ...lines].join("\r\n");
+
+  const aliasHead = ["Student","Linked Username","Alias Department"];
+  const aliasLines = [];
+  ROSTER.forEach(name=>{
+    const aliases = mappings[name] || [];
+    if(aliases.length===0) aliasLines.push([name,"(none linked)",""].map(esc2).join(","));
+    else aliases.forEach(a=> aliasLines.push([name, a.name, a.department||""].map(esc2).join(",")));
+  });
+  const aliasCsv = ["","--- LINKED USERNAMES ---", aliasHead.map(esc2).join(","), ...aliasLines].join("\r\n");
+
+  const csv = "\uFEFF" + mainCsv + "\r\n" + aliasCsv;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download = `class-activity-${dkey(new Date())}.csv`;
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function exportPDF(){
+  const rows = buildMerged().map(s=>({...s, risk:isAtRisk(s)})).sort((a,b)=>b.total-a.total);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  doc.setFillColor(184,134,11); doc.rect(0,0,W,20,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('CLASS ACTIVITY REPORT (Identity-Merged)', W/2, 11, {align:'center'});
+  doc.setFontSize(9); doc.text(new Date().toLocaleDateString('en-IN'), W/2, 17, {align:'center'});
+  doc.autoTable({
+    startY: 26,
+    head: [["Name","Dept","Total (days)","14d","Streak","Last Active","Aliases","At Risk"]],
+    body: rows.map(r=>[r.name, r.dept, `${r.total} (${r.days}d)`, r.r14, r.streak?`${r.streak}d`:'-', r.last?r.last.toLocaleDateString('en-IN'):'Never', r.aliasCount, r.risk?'YES':'']),
+    styles:{ fontSize:8, cellPadding:2.5 },
+    headStyles:{ fillColor:[184,134,11], textColor:255 },
+    didParseCell(d){ if(d.section==='body' && d.column.index===7 && d.cell.raw==='YES'){ d.cell.styles.textColor=[192,57,43]; d.cell.styles.fontStyle='bold'; } }
+  });
+
+  doc.addPage();
+  doc.setFillColor(184,134,11); doc.rect(0,0,W,20,'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('LINKED USERNAMES BY STUDENT', W/2, 11, {align:'center'});
+  doc.setFontSize(9); doc.text('GitHub / chess.com / name aliases mapped to each roster student', W/2, 17, {align:'center'});
+  const aliasBody = [];
+  ROSTER.forEach(name=>{
+    const aliases = mappings[name] || [];
+    if(aliases.length===0) aliasBody.push([name, '(none linked)', '']);
+    else aliases.forEach((a,i)=> aliasBody.push([i===0?name:'', a.name, a.department||'']));
+  });
+  doc.autoTable({
+    startY: 26,
+    head: [["Student","Linked Username","Alias Dept"]],
+    body: aliasBody,
+    styles:{ fontSize:8.5, cellPadding:2.6 },
+    headStyles:{ fillColor:[184,134,11], textColor:255 },
+    didParseCell(d){ if(d.section==='body' && d.column.index===1 && d.cell.raw==='(none linked)'){ d.cell.styles.textColor=[192,57,43]; d.cell.styles.fontStyle='italic'; } }
+  });
+
+  doc.save(`class-activity-${dkey(new Date())}.pdf`);
+}
+
+/* ===== EVENTS ===== */
+document.getElementById('rosterSearch').addEventListener('input', renderList);
+document.getElementById('optSearch').addEventListener('input', renderOptions);
+document.getElementById('btnCancel').addEventListener('click', closeSheet);
+document.getElementById('btnSave').addEventListener('click', saveCurrent);
+document.getElementById('sheet').addEventListener('click', e=>{ if(e.target.id==='sheet') closeSheet(); });
+
+document.querySelectorAll('.toptab').forEach(t=>t.addEventListener('click', ()=>{
+  document.querySelectorAll('.toptab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('screen-'+t.dataset.scr).classList.add('active');
+  if(t.dataset.scr==='console') renderConsole();
+}));
+document.querySelectorAll('.subtab').forEach(t=>t.addEventListener('click', ()=>{
+  document.querySelectorAll('.subtab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); consoleSub = t.dataset.sub;
+  document.getElementById('sub-view-cal').style.display = consoleSub==='cal' ? 'block':'none';
+  document.getElementById('sub-view-lb').style.display = consoleSub==='lb' ? 'block':'none';
+  renderConsole();
+}));
+document.getElementById('thrSlider').addEventListener('input', e=>{ threshold=+e.target.value; document.getElementById('thrVal').textContent=e.target.value; renderConsole(); persist(); });
+document.getElementById('sortSel').addEventListener('change', e=>{ sortKey=e.target.value; renderConsole(); });
+document.getElementById('calWrap').addEventListener('click', e=>{ const d=e.target.closest('[data-day]'); if(d){ selectedDay=d.dataset.day; renderDayBreak(lastDM); document.getElementById('dayBreak').scrollIntoView({behavior:'smooth',block:'nearest'}); } });
+document.getElementById('lbList').addEventListener('click', e=>{ const b=e.target.closest('[data-flagname]'); if(b){ const n=b.dataset.flagname; if(flags.has(n)) flags.delete(n); else flags.add(n); renderConsole(); persist(); } });
+document.getElementById('exportCSV').addEventListener('click', exportCSV);
+document.getElementById('exportPDF').addEventListener('click', exportPDF);
+
+(async function start(){
+  document.getElementById('thrVal').textContent = threshold;
+  document.getElementById('thrSlider').value = threshold;
+  await initCapability();
+  renderList();
+  await loadLeaderboard();
+  renderList();
+})();
+</script>
+</body>
+</html>
