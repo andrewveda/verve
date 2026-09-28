@@ -1,174 +1,177 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wiki Links</title>
 <style>
   :root {
-    --bg: #f7f7f5;
-    --card: #fff;
-    --text: #202122;
-    --muted: #72777d;
-    --border: #c8ccd1;
-    --accent: #3366cc;
-    --success: #14866d;
-    --danger: #b32424;
+    --bg: #f6f4ef;
+    --card: #ffffff;
+    --ink: #1c1b19;
+    --muted: #7a756c;
+    --border: #ded8cc;
+    --link: #2f5fa8;
+    --accent: #a8622f;
+    --accent-ink: #ffffff;
+    --success: #1e7a5f;
+    --success-bg: #e7f3ee;
+    --success-border: #b6dccb;
+    --danger: #ad4327;
+    --danger-bg: #fbeae5;
+    --chip-bg: #efeae0;
+    --shadow: 0 1px 2px rgba(28,27,25,.05);
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --bg: #171614;
+    --card: #211f1c;
+    --ink: #ece7dd;
+    --muted: #9b968b;
+    --border: #3a372f;
+    --link: #7fa8e8;
+    --accent: #d98a52;
+    --accent-ink: #171614;
+    --success: #5fbf9c;
+    --success-bg: #1c2a25;
+    --success-border: #33513f;
+    --danger: #e08064;
+    --danger-bg: #2c1f19;
+    --chip-bg: #2a2823;
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171614; --card: #211f1c; --ink: #ece7dd; --muted: #9b968b;
+      --border: #3a372f; --link: #7fa8e8; --accent: #d98a52; --accent-ink: #171614;
+      --success: #5fbf9c; --success-bg: #1c2a25; --success-border: #33513f;
+      --danger: #e08064; --danger-bg: #2c1f19; --chip-bg: #2a2823;
+      color-scheme: dark;
+    }
   }
   * { box-sizing: border-box; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  html, body { height: 100%; }
   body {
     margin: 0;
     background: var(--bg);
-    color: var(--text);
+    color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transition: background .2s, color .2s;
   }
   header {
     position: sticky;
-    top: 0;
+    top: env(safe-area-inset-top, 0px);
     z-index: 10;
     background: var(--card);
     border-bottom: 1px solid var(--border);
     padding: 14px 18px;
   }
-  .top {
-    max-width: 1050px;
-    margin: auto;
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    justify-content: space-between;
+  .top { max-width: 1000px; margin: auto; display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  h1 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -.02em; }
+  .modes { display: flex; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; }
+  .modes button {
+    background: var(--card); color: var(--muted); border: 0; padding: 7px 12px;
+    font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 0;
   }
-  h1 { margin: 0; font-size: 24px; }
-  .stats {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+  .modes button.active { background: var(--accent); color: var(--accent-ink); }
+  .stats { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .pill { border: 1px solid var(--border); border-radius: 999px; padding: 6px 11px; background: var(--bg); font-size: 13px; white-space: nowrap; }
+  .player-pill { color: var(--accent); font-weight: 600; }
+  .iconbtn {
+    border: 1px solid var(--border); background: var(--bg); color: var(--ink);
+    width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
+    cursor: pointer; font-size: 16px; padding: 0;
   }
-  .pill {
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 6px 11px;
-    background: #fff;
-    font-size: 14px;
-  }
-  main {
-    max-width: 1050px;
-    margin: auto;
-    padding: 18px;
-  }
-  .goal {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 15px 18px;
-    margin-bottom: 14px;
-  }
+  button { border: 0; border-radius: 8px; padding: 9px 14px; cursor: pointer; font-weight: 600; background: var(--accent); color: var(--accent-ink); font-size: 14px; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+  main { max-width: 1000px; margin: auto; padding: 18px; }
+  .goal { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
   .goal small { color: var(--muted); }
-  .route {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-top: 5px;
-    font-size: 18px;
-  }
+  .route { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px; font-size: 18px; }
   .target { color: var(--accent); font-weight: 700; }
-  button {
-    border: 0;
-    border-radius: 8px;
-    padding: 9px 14px;
-    cursor: pointer;
-    font-weight: 600;
-    background: var(--accent);
-    color: white;
-  }
-  button:hover { opacity: .9; }
-  #newGame { background: #202122; }
-  #article {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    min-height: 500px;
-    line-height: 1.65;
-    overflow-wrap: anywhere;
-  }
-  #article h1, #article h2, #article h3 { line-height: 1.25; }
-  #article img { max-width: 100%; height: auto; }
-  #article table {
-    max-width: 100%;
-    overflow: auto;
-    display: block;
-    border-collapse: collapse;
-  }
-  #article th, #article td {
-    border: 1px solid var(--border);
-    padding: 6px;
-  }
-  #article a {
-    color: var(--accent);
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  .loading {
-    text-align: center;
-    padding: 80px 10px;
-    color: var(--muted);
-  }
-  .message {
-    display: none;
-    margin-bottom: 14px;
-    padding: 13px 16px;
-    border-radius: 10px;
-    background: #eaf7f2;
-    border: 1px solid #a8d8ca;
-  }
+  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .trail { display: flex; gap: 6px; overflow-x: auto; padding: 12px 18px; margin: 0 0 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+  .crumb { flex: none; background: var(--chip-bg); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--ink); white-space: nowrap; }
+  .crumb.current { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); cursor: default; }
+  .crumb-sep { color: var(--muted); align-self: center; }
+  .message { display: none; margin-bottom: 12px; padding: 14px 16px; border-radius: 12px; background: var(--success-bg); border: 1px solid var(--success-border); }
   .message.show { display: block; }
+  .message.gaveup { background: var(--danger-bg); border-color: var(--danger); }
   .message strong { color: var(--success); }
-  footer {
-    max-width: 1050px;
-    margin: 16px auto 30px;
-    padding: 0 18px;
-    color: var(--muted);
-    font-size: 12px;
+  .message.gaveup strong { color: var(--danger); }
+  .share-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  #article {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 26px;
+    min-height: 500px; line-height: 1.7; overflow-wrap: anywhere; box-shadow: var(--shadow);
+    font-family: Georgia, "Source Serif Pro", serif; font-size: 17px; max-width: 74ch; margin-inline: auto;
   }
+  #article h1, #article h2, #article h3 { line-height: 1.25; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  #article img { max-width: 100%; height: auto; }
+  #article table { max-width: 100%; overflow: auto; display: block; border-collapse: collapse; font-size: 14px; }
+  #article th, #article td { border: 1px solid var(--border); padding: 6px; }
+  #article a { color: var(--link); text-decoration: underline; cursor: pointer; }
+  #article a.hint-pulse { animation: pulse 1s ease-in-out 3; border-radius: 4px; }
+  @keyframes pulse { 0%,100% { background: transparent; } 50% { background: var(--accent); color: var(--accent-ink); } }
+  .loading { text-align: center; padding: 80px 10px; color: var(--muted); font-family: -apple-system, sans-serif; }
+  footer { max-width: 1000px; margin: 16px auto 30px; padding: 0 18px; color: var(--muted); font-size: 12px; }
   @media (max-width: 650px) {
-    .top { align-items: flex-start; flex-direction: column; }
-    .stats { justify-content: flex-start; }
-    #article { padding: 16px; }
-    h1 { font-size: 21px; }
+    .top { flex-direction: column; align-items: stretch; }
+    #article { padding: 18px; font-size: 16px; }
+    h1 { font-size: 19px; }
   }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition: none !important; } }
 </style>
 </head>
 <body>
 
 <header>
   <div class="top">
-    <h1>🔗 Wiki Links</h1>
+    <div class="brand">
+      <h1>🔗 Wiki Links</h1>
+      <div class="modes">
+        <button id="modeDaily" class="active">Daily</button>
+        <button id="modePractice">Practice</button>
+      </div>
+    </div>
     <div class="stats">
+      <span class="pill player-pill">👤 <b id="uiPlayerName">Student</b></span>
       <span class="pill">Links: <b id="moves">0</b></span>
       <span class="pill">Time: <b id="time">0:00</b></span>
-      <span class="pill">Best: <b id="best">—</b></span>
-      <button id="newGame">New Game</button>
+      <span class="pill" id="bestPill">Best: <b id="best">—</b></span>
+      <button id="undoBtn" class="iconbtn" title="Undo">↶</button>
+      <button id="themeBtn" class="iconbtn" title="Toggle theme">◑</button>
+      <button id="newGame" class="ghost">New</button>
     </div>
   </div>
 </header>
 
 <main>
   <section class="goal">
-    <small>Get from</small>
+    <small id="modeLabel">Today's route</small>
     <div class="route">
       <b id="start">Loading…</b>
       <span>→</span>
       <span class="target" id="target">Loading…</span>
     </div>
+    <div class="actions">
+      <button id="hintBtn" class="ghost">💡 Hint</button>
+      <button id="giveUpBtn" class="ghost">Give up</button>
+    </div>
   </section>
 
+  <div id="trail" class="trail"></div>
+
   <div id="success" class="message">
-    <strong>🎉 You made it!</strong>
+    <strong id="resultTitle">🎉 You made it!</strong>
     <span id="result"></span>
+    <div class="share-row">
+      <button id="shareBtn" class="ghost">📋 Copy result</button>
+    </div>
   </div>
 
   <article id="article">
@@ -177,39 +180,87 @@
 </main>
 
 <footer>
-  Article content is fetched from Wikipedia's public MediaWiki API.
+  Article content is fetched live from Wikipedia's public MediaWiki API. Daily challenge resets at midnight, same route for everyone.
 </footer>
 
+<!-- Optional Auth Guard reference if required -->
+<!-- <script src="../../auth-guard.js"></script> -->
+
 <script>
+// ---------- AUTH & PLAYER INFO ----------
+let playerName = "Guest";
+let playerDept = "Unknown";
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.GH) {
+    playerName = window.GH.name || window.GH.username || "Student";
+    playerDept = window.GH.dept || "Department Unspecified";
+  } else {
+    // Fallback prompt replicating the behavior in 1(4).html standalone mode
+    setTimeout(() => {
+      playerName = localStorage.getItem("questPlayerName");
+      playerDept = localStorage.getItem("questPlayerDept");
+      
+      if (!playerName || !playerDept) {
+        playerName = prompt("Enter your Name:") || "Test Student";
+        playerDept = prompt("Enter your Department:") || "CSE";
+        localStorage.setItem("questPlayerName", playerName);
+        localStorage.setItem("questPlayerDept", playerDept);
+      }
+      document.getElementById('uiPlayerName').textContent = playerName;
+    }, 100);
+  }
+});
+
 const API = "https://en.wikipedia.org/w/rest.php/v1/page/";
-const ARTICLES = [
-  "Albert Einstein", "Isaac Newton", "Marie Curie", "Charles Darwin",
-  "William Shakespeare", "Leonardo da Vinci", "Aristotle", "Socrates",
-  "Plato", "Galileo Galilei", "Nikola Tesla", "Ada Lovelace",
-  "Alan Turing", "Steve Jobs", "The Beatles", "Michael Jackson",
-  "India", "Chennai", "London", "Paris", "New York City",
-  "United States", "France", "Japan", "China", "Egypt",
-  "World War II", "Internet", "Computer", "Mathematics",
-  "Physics", "Biology", "Music", "Film", "Literature",
-  "Harry Potter", "Pizza", "Coffee", "Chess"
+const HUBS = [
+  "Albert Einstein","Isaac Newton","Marie Curie","Charles Darwin","William Shakespeare",
+  "Leonardo da Vinci","Aristotle","Napoleon","Nikola Tesla","Ada Lovelace","Alan Turing",
+  "Steve Jobs","The Beatles","Michael Jackson","India","United Kingdom","France","Japan",
+  "China","Germany","Brazil","Egypt","World War II","Internet","Computer","Mathematics",
+  "Physics","Biology","Chemistry","Music","Film","Literature","Democracy","Capitalism",
+  "Christianity","Buddhism","Olympic Games","United Nations","NASA","Climate change",
+  "Artificial intelligence","Renaissance","Ancient Rome","Ancient Greece","Chess",
+  "Coffee","Basketball","Association football"
 ];
 
+let mode = "daily";     
 let start, target, current;
+let path = [];          
 let moves = 0;
 let startedAt = null;
 let timer = null;
 let gameOver = false;
+let gaveUp = false;
 
 const $ = id => document.getElementById(id);
 
-function getBest() {
-  const value = localStorage.getItem("wikiLinksBest");
-  return value ? Number(value) : null;
+// ---------- theme ----------
+function applyTheme(t) {
+  if (t) document.documentElement.setAttribute("data-theme", t);
+  else document.documentElement.removeAttribute("data-theme");
 }
+(function initTheme() {
+  const saved = localStorage.getItem("wikiLinksTheme");
+  if (saved) applyTheme(saved);
+})();
+$("themeBtn").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme") ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = cur === "dark" ? "light" : "dark";
+  applyTheme(next);
+  localStorage.setItem("wikiLinksTheme", next);
+});
 
+// ---------- best score ----------
+function getBest() {
+  const v = localStorage.getItem("wikiLinksBest");
+  return v ? Number(v) : null;
+}
 function showBest() {
-  const best = getBest();
-  $("best").textContent = best === null ? "—" : best;
+  $("best").textContent = getBest() === null ? "—" : getBest();
+  $("bestPill").style.display = mode === "practice" ? "inline-block" : "none";
 }
 
 function formatTime(seconds) {
@@ -222,88 +273,142 @@ function startTimer() {
   if (timer) clearInterval(timer);
   startedAt = Date.now();
   timer = setInterval(() => {
-    if (!gameOver) {
-      $("time").textContent =
-        formatTime(Math.floor((Date.now() - startedAt) / 1000));
-    }
+    if (!gameOver) $("time").textContent = formatTime(Math.floor((Date.now() - startedAt) / 1000));
   }, 250);
 }
 
+// ---------- deterministic pair ----------
+function mulberry32(seed) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function dayString() {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${d.getUTCMonth()+1}-${d.getUTCDate()}`;
+}
+function dayNumber() {
+  return Math.floor(Date.now() / 86400000) - 20300; 
+}
+function hashString(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(h, 31) + s.charCodeAt(i)) | 0;
+  return h;
+}
+function dailyPair() {
+  const rnd = mulberry32(hashString(dayString()));
+  let a = Math.floor(rnd() * HUBS.length);
+  let b = Math.floor(rnd() * HUBS.length);
+  if (b === a) b = (b + 1) % HUBS.length;
+  return [HUBS[a], HUBS[b]];
+}
 function randomPair() {
   let a, b;
   do {
-    a = ARTICLES[Math.floor(Math.random() * ARTICLES.length)];
-    b = ARTICLES[Math.floor(Math.random() * ARTICLES.length)];
+    a = HUBS[Math.floor(Math.random() * HUBS.length)];
+    b = HUBS[Math.floor(Math.random() * HUBS.length)];
   } while (a === b);
   return [a, b];
 }
+function normaliseTitle(title) { return decodeURIComponent(title.replace(/_/g, " ")); }
 
-function normaliseTitle(title) {
-  return decodeURIComponent(title.replace(/_/g, " "));
+// ---------- breadcrumb ----------
+function renderTrail() {
+  const el = $("trail");
+  el.innerHTML = "";
+  path.forEach((title, i) => {
+    if (i > 0) {
+      const sep = document.createElement("span");
+      sep.className = "crumb-sep";
+      sep.textContent = "→";
+      el.appendChild(sep);
+    }
+    const chip = document.createElement("span");
+    chip.className = "crumb" + (i === path.length - 1 ? " current" : "");
+    chip.textContent = title;
+    if (i !== path.length - 1) chip.addEventListener("click", () => jumpTo(i));
+    el.appendChild(chip);
+  });
+  $("undoBtn").disabled = path.length <= 1 || gameOver;
 }
 
-function wikiUrl(title) {
-  return "https://en.wikipedia.org/wiki/" +
-    encodeURIComponent(title.replace(/ /g, "_"));
+function jumpTo(index) {
+  if (gameOver) return;
+  path = path.slice(0, index + 1);
+  moves = path.length - 1;
+  $("moves").textContent = moves;
+  loadArticle(path[path.length - 1], false);
 }
 
-async function loadArticle(title) {
+$("undoBtn").addEventListener("click", () => {
+  if (path.length > 1 && !gameOver) jumpTo(path.length - 2);
+});
+
+// ---------- hint / give up ----------
+$("hintBtn").addEventListener("click", () => {
+  if (gameOver) return;
+  const links = Array.from($("article").querySelectorAll("a"))
+    .filter(a => a.dataset.title && !path.includes(a.dataset.title));
+  if (!links.length) return;
+  const pick = links[Math.floor(Math.random() * links.length)];
+  pick.classList.add("hint-pulse");
+  pick.scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(() => pick.classList.remove("hint-pulse"), 3000);
+});
+
+$("giveUpBtn").addEventListener("click", () => {
+  if (gameOver) return;
+  gaveUp = true;
+  loadArticle(target, true);
+});
+
+// ---------- load article ----------
+async function loadArticle(title, isMove) {
   current = title;
+  if (isMove) { path.push(title); }
+  else if (path.length === 0) { path = [title]; }
+  renderTrail();
   $("article").innerHTML = '<div class="loading">Loading Wikipedia…</div>';
 
   try {
-    const response = await fetch(
-      API + encodeURIComponent(title) + "/html",
-      { headers: { "Api-User-Agent": "WikiLinksGame/1.0" } }
-    );
-
+    const response = await fetch(API + encodeURIComponent(title) + "/html", {
+      headers: { "Api-User-Agent": "WikiLinksGame/1.0" }
+    });
     if (!response.ok) throw new Error("Wikipedia returned " + response.status);
 
     const html = await response.text();
     const doc = new DOMParser().parseFromString(html, "text/html");
-
-    // Keep the article body but remove Wikipedia chrome that isn't useful in the game.
     const body = doc.body;
-    body.querySelectorAll(
-      "script, style, .mw-editsection, .navbox, .vertical-navbox, " +
-      ".metadata, .reflist, .reference, sup.reference"
-    ).forEach(el => el.remove());
+    body.querySelectorAll("script, style, .mw-editsection, .navbox, .vertical-navbox, .metadata, .reflist, .reference, sup.reference").forEach(el => el.remove());
 
     $("article").innerHTML = body.innerHTML;
 
-    // Turn Wikipedia's internal links into game moves.
     $("article").querySelectorAll("a").forEach(link => {
       const href = link.getAttribute("href") || "";
       let rawTitle = null;
-
-      // Wikipedia REST HTML can return links in several forms:
-      // /wiki/Page, ./Page, or absolute https://en.wikipedia.org/wiki/Page
-      if (href.startsWith("/wiki/")) {
-        rawTitle = href.substring(6);
-      } else if (href.startsWith("./")) {
-        rawTitle = href.substring(2);
-      } else if (href.startsWith("https://en.wikipedia.org/wiki/")) {
-        rawTitle = href.split("/wiki/")[1];
-      }
+      if (href.startsWith("/wiki/")) rawTitle = href.substring(6);
+      else if (href.startsWith("./")) rawTitle = href.substring(2);
+      else if (href.startsWith("https://en.wikipedia.org/wiki/")) rawTitle = href.split("/wiki/")[1];
 
       if (rawTitle && !rawTitle.includes(":") && !rawTitle.startsWith("#")) {
         rawTitle = rawTitle.split("#")[0];
         if (!rawTitle) return;
-
         const nextTitle = normaliseTitle(rawTitle);
-
-        // Make every playable Wikipedia link visibly clickable.
         link.href = "#";
+        link.dataset.title = nextTitle;
         link.style.cursor = "pointer";
-        link.style.pointerEvents = "auto";
         link.addEventListener("click", event => {
           event.preventDefault();
           event.stopPropagation();
           if (gameOver) return;
-          makeMove(nextTitle);
+          moves++;
+          $("moves").textContent = moves;
+          loadArticle(nextTitle, true);
         });
       } else {
-        // External/non-article links shouldn't take the player away.
         link.removeAttribute("href");
         link.style.cursor = "default";
         link.style.pointerEvents = "none";
@@ -311,66 +416,143 @@ async function loadArticle(title) {
       }
     });
 
-    // If the API gives us a page title heading, don't duplicate our game UI.
     const firstHeading = $("article").querySelector("h1");
     if (firstHeading) firstHeading.remove();
 
-    if (current.toLowerCase() === target.toLowerCase()) win();
+    if (!gaveUp && current.toLowerCase() === target.toLowerCase()) win();
+    else if (gaveUp && current.toLowerCase() === target.toLowerCase()) revealGaveUp();
   } catch (error) {
     $("article").innerHTML = `
       <div class="loading">
         <p>Could not load this Wikipedia article.</p>
-        <button onclick="loadArticle(current)">Try again</button>
+        <button onclick="loadArticle(current, false)">Try again</button>
       </div>`;
     console.error(error);
   }
 }
 
-function makeMove(nextTitle) {
-  moves++;
-  $("moves").textContent = moves;
-  loadArticle(nextTitle);
+// ---------- end state & telemetry payload ----------
+function buildShareText(won) {
+  const seconds = Math.floor((Date.now() - startedAt) / 1000);
+  const squares = won ? "🟩".repeat(Math.min(moves, 10)) : "🟥".repeat(Math.min(moves, 10));
+  const label = mode === "daily" ? `Wiki Links #${dayNumber()}` : "Wiki Links (practice)";
+  return `${label}\n${start} → ${target}\n${won ? moves : moves + "+"} links, ${formatTime(seconds)}\n${squares}`;
+}
+
+function finishUI(won) {
+  gameOver = true;
+  clearInterval(timer);
+  $("undoBtn").disabled = true;
+  const seconds = Math.floor((Date.now() - startedAt) / 1000);
+
+  $("success").classList.toggle("gaveup", !won);
+  $("resultTitle").textContent = won ? "🎉 You made it!" : "Route revealed";
+  $("result").textContent = won
+    ? ` You reached ${target} in ${moves} link${moves === 1 ? "" : "s"} and ${formatTime(seconds)}.`
+    : ` Jumped straight to ${target} after ${moves} link${moves === 1 ? "" : "s"}. No shame — some pairs are brutal.`;
+  $("success").classList.add("show");
+
+  if (mode === "daily") {
+    localStorage.setItem("wikiLinksDaily", JSON.stringify({
+      day: dayString(), start, target, moves, seconds, won, done: true
+    }));
+  }
+
+  // --- Exact Subabase Worker DB Payload ---
+  fetch(EDGE_FUNCTION_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      student_name: playerName, 
+      department: playerDept,
+      correct: won ? 1 : 0, 
+      wrong: won ? 0 : 1,
+      time_spent: seconds, 
+      quest_id: `Wiki Links: ${start} → ${target}`,
+      cheat_count: 0,
+      cheat_events: []
+    })
+  }).catch(() => {});
 }
 
 function win() {
-  gameOver = true;
-  clearInterval(timer);
-
-  const seconds = Math.floor((Date.now() - startedAt) / 1000);
-  const oldBest = getBest();
-
-  if (oldBest === null || moves < oldBest) {
-    localStorage.setItem("wikiLinksBest", moves);
-    showBest();
+  finishUI(true);
+  if (mode === "practice") {
+    const oldBest = getBest();
+    if (oldBest === null || moves < oldBest) {
+      localStorage.setItem("wikiLinksBest", moves);
+      showBest();
+    }
   }
-
-  $("result").textContent =
-    ` You reached ${target} in ${moves} link${moves === 1 ? "" : "s"} ` +
-    `and ${formatTime(seconds)}.`;
-
-  $("success").classList.add("show");
 }
+function revealGaveUp() { finishUI(false); }
 
+$("shareBtn").addEventListener("click", async () => {
+  const text = buildShareText(!gaveUp);
+  try {
+    await navigator.clipboard.writeText(text);
+    $("shareBtn").textContent = "✅ Copied";
+  } catch {
+    $("shareBtn").textContent = "Copy failed — select manually";
+  }
+  setTimeout(() => { $("shareBtn").textContent = "📋 Copy result"; }, 2000);
+});
+
+// ---------- mode switching ----------
+function setMode(next) {
+  mode = next;
+  $("modeDaily").classList.toggle("active", mode === "daily");
+  $("modePractice").classList.toggle("active", mode === "practice");
+  $("modeLabel").textContent = mode === "daily" ? "Today's route" : "Get from";
+  showBest();
+  newGame();
+}
+$("modeDaily").addEventListener("click", () => mode !== "daily" && setMode("daily"));
+$("modePractice").addEventListener("click", () => mode !== "practice" && setMode("practice"));
+
+// ---------- new game ----------
 async function newGame() {
   gameOver = false;
+  gaveUp = false;
   $("success").classList.remove("show");
   moves = 0;
+  path = [];
   $("moves").textContent = "0";
   $("time").textContent = "0:00";
   showBest();
 
-  [start, target] = randomPair();
-  current = start;
+  if (mode === "daily") {
+    [start, target] = dailyPair();
+    const saved = JSON.parse(localStorage.getItem("wikiLinksDaily") || "null");
+    if (saved && saved.day === dayString() && saved.start === start && saved.target === target && saved.done) {
+      current = target;
+      start = saved.start; target = saved.target; moves = saved.moves;
+      $("start").textContent = start;
+      $("target").textContent = target;
+      $("moves").textContent = moves;
+      $("time").textContent = formatTime(saved.seconds);
+      gaveUp = !saved.won;
+      startedAt = Date.now() - saved.seconds * 1000;
+      await loadArticle(start, false);
+      finishUI(saved.won);
+      return;
+    }
+  } else {
+    [start, target] = randomPair();
+  }
 
+  current = start;
   $("start").textContent = start;
   $("target").textContent = target;
-
   startTimer();
-  await loadArticle(start);
+  await loadArticle(start, false);
 }
 
-$("newGame").addEventListener("click", newGame);
-showBest();
+$("newGame").addEventListener("click", () => {
+  if (mode === "daily") { setMode("practice"); }
+  else { newGame(); }
+});
+
 newGame();
 </script>
 </body>
