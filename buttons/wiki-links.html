@@ -6,21 +6,37 @@
 <title>Wiki Links</title>
 <style>
   :root {
-    --bg: #f6f4ef;
-    --card: #ffffff;
-    --ink: #1c1b19;
-    --muted: #7a756c;
-    --border: #ded8cc;
-    --link: #2f5fa8;
-    --accent: #a8622f;
-    --accent-ink: #ffffff;
-    --success: #1e7a5f;
-    --success-bg: #e7f3ee;
-    --success-border: #b6dccb;
-    --danger: #ad4327;
-    --danger-bg: #fbeae5;
-    --chip-bg: #efeae0;
-    --shadow: 0 1px 2px rgba(28,27,25,.05);
+    --obsidian: #f7f1e3;
+    --deep: #efe6d0;
+    --surface: #fbf7ee;
+    --surface2: #efe6d0;
+    --gold: #a9812f;
+    --gold-light: #c9a24f;
+    --gold-dim: rgba(169,129,47,0.10);
+    --crimson: #7a0019;
+    --text: #24201c;
+    --text-muted: #6b5f52;
+    --text-dim: #a99d8c;
+    --green: #3f8f66;
+    --border: rgba(36,32,28,0.20);
+    --border-dim: rgba(36,32,28,0.09);
+    --accent: var(--gold);
+    --accent-soft: var(--gold-dim);
+
+    /* Mapped variables to preserve game styles */
+    --bg: var(--obsidian);
+    --card: var(--surface);
+    --ink: var(--text);
+    --muted: var(--text-muted);
+    --link: var(--crimson);
+    --accent-ink: var(--surface);
+    --success: var(--green);
+    --success-bg: var(--surface2);
+    --success-border: var(--green);
+    --danger: var(--crimson);
+    --danger-bg: var(--surface2);
+    --chip-bg: var(--surface2);
+    --shadow: 0 1px 2px rgba(36,32,28,.05);
     color-scheme: light;
   }
   :root[data-theme="dark"] {
@@ -94,7 +110,6 @@
   .goal small { color: var(--muted); }
   .route { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px; font-size: 18px; }
   .target { color: var(--accent); font-weight: 700; }
-  .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
   .trail { display: flex; gap: 6px; overflow-x: auto; padding: 12px 18px; margin: 0 0 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
   .crumb { flex: none; background: var(--chip-bg); border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--ink); white-space: nowrap; }
   .crumb.current { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); cursor: default; }
@@ -115,8 +130,6 @@
   #article table { max-width: 100%; overflow: auto; display: block; border-collapse: collapse; font-size: 14px; }
   #article th, #article td { border: 1px solid var(--border); padding: 6px; }
   #article a { color: var(--link); text-decoration: underline; cursor: pointer; }
-  #article a.hint-pulse { animation: pulse 1s ease-in-out 3; border-radius: 4px; }
-  @keyframes pulse { 0%,100% { background: transparent; } 50% { background: var(--accent); color: var(--accent-ink); } }
   .loading { text-align: center; padding: 80px 10px; color: var(--muted); font-family: -apple-system, sans-serif; }
   footer { max-width: 1000px; margin: 16px auto 30px; padding: 0 18px; color: var(--muted); font-size: 12px; }
   @media (max-width: 650px) {
@@ -135,7 +148,7 @@
       <h1>🔗 Wiki Links</h1>
       <div class="modes">
         <button id="modeDaily" class="active">Daily</button>
-        <button id="modePractice">Practice</button>
+        <button id="modePractice">New</button>
       </div>
     </div>
     <div class="stats">
@@ -143,9 +156,7 @@
       <span class="pill">Links: <b id="moves">0</b></span>
       <span class="pill">Time: <b id="time">0:00</b></span>
       <span class="pill" id="bestPill">Best: <b id="best">—</b></span>
-      <button id="undoBtn" class="iconbtn" title="Undo">↶</button>
       <button id="themeBtn" class="iconbtn" title="Toggle theme">◑</button>
-      <button id="newGame" class="ghost">New</button>
     </div>
   </div>
 </header>
@@ -157,10 +168,6 @@
       <b id="start">Loading…</b>
       <span>→</span>
       <span class="target" id="target">Loading…</span>
-    </div>
-    <div class="actions">
-      <button id="hintBtn" class="ghost">💡 Hint</button>
-      <button id="giveUpBtn" class="ghost">Give up</button>
     </div>
   </section>
 
@@ -183,11 +190,7 @@
   Article content is fetched live from Wikipedia's public MediaWiki API. Daily challenge resets at midnight, same route for everyone.
 </footer>
 
-<!-- Optional Auth Guard reference if required -->
-<!-- <script src="../../auth-guard.js"></script> -->
-
 <script>
-// ---------- AUTH & PLAYER INFO ----------
 let playerName = "Guest";
 let playerDept = "Unknown";
 const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
@@ -197,7 +200,6 @@ window.addEventListener('DOMContentLoaded', () => {
     playerName = window.GH.name || window.GH.username || "Student";
     playerDept = window.GH.dept || "Department Unspecified";
   } else {
-    // Fallback prompt replicating the behavior in 1(4).html standalone mode
     setTimeout(() => {
       playerName = localStorage.getItem("questPlayerName");
       playerDept = localStorage.getItem("questPlayerDept");
@@ -229,14 +231,13 @@ let mode = "daily";
 let start, target, current;
 let path = [];          
 let moves = 0;
-let startedAt = null;
+let accumulatedTime = 0;
+let lastActiveTime = null;
 let timer = null;
 let gameOver = false;
-let gaveUp = false;
 
 const $ = id => document.getElementById(id);
 
-// ---------- theme ----------
 function applyTheme(t) {
   if (t) document.documentElement.setAttribute("data-theme", t);
   else document.documentElement.removeAttribute("data-theme");
@@ -253,7 +254,6 @@ $("themeBtn").addEventListener("click", () => {
   localStorage.setItem("wikiLinksTheme", next);
 });
 
-// ---------- best score ----------
 function getBest() {
   const v = localStorage.getItem("wikiLinksBest");
   return v ? Number(v) : null;
@@ -269,15 +269,81 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
+// ---------- Accurate Time Tracking & Abandonment ----------
 function startTimer() {
   if (timer) clearInterval(timer);
-  startedAt = Date.now();
+  accumulatedTime = 0;
+  lastActiveTime = Date.now();
+  
   timer = setInterval(() => {
-    if (!gameOver) $("time").textContent = formatTime(Math.floor((Date.now() - startedAt) / 1000));
+    if (!gameOver && document.visibilityState === "visible" && lastActiveTime) {
+      const currentElapsed = Math.floor((accumulatedTime + (Date.now() - lastActiveTime)) / 1000);
+      $("time").textContent = formatTime(currentElapsed);
+    }
   }, 250);
 }
 
-// ---------- deterministic pair ----------
+function logAbandonment(seconds) {
+  if (seconds <= 0) return;
+
+  const payload = JSON.stringify({
+    student_name: playerName,
+    department: playerDept,
+    correct: 0,
+    wrong: 1,
+    time_spent: seconds,
+    quest_id: `Wiki Links ${start} → ${target}`,
+    cheat_count: 0,
+    cheat_events: []
+  });
+
+  fetch(EDGE_FUNCTION_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: payload,
+    keepalive: true
+  }).catch(() => {});
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (gameOver || !lastActiveTime) return;
+
+  if (document.visibilityState === "hidden") {
+    // End THIS active session.
+    // Each hide/minimise/tab switch therefore records only the
+    // time played since the page last became visible.
+    const sessionMs = Date.now() - lastActiveTime;
+    const seconds = Math.floor(sessionMs / 1000);
+
+    logAbandonment(seconds);
+
+    // Reset the session clock so the next visible period starts at 0.
+    lastActiveTime = null;
+
+    // Keep accumulatedTime for the total active time of this game.
+    accumulatedTime += sessionMs;
+  } else if (document.visibilityState === "visible") {
+    // Start a NEW active session.
+    lastActiveTime = Date.now();
+  }
+});
+
+// If the page is actually closed/navigated away while visible,
+// log only the final active session. If it was already hidden,
+// visibilitychange has already logged that session.
+window.addEventListener("pagehide", () => {
+  if (gameOver || !lastActiveTime) return;
+
+  const sessionMs = Date.now() - lastActiveTime;
+  const seconds = Math.floor(sessionMs / 1000);
+
+  logAbandonment(seconds);
+
+  lastActiveTime = null;
+  accumulatedTime += sessionMs;
+});
+
+// ---------- Deterministic Generation ----------
 function mulberry32(seed) {
   return function () {
     seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
@@ -315,7 +381,6 @@ function randomPair() {
 }
 function normaliseTitle(title) { return decodeURIComponent(title.replace(/_/g, " ")); }
 
-// ---------- breadcrumb ----------
 function renderTrail() {
   const el = $("trail");
   el.innerHTML = "";
@@ -332,7 +397,6 @@ function renderTrail() {
     if (i !== path.length - 1) chip.addEventListener("click", () => jumpTo(i));
     el.appendChild(chip);
   });
-  $("undoBtn").disabled = path.length <= 1 || gameOver;
 }
 
 function jumpTo(index) {
@@ -343,29 +407,6 @@ function jumpTo(index) {
   loadArticle(path[path.length - 1], false);
 }
 
-$("undoBtn").addEventListener("click", () => {
-  if (path.length > 1 && !gameOver) jumpTo(path.length - 2);
-});
-
-// ---------- hint / give up ----------
-$("hintBtn").addEventListener("click", () => {
-  if (gameOver) return;
-  const links = Array.from($("article").querySelectorAll("a"))
-    .filter(a => a.dataset.title && !path.includes(a.dataset.title));
-  if (!links.length) return;
-  const pick = links[Math.floor(Math.random() * links.length)];
-  pick.classList.add("hint-pulse");
-  pick.scrollIntoView({ behavior: "smooth", block: "center" });
-  setTimeout(() => pick.classList.remove("hint-pulse"), 3000);
-});
-
-$("giveUpBtn").addEventListener("click", () => {
-  if (gameOver) return;
-  gaveUp = true;
-  loadArticle(target, true);
-});
-
-// ---------- load article ----------
 async function loadArticle(title, isMove) {
   current = title;
   if (isMove) { path.push(title); }
@@ -419,8 +460,7 @@ async function loadArticle(title, isMove) {
     const firstHeading = $("article").querySelector("h1");
     if (firstHeading) firstHeading.remove();
 
-    if (!gaveUp && current.toLowerCase() === target.toLowerCase()) win();
-    else if (gaveUp && current.toLowerCase() === target.toLowerCase()) revealGaveUp();
+    if (current.toLowerCase() === target.toLowerCase()) win();
   } catch (error) {
     $("article").innerHTML = `
       <div class="loading">
@@ -431,19 +471,23 @@ async function loadArticle(title, isMove) {
   }
 }
 
-// ---------- end state & telemetry payload ----------
 function buildShareText(won) {
-  const seconds = Math.floor((Date.now() - startedAt) / 1000);
+  const finalTime = accumulatedTime + (!gameOver && document.visibilityState === "visible" ? (Date.now() - lastActiveTime) : 0);
+  const seconds = Math.floor(finalTime / 1000);
   const squares = won ? "🟩".repeat(Math.min(moves, 10)) : "🟥".repeat(Math.min(moves, 10));
-  const label = mode === "daily" ? `Wiki Links #${dayNumber()}` : "Wiki Links (practice)";
+  const label = mode === "daily" ? `Wiki Links #${dayNumber()}` : "Wiki Links (new)";
   return `${label}\n${start} → ${target}\n${won ? moves : moves + "+"} links, ${formatTime(seconds)}\n${squares}`;
 }
 
 function finishUI(won) {
   gameOver = true;
   clearInterval(timer);
-  $("undoBtn").disabled = true;
-  const seconds = Math.floor((Date.now() - startedAt) / 1000);
+  
+  // Calculate exact final time on completion
+  if (document.visibilityState === "visible") {
+    accumulatedTime += (Date.now() - lastActiveTime);
+  }
+  const seconds = Math.floor(accumulatedTime / 1000);
 
   $("success").classList.toggle("gaveup", !won);
   $("resultTitle").textContent = won ? "🎉 You made it!" : "Route revealed";
@@ -458,7 +502,6 @@ function finishUI(won) {
     }));
   }
 
-  // --- Exact Subabase Worker DB Payload ---
   fetch(EDGE_FUNCTION_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -485,10 +528,9 @@ function win() {
     }
   }
 }
-function revealGaveUp() { finishUI(false); }
 
 $("shareBtn").addEventListener("click", async () => {
-  const text = buildShareText(!gaveUp);
+  const text = buildShareText(true);
   try {
     await navigator.clipboard.writeText(text);
     $("shareBtn").textContent = "✅ Copied";
@@ -498,7 +540,6 @@ $("shareBtn").addEventListener("click", async () => {
   setTimeout(() => { $("shareBtn").textContent = "📋 Copy result"; }, 2000);
 });
 
-// ---------- mode switching ----------
 function setMode(next) {
   mode = next;
   $("modeDaily").classList.toggle("active", mode === "daily");
@@ -510,10 +551,8 @@ function setMode(next) {
 $("modeDaily").addEventListener("click", () => mode !== "daily" && setMode("daily"));
 $("modePractice").addEventListener("click", () => mode !== "practice" && setMode("practice"));
 
-// ---------- new game ----------
 async function newGame() {
   gameOver = false;
-  gaveUp = false;
   $("success").classList.remove("show");
   moves = 0;
   path = [];
@@ -531,8 +570,11 @@ async function newGame() {
       $("target").textContent = target;
       $("moves").textContent = moves;
       $("time").textContent = formatTime(saved.seconds);
-      gaveUp = !saved.won;
-      startedAt = Date.now() - saved.seconds * 1000;
+      
+      // Setup timeline accurately for restored game
+      accumulatedTime = saved.seconds * 1000;
+      lastActiveTime = Date.now();
+      
       await loadArticle(start, false);
       finishUI(saved.won);
       return;
@@ -547,11 +589,6 @@ async function newGame() {
   startTimer();
   await loadArticle(start, false);
 }
-
-$("newGame").addEventListener("click", () => {
-  if (mode === "daily") { setMode("practice"); }
-  else { newGame(); }
-});
 
 newGame();
 </script>
