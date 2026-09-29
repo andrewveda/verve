@@ -479,8 +479,8 @@ async function startApp(name, dept) {
   playerDept = dept;
   
   try { 
-    localStorage.setItem('pName', name); 
-    localStorage.setItem('pDept', dept); 
+   const sn = localStorage.getItem('userName');
+const sd = localStorage.getItem('userDept');
   } catch(e){}
   
   document.getElementById('name-screen').style.display = 'none';
