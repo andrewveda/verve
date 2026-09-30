@@ -679,20 +679,18 @@ function getSolvedVerses(){ try{return JSON.parse(localStorage.getItem("pq_solve
 function markVerseSolved(id){ const s=getSolvedVerses(); if(!s.includes(id)){s.push(id);localStorage.setItem("pq_solved",JSON.stringify(s));} }
 
 /* MUTE HELPERS */
-function isChatMuted(){
-  try { return localStorage.getItem('pq_chat_muted') === '0'; } catch(e){ return false; }
-}
+// The Puzzle Bot is intentionally disabled for this version.
+function isChatMuted(){ return true; }
 function toggleMute(){
-  const muted = !isChatMuted();
-  try { localStorage.setItem('pq_chat_muted', muted ? '1' : '0'); } catch(e){}
   updateMuteBtn();
-  showToast(muted ? 'Bot muted 🔇' : 'Bot unmuted 🔊');
+  showToast('Puzzle Bot is turned off 🔇');
 }
 function updateMuteBtn(){
   const btn = document.getElementById('muteBtn');
   if(!btn) return;
-  btn.textContent = isChatMuted() ? '🔇' : '🔊';
-  btn.title = isChatMuted() ? 'Unmute bot' : 'Mute bot';
+  btn.textContent = '🔇';
+  btn.title = 'Puzzle Bot is turned off';
+  btn.setAttribute('aria-label', 'Puzzle Bot is turned off');
 }
 
 /* ENTRY */
@@ -928,6 +926,7 @@ function maybeShowChat(){
 }
 
 function showChatPopup(){
+  if(isChatMuted()) return;
   setChatLock(true);
   const themeKey = getThemeForPuzzle(currentVerseIdx);
   const theme = CHAT_THEMES[themeKey];
