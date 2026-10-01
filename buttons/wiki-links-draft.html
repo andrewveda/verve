@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wiki Links</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f1e3;--card:#fbf7ee;--ink:#24201c;--muted:#6b5f52;--border:rgba(36,32,28,.2);--link:#7a0019;--accent:#a9812f;--accent-ink:#fbf7ee;--success:#3f8f66;--success-bg:#efe6d0;--danger:#7a0019;--danger-bg:#efe6d0;--chip-bg:#efe6d0;--shadow:0 1px 2px rgba(36,32,28,.05);color-scheme:light}
+:root[data-theme="dark"]{--bg:#080e1a;--card:#0d1525;--ink:#e8f0fe;--muted:#7a93b8;--border:#22324d;--link:#7fc8ff;--accent:#ffd700;--accent-ink:#080e1a;--success:#22c55e;--success-bg:#111e30;--danger:#ff6b6b;--danger-bg:#2c1f19;--chip-bg:#111e30;color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#080e1a;--card:#0d1525;--ink:#e8f0fe;--muted:#7a93b8;--border:#22324d;--link:#7fc8ff;--accent:#ffd700;--accent-ink:#080e1a;--success:#22c55e;--success-bg:#111e30;--danger:#ff6b6b;--danger-bg:#2c1f19;--chip-bg:#111e30;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--card);border-bottom:1px solid var(--border);padding:14px 18px}
+.top{max-width:1000px;margin:auto;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+h1{margin:0;font:700 26px 'Rajdhani',sans-serif;letter-spacing:1px}
+.modes{display:flex;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.modes button{background:var(--card);color:var(--muted);border:0;padding:7px 12px;font-size:13px;border-radius:0}
+.modes button.active{background:var(--accent);color:var(--accent-ink)}
+.stats{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{border:1px solid var(--border);border-radius:999px;padding:6px 11px;background:var(--bg);font-size:13px;white-space:nowrap}
+.player-pill{color:var(--accent);font-weight:700}
+.iconbtn{border:1px solid var(--border);background:var(--bg);color:var(--ink);width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:16px;padding:0}
+button{border:0;border-radius:8px;padding:9px 14px;cursor:pointer;font:700 14px 'Nunito',sans-serif;background:var(--accent);color:var(--accent-ink)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--border)}
+main{max-width:1000px;margin:auto;padding:18px}
+.goal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.goal small{color:var(--muted)}
+.route{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:18px}
+.target{color:var(--accent);font-weight:700}
+.trail{display:flex;gap:6px;overflow-x:auto;padding:12px 18px;margin:0 0 12px;background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow)}
+.crumb{flex:none;background:var(--chip-bg);border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
+.crumb.current{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);cursor:default}
+.crumb-sep{color:var(--muted);align-self:center}
+
+/* result card */
+.message{display:none;margin-bottom:12px;padding:22px 20px;border-radius:16px;background:var(--success-bg);border:1px solid var(--success);text-align:center}
+.message.show{display:block}
+.message.gaveup{border-color:var(--danger)}
+#resultTitle{display:block;font:700 2.2rem 'Rajdhani',sans-serif;color:var(--success);letter-spacing:1px}
+.message.gaveup #resultTitle{color:var(--danger)}
+#result{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.rstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.sbox{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 6px}
+.snum{font:700 2rem/1 'Rajdhani',sans-serif;color:var(--accent)}
+.slbl{font-size:.7rem;color:var(--muted);letter-spacing:1px;margin-top:4px}
+.idrow{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+#playerIdentity{font:700 1.3rem 'Rajdhani',sans-serif;color:var(--accent);letter-spacing:1px;transition:opacity .25s,transform .25s}
+.idrow input,.idrow select{padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--ink);font:15px 'Nunito',sans-serif;outline:none}
+.idrow input:focus,.idrow select:focus{border-color:var(--accent)}
+.idrow p{margin:0;font-size:14px;color:var(--muted)}
+.share-row{display:flex;gap:8px;flex-wrap:wrap}
+.share-row button{flex:1;min-width:130px;padding:13px 10px;font:700 1.05rem 'Rajdhani',sans-serif;letter-spacing:1px}
+#article{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:26px;min-height:500px;line-height:1.7;overflow-wrap:anywhere;box-shadow:var(--shadow);font-family:Georgia,"Source Serif Pro",serif;font-size:17px;max-width:74ch;margin-inline:auto}
+#article h1,#article h2,#article h3{line-height:1.25;font-family:'Nunito',sans-serif}
+#article img{max-width:100%;height:auto}
+#article table{max-width:100%;overflow:auto;display:block;border-collapse:collapse;font-size:14px}
+#article th,#article td{border:1px solid var(--border);padding:6px}
+#article a{color:var(--link);text-decoration:underline;cursor:pointer}
+.loading{text-align:center;padding:80px 10px;color:var(--muted)}
+footer{max-width:1000px;margin:16px auto 30px;padding:0 18px;color:var(--muted);font-size:12px}
+@media(max-width:650px){.top{flex-direction:column;align-items:stretch}#article{padding:18px;font-size:16px}h1{font-size:22px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition:none!important}}
+
+/* intro */
+#intro{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;display:flex;padding:calc(16px + env(safe-area-inset-top,0px)) 14px calc(16px + env(safe-area-inset-bottom,0px))}
+.intro-card{margin:auto;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:36px 30px;max-width:520px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.12)}
+.logo{font:700 3rem 'Rajdhani',sans-serif;letter-spacing:2px;color:var(--accent)}
+.logo-sub{color:var(--muted);letter-spacing:1px;margin:2px 0 18px}
+.rule{display:flex;align-items:flex-start;gap:12px;margin:11px 0;font-size:.98rem;text-align:left;line-height:1.4}
+.rule i{font-style:normal;font-size:1.3rem;width:30px;text-align:center;flex-shrink:0}
+.hr{height:1px;background:var(--border);margin:18px 0}
+#introBadge{font:700 1.3rem 'Rajdhani',sans-serif;color:var(--accent)}
+#introFields{display:flex;flex-direction:column;gap:8px}
+#introFields input,#introFields select{padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--ink);font:15px 'Nunito',sans-serif;outline:none}
+#introFields input:focus,#introFields select:focus{border-color:var(--accent)}
+#startBtn{margin-top:20px;width:100%;padding:15px;font:700 1.5rem 'Rajdhani',sans-serif;letter-spacing:2px;border-radius:14px}
+.think{text-align:left;background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-top:16px}
+.think h2{margin:0 0 4px;font:700 1.4rem 'Rajdhani',sans-serif;letter-spacing:1px;color:var(--accent)}
+.think p{margin:8px 0 0;font-size:.95rem;line-height:1.5}
+.think p:first-of-type{margin-top:0;color:var(--muted)}
+
+/* thinking journal */
+.journal-cta{width:100%;margin-top:10px;padding:14px;font:700 1.15rem 'Rajdhani',sans-serif;letter-spacing:1px;border-radius:12px}
+#journal{text-align:left;margin-top:16px;border-top:1px dashed var(--border);padding-top:16px}
+#journal[hidden]{display:none}
+.jtitle{margin:0;font:700 1.5rem 'Rajdhani',sans-serif;letter-spacing:1px;color:var(--accent)}
+.jintro{margin:4px 0 12px;font-size:.92rem;color:var(--muted);line-height:1.5}
+.jbar{height:10px;border-radius:99px;background:var(--chip-bg);border:1px solid var(--border);overflow:hidden}
+.jbar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.jmeter-txt{font-size:.85rem;color:var(--muted);margin-top:6px}
+.jstep{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin:12px 0}
+.jstep.jfinal{border:2px solid var(--accent)}
+.jhead{display:flex;gap:10px;align-items:center;margin-bottom:4px}
+.jnum{background:var(--accent);color:var(--accent-ink);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 14px 'Rajdhani',sans-serif;flex:none}
+.jhop{font-weight:700;overflow-wrap:anywhere}
+.jfield{display:block;margin-top:10px}
+.jstage{display:flex;align-items:center;gap:6px;font:700 .85rem 'Rajdhani',sans-serif;letter-spacing:1.5px;color:var(--accent)}
+.jprompt{font-size:.88rem;color:var(--muted);margin:2px 0 6px;line-height:1.4}
+.jfield textarea{width:100%;resize:vertical;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--ink);font:15px/1.5 'Nunito',sans-serif;outline:none}
+.jfield textarea:focus{border-color:var(--accent)}
+.jdl{width:100%;padding:15px;font:700 1.25rem 'Rajdhani',sans-serif;letter-spacing:1px;border-radius:12px;margin-top:6px}
+.jhint{font-size:.85rem;color:var(--muted);text-align:center;margin:8px 0 0}
+</style>
+</head>
+<body>
+<canvas id="statsCanvas" style="display:none"></canvas>
+<div id="intro"><div class="intro-card">
+  <div class="logo">WIKI LINKS</div>
+  <div class="logo-sub">Creative-Critical Thinking</div>
+  <div class="hr"></div>
+  <div class="rule"><i>🎯</i><span>You get a <b>start</b> and a <b>goal</b> Wikipedia article. Reach the goal using only the links inside articles.</span></div>
+  <div class="rule"><i>🔗</i><span>Every link you click counts. The fewer links, the better your result.</span></div>
+  <div class="rule"><i>📅</i><span><b>Daily</b> is the same route for everyone, once a day. <b>New</b> gives a random practice route.</span></div>
+  <div class="rule"><i>📲</i><span>Share your result as an image, or add your full path.</span></div>
+  <div class="think">
+    <h2>What you're practising</h2>
+    <p>Every click is a small round of creative-critical thinking.</p>
+    <p><b>Diverge.</b> Before you click, open up. Physics could lead to Einstein, to energy, to war, to music. List the doors, including the unlikely ones. <b>Your knowledge expands with every article you open.</b> On the way to connecting two very different topics, you learn about the places in between, so you finish knowing far more than when you started.</p>
+    <p><b>Converge.</b> Then narrow down. Which door gets you closer to the goal? Judge your options, pick one and commit.</p>
+    <p><b>Connect.</b> The best routes join two ideas that seem unrelated. Your path is a record of how you made them touch.</p>
+    <p><b>Reflect.</b> Where did you widen your thinking? What new knowledge have you gained?</p>
+  </div>
+  <div class="hr"></div>
+  <div id="introBadge"></div>
+  <div id="introFields">
+    <input id="introName" type="text" placeholder="Enter your name" autocomplete="name">
+    <select id="introDept"><option value="">-- Select Department --</option></select>
+  </div>
+  <button id="startBtn" disabled>🔗 I am HUNGRY for new knowledge! Start!</button>
+</div></div>
+<header>
+  <div class="top">
+    <div class="brand">
+      <h1>🔗 WIKI LINKS</h1>
+      <div class="modes">
+        <button id="modeDaily" class="active">Daily</button>
+        <button id="modePractice">New</button>
+      </div>
+    </div>
+    <div class="stats">
+      <span class="pill player-pill">👤 <b id="uiPlayerName">Guest</b></span>
+      <span class="pill">Links: <b id="moves">0</b></span>
+      <span class="pill">Time: <b id="time">0:00</b></span>
+      <span class="pill" id="bestPill">Best: <b id="best">—</b></span>
+      <button id="themeBtn" class="iconbtn" title="Toggle theme">◑</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="goal">
+    <small id="modeLabel">Today's route</small>
+    <div class="route"><b id="start">Loading…</b><span>→</span><span class="target" id="target">Loading…</span></div>
+  </section>
+
+  <div id="trail" class="trail"></div>
+
+  <div id="success" class="message">
+    <strong id="resultTitle">🎉 You made it!</strong>
+    <span id="result"></span>
+    <div class="rstats">
+      <div class="sbox"><div class="snum" id="rLinks">0</div><div class="slbl">LINKS</div></div>
+      <div class="sbox"><div class="snum" id="rTime">0:00</div><div class="slbl">TIME</div></div>
+      <div class="sbox"><div class="snum" id="rBacks">0</div><div class="slbl">BACKTRACKS</div></div>
+    </div>
+    <div class="idrow"><div id="playerIdentity"></div><p id="lbText"></p></div>
+    <div class="share-row">
+      <button id="imgBtn">🖼️ Share image</button>
+      <button id="pathBtn">🧭 Share with path</button>
+      <button id="shareBtn" class="ghost">📋 Copy text</button>
+    </div>
+    <button id="journalBtn" class="journal-cta">📝 Write my thinking &amp; download HTML</button>
+    <div id="journal" hidden></div>
+  </div>
+
+  <article id="article"><div class="loading">Loading Wikipedia…</div></article>
+</main>
+
+<footer>Article content is fetched live from Wikipedia's public MediaWiki API. Daily challenge resets at midnight, same route for everyone.</footer>
+
+<script>
+const EDGE_FUNCTION_URL="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+const NAME_KEY="questPlayerName",DEPT_KEY="questPlayerDept";
+const SITE="andrewveda.com/verve/buttons/wiki-links";
+const API="https://en.wikipedia.org/w/rest.php/v1/page/";
+const HUBS=["Albert Einstein","Isaac Newton","Marie Curie","Charles Darwin","William Shakespeare","Leonardo da Vinci","Aristotle","Napoleon","Nikola Tesla","Ada Lovelace","Alan Turing","Steve Jobs","The Beatles","Michael Jackson","India","United Kingdom","France","Japan","China","Germany","Brazil","Egypt","World War II","Internet","Computer","Mathematics","Physics","Biology","Chemistry","Music","Film","Literature","Democracy","Capitalism","Christianity","Buddhism","Olympic Games","United Nations","NASA","Climate change","Artificial intelligence","Renaissance","Ancient Rome","Ancient Greece","Chess","Coffee","Basketball","Association football"];
+HUBS.push(["Black hole", "Big Bang", "Moon", "Mars", "Solar System", "Apollo 11", "International Space Station", "Voyager 1", "Hubble Space Telescope", "Dark matter", "Antimatter", "Higgs boson", "Large Hadron Collider", "Quantum mechanics", "Theory of relativity", "Periodic table", "DNA", "Evolution", "Dinosaur", "Vaccine", "Penicillin", "Telescope", "Transistor", "Smartphone", "Robot", "Laser", "Cryptography", "Bitcoin", "Google", "YouTube", "Wikipedia", "Carl Sagan", "Stephen Hawking", "Galileo Galilei", "Richard Feynman", "Srinivasa Ramanujan", "C. V. Raman", "A. P. J. Abdul Kalam", "Chandrayaan-3", "Mars Orbiter Mission", "Tardigrade", "Axolotl", "Octopus", "Platypus", "Naked mole-rat", "Mantis shrimp", "Turritopsis dohrnii", "Dodo", "Woolly mammoth", "Bermuda Triangle", "Loch Ness Monster", "Area 51", "Stonehenge", "Voynich manuscript", "Roswell incident", "Mary Celeste", "Atlantis", "Easter Island", "Bigfoot", "Crop circle", "Tunguska event", "Wow! signal", "Fermi paradox", "Simulation hypothesis", "Schrödinger's cat", "Trolley problem", "Ship of Theseus", "Monty Hall problem", "Birthday problem", "Infinite monkey theorem", "Rubik's Cube", "Tetris", "Minecraft", "Pokémon", "Lego", "Mario", "Rickrolling", "Mona Lisa", "Fibonacci sequence", "Pi", "Golden ratio", "Time travel", "Dream", "Déjà vu", "Placebo", "Mandela effect", "Cryonics", "Vampire", "Dragon", "Library of Alexandria", "Antikythera mechanism", "Nazca Lines", "Göbekli Tepe", "Terracotta Army", "Machu Picchu", "Great Pyramid of Giza", "Taj Mahal", "Mount Everest", "Mariana Trench", "Yellowstone Caldera", "Aurora", "Lightning", "Volcano", "Honey", "Chocolate", "Pizza", "Banana"]);
+
+let mode="daily",start,target,current,path=[],moves=0,backs=0,accumulatedTime=0,lastActiveTime=null,timer=null,gameOver=false;
+let lastWon=true,finalSec=0,submitted=false,restored=false,started=false;
+const $=id=>document.getElementById(id);
+
+/* ---------- identity ---------- */
+/* Pre-fill from the main site's login (read-only; no auth-guard, no redirect).
+   Falls back to whatever the player typed here previously. */
+const AUTH_DEPT_MAP={"Civil":"Agri and Civil","Agri":"Agri and Civil"};
+function readAuth(){
+  try{
+    if(localStorage.getItem("logged_in")!=="true")return null;
+    const prov=localStorage.getItem("auth_provider");
+    const name=localStorage.getItem("userName")||localStorage.getItem(prov==="chesscom"?"chess_username":"github_username");
+    let dept=localStorage.getItem("userDept")||"";
+    dept=AUTH_DEPT_MAP[dept]||dept;
+    return{name:name||"",dept:dept};
+  }catch(e){return null}
+}
+/* Used during play: what the player confirmed on the intro screen wins. */
+function getIdentity(){
+  const a=readAuth()||{},n=localStorage.getItem(NAME_KEY),d=localStorage.getItem(DEPT_KEY);
+  return{name:(started&&n)||a.name||n,dept:(started&&d)||a.dept||d};
+}
+function refreshPill(){const i=getIdentity();$("uiPlayerName").textContent=i.name||"Guest";}
+window.addEventListener("DOMContentLoaded",refreshPill);
+refreshPill();
+
+const DEPTS=["Friends and Family","Cyber Security","EIE","CSE-1","CSE-2","CSE-3","Mechanical Engineering","ECE-1","ECE-2","ECE-3","AI DS-1","AI DS-2","Agri and Civil","EEE","Medical Electronics","IT-1","IT-2"];
+function showIdentity(){
+  const id=getIdentity();
+  $("playerIdentity").textContent=`👤 ${id.name} · ${id.dept}`;
+  $("lbText").textContent=restored?"":`Result recorded for ${id.name}`;
+  submitResult();
+}
+(function initIntro(){
+  const sel=$("introDept"),nm=$("introName"),btn=$("startBtn");
+  DEPTS.forEach(d=>sel.add(new Option(d,d)));
+  const id=getIdentity();
+  if(id.dept&&!DEPTS.includes(id.dept))sel.add(new Option(id.dept,id.dept));
+  nm.value=id.name||"";sel.value=id.dept||"";
+  if(readAuth()&&id.name&&id.dept)$("introBadge").textContent="✓ Details loaded from your login. Edit if needed.";
+  const check=()=>{btn.disabled=!(nm.value.trim()&&sel.value)};
+  check();nm.addEventListener("input",check);sel.addEventListener("change",check);
+  nm.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();sel.focus()}});
+  btn.addEventListener("click",()=>{
+    localStorage.setItem(NAME_KEY,nm.value.trim());localStorage.setItem(DEPT_KEY,sel.value);
+    refreshPill();started=true;$("intro").style.display="none";newGame();
+  });
+})();
+
+/* ---------- theme / best ---------- */
+function applyTheme(t){t?document.documentElement.setAttribute("data-theme",t):document.documentElement.removeAttribute("data-theme")}
+(()=>{const s=localStorage.getItem("wikiLinksTheme");if(s)applyTheme(s)})();
+$("themeBtn").addEventListener("click",()=>{
+  const cur=document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");
+  const next=cur==="dark"?"light":"dark";applyTheme(next);localStorage.setItem("wikiLinksTheme",next);
+});
+function getBest(){const v=localStorage.getItem("wikiLinksBest");return v?Number(v):null}
+function showBest(){$("best").textContent=getBest()===null?"—":getBest();$("bestPill").style.display=mode==="practice"?"inline-block":"none"}
+function formatTime(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+
+/* ---------- timing / abandonment ---------- */
+function startTimer(){
+  if(timer)clearInterval(timer);
+  accumulatedTime=0;lastActiveTime=Date.now();
+  timer=setInterval(()=>{
+    if(!gameOver&&document.visibilityState==="visible"&&lastActiveTime)
+      $("time").textContent=formatTime(Math.floor((accumulatedTime+(Date.now()-lastActiveTime))/1000));
+  },250);
+}
+function post(body,keepalive){
+  fetch(EDGE_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),keepalive:!!keepalive}).catch(()=>{});
+}
+function logAbandonment(seconds){
+  if(seconds<=0)return;
+  const i=getIdentity();
+  post({student_name:i.name||"Guest",department:i.dept||"Unknown",correct:0,wrong:1,time_spent:seconds,quest_id:`Wiki Links ${start} → ${target}`,cheat_count:0,cheat_events:[]},true);
+}
+function endSession(){
+  const ms=Date.now()-lastActiveTime;
+  logAbandonment(Math.floor(ms/1000));
+  lastActiveTime=null;accumulatedTime+=ms;
+}
+document.addEventListener("visibilitychange",()=>{
+  if(gameOver||!started)return;
+  if(document.visibilityState==="hidden"&&lastActiveTime)endSession();
+  else if(document.visibilityState==="visible")lastActiveTime=Date.now();
+});
+window.addEventListener("pagehide",()=>{if(started&&!gameOver&&lastActiveTime)endSession()});
+
+/* ---------- deterministic generation ---------- */
+function mulberry32(seed){return function(){seed|=0;seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+function dayString(){const d=new Date();return`${d.getUTCFullYear()}-${d.getUTCMonth()+1}-${d.getUTCDate()}`}
+function dayNumber(){return Math.floor(Date.now()/86400000)-20300}
+function hashString(s){let h=0;for(let i=0;i<s.length;i++)h=(Math.imul(h,31)+s.charCodeAt(i))|0;return h}
+function dailyPair(){
+  const r=mulberry32(hashString(dayString()));
+  let a=Math.floor(r()*HUBS.length),b=Math.floor(r()*HUBS.length);
+  if(b===a)b=(b+1)%HUBS.length;
+  return[HUBS[a],HUBS[b]];
+}
+function randomPair(){let a,b;do{a=HUBS[Math.floor(Math.random()*HUBS.length)];b=HUBS[Math.floor(Math.random()*HUBS.length)]}while(a===b);return[a,b]}
+function normaliseTitle(t){return decodeURIComponent(t.replace(/_/g," "))}
+
+/* ---------- trail / articles ---------- */
+function renderTrail(){
+  const el=$("trail");el.innerHTML="";
+  path.forEach((title,i)=>{
+    if(i>0){const s=document.createElement("span");s.className="crumb-sep";s.textContent="→";el.appendChild(s)}
+    const c=document.createElement("span");
+    c.className="crumb"+(i===path.length-1?" current":"");c.textContent=title;
+    if(i!==path.length-1)c.addEventListener("click",()=>jumpTo(i));
+    el.appendChild(c);
+  });
+}
+function jumpTo(i){
+  if(gameOver)return;
+  path=path.slice(0,i+1);moves=path.length-1;backs++;
+  $("moves").textContent=moves;
+  loadArticle(path[path.length-1],false);
+}
+async function loadArticle(title,isMove){
+  current=title;
+  if(isMove)path.push(title);else if(path.length===0)path=[title];
+  renderTrail();
+  $("article").innerHTML='<div class="loading">Loading Wikipedia…</div>';
+  try{
+    const r=await fetch(API+encodeURIComponent(title)+"/html",{headers:{"Api-User-Agent":"WikiLinksGame/1.0"}});
+    if(!r.ok)throw new Error("Wikipedia returned "+r.status);
+    const doc=new DOMParser().parseFromString(await r.text(),"text/html");
+    const body=doc.body;
+    body.querySelectorAll("script, style, .mw-editsection, .navbox, .vertical-navbox, .metadata, .reflist, .reference, sup.reference").forEach(e=>e.remove());
+    $("article").innerHTML=body.innerHTML;
+    $("article").querySelectorAll("a").forEach(link=>{
+      const href=link.getAttribute("href")||"";let raw=null;
+      if(href.startsWith("/wiki/"))raw=href.substring(6);
+      else if(href.startsWith("./"))raw=href.substring(2);
+      else if(href.startsWith("https://en.wikipedia.org/wiki/"))raw=href.split("/wiki/")[1];
+      if(raw&&!raw.includes(":")&&!raw.startsWith("#")){
+        raw=raw.split("#")[0];if(!raw)return;
+        const next=normaliseTitle(raw);
+        link.href="#";link.dataset.title=next;link.style.cursor="pointer";
+        link.addEventListener("click",e=>{
+          e.preventDefault();e.stopPropagation();
+          if(gameOver)return;
+          moves++;$("moves").textContent=moves;loadArticle(next,true);
+        });
+      }else{
+        link.removeAttribute("href");link.style.cssText="cursor:default;pointer-events:none;text-decoration:none";
+      }
+    });
+    const h=$("article").querySelector("h1");if(h)h.remove();
+    if(current.toLowerCase()===target.toLowerCase())win();
+  }catch(err){
+    $("article").innerHTML='<div class="loading"><p>Could not load this Wikipedia article.</p><button onclick="loadArticle(current,false)">Try again</button></div>';
+    console.error(err);
+  }
+}
+
+/* ---------- finish ---------- */
+function finishUI(won,isRestore){
+  gameOver=true;clearInterval(timer);restored=!!isRestore;lastWon=won;
+  if(!isRestore&&document.visibilityState==="visible"&&lastActiveTime)accumulatedTime+=Date.now()-lastActiveTime;
+  finalSec=Math.floor(accumulatedTime/1000);
+  $("success").classList.toggle("gaveup",!won);
+  $("resultTitle").textContent=won?"🎉 YOU MADE IT!":"ROUTE REVEALED";
+  $("result").textContent=won?`${start} → ${target}`:`Jumped straight to ${target}. No shame — some pairs are brutal.`;
+  $("rLinks").textContent=moves;$("rTime").textContent=formatTime(finalSec);$("rBacks").textContent=backs;
+  $("success").classList.add("show");
+  if(mode==="daily")localStorage.setItem("wikiLinksDaily",JSON.stringify({day:dayString(),start,target,moves,seconds:finalSec,won,done:true,path,backs}));
+  submitted=isRestore;   // restored games are never re-sent
+  showIdentity();
+  $("success").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function submitResult(){
+  if(submitted)return;
+  const i=getIdentity();if(!i.name||!i.dept)return;
+  submitted=true;
+  post({student_name:i.name,department:i.dept,correct:lastWon?1:0,wrong:lastWon?0:1,time_spent:finalSec,quest_id:`Wiki Links: ${start} → ${target}`,cheat_count:0,cheat_events:[]});
+}
+function win(){
+  finishUI(true);
+  if(mode==="practice"){const o=getBest();if(o===null||moves<o){localStorage.setItem("wikiLinksBest",moves);showBest()}}
+}
+
+/* ---------- sharing ---------- */
+function label(){return mode==="daily"?`Wiki Links #${dayNumber()}`:"Wiki Links (new)"}
+function buildShareText(withPath){
+  const sq=(lastWon?"🟩":"🟥").repeat(Math.min(moves,10));
+  let t=`${label()}\n${start} → ${target}\n${lastWon?moves:moves+"+"} links, ${formatTime(finalSec)}, ${backs} backtrack${backs===1?"":"s"}\n${sq}`;
+  if(withPath)t+=`\n\nMy path:\n`+path.map((p,i)=>`${i}. ${p}`).join("\n");
+  return t+`\n\n🎯 Try it: https://${SITE}`;
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.lineTo(x+w-r,y);c.quadraticCurveTo(x+w,y,x+w,y+r);c.lineTo(x+w,y+h-r);c.quadraticCurveTo(x+w,y+h,x+w-r,y+h);c.lineTo(x+r,y+h);c.quadraticCurveTo(x,y+h,x,y+h-r);c.lineTo(x,y+r);c.quadraticCurveTo(x,y,x+r,y);c.closePath()}
+function fit(c,text,maxW,size,font){
+  do{c.font=`${font.replace("#",size)}`;size-=2}while(c.measureText(text).width>maxW&&size>12);
+  return text;
+}
+function makeImage(withPath){
+  const cv=$("statsCanvas"),c=cv.getContext("2d"),W=1080,P=64,G=20,COLW=(W-P*2-G)/2;
+  const rows=Math.ceil(path.length/2),ROW=76;
+  const H=690+(withPath?90+rows*ROW:0)+110;
+  cv.width=W;cv.height=H;
+  const id=getIdentity();
+  c.fillStyle="#f5efe0";c.fillRect(0,0,W,H);
+  c.strokeStyle="rgba(180,140,80,.07)";c.lineWidth=1;
+  for(let i=-H;i<W+H;i+=28){c.beginPath();c.moveTo(i,0);c.lineTo(i+H,H);c.stroke()}
+  const bar=c.createLinearGradient(0,0,W,0);bar.addColorStop(0,"#b8860b");bar.addColorStop(.5,"#ffd700");bar.addColorStop(1,"#b8860b");
+  c.fillStyle=bar;c.fillRect(0,0,W,12);c.fillRect(0,H-12,W,12);
+  c.textAlign="center";
+  c.font="bold 78px Rajdhani, sans-serif";c.fillStyle="#1a1206";c.fillText("🔗 WIKI LINKS",W/2,110);
+  c.font="28px Nunito, sans-serif";c.fillStyle="#8b6914";c.fillText(label().toUpperCase(),W/2,160);
+  // route
+  const route=`${start} → ${target}`;
+  fit(c,route,W-P*2,44,"bold #px Rajdhani, sans-serif");
+  c.fillStyle="#1a1206";c.fillText(route,W/2,225);
+  if(id.name){c.font="bold 34px Rajdhani, sans-serif";c.fillStyle="#b8860b";c.fillText(`👤  ${id.name}  ·  ${id.dept||""}`,W/2,280)}
+  // score box
+  const sy=320,sh=170,g=c.createLinearGradient(P,sy,W-P,sy+sh);g.addColorStop(0,"#2a1d00");g.addColorStop(1,"#1a1206");
+  c.fillStyle="rgba(160,120,40,.15)";rr(c,P+6,sy+6,W-P*2,sh,20);c.fill();
+  c.fillStyle=g;rr(c,P,sy,W-P*2,sh,20);c.fill();
+  c.strokeStyle="#b8860b";c.lineWidth=2;rr(c,P,sy,W-P*2,sh,20);c.stroke();
+  c.font="bold 96px Rajdhani, sans-serif";c.fillStyle=lastWon?"#ffd700":"#ff8a80";c.fillText(lastWon?moves:moves+"+",W/2,sy+108);
+  c.font="24px Nunito, sans-serif";c.fillStyle="#c8a84b";c.fillText(lastWon?"L I N K S   T O   G O A L":"L I N K S   S O   F A R",W/2,sy+143);
+  // pills
+  const pw=(W-P*2-G*2)/3,py=530,ph=110;
+  [["TIME",formatTime(finalSec),"#1565c0"],["BACKTRACKS",backs,"#e65100"],["RESULT",lastWon?"Reached":"Gave up",lastWon?"#1e6b3a":"#b71c1c"]].forEach((m,i)=>{
+    const x=P+i*(pw+G);
+    c.fillStyle="rgba(160,120,40,.12)";rr(c,x+4,py+4,pw,ph,16);c.fill();
+    c.fillStyle="#fffdf5";rr(c,x,py,pw,ph,16);c.fill();
+    c.strokeStyle=m[2];c.lineWidth=2;rr(c,x,py,pw,ph,16);c.stroke();
+    c.fillStyle=m[2];c.font="bold 54px Rajdhani, sans-serif";c.fillText(String(m[1]),x+pw/2,py+64);
+    c.font="20px Nunito, sans-serif";c.fillStyle="#8b6914";c.fillText(m[0],x+pw/2,py+95);
+  });
+  // path
+  if(withPath){
+    const ly=700;
+    c.strokeStyle="rgba(184,134,11,.3)";c.lineWidth=1.5;c.beginPath();c.moveTo(P,ly-30);c.lineTo(W-P,ly-30);c.stroke();
+    c.font="bold 26px Nunito, sans-serif";c.fillStyle="#8b6914";c.fillText("M Y   P A T H",W/2,ly+8);
+    path.forEach((t,i)=>{
+      const col=i<rows?0:1,r=col?i-rows:i,x=P+col*(COLW+G),y=ly+40+r*ROW,h=ROW-12;
+      const end=i===path.length-1,first=i===0,acc=end?(lastWon?"#1e8a4a":"#e53935"):first?"#b8860b":"#1565c0";
+      c.fillStyle="rgba(160,120,40,.1)";rr(c,x+3,y+3,COLW,h,12);c.fill();
+      c.fillStyle="#fffdf5";rr(c,x,y,COLW,h,12);c.fill();
+      c.fillStyle=acc;rr(c,x,y,6,h,12);c.fill();
+      c.strokeStyle="rgba(184,134,11,.25)";c.lineWidth=1.5;rr(c,x,y,COLW,h,12);c.stroke();
+      c.textAlign="left";c.font="bold 26px Rajdhani, sans-serif";c.fillStyle=acc;c.fillText(String(i),x+22,y+h*.64);
+      fit(c,t,COLW-100,30,"bold #px Rajdhani, sans-serif");
+      c.fillStyle="#1a1206";c.fillText(t,x+64,y+h*.64);
+      c.textAlign="center";
+    });
+  }
+  c.textAlign="center";c.font="24px Nunito, sans-serif";c.fillStyle="#8b6914";c.fillText(SITE,W/2,H-46);
+  return cv;
+}
+async function shareResult(withPath){
+  const cv=makeImage(withPath),text=buildShareText(withPath);
+  cv.toBlob(async blob=>{
+    if(!blob){copyText(text);return}
+    const file=new File([blob],"wiki-links-result.png",{type:"image/png"});
+    if(navigator.share&&navigator.canShare?.({files:[file]})){
+      try{await navigator.share({title:"Wiki Links",text,files:[file]});return}catch(e){if(e.name==="AbortError")return}
+    }
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="wiki-links-result.png";a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    copyText(text,true);
+  },"image/png");
+}
+async function copyText(text,quiet){
+  const b=$("shareBtn");
+  try{await navigator.clipboard.writeText(text);b.textContent="✅ Copied"}catch{b.textContent="Copy failed"}
+  setTimeout(()=>b.textContent="📋 Copy text",2000);
+}
+$("imgBtn").addEventListener("click",()=>shareResult(false));
+$("pathBtn").addEventListener("click",()=>shareResult(true));
+$("shareBtn").addEventListener("click",()=>copyText(buildShareText(true)));
+
+/* ---------- thinking journal ---------- */
+const NOTES_KEY="wikiLinksNotes";
+let notes=null;
+function notesKey(){return path.join(">")+"|"+target}
+function loadNotes(){
+  let all={};try{all=JSON.parse(localStorage.getItem(NOTES_KEY)||"{}")}catch(e){}
+  const n=all[notesKey()]||{},old=n.steps||[];
+  const steps=Array.from({length:Math.max(path.length-1,0)},(_,i)=>({d:(old[i]&&old[i].d)||"",c:(old[i]&&old[i].c)||""}));
+  return{steps,connect:n.connect||"",reflect:n.reflect||""};
+}
+function saveNotes(){
+  try{
+    const all=JSON.parse(localStorage.getItem(NOTES_KEY)||"{}");
+    delete all[notesKey()];all[notesKey()]=notes;
+    const keys=Object.keys(all);if(keys.length>30)delete all[keys[0]];
+    localStorage.setItem(NOTES_KEY,JSON.stringify(all));
+  }catch(e){}
+}
+function wc(t){t=(t||"").trim();return t?t.split(/\s+/).length:0}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function slug(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
+function wikiUrl(t){return "https://en.wikipedia.org/wiki/"+encodeURIComponent(t.replace(/ /g,"_"))}
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+
+function countAnswered(){
+  let n=0;notes.steps.forEach(s=>{if(s.d.trim())n++;if(s.c.trim())n++});
+  if(notes.connect.trim())n++;if(notes.reflect.trim())n++;return n;
+}
+function updateMeter(){
+  const total=notes.steps.length*2+2,a=countAnswered(),pct=Math.round(a/total*100);
+  const msg=pct===0?"Start anywhere, there are no wrong thoughts":pct<30?"Just warming up":pct<70?"Your thinking is taking shape":pct<100?"Almost a full thought map":"Full creative-critical thinking! 🌟";
+  $("jmeter").innerHTML=`<div class="jbar"><i style="width:${pct}%"></i></div><div class="jmeter-txt">${a} / ${total} prompts answered · ${msg}</div>`;
+}
+function field(icon,stage,prompt,get,set,rows){
+  const w=el("label","jfield");
+  const h=el("div","jstage");h.append(el("span",null,icon),el("span",null,stage));
+  const t=document.createElement("textarea");
+  t.rows=rows||2;t.value=get();t.placeholder="Type your thinking…";
+  t.addEventListener("input",()=>{set(t.value);saveNotes();updateMeter()});
+  w.append(h,el("div","jprompt",prompt),t);return w;
+}
+function buildJournal(){
+  const j=$("journal");j.textContent="";
+  notes=loadNotes();
+  j.append(el("h3","jtitle","🧠 Your thinking trail"));
+  j.append(el("p","jintro","Walk back through your route, hop by hop. Tell the story of how you thought, not just where you clicked. Your notes save as you type."));
+  const m=el("div");m.id="jmeter";j.append(m);
+  notes.steps.forEach((s,i)=>{
+    const c=el("div","jstep"),hd=el("div","jhead");
+    hd.append(el("span","jnum",String(i+1)),el("span","jhop",path[i]+" → "+path[i+1]));
+    c.append(hd,
+      field("🔭","DIVERGE",`On “${path[i]}”, which other doors could you have opened? Include the unlikely ones.`,()=>s.d,v=>{s.d=v}),
+      field("🎯","CONVERGE",`Why did you commit to “${path[i+1]}”? How did it bring you closer to ${target}?`,()=>s.c,v=>{s.c=v}));
+    j.append(c);
+  });
+  const fin=el("div","jstep jfinal"),fh=el("div","jhead");
+  fh.append(el("span","jnum","★"),el("span","jhop","The big picture"));
+  fin.append(fh,
+    field("🧩","CONNECT","Which two ideas on your route felt furthest apart? How did your path make them touch?",()=>notes.connect,v=>{notes.connect=v},3),
+    field("🪞","REFLECT","Where did you widen your thinking? What new knowledge did you gain on the way?",()=>notes.reflect,v=>{notes.reflect=v},3));
+  j.append(fin);
+  const dl=el("button","jdl","⬇️ Download my journey (HTML)");
+  dl.addEventListener("click",downloadJourney);
+  j.append(dl,el("p","jhint","Upload the downloaded file to your Pages of Progress repository on GitHub."));
+  updateMeter();
+}
+
+function buildJourneyHTML(){
+  const id=getIdentity(),n=path.length,hops=n-1;
+  const dN=notes.steps.filter(s=>wc(s.d)>0).length,cN=notes.steps.filter(s=>wc(s.c)>0).length;
+  const words=notes.steps.reduce((a,s)=>a+wc(s.d)+wc(s.c),0)+wc(notes.connect)+wc(notes.reflect);
+  const pct=(a,b)=>b?Math.min(100,Math.round(a/b*100)):0;
+  const stages=[["🔭","Diverge",pct(dN,hops)],["🎯","Converge",pct(cN,hops)],["🧩","Connect",pct(wc(notes.connect),15)],["🪞","Reflect",pct(wc(notes.reflect),20)]];
+  const badges=[
+    ["🏁","Goal Reached","Reach the goal article",lastWon],
+    ["⚡","Short & Sweet","Reach the goal in 5 links or fewer",lastWon&&moves<=5],
+    ["🔄","Course Corrector","Backtrack at least once and still make it",lastWon&&backs>0],
+    ["🔭","Wide Lens","Note the other doors on 3 hops (or every hop if fewer)",hops>0&&dN>=Math.min(3,hops)],
+    ["🎯","Decisive","Explain every link you chose",hops>0&&cN===hops],
+    ["🧩","Connector","Write 15+ words on your best connection",wc(notes.connect)>=15],
+    ["🪞","Reflective Thinker","Write 20+ words of reflection",wc(notes.reflect)>=20],
+    ["✍️","Chronicler","Write 150+ words in total",words>=150]
+  ];
+  const earned=badges.filter(b=>b[3]).length;
+  const note=(icon,lbl,txt)=>txt.trim()
+    ?`<div class="note"><div class="nl">${icon} ${lbl}</div><p>${esc(txt)}</p></div>`
+    :`<div class="note empty"><div class="nl">${icon} ${lbl}</div><p>No thoughts recorded here.</p></div>`;
+  let trail="";
+  path.forEach((t,i)=>{
+    const kind=i===0?"start":i===n-1?"goal":"mid";
+    const dot=kind==="start"?"🚩":kind==="goal"?(lastWon?"🏆":"🎯"):i;
+    const tag=kind==="start"?"START":kind==="goal"?"GOAL":"STOP "+i;
+    trail+=`<section class="node ${kind}" style="--d:${(i*0.12).toFixed(2)}s"><div class="dot">${dot}</div><div class="card"><small>${tag}</small><a href="${esc(wikiUrl(t))}" target="_blank" rel="noopener">${esc(t)}</a></div></section>`;
+    if(i<hops){
+      const s=notes.steps[i];
+      trail+=`<section class="hop" style="--d:${(i*0.12+0.06).toFixed(2)}s"><div class="hophead">Hop ${i+1}: <b>${esc(t)}</b> → <b>${esc(path[i+1])}</b></div>${note("🔭","DIVERGE · the doors I saw",s.d)}${note("🎯","CONVERGE · why this link",s.c)}</section>`;
+    }
+  });
+  const css=`:root{--bg:#f7f1e3;--card:#fbf7ee;--ink:#24201c;--muted:#6b5f52;--line:rgba(36,32,28,.2);--accent:#a9812f;--hi:#7a0019;--chip:#efe6d0}
+@media(prefers-color-scheme:dark){:root{--bg:#080e1a;--card:#0d1525;--ink:#e8f0fe;--muted:#7a93b8;--line:#22324d;--accent:#ffd700;--hi:#7fc8ff;--chip:#111e30}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Nunito,-apple-system,"Segoe UI",sans-serif;padding-bottom:40px}
+.wrap{max-width:820px;margin:auto;padding:18px}
+.hero{background:linear-gradient(135deg,#2a1d00,#1a1206);border:2px solid #b8860b;border-radius:22px;padding:26px 22px;text-align:center;color:#fff3c4;box-shadow:0 12px 40px rgba(0,0,0,.25);animation:rise .6s both}
+.logo{font:700 2.6rem Rajdhani,sans-serif;letter-spacing:2px;color:#ffd700}
+.edition{letter-spacing:4px;font-size:.75rem;color:#c8a84b}
+.route{font:700 1.5rem Rajdhani,sans-serif;margin:10px 0 4px;overflow-wrap:anywhere}
+.who{color:#ffd700;font:700 1.15rem Rajdhani,sans-serif;letter-spacing:1px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.stat{background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.35);border-radius:14px;padding:10px 4px}
+.stat b{display:block;font:700 1.9rem/1 Rajdhani,sans-serif;color:#ffd700}
+.stat span{font-size:.65rem;letter-spacing:1.5px;color:#c8a84b}
+h2{font:700 1.5rem Rajdhani,sans-serif;letter-spacing:1px;color:var(--accent);margin:30px 0 10px}
+.stages{display:grid;gap:10px}
+.stage{display:grid;grid-template-columns:120px 1fr 44px;gap:10px;align-items:center;font-weight:700}
+.meter{height:12px;border-radius:99px;background:var(--chip);border:1px solid var(--line);overflow:hidden}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--hi));border-radius:99px;animation:grow 1.2s ease-out both}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.badge{border:1px solid var(--accent);background:var(--card);border-radius:14px;padding:12px;text-align:center}
+.bi{font-size:1.8rem}
+.badge b{display:block}
+.badge small{color:var(--muted);line-height:1.3;display:block}
+.badge.locked{filter:grayscale(1);opacity:.5;border-style:dashed}
+.trail{position:relative;margin-top:8px;padding-left:34px}
+.trail::before{content:"";position:absolute;left:17px;top:10px;bottom:10px;width:4px;border-radius:4px;background:linear-gradient(var(--accent),var(--hi))}
+.node{position:relative;margin:0 0 14px;animation:rise .6s var(--d) both}
+.dot{position:absolute;left:-34px;top:6px;width:38px;height:38px;border-radius:50%;background:var(--card);border:3px solid var(--accent);display:grid;place-items:center;font:700 1rem Rajdhani,sans-serif;z-index:1}
+.node .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 16px;margin-left:12px}
+.node small{display:block;letter-spacing:2px;font-size:.65rem;color:var(--muted)}
+.node a{font:700 1.3rem Rajdhani,sans-serif;color:var(--hi);text-decoration:none;overflow-wrap:anywhere}
+.node a:hover{text-decoration:underline}
+.node.goal .dot{background:var(--accent);animation:pulse 2s infinite}
+.node.goal .card{border-color:var(--accent)}
+.hop{margin:0 0 14px 12px;padding:12px 14px;border-left:4px dashed var(--accent);background:var(--chip);border-radius:0 14px 14px 0;animation:rise .6s var(--d) both}
+.hophead{font-size:.9rem;color:var(--muted)}
+.note{margin-top:8px}
+.nl{font:700 .85rem Rajdhani,sans-serif;letter-spacing:1.2px;color:var(--accent)}
+.note p{margin:2px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.note.empty p{color:var(--muted);font-style:italic}
+.final{background:var(--card);border:2px solid var(--accent);border-radius:18px;padding:4px 18px 16px;animation:rise .6s both}
+footer{margin-top:30px;text-align:center;color:var(--muted);font-size:.8rem}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@keyframes grow{from{width:0}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,.55)}50%{box-shadow:0 0 0 10px rgba(255,215,0,0)}}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}.stage{grid-template-columns:116px 1fr 40px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}`;
+  const who=id.name?`👤 ${esc(id.name)}${id.dept?" · "+esc(id.dept):""}`:"";
+  const date=new Date().toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"});
+  return `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wiki Links Journey: ${esc(start)} → ${esc(target)}${id.name?" · "+esc(id.name):""}</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>${css}</style></head><body><div class="wrap">
+<header class="hero"><div class="logo">🔗 WIKI LINKS</div><div class="edition">MY THINKING JOURNEY · ${esc(label().toUpperCase())}</div>
+<div class="route">${esc(start)} → ${esc(target)}</div><div class="who">${who}</div>
+<div class="stats"><div class="stat"><b>${lastWon?moves:moves+"+"}</b><span>LINKS</span></div><div class="stat"><b>${formatTime(finalSec)}</b><span>TIME</span></div><div class="stat"><b>${backs}</b><span>BACKTRACKS</span></div><div class="stat"><b>${words}</b><span>WORDS WRITTEN</span></div></div></header>
+<h2>🧠 Thinking skills</h2>
+<div class="stages">${stages.map(s=>`<div class="stage"><span>${s[0]} ${s[1]}</span><div class="meter"><i style="width:${s[2]}%"></i></div><span>${s[2]}%</span></div>`).join("")}</div>
+<h2>🏅 Badges · ${earned} of ${badges.length}</h2>
+<div class="badges">${badges.map(b=>`<div class="badge${b[3]?"":" locked"}"><div class="bi">${b[3]?b[0]:"🔒"}</div><b>${b[1]}</b><small>${b[2]}</small></div>`).join("")}</div>
+<h2>🗺️ My journey map</h2>
+<div class="trail">${trail}</div>
+<h2>🌟 The big picture</h2>
+<div class="final">${note("🧩","CONNECT · my best connection",notes.connect)}${note("🪞","REFLECT · how my thinking grew",notes.reflect)}</div>
+<footer>Made with Wiki Links · ${esc(SITE)} · ${esc(date)}<br>Diverge → Converge → Connect → Reflect</footer>
+</div></body></html>`;
+}
+function downloadJourney(){
+  const id=getIdentity(),html=buildJourneyHTML();
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([html],{type:"text/html;charset=utf-8"}));
+  a.download=`wiki-links-${slug(id.name)||"journey"}-${slug(start)}-to-${slug(target)}.html`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+$("journalBtn").addEventListener("click",()=>{
+  const j=$("journal"),b=$("journalBtn");
+  if(j.hidden){buildJournal();j.hidden=false;b.textContent="🙈 Hide my thinking";j.scrollIntoView({behavior:"smooth",block:"nearest"})}
+  else{j.hidden=true;b.innerHTML="📝 Write my thinking &amp; download HTML"}
+});
+
+/* ---------- modes / new game ---------- */
+function setMode(next){
+  mode=next;
+  $("modeDaily").classList.toggle("active",mode==="daily");
+  $("modePractice").classList.toggle("active",mode==="practice");
+  $("modeLabel").textContent=mode==="daily"?"Today's route":"Get from";
+  showBest();newGame();
+}
+$("modeDaily").addEventListener("click",()=>mode!=="daily"&&setMode("daily"));
+$("modePractice").addEventListener("click",()=>mode!=="practice"&&setMode("practice"));
+
+async function newGame(){
+  gameOver=false;restored=false;submitted=false;
+  $("success").classList.remove("show");
+  $("journal").hidden=true;$("journalBtn").innerHTML="📝 Write my thinking &amp; download HTML";
+  moves=0;backs=0;path=[];
+  $("moves").textContent="0";$("time").textContent="0:00";showBest();
+  if(mode==="daily"){
+    [start,target]=dailyPair();
+    const s=JSON.parse(localStorage.getItem("wikiLinksDaily")||"null");
+    if(s&&s.day===dayString()&&s.start===start&&s.target===target&&s.done){
+      current=start;moves=s.moves;backs=s.backs||0;
+      path=s.path||[start,target];
+      $("start").textContent=start;$("target").textContent=target;
+      $("moves").textContent=moves;$("time").textContent=formatTime(s.seconds);
+      accumulatedTime=s.seconds*1000;lastActiveTime=Date.now();
+      await loadArticle(path[0],false);
+      current=target;
+      finishUI(s.won,true);
+      return;
+    }
+  }else{[start,target]=randomPair()}
+  current=start;
+  $("start").textContent=start;$("target").textContent=target;
+  startTimer();
+  await loadArticle(start,false);
+}
+</script>
+</body>
+</html>
