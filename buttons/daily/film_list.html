@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>My Favourites</title>
+<script src="../../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf5e4;--c:#fffdf5;--l:#e8d8a8;--g:#b8891f;--gd:#8a6410;--t:#3b2f16;--m:#7d6d4a}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg) radial-gradient(ellipse at 15% 0,#f3dfa0 0,transparent 55%);color:var(--t);min-height:100dvh}
+.scr{display:none}.scr.on{display:block}
+.w{max-width:560px;margin:auto;padding:calc(env(safe-area-inset-top) + 18px) 14px 120px}
+h1{font:400 2.6rem/1 'Bebas Neue',Impact,sans-serif;letter-spacing:.04em;color:var(--gd)}
+.card{background:var(--c);border:1px solid var(--l);border-radius:10px;padding:14px;margin-top:14px;box-shadow:0 2px 10px #b8891f14}
+label{display:block;font-size:.8rem;color:var(--m);margin:12px 0 5px}
+input{width:100%;font:inherit;font-size:16px;padding:12px;border-radius:8px;border:1px solid var(--l);background:#fff;color:var(--t);min-height:46px}
+input:focus{outline:2px solid var(--g);border-color:var(--g)}
+.chip{display:flex;gap:12px;align-items:center}
+.chip img{width:46px;height:46px;border-radius:50%;border:2px solid var(--g);object-fit:cover}
+.note{border-left:3px solid var(--g);background:#f8ecc4;padding:12px;font-size:.85rem;line-height:1.5;margin-top:14px;border-radius:0 8px 8px 0}
+.btn{width:100%;min-height:50px;border:0;border-radius:10px;background:linear-gradient(135deg,#dcb445,#b8891f);color:#2b2008;font:600 1rem Inter,sans-serif;margin-top:16px}
+.btn:active{transform:scale(.98)}.btn.alt{background:transparent;color:var(--t);border:1px solid var(--l)}.btn.ink{background:var(--t);color:var(--bg)}
+.add{min-height:68px;font-size:1.15rem;margin-top:14px;box-shadow:0 6px 18px #b8891f55}
+.pbar{height:6px;background:var(--l);border-radius:3px;margin:12px 0 4px;overflow:hidden}.pbar div{height:100%;background:var(--g);transition:width .3s}
+.meta{display:flex;justify-content:space-between;font-size:.78rem;color:var(--m)}
+.en{border:1px solid var(--l);border-radius:8px;padding:10px;margin-top:10px;background:var(--c)}
+.eh{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:.92rem}
+.x{min-width:40px;min-height:40px;margin:-8px -6px 0 0;background:none;border:0;color:var(--m);font-size:1.4rem}
+.st{display:flex;gap:2px;margin-top:6px}
+.st button{flex:1;min-height:44px;background:none;border:0;font-size:1.8rem;color:#e0d2a6}.st button.on{color:var(--g)}
+.rs button{display:block;width:100%;text-align:left;background:var(--c);border:1px solid var(--l);border-radius:8px;padding:10px;margin-top:6px;color:var(--t);font:600 .9rem Inter,sans-serif}
+.rs button small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:400;color:var(--m);margin-top:3px}
+.rs p{font-size:.8rem;color:var(--m);margin-top:8px}
+#sbx{margin-top:14px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fbf5e4ee;backdrop-filter:blur(8px);border-top:1px solid var(--l);padding:10px 14px calc(env(safe-area-inset-bottom) + 10px);display:flex;gap:10px;z-index:5;max-width:560px;margin:auto}
+.bar .btn{margin:0}#bk{flex:1}#nx{flex:2}
+.toast{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:50%;transform:translate(-50%,-90px);background:#9c2a1f;color:#fff;padding:12px 18px;border-radius:10px;z-index:9;font-size:.85rem;transition:.3s;width:max-content;max-width:90vw;text-align:center}
+.toast.s{transform:translate(-50%,0)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.stats div{background:var(--c);border:1px solid var(--l);border-radius:10px;padding:14px;text-align:center}
+.stats b{display:block;font:400 2rem 'Bebas Neue',sans-serif;color:var(--g)}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="scr on" id="intro"><div class="w">
+  <h1>My Favourites</h1>
+  <p style="color:var(--m);margin-top:6px;line-height:1.5">Sixteen categories, one page each. Search a title, write one crisp line, and give it a star rating. You finish with a prestigious page that carries your name.</p>
+  <div class="card chip"><img id="av" alt=""><div><b id="gn">Loading…</b><br><span id="gd" style="font-size:.8rem;color:var(--m)"></span></div></div>
+  <div class="card" style="margin-top:10px">
+    <label for="full" style="margin-top:0">Full name as on your college ID card</label>
+    <input id="full" placeholder="e.g. Priya Lakshmi S" autocomplete="name">
+  </div>
+  <div class="note"><b>Before you begin:</b> at the end you will download an HTML file. Upload that file to your <b>Pages of Progress</b> repository. Your work is not submitted until it is there.</div>
+  <button class="btn" id="go">Begin</button>
+</div></div>
+
+<div class="scr" id="app"><div class="w">
+  <div class="meta"><span id="pn"></span><span id="st"></span></div>
+  <div class="pbar"><div id="pf"></div></div>
+  <h1 id="pt" style="margin-top:10px"></h1>
+  <div id="pb"></div>
+</div>
+<div class="bar"><button class="btn alt" id="bk">Back</button><button class="btn ink" id="nx">Skip</button></div></div>
+
+<div class="scr" id="end"><div class="w">
+  <h1>Your collection is ready.</h1>
+  <p id="es" style="color:var(--m);margin-top:6px"></p>
+  <div class="stats"><div><b id="ew">0</b>words</div><div><b id="et">0</b>titles</div></div>
+  <div class="note">Download your page, then upload the file to your <b>Pages of Progress</b> repository.</div>
+  <button class="btn" id="dl">Download my favourites page</button>
+</div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const EDGE="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+const G=[['drama','Drama','🎬','drama film','f'],['comedy','Comedy','😂','comedy film','f'],['thriller','Thriller / Mystery','🔪','(thriller OR mystery) film','f'],['horror','Horror','👻','horror film','f'],['romance','Romance','❤️','romance film','f'],['action','Action / Adventure','⚔️','(action OR adventure) film','f'],['hist','Historical / Period','🏛️','(historical OR period) film','f'],['sports','Sports','🏆','sports film','f'],['musical','Musical','🎵','musical film','f'],['scifi','Sci-Fi','🚀','science fiction film','f'],['bio','Biopic','🎭','biographical film','f'],['doc','Documentary','🎞️','documentary film','f'],['anim','Animated','🐭','animated film','f'],['tv','TV Series','📺','television series','t'],['mot','Motivational','🔥','film','f'],['fav','My Most Favourite Movies','⭐','film','f']];
+const RX={f:/English-language films?$/i,t:/English-language television/i};
+const S={};G.forEach(g=>S[g[0]]=[]);
+let FULL='',DEPT='',USER='',start=0,words=0,pg=0,sb=true;
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('s');setTimeout(()=>t.classList.remove('s'),2800)}
+function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));scrollTo(0,0)}
+
+addEventListener('DOMContentLoaded',()=>{
+  const g=window.GH;
+  USER=g?(g.name||g.username||'Student'):(localStorage.getItem('questPlayerName')||'Test Student');
+  DEPT=g?(g.dept||'Department Unspecified'):(localStorage.getItem('questPlayerDept')||'CSE');
+  $('#gn').textContent=USER;$('#gd').textContent='GitHub login · '+DEPT;
+  $('#av').src=(g&&g.avatar)||'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E';
+});
+$('#go').onclick=()=>{
+  FULL=$('#full').value.trim();
+  if(FULL.length<4)return toast('Enter your full name exactly as on your ID card');
+  start=Date.now();pg=0;show('app');render();
+};
+
+function vis(){$('#sbx').style.display=sb?'block':'none';$('#addb').style.display=sb?'none':'block'}
+function render(){
+  const [id,t,ic]=G[pg];
+  $('#pn').textContent=`Category ${pg+1} of ${G.length}`;
+  $('#pf').style.width=((pg+1)/G.length*100)+'%';
+  $('#pt').textContent=`${ic} ${t}`;
+  $('#pb').innerHTML=`<div id="l-${id}"></div><div id="sbx"><input id="q-${id}" placeholder="Search a title…" autocomplete="off"><div class="rs" id="r-${id}"></div></div><button class="btn add" id="addb">＋ Add one more title</button>`;
+  let tm;$('#q-'+id).oninput=e=>{clearTimeout(tm);const v=e.target.value.trim();$('#r-'+id).innerHTML='';if(v.length>1)tm=setTimeout(()=>search(id,v),450)};
+  $('#addb').onclick=()=>{sb=true;vis();$('#q-'+id).focus()};
+  sb=!S[id].length;list(id);vis();upd();
+}
+$('#bk').onclick=()=>{if(pg){pg--;render();scrollTo(0,0)}};
+$('#nx').onclick=()=>{
+  const bad=S[G[pg][0]].find(e=>!e.r.trim()||!e.s);
+  if(bad)return toast(`Add a one-line review and star rating for “${bad.t}”`);
+  if(pg<G.length-1){pg++;render();scrollTo(0,0)}else finish();
+};
+
+async function search(id,v){
+  const [,,,k,ty]=G.find(g=>g[0]===id),box=$('#r-'+id);
+  box.innerHTML='<p>Searching English titles…</p>';
+  let res=[];
+  try{
+    const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=12&gsrsearch='+encodeURIComponent(v+' '+k)+'&prop=categories|extracts&cllimit=max&exintro=1&explaintext=1&exsentences=1&exlimit=max';
+    const r=await(await fetch(u)).json();
+    res=Object.values(r.query?.pages||{}).sort((a,b)=>a.index-b.index).filter(p=>!/^List of/i.test(p.title)&&(p.categories||[]).some(c=>RX[ty].test(c.title))).slice(0,6);
+  }catch(e){box.innerHTML='<p>Search failed. Check your connection, or add the title as typed.</p>'}
+  const q=$('#q-'+id);if(!q||q.value.trim()!==v)return;
+  if(res.length||box.querySelector('p')?.textContent.startsWith('Searching'))box.innerHTML='';
+  res.forEach(p=>{const b=document.createElement('button');b.innerHTML=`${esc(p.title)}<small>${esc(p.extract||'')}</small>`;b.onclick=()=>add(id,p.title);box.appendChild(b)});
+  if(!res.length)box.insertAdjacentHTML('beforeend','<p>No English match found. Try the exact title, or add it as typed.</p>');
+  const m=document.createElement('button');m.textContent=`+ Add “${v}” as typed`;m.onclick=()=>add(id,v);box.appendChild(m);
+}
+
+function add(id,t){
+  if(S[id].some(e=>e.t===t)){toast('Already in your list');return}
+  S[id].push({t,r:'',s:0});
+  $('#q-'+id).value='';$('#r-'+id).innerHTML='';
+  sb=false;list(id);vis();upd();
+}
+function list(id){
+  const box=$('#l-'+id);box.innerHTML='';
+  S[id].forEach((e,i)=>{
+    const d=document.createElement('div');d.className='en';
+    d.innerHTML=`<div class="eh"><b>${esc(e.t)}</b><button class="x" aria-label="Remove">×</button></div><input maxlength="120" placeholder="Your crisp one-line review" value="${esc(e.r)}"><div class="st">${[1,2,3,4,5].map(n=>`<button aria-label="${n} star">★</button>`).join('')}</div>`;
+    const sts=[...d.querySelectorAll('.st button')];
+    const paint=()=>sts.forEach((b,j)=>b.classList.toggle('on',j<e.s));paint();
+    sts.forEach((b,j)=>b.onclick=()=>{e.s=j+1;paint()});
+    d.querySelector('input').oninput=ev=>{e.r=ev.target.value;upd()};
+    d.querySelector('.x').onclick=()=>{S[id].splice(i,1);list(id);if(!S[id].length){sb=true;vis()}upd()};
+    box.appendChild(d);
+  });
+}
+function upd(){
+  words=0;let n=0;
+  G.forEach(([id])=>{n+=S[id].length;S[id].forEach(e=>words+=e.r.trim().split(/\s+/).filter(Boolean).length)});
+  $('#st').textContent=`✍ ${words} words · ${n} titles`;
+  $('#nx').textContent=pg===G.length-1?'Finish':(S[G[pg][0]].length?'Next':'Skip');
+  return n;
+}
+
+function finish(){
+  const n=upd();
+  if(!n)return toast('Add at least one title in any category');
+  for(let i=0;i<G.length;i++){const bad=S[G[i][0]].find(e=>!e.r.trim()||!e.s);if(bad){pg=i;render();return toast(`Add a one-line review and star rating for “${bad.t}”`)}}
+  const secs=Math.round((Date.now()-start)/1000);
+  $('#es').textContent=FULL+' · '+DEPT;$('#ew').textContent=words;$('#et').textContent=n;show('end');
+  fetch(EDGE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_name:FULL,github_user:USER,department:DEPT,correct:words,wrong:0,time_spent:secs,quest_id:'Quest 38',cheat_count:0,cheat_events:[]})}).catch(()=>{});
+}
+
+/* ---------- EXPORT ---------- */
+const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h};
+function page(){
+  let wall='',stars=[],i=0;
+  G.forEach(([id,t,ic])=>{
+    if(!S[id].length)return;
+    wall+=`<section class="gn"><h2 class="rv">${ic} ${t}</h2><div class="grid">`+S[id].map(e=>{
+      const m=e.t.match(/^(.*?)\s*\((.*)\)$/),ti=m?m[1]:e.t,sub=m?m[2]:t;stars.push(e.s);
+      return `<article class="p rv" style="--h:${hue(e.t)};transition-delay:${(i++%2)*.15}s"><small>${esc(sub)}</small><h3>${esc(ti)}</h3><div class="s">${'★'.repeat(e.s)}<i>${'★'.repeat(5-e.s)}</i></div><p>“${esc(e.r)}”</p><em>${esc(FULL)}</em></article>`}).join('')+'</div></section>';
+  });
+  const avg=(stars.reduce((a,b)=>a+b,0)/stars.length).toFixed(1);
+  const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(FULL)} — Personal Favourites</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}body{background:#fbf5e4;color:#3b2f16;font-family:'Playfair Display',Georgia,serif;overflow-x:hidden}
+.frame{position:fixed;inset:10px;border:1px solid #c9a24a;pointer-events:none;z-index:8}.frame::after{content:'';position:absolute;inset:4px;border:1px solid #e3cd8a}
+.grain{position:fixed;inset:-50%;z-index:9;pointer-events:none;opacity:.07;mix-blend-mode:multiply;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");animation:gr .6s steps(6) infinite}
+@keyframes gr{0%{transform:translate(0)}20%{transform:translate(-3%,2%)}40%{transform:translate(2%,-3%)}60%{transform:translate(-2%,3%)}80%{transform:translate(3%,-1%)}}
+.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16vh 24px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 0,#f6e2a0 0,transparent 65%)}
+.hero::before{content:'';position:absolute;top:-10%;left:50%;width:150%;height:130%;background:conic-gradient(from 168deg at 50% 0,transparent 0,rgba(212,169,55,.28) 8deg,transparent 20deg);transform-origin:50% 0;animation:sw 7s ease-in-out infinite alternate}
+@keyframes sw{from{transform:translateX(-50%) rotate(-16deg)}to{transform:translateX(-50%) rotate(16deg)}}
+.pre{letter-spacing:.3em;font-size:.72rem;text-transform:uppercase;color:#8a6410;opacity:0;animation:fi 1.6s 1s forwards;position:relative}
+.pre.c{animation-delay:5s}
+h1{font:400 clamp(3.4rem,16vw,10rem)/.95 'Bebas Neue',Impact,sans-serif;text-transform:uppercase;margin:20px 0;overflow-wrap:anywhere;position:relative;background:linear-gradient(100deg,#7a5608 20%,#e6c25a 40%,#fff1b8 50%,#e6c25a 60%,#7a5608 80%) 0 0/250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;animation:tt 3s 2s cubic-bezier(.2,.7,.2,1) forwards,sh 5s 5s linear infinite}
+@keyframes tt{from{opacity:0;letter-spacing:.5em;filter:blur(14px);transform:scale(1.25)}to{opacity:1;letter-spacing:.03em;filter:none;transform:none}}
+@keyframes sh{to{background-position:-250% 0}}
+@keyframes fi{to{opacity:1}}
+.dn{margin-top:40px;color:#b8891f;opacity:0;animation:fi 1s 5.5s forwards,bn 1.6s 5.5s infinite;position:relative}
+@keyframes bn{50%{transform:translateY(8px)}}
+.gn{padding:10vh 22px 0;max-width:1000px;margin:auto}
+.gn h2{font:400 2rem 'Bebas Neue',sans-serif;letter-spacing:.08em;color:#8a6410;border-bottom:1px solid #d9c07a;padding-bottom:8px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.p{min-height:290px;padding:14px 12px;display:flex;flex-direction:column;text-align:center;background:linear-gradient(165deg,hsl(var(--h) 60% 91%),#fffdf5 70%);border:1px solid #c9a24a;outline:1px solid #e3cd8a;outline-offset:-5px;box-shadow:0 10px 24px #b8891f2e}
+.p small{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#8a6410}
+.p h3{font:400 2rem/1 'Bebas Neue',sans-serif;margin:auto 0 8px;overflow-wrap:anywhere}
+.s{color:#c0901f;font-size:1.05rem}.s i{color:#e0d2a6;font-style:normal}
+.p p{font-style:italic;font-size:.76rem;line-height:1.45;margin:8px 0;color:#5a4a28}
+.p em{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#8a6410;font-style:normal}
+.rv{opacity:0;transform:translateY(36px) rotate(-1deg);transition:opacity 1s,transform 1s}.rv.in{opacity:1;transform:none}
+.end{text-align:center;padding:20vh 24px 24vh}
+.end h2{font:400 clamp(2.6rem,12vw,6rem)/1 'Bebas Neue',sans-serif;color:#8a6410;letter-spacing:.08em;overflow-wrap:anywhere}
+.end p{margin-top:14px;color:#7d6d4a;letter-spacing:.12em;font-size:.78rem;text-transform:uppercase;line-height:1.9}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-delay:0s!important;transition:none!important}}
+</style></head><body>
+<div class="grain"></div><div class="frame"></div>
+<section class="hero"><p class="pre">The personal selection of</p><h1>${esc(FULL)}</h1><p class="pre c">Favourite Films &amp; Reads · ${esc(DEPT)}</p><div class="dn">▼</div></section>
+${wall}
+<section class="end"><h2 class="rv">${esc(FULL)}</h2><p class="rv">Curated and signed<br>${stars.length} titles · average ${avg} ★<br>${date}</p></section>
+<script>const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');o.unobserve(e.target)}}),{threshold:.15});document.querySelectorAll('.rv').forEach(x=>o.observe(x));<\/script>
+</body></html>`;
+}
+$('#dl').onclick=()=>{
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([page()],{type:'text/html'}));
+  a.download=(FULL+'-favourites').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.html';
+  a.click();
+};
+</script>
+</body>
+</html>
