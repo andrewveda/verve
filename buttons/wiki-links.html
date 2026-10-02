@@ -121,13 +121,12 @@ footer{max-width:1000px;margin:16px auto 30px;padding:0 18px;color:var(--muted);
   <div class="logo-sub">Creative-Critical Thinking</div>
   <div class="hr"></div>
   <div class="rule"><i>🎯</i><span>You get a <b>start</b> and a <b>goal</b> Wikipedia article. Reach the goal using only the links inside articles.</span></div>
-  <div class="rule"><i>🔗</i><span>Every link you click counts. The fewer links, the better your result.</span></div>
   <div class="rule"><i>📅</i><span><b>Daily</b> is the same route for everyone, once a day. <b>New</b> gives a random practice route.</span></div>
-  <div class="rule"><i>📲</i><span>Share your result as an image, or add your full path.</span></div>
+  <div class="rule"><i>📲</i><span>Show your thinking and download the html</span></div>
   <div class="think">
     <h2>What you're practising</h2>
     <p>Every click is a small round of creative-critical thinking.</p>
-    <p><b>Diverge.</b> Before you click, open up. Physics could lead to Einstein, to energy, to war, to music. List the doors, including the unlikely ones. <b>Your knowledge expands with every article you open.</b> On the way to connecting two very different topics, you learn about the places in between, so you finish knowing far more than when you started.</p>
+    <p><b>Diverge.</b> Physics could lead to Einstein, to energy, to war, to music. List the doors, including the unlikely ones. <b>Your knowledge expands with every article you open.</b> On the way to connecting two very different topics, you learn about the places in between, so you finish knowing far more than when you started.</p>
     <p><b>Converge.</b> Then narrow down. Which door gets you closer to the goal? Judge your options, pick one and commit.</p>
     <p><b>Connect.</b> The best routes join two ideas that seem unrelated. Your path is a record of how you made them touch.</p>
     <p><b>Reflect.</b> Where did you widen your thinking? What new knowledge have you gained?</p>
@@ -181,6 +180,10 @@ footer{max-width:1000px;margin:16px auto 30px;padding:0 18px;color:var(--muted);
       <button id="pathBtn">🧭 Share with path</button>
       <button id="shareBtn" class="ghost">📋 Copy text</button>
     </div>
+    <div class="share-row" style="margin-top:12px">
+      <button id="retryBtn">🔁 Retry: find another clever connection!</button>
+      <button id="newRouteBtn" class="ghost">🎲 New route</button>
+    </div>
     <button id="journalBtn" class="journal-cta">📝 Write my thinking &amp; download HTML</button>
     <div id="journal" hidden></div>
   </div>
@@ -199,7 +202,7 @@ const HUBS=["Albert Einstein","Isaac Newton","Marie Curie","Charles Darwin","Wil
 HUBS.push(["Black hole", "Big Bang", "Moon", "Mars", "Solar System", "Apollo 11", "International Space Station", "Voyager 1", "Hubble Space Telescope", "Dark matter", "Antimatter", "Higgs boson", "Large Hadron Collider", "Quantum mechanics", "Theory of relativity", "Periodic table", "DNA", "Evolution", "Dinosaur", "Vaccine", "Penicillin", "Telescope", "Transistor", "Smartphone", "Robot", "Laser", "Cryptography", "Bitcoin", "Google", "YouTube", "Wikipedia", "Carl Sagan", "Stephen Hawking", "Galileo Galilei", "Richard Feynman", "Srinivasa Ramanujan", "C. V. Raman", "A. P. J. Abdul Kalam", "Chandrayaan-3", "Mars Orbiter Mission", "Tardigrade", "Axolotl", "Octopus", "Platypus", "Naked mole-rat", "Mantis shrimp", "Turritopsis dohrnii", "Dodo", "Woolly mammoth", "Bermuda Triangle", "Loch Ness Monster", "Area 51", "Stonehenge", "Voynich manuscript", "Roswell incident", "Mary Celeste", "Atlantis", "Easter Island", "Bigfoot", "Crop circle", "Tunguska event", "Wow! signal", "Fermi paradox", "Simulation hypothesis", "Schrödinger's cat", "Trolley problem", "Ship of Theseus", "Monty Hall problem", "Birthday problem", "Infinite monkey theorem", "Rubik's Cube", "Tetris", "Minecraft", "Pokémon", "Lego", "Mario", "Rickrolling", "Mona Lisa", "Fibonacci sequence", "Pi", "Golden ratio", "Time travel", "Dream", "Déjà vu", "Placebo", "Mandela effect", "Cryonics", "Vampire", "Dragon", "Library of Alexandria", "Antikythera mechanism", "Nazca Lines", "Göbekli Tepe", "Terracotta Army", "Machu Picchu", "Great Pyramid of Giza", "Taj Mahal", "Mount Everest", "Mariana Trench", "Yellowstone Caldera", "Aurora", "Lightning", "Volcano", "Honey", "Chocolate", "Pizza", "Banana"]);
 
 let mode="daily",start,target,current,path=[],moves=0,backs=0,accumulatedTime=0,lastActiveTime=null,timer=null,gameOver=false;
-let lastWon=true,finalSec=0,submitted=false,restored=false,started=false;
+let lastWon=true,finalSec=0,submitted=false,restored=false,started=false,gen=0,attempt=1;
 const $=id=>document.getElementById(id);
 
 /* ---------- identity ---------- */
@@ -271,14 +274,14 @@ function startTimer(){
 function post(body,keepalive){
   fetch(EDGE_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),keepalive:!!keepalive}).catch(()=>{});
 }
-function logAbandonment(seconds){
+function logAbandonment(seconds,totalSec){
   if(seconds<=0)return;
   const i=getIdentity();
-  post({student_name:i.name||"Guest",department:i.dept||"Unknown",correct:finalSec,wrong:moves,time_spent:seconds,quest_id:`Wiki Links ${start} → ${target}`,cheat_count:0,cheat_events:[]},true);
+  post({student_name:i.name||"Guest",department:i.dept||"Unknown",correct:totalSec,wrong:0,time_spent:seconds,quest_id:`Wiki Links ${start} → ${target}`,cheat_count:0,cheat_events:[]},true);
 }
 function endSession(){
   const ms=Date.now()-lastActiveTime;
-  logAbandonment(Math.floor(ms/1000));
+  logAbandonment(Math.floor(ms/1000),Math.floor((accumulatedTime+ms)/1000));
   lastActiveTime=null;accumulatedTime+=ms;
 }
 document.addEventListener("visibilitychange",()=>{
@@ -320,6 +323,7 @@ function jumpTo(i){
   loadArticle(path[path.length-1],false);
 }
 async function loadArticle(title,isMove){
+  const g=gen;
   current=title;
   if(isMove)path.push(title);else if(path.length===0)path=[title];
   renderTrail();
@@ -327,7 +331,9 @@ async function loadArticle(title,isMove){
   try{
     const r=await fetch(API+encodeURIComponent(title)+"/html",{headers:{"Api-User-Agent":"WikiLinksGame/1.0"}});
     if(!r.ok)throw new Error("Wikipedia returned "+r.status);
-    const doc=new DOMParser().parseFromString(await r.text(),"text/html");
+    const html=await r.text();
+    if(g!==gen)return;   // a new/retry round started while this was loading
+    const doc=new DOMParser().parseFromString(html,"text/html");
     const body=doc.body;
     body.querySelectorAll("script, style, .mw-editsection, .navbox, .vertical-navbox, .metadata, .reflist, .reference, sup.reference").forEach(e=>e.remove());
     $("article").innerHTML=body.innerHTML;
@@ -350,8 +356,9 @@ async function loadArticle(title,isMove){
       }
     });
     const h=$("article").querySelector("h1");if(h)h.remove();
-    if(current.toLowerCase()===target.toLowerCase())win();
+    if(!gameOver&&title.toLowerCase()===target.toLowerCase())win();
   }catch(err){
+    if(g!==gen)return;
     $("article").innerHTML='<div class="loading"><p>Could not load this Wikipedia article.</p><button onclick="loadArticle(current,false)">Try again</button></div>';
     console.error(err);
   }
@@ -709,41 +716,57 @@ $("journalBtn").addEventListener("click",()=>{
   else{j.hidden=true;b.innerHTML="📝 Write my thinking &amp; download HTML"}
 });
 
-/* ---------- modes / new game ---------- */
+/* ---------- modes / new game / retry ---------- */
 function setMode(next){
   mode=next;
   $("modeDaily").classList.toggle("active",mode==="daily");
   $("modePractice").classList.toggle("active",mode==="practice");
-  $("modeLabel").textContent=mode==="daily"?"Today's route":"Get from";
   showBest();newGame();
 }
-$("modeDaily").addEventListener("click",()=>mode!=="daily"&&setMode("daily"));
-$("modePractice").addEventListener("click",()=>mode!=="practice"&&setMode("practice"));
+/* Daily: switch to it (or restore today's result). New: ALWAYS a fresh random route,
+   even if you are already in New mode. */
+$("modeDaily").addEventListener("click",()=>{if(mode!=="daily")setMode("daily")});
+$("modePractice").addEventListener("click",()=>{if(mode!=="practice")setMode("practice");else newGame()});
+$("retryBtn").addEventListener("click",()=>newGame(true));
+$("newRouteBtn").addEventListener("click",()=>{if(mode!=="practice")setMode("practice");else newGame()});
 
-async function newGame(){
+function setLabel(){
+  $("modeLabel").textContent=attempt>1?`Retry #${attempt-1} · find another clever connection!`:(mode==="daily"?"Today's route":"Get from");
+}
+
+/* retry=true replays the SAME start and goal with a clean slate */
+async function newGame(retry){
+  retry=retry===true;
+  const g=++gen;                      // invalidates any article still loading from the last round
+  clearInterval(timer);
   gameOver=false;restored=false;submitted=false;
-  $("success").classList.remove("show");
+  $("success").classList.remove("show","gaveup");
   $("journal").hidden=true;$("journalBtn").innerHTML="📝 Write my thinking &amp; download HTML";
-  moves=0;backs=0;path=[];
+  moves=0;backs=0;path=[];accumulatedTime=0;lastActiveTime=null;
   $("moves").textContent="0";$("time").textContent="0:00";showBest();
-  if(mode==="daily"){
-    [start,target]=dailyPair();
-    const s=JSON.parse(localStorage.getItem("wikiLinksDaily")||"null");
-    if(s&&s.day===dayString()&&s.start===start&&s.target===target&&s.done){
-      current=start;moves=s.moves;backs=s.backs||0;
-      path=s.path||[start,target];
-      $("start").textContent=start;$("target").textContent=target;
-      $("moves").textContent=moves;$("time").textContent=formatTime(s.seconds);
-      accumulatedTime=s.seconds*1000;lastActiveTime=Date.now();
-      await loadArticle(path[0],false);
-      current=target;
-      finishUI(s.won,true);
-      return;
-    }
-  }else{[start,target]=randomPair()}
+  attempt=retry?attempt+1:1;setLabel();
+  if(!retry){
+    if(mode==="daily"){
+      [start,target]=dailyPair();
+      const s=JSON.parse(localStorage.getItem("wikiLinksDaily")||"null");
+      if(s&&s.day===dayString()&&s.start===start&&s.target===target&&s.done){
+        current=start;moves=s.moves;backs=s.backs||0;
+        path=s.path||[start,target];
+        $("start").textContent=start;$("target").textContent=target;
+        $("moves").textContent=moves;$("time").textContent=formatTime(s.seconds);
+        accumulatedTime=s.seconds*1000;lastActiveTime=Date.now();
+        await loadArticle(path[0],false);
+        if(g!==gen)return;
+        current=target;
+        finishUI(s.won,true);
+        return;
+      }
+    }else{[start,target]=randomPair()}
+  }
   current=start;
   $("start").textContent=start;$("target").textContent=target;
   startTimer();
+  window.scrollTo({top:0,behavior:"smooth"});
   await loadArticle(start,false);
 }
 </script>
