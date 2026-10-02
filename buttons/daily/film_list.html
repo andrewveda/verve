@@ -33,6 +33,7 @@ input:focus{outline:2px solid var(--g);border-color:var(--g)}
 .rs button{display:block;width:100%;text-align:left;background:var(--c);border:1px solid var(--l);border-radius:8px;padding:10px;margin-top:6px;color:var(--t);font:600 .9rem Inter,sans-serif}
 .rs button small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:400;color:var(--m);margin-top:3px}
 .rs p{font-size:.8rem;color:var(--m);margin-top:8px}
+.ds{margin-top:8px;line-height:1.55;font-size:.95rem}.nt{margin-top:8px;font-size:.78rem;line-height:1.45;color:var(--m);font-style:italic}
 #sbx{margin-top:14px}
 .bar{position:fixed;left:0;right:0;bottom:0;background:#fbf5e4ee;backdrop-filter:blur(8px);border-top:1px solid var(--l);padding:10px 14px calc(env(safe-area-inset-bottom) + 10px);display:flex;gap:10px;z-index:5;max-width:560px;margin:auto}
 .bar .btn{margin:0}#bk{flex:1}#nx{flex:2}
@@ -79,7 +80,23 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const EDGE="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
 const G=[['drama','Drama','🎬','drama film','f'],['comedy','Comedy','😂','comedy film','f'],['thriller','Thriller / Mystery','🔪','(thriller OR mystery) film','f'],['horror','Horror','👻','horror film','f'],['romance','Romance','❤️','romance film','f'],['action','Action / Adventure','⚔️','(action OR adventure) film','f'],['hist','Historical / Period','🏛️','(historical OR period) film','f'],['sports','Sports','🏆','sports film','f'],['musical','Musical','🎵','musical film','f'],['scifi','Sci-Fi','🚀','science fiction film','f'],['bio','Biopic','🎭','biographical film','f'],['doc','Documentary','🎞️','documentary film','f'],['anim','Animated','🐭','animated film','f'],['tv','TV Series','📺','television series','t'],['mot','Motivational','🔥','film','f'],['fav','My Most Favourite Movies','⭐','film','f']];
-const RX={f:/English-language films?$/i,t:/English-language television/i};
+const D={
+drama:"Films that explore human emotions, relationships, personal struggles, and life-changing experiences. They focus on realistic situations and the complexities of human behaviour.",
+comedy:"Films designed to make audiences laugh through humour, witty dialogue, amusing situations, or comic characters.",
+thriller:"Films that build suspense and curiosity through secrets, investigations, unexpected twists, or dangerous situations.",
+horror:"Films meant to frighten and unsettle through supernatural forces, psychological fear, monsters, or terrifying situations.",
+romance:"Films centred on love, attraction, and emotional bonds, exploring the joys, challenges, and complexities of romantic connection.",
+action:"Films built on thrilling sequences, physical challenges, daring missions, or extraordinary journeys of courage, conflict, and exploration.",
+hist:"Films set in a specific historical era, recreating the people, cultures, events, and social conditions of the past.",
+sports:"Films about sporting events, athletes, teams, or competitions, often exploring determination, discipline, teamwork, and the pursuit of excellence.",
+musical:"Films in which songs, music, and dance are essential to the storytelling, expressing emotion, shaping characters, or moving the plot forward.",
+scifi:"Films exploring scientific ideas, futuristic technology, space exploration, artificial intelligence, or imagined worlds shaped by scientific possibility.",
+bio:"Films based on the life of a real person, portraying their experiences, achievements, struggles, and influence on the world.",
+doc:"Non-fiction films that present real people, events, issues, or experiences through facts, interviews, observation, and research.",
+anim:"Films made with animation, whether hand-drawn, computer-generated, or stop-motion, telling stories through moving images.",
+tv:"Television programmes with multiple episodes that develop characters, storylines, or themes over time.",
+mot:"Films that inspire through perseverance, ambition, personal growth, resilience, or the overcoming of adversity.",
+fav:"Your personal selection of films that have left a lasting impression. Choose the ones you would revisit, recommend, or cherish above all others."};
 const S={};G.forEach(g=>S[g[0]]=[]);
 let FULL='',DEPT='',USER='',start=0,words=0,pg=0,sb=true;
 
@@ -105,7 +122,7 @@ function render(){
   $('#pn').textContent=`Category ${pg+1} of ${G.length}`;
   $('#pf').style.width=((pg+1)/G.length*100)+'%';
   $('#pt').textContent=`${ic} ${t}`;
-  $('#pb').innerHTML=`<div id="l-${id}"></div><div id="sbx"><input id="q-${id}" placeholder="Search a title…" autocomplete="off"><div class="rs" id="r-${id}"></div></div><button class="btn add" id="addb">＋ Add one more title</button>`;
+  $('#pb').innerHTML=`<p class="ds">${D[id]}</p><p class="nt">Genres overlap. Add a film here if it genuinely belongs in this category, even if you chose it elsewhere too.</p><div id="l-${id}"></div><div id="sbx"><input id="q-${id}" placeholder="Search a title…" autocomplete="off"><div class="rs" id="r-${id}"></div></div><button class="btn add" id="addb">＋ Add one more title</button>`;
   let tm;$('#q-'+id).oninput=e=>{clearTimeout(tm);const v=e.target.value.trim();$('#r-'+id).innerHTML='';if(v.length>1)tm=setTimeout(()=>search(id,v),450)};
   $('#addb').onclick=()=>{sb=true;vis();$('#q-'+id).focus()};
   sb=!S[id].length;list(id);vis();upd();
@@ -118,18 +135,18 @@ $('#nx').onclick=()=>{
 };
 
 async function search(id,v){
-  const [,,,k,ty]=G.find(g=>g[0]===id),box=$('#r-'+id);
-  box.innerHTML='<p>Searching English titles…</p>';
+  const box=$('#r-'+id);
+  box.innerHTML='<p>Searching Wikipedia…</p>';
   let res=[];
   try{
-    const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=12&gsrsearch='+encodeURIComponent(v+' '+k)+'&prop=categories|extracts&cllimit=max&exintro=1&explaintext=1&exsentences=1&exlimit=max';
+    const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=10&gsrsearch='+encodeURIComponent(v)+'&prop=extracts&exintro=1&explaintext=1&exsentences=1&exlimit=max';
     const r=await(await fetch(u)).json();
-    res=Object.values(r.query?.pages||{}).sort((a,b)=>a.index-b.index).filter(p=>!/^List of/i.test(p.title)&&(p.categories||[]).some(c=>RX[ty].test(c.title))).slice(0,6);
+    res=Object.values(r.query?.pages||{}).sort((a,b)=>a.index-b.index);
   }catch(e){box.innerHTML='<p>Search failed. Check your connection, or add the title as typed.</p>'}
   const q=$('#q-'+id);if(!q||q.value.trim()!==v)return;
   if(res.length||box.querySelector('p')?.textContent.startsWith('Searching'))box.innerHTML='';
   res.forEach(p=>{const b=document.createElement('button');b.innerHTML=`${esc(p.title)}<small>${esc(p.extract||'')}</small>`;b.onclick=()=>add(id,p.title);box.appendChild(b)});
-  if(!res.length)box.insertAdjacentHTML('beforeend','<p>No English match found. Try the exact title, or add it as typed.</p>');
+  if(!res.length)box.insertAdjacentHTML('beforeend','<p>No Wikipedia article found. Try a different spelling, or add it as typed.</p>');
   const m=document.createElement('button');m.textContent=`+ Add “${v}” as typed`;m.onclick=()=>add(id,v);box.appendChild(m);
 }
 
