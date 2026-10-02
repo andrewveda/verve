@@ -274,7 +274,7 @@ function post(body,keepalive){
 function logAbandonment(seconds){
   if(seconds<=0)return;
   const i=getIdentity();
-  post({student_name:i.name||"Guest",department:i.dept||"Unknown",correct:0,wrong:1,time_spent:seconds,quest_id:`Wiki Links ${start} → ${target}`,cheat_count:0,cheat_events:[]},true);
+  post({student_name:i.name||"Guest",department:i.dept||"Unknown",correct:finalSec,wrong:moves,time_spent:seconds,quest_id:`Wiki Links ${start} → ${target}`,cheat_count:0,cheat_events:[]},true);
 }
 function endSession(){
   const ms=Date.now()-lastActiveTime;
@@ -376,7 +376,7 @@ function submitResult(){
   if(submitted)return;
   const i=getIdentity();if(!i.name||!i.dept)return;
   submitted=true;
-  post({student_name:i.name,department:i.dept,correct:lastWon?1:0,wrong:lastWon?0:1,time_spent:finalSec,quest_id:`Wiki Links: ${start} → ${target}`,cheat_count:0,cheat_events:[]});
+  post({student_name:i.name,department:i.dept,correct:finalSec,wrong:moves,time_spent:finalSec,quest_id:`Wiki Links: ${start} → ${target}`,cheat_count:0,cheat_events:[]});
 }
 function win(){
   finishUI(true);
