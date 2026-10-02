@@ -184,7 +184,7 @@ function finish(){
   for(let i=0;i<G.length;i++){const bad=S[G[i][0]].find(e=>!e.r.trim()||!e.s);if(bad){pg=i;render();return toast(`Add a one-line review and star rating for “${bad.t}”`)}}
   const secs=Math.round((Date.now()-start)/1000);
   $('#es').textContent=FULL+' · '+DEPT;$('#ew').textContent=words;$('#et').textContent=n;show('end');
-  fetch(EDGE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_name:FULL,github_user:USER,department:DEPT,correct:words,wrong:0,time_spent:secs,quest_id:'Quest 38',cheat_count:0,cheat_events:[]})}).catch(()=>{});
+  fetch(EDGE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_name:USER,github_user:USER,department:DEPT,correct:words,wrong:0,time_spent:secs,quest_id:'Quest 38',cheat_count:0,cheat_events:[]})}).catch(()=>{});
 }
 
 /* ---------- EXPORT ---------- */
