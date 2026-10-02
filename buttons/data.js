@@ -2272,6 +2272,7 @@ window.PUZZLE_DIRECTORY = {
             "meaning": "This quote reminds me that pain and difficulties can become sources of growth and wisdom. The moments that hurt us the most often reveal our strength and teach us valuable lessons about life."
           }
         },
+         
         {
           "id": "quote-151",
           "num": 151,
@@ -2286,7 +2287,387 @@ window.PUZZLE_DIRECTORY = {
             "dept": "Cyber Security",
             "meaning": "Don't spend so much time worrying about what might happen tomorrow that you forget to enjoy, appreciate, and make the best of today."
           }
+        },
+{
+          "id": "quote-152",
+          "num": 152,
+          "title": "Puzzle 152",
+          "sub": "Simplicity is the ultimate sophistication.",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Simplicity is the ultimate sophistication.",
+            "author": "Leonardo da Vinci",
+            "contributor": "Avi",
+            "dept": "Cyber Security",
+            "meaning": "True sophistication comes from making things simple, clear, and purposeful. The more refined something becomes, the less unnecessary complexity it needs."
+          }
+        },
+        {
+          "id": "quote-153",
+          "num": 153,
+          "title": "Puzzle 153",
+          "sub": "Any fool can know. The point is to understand.",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Any fool can know. The point is to understand.",
+            "author": "Albert Einstein",
+            "contributor": "Avi",
+            "dept": "Cyber Security",
+            "meaning": "Knowing something is not enough; truly understanding it is what matters. Real knowledge comes from understanding why and how, not just memorizing facts."
+          }
+        },
+        {
+          "id": "quote-154",
+          "num": 154,
+          "title": "Puzzle 154",
+          "sub": "The value of a word changes depending on when you…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "The value of a word changes depending on when you hear it and who says it.",
+            "author": "Trivikram Srinivas",
+            "contributor": "Barry (Pacman)",
+            "dept": "Cyber Security",
+            "meaning": "The same words can carry different weight depending on the moment and the person who speaks them. Meaning is shaped not only by what is said, but also by when and by whom it is heard."
+          }
+        },
+        {
+          "id": "quote-155",
+          "num": 155,
+          "title": "Puzzle 155",
+          "sub": "“If I win and then lose, I'll remember the loss. If…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "“If I win and then lose, I'll remember the loss. If I lose and then win, history remembers the victory. Because history remembers how you finish.”",
+            "author": "Lucky Bhaskar",
+            "contributor": "Megam (Pacman jr)",
+            "dept": "cse-2",
+            "meaning": "Life is not remembered for how it begins, but for how it ends.\nHistory remembers the final victory, not the setbacks along the way."
+          }
+        },
+        {
+          "id": "quote-156",
+          "num": 156,
+          "title": "Puzzle 156",
+          "sub": "Not telling the truth is a lie, trying to make a…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Not telling the truth is a lie, trying to make a lie into the truth is deception.",
+            "author": "Trivikram Srinivas",
+            "contributor": "Barry (Pacman)",
+            "dept": "Cyber Security",
+            "meaning": "A lie hides the truth, but deception goes further by deliberately making that lie appear to be the truth. The difference lies in the intention behind the deception."
+          }
+        },
+        {
+          "id": "quote-157",
+          "num": 157,
+          "title": "Puzzle 157",
+          "sub": "Everyone fails at who they're supposed to be, Thor.…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Everyone fails at who they're supposed to be, Thor. The measure of a person, of a hero, is how well they succeed at being who they are.",
+            "author": "Frigga",
+            "contributor": "Barry (Pacman)",
+            "dept": "Cyber Security",
+            "meaning": "Nobody becomes exactly who they are expected to be. What matters is accepting who you are, learning from failure, and doing your best to live as the person you truly are."
+          }
+        },
+        {
+          "id": "quote-158",
+          "num": 158,
+          "title": "Puzzle 158",
+          "sub": "I don't know how much value I have in this…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "I don't know how much value I have in this universe, but I do know I made a few people happier than they would have been without me, and as long as I know that, I'm as rich as I ever need to be.",
+            "author": "Robin Williams (Mork)",
+            "contributor": "Barry (Pacman)",
+            "dept": "Cyber Security",
+            "meaning": "True wealth isn't measured by money or status. Making someone's life a little better can be enough to make your own life feel rich."
+          }
+        },
+        {
+          "id": "quote-159",
+          "num": 159,
+          "title": "Puzzle 159",
+          "sub": "Icarus laughed as he fell, for he knew to fall…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Icarus laughed as he fell, for he knew to fall means is to once have soared.",
+            "author": "Fiona",
+            "contributor": "Madhukrishna",
+            "dept": "CSE 2",
+            "meaning": "The man who fears the fall never touches the sky."
+          }
+        },
+        {
+          "id": "quote-160",
+          "num": 160,
+          "title": "Puzzle 160",
+          "sub": "Every story needs a fool because wisdom is born…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Every story needs a fool because wisdom is born from mistakes",
+            "author": "K. Narendran",
+            "contributor": "K. Narendran",
+            "dept": "CSE 2",
+            "meaning": "We often become wiser by making mistakes and learning from them."
+          }
+        },
+        {
+          "id": "quote-161",
+          "num": 161,
+          "title": "Puzzle 161",
+          "sub": "Learning is not accumulation; learning is movement…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Learning is not accumulation; learning is movement from moment to moment.",
+            "author": "J. Krishnamurti",
+            "contributor": "Lohendra V S",
+            "dept": "EIE",
+            "meaning": "This quote reminds me that learning is not simply about collecting facts, certificates, or knowledge. True learning happens when I continuously observe, question, understand, and discover something new from each moment and experience. It reminds me to see learning as an ongoing journey rather than something that ends after gaining a qualification."
+          }
+        },
+        {
+          "id": "quote-162",
+          "num": 162,
+          "title": "Puzzle 162",
+          "sub": "On planning There are only four rules you need to…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "On planning There are only four rules you need to remember. Make the plan, execute the plan, expect the plan to go off the rails, throw away the plan.",
+            "author": "Leonard Snart(AKA Captain Cold)",
+            "contributor": "Megam (Pacman jr)",
+            "dept": "cse-2",
+            "meaning": "While preparation is a necessary starting point, rigid adherence to a plan is useless because unpredictable things will inevitably go wrong. True success requires ultimate adaptability and the readiness to completely improvise in the moment."
+          }
+        },
+        {
+          "id": "quote-163",
+          "num": 163,
+          "title": "Puzzle 163",
+          "sub": "The primary cause of disorder in ourselves is the…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "The primary cause of disorder in ourselves is the seeking of reality promised by another.",
+            "author": "J. Krishnamurti",
+            "contributor": "Lohendra V S",
+            "dept": "EIE",
+            "meaning": "This quote reminds me that we can create confusion within ourselves when we blindly accept someone else's idea of what life, success, or truth should be. Instead of simply following what others tell us, we should observe, question, and understand things for ourselves. True clarity comes from discovering our own understanding rather than depending entirely on another person's version of reality."
+          }
+        },
+        {
+          "id": "quote-164",
+          "num": 164,
+          "title": "Puzzle 164",
+          "sub": "The Particle Of God Permeates All Existence.",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "The Particle Of God Permeates All Existence.",
+            "author": "Higgs",
+            "contributor": "Megam (Pacman jr)",
+            "dept": "cse-2",
+            "meaning": "A divine essence or fundamental energy is woven into the physical and spiritual fabric of absolutely everything in the universe.\nhighlights profound interconnectedness, suggesting that no person, object, or space is separate from this core creative force."
+          }
+        },
+        {
+          "id": "quote-165",
+          "num": 165,
+          "title": "Puzzle 165",
+          "sub": "The hardest game to win is a won game.",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "The hardest game to win is a won game.",
+            "author": "Emanuel Lasker",
+            "contributor": "Meenz",
+            "dept": "Cyber Security",
+            "meaning": "Even when I have the advantage, I can't become careless. A winning position still requires focus, patience, and discipline. The game isn't over until it's actually over."
+          }
+        },
+        {
+          "id": "quote-166",
+          "num": 166,
+          "title": "Puzzle 166",
+          "sub": "It is not the answer that enlightens, but the…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "It is not the answer that enlightens, but the question",
+            "author": "Eugène Ionesco",
+            "contributor": "Kohulan",
+            "dept": "CSE-2",
+            "meaning": "This quote reminds me that I learn more when I question myself instead of just looking for answers. Asking questions helps me understand my mistakes, think differently, and learn from my experiences. I feel that real growth starts when I’m open to questioning myself and learning along the way."
+          }
+        },
+        {
+          "id": "quote-167",
+          "num": 167,
+          "title": "Puzzle 167",
+          "sub": "Medicine, law, business, engineering—these are…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Medicine, law, business, engineering—these are noble pursuits and necessary to sustain life. But poetry, beauty, romance, love—these are what we stay alive for.",
+            "author": "John Keating",
+            "contributor": "Megam (Pacman jr)",
+            "dept": "cse-2",
+            "meaning": "Practical professions are the essential tools required to physically survive and maintain society.\nMeanwhile, art, beauty, and love provide the emotional purpose and passion that make living worthwhile."
+          }
+        },
+        {
+          "id": "quote-168",
+          "num": 168,
+          "title": "Puzzle 168",
+          "sub": "Until the breath leaves the body, defeat is only a…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Until the breath leaves the body, defeat is only a rumour.",
+            "author": "Alexander the Great",
+            "contributor": "K. Narendran",
+            "dept": "CSE-2",
+            "meaning": "It reminds me of someone who falls, looks at the situation, says Okay, that didn't work, learns from it, and gets back up."
+          }
+        },
+        {
+          "id": "quote-169",
+          "num": 169,
+          "title": "Puzzle 169",
+          "sub": "Being happy doesn't mean you don't have issues.…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Being happy doesn't mean you don't have issues. It just means that you're working on them.",
+            "author": "Oliver Queen(AKA Green Arrow)",
+            "contributor": "Megam (Pacman Jr)",
+            "dept": "cse-2",
+            "meaning": "Happiness is not about living a perfect, problem-free life, as everyone has struggles. True contentment comes from actively facing your challenges and making progress to overcome them."
+          }
+        },
+        {
+          "id": "quote-170",
+          "num": 170,
+          "title": "Puzzle 170",
+          "sub": "Greatest battles are with closest people. We…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Greatest battles are with closest people. We always fight with people whom we feel like 'our' own.",
+            "author": "Ramachandra",
+            "contributor": "Megam (Pacman jr)",
+            "dept": "cse-2",
+            "meaning": "We fight the hardest with our loved ones because our deep emotional bond makes us highly vulnerable to their words and actions."
+          }
+        },
+        {
+          "id": "quote-171",
+          "num": 171,
+          "title": "Puzzle 171",
+          "sub": "Software, I've come to believe, is a kind of…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Software, I've come to believe, is a kind of architecture, and a building oughtn't be ugly.",
+            "author": "Theo K Laurent",
+            "contributor": "Theo K Laurent",
+            "dept": "Cyber Security",
+            "meaning": "It reflects how I see software as more than something that merely works. Good software should have structure, proportion, clarity, and elegance; its internal design matters just as much as its visible result. Function without form may still stand, but it should not be the standard we aspire to."
+          }
+        },
+        {
+          "id": "quote-172",
+          "num": 172,
+          "title": "Puzzle 172",
+          "sub": "Day one or one day, you decide.",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Day one or one day, you decide.",
+            "author": "Anonymous",
+            "contributor": "Kohulan",
+            "dept": "CSE",
+            "meaning": "It makes me realise my potential. Just a few simple words, arranged in an order that creates a huge impact on our thoughts. Inspiring! 🔥"
+          }
+        },
+        {
+          "id": "quote-173",
+          "num": 173,
+          "title": "Puzzle 173",
+          "sub": "No man is free who is not master of himself.",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "No man is free who is not master of himself.",
+            "author": "Epictetus",
+            "contributor": "Lohendra V S",
+            "dept": "EIE",
+            "meaning": "This quote reminds me that true freedom comes from having control over my own thoughts, emotions, and actions. If I allow fear, anger, distractions, or other people's opinions to control me, I am not truly free. Being the master of myself means learning to control my reactions, stay disciplined, and make my own choices."
+          }
+        },
+        {
+          "id": "quote-174",
+          "num": 174,
+          "title": "Puzzle 174",
+          "sub": "I've learned something. There is no rest for me…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "I've learned something. There is no rest for me in this world.",
+            "author": "Thomas Shelby",
+            "contributor": "Avi",
+            "dept": "Cyber Security",
+            "meaning": "There is always something new to learn, improve, and understand. Growth never truly stops; every experience becomes another lesson."
+          }
+        },
+        {
+          "id": "quote-175",
+          "num": 175,
+          "title": "Puzzle 175",
+          "sub": "Just because someone stumbles and loses their…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "Just because someone stumbles and loses their path, doesn't mean they're lost forever. Sometimes, we all need a little help.",
+            "author": "Charles Xavier",
+            "contributor": "Barry (Pacman)",
+            "dept": "Cyber Security",
+            "meaning": "Losing your way or making mistakes doesn't mean you're lost forever. Sometimes, we all need a little help can guide us back to the right path."
+          }
+        },
+        {
+          "id": "quote-176",
+          "num": 176,
+          "title": "Puzzle 176",
+          "sub": "The gem cannot be polished without friction,…",
+          "cols": 4,
+          "rows": 5,
+          "quoteData": {
+            "quote": "The gem cannot be polished without friction, nor man perfected without trials.",
+            "author": "Seneca",
+            "contributor": "Lohendra V S",
+            "dept": "EIE",
+            "meaning": "This quote reminds me that difficulties are not just obstacles to overcome; they are experiences that shape me into a stronger and wiser person. Just as friction gives a gem its shine, struggles help develop patience, courage, resilience, and inner strength."
+          }
         }
+
+
+
+
+         
       ]
     }
   ]
