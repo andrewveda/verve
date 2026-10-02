@@ -34,6 +34,7 @@ input:focus{outline:2px solid var(--g);border-color:var(--g)}
 .rs button small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:400;color:var(--m);margin-top:3px}
 .rs p{font-size:.8rem;color:var(--m);margin-top:8px}
 .ds{margin-top:8px;line-height:1.55;font-size:.95rem}.nt{margin-top:8px;font-size:.78rem;line-height:1.45;color:var(--m);font-style:italic}
+.rw{display:flex;gap:10px;align-items:center}.rw img,.th{width:40px;height:58px;object-fit:cover;border-radius:3px;flex:none}.th{margin-right:10px}
 #sbx{margin-top:14px}
 .bar{position:fixed;left:0;right:0;bottom:0;background:#fbf5e4ee;backdrop-filter:blur(8px);border-top:1px solid var(--l);padding:10px 14px calc(env(safe-area-inset-bottom) + 10px);display:flex;gap:10px;z-index:5;max-width:560px;margin:auto}
 .bar .btn{margin:0}#bk{flex:1}#nx{flex:2}
@@ -53,7 +54,7 @@ input:focus{outline:2px solid var(--g);border-color:var(--g)}
   <div class="card chip"><img id="av" alt=""><div><b id="gn">Loading…</b><br><span id="gd" style="font-size:.8rem;color:var(--m)"></span></div></div>
   <div class="card" style="margin-top:10px">
     <label for="full" style="margin-top:0">Full name as on your college ID card</label>
-    <input id="full" placeholder="e.g. Priya Lakshmi S" autocomplete="name">
+    <input id="full" placeholder=" " autocomplete="name">
   </div>
   <div class="note"><b>Before you begin:</b> at the end you will download an HTML file. Upload that file to your <b>Pages of Progress</b> repository. Your work is not submitted until it is there.</div>
   <button class="btn" id="go">Begin</button>
@@ -139,20 +140,20 @@ async function search(id,v){
   box.innerHTML='<p>Searching Wikipedia…</p>';
   let res=[];
   try{
-    const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=10&gsrsearch='+encodeURIComponent(v)+'&prop=extracts&exintro=1&explaintext=1&exsentences=1&exlimit=max';
+    const u='https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=10&gsrsearch='+encodeURIComponent(v)+'&prop=extracts|pageimages&piprop=thumbnail&pithumbsize=300&exintro=1&explaintext=1&exsentences=1&exlimit=max';
     const r=await(await fetch(u)).json();
     res=Object.values(r.query?.pages||{}).sort((a,b)=>a.index-b.index);
   }catch(e){box.innerHTML='<p>Search failed. Check your connection, or add the title as typed.</p>'}
   const q=$('#q-'+id);if(!q||q.value.trim()!==v)return;
   if(res.length||box.querySelector('p')?.textContent.startsWith('Searching'))box.innerHTML='';
-  res.forEach(p=>{const b=document.createElement('button');b.innerHTML=`${esc(p.title)}<small>${esc(p.extract||'')}</small>`;b.onclick=()=>add(id,p.title);box.appendChild(b)});
+  res.forEach(p=>{const b=document.createElement('button');const im=p.thumbnail?.source;b.innerHTML=`<span class="rw">${im?`<img src="${esc(im)}" alt="">`:''}<span>${esc(p.title)}<small>${esc(p.extract||'')}</small></span></span>`;b.onclick=()=>add(id,p.title,im,1);box.appendChild(b)});
   if(!res.length)box.insertAdjacentHTML('beforeend','<p>No Wikipedia article found. Try a different spelling, or add it as typed.</p>');
   const m=document.createElement('button');m.textContent=`+ Add “${v}” as typed`;m.onclick=()=>add(id,v);box.appendChild(m);
 }
 
-function add(id,t){
+function add(id,t,img,w){
   if(S[id].some(e=>e.t===t)){toast('Already in your list');return}
-  S[id].push({t,r:'',s:0});
+  S[id].push({t,r:'',s:0,img,w});
   $('#q-'+id).value='';$('#r-'+id).innerHTML='';
   sb=false;list(id);vis();upd();
 }
@@ -160,7 +161,7 @@ function list(id){
   const box=$('#l-'+id);box.innerHTML='';
   S[id].forEach((e,i)=>{
     const d=document.createElement('div');d.className='en';
-    d.innerHTML=`<div class="eh"><b>${esc(e.t)}</b><button class="x" aria-label="Remove">×</button></div><input maxlength="120" placeholder="Your crisp one-line review" value="${esc(e.r)}"><div class="st">${[1,2,3,4,5].map(n=>`<button aria-label="${n} star">★</button>`).join('')}</div>`;
+    d.innerHTML=`<div class="eh"><div style="display:flex;align-items:center">${e.img?`<img class="th" src="${esc(e.img)}" alt="">`:''}<b>${esc(e.t)}</b></div><button class="x" aria-label="Remove">×</button></div><input maxlength="120" placeholder="Your crisp one-line review" value="${esc(e.r)}"><div class="st">${[1,2,3,4,5].map(n=>`<button aria-label="${n} star">★</button>`).join('')}</div>`;
     const sts=[...d.querySelectorAll('.st button')];
     const paint=()=>sts.forEach((b,j)=>b.classList.toggle('on',j<e.s));paint();
     sts.forEach((b,j)=>b.onclick=()=>{e.s=j+1;paint()});
@@ -194,8 +195,10 @@ function page(){
     if(!S[id].length)return;
     wall+=`<section class="gn"><h2 class="rv">${ic} ${t}</h2><div class="grid">`+S[id].map(e=>{
       const m=e.t.match(/^(.*?)\s*\((.*)\)$/),ti=m?m[1]:e.t,sub=m?m[2]:t;stars.push(e.s);
-      return `<article class="p rv" style="--h:${hue(e.t)};transition-delay:${(i++%2)*.15}s"><small>${esc(sub)}</small><h3>${esc(ti)}</h3><div class="s">${'★'.repeat(e.s)}<i>${'★'.repeat(5-e.s)}</i></div><p>“${esc(e.r)}”</p><em>${esc(FULL)}</em></article>`}).join('')+'</div></section>';
+      const pic=e.img,href=e.w?'https://en.wikipedia.org/wiki/'+encodeURIComponent(e.t.replace(/ /g,'_')):'https://en.wikipedia.org/w/index.php?search='+encodeURIComponent(e.t);return `<a class="p rv${e.w?' im':''}" href="${esc(href)}" target="_blank" rel="noopener" data-t="${e.w?esc(e.t):''}" title="Open on Wikipedia" style="--h:${hue(e.t)};transition-delay:${(i++%2)*.15}s">${e.w?`<img class="po" hidden ${pic?'src="'+esc(pic)+'"':''} alt="${esc(ti)} poster" onload="this.hidden=false" onerror="this.remove()">`:''}<small>${esc(sub)}</small><h3>${esc(ti)}</h3><div class="s">${'★'.repeat(e.s)}<i>${'★'.repeat(5-e.s)}</i></div><p>“${esc(e.r)}”</p><em>${esc(FULL)}</em></a>`}).join('')+'</div></section>';
   });
+  const sk=G.filter(([id])=>!S[id].length);
+  const watch=sk.length?`<section class="wl"><h2 class="rv">Still on my watchlist</h2><p class="rv">I haven't chosen a favourite in ${sk.length===1?'this genre':'these genres'} yet, and I'm looking forward to changing that. My watchlist is long and growing, and I'm going to work through ${sk.length===1?'it':'them'} one film at a time.</p><div class="chips rv">${sk.map(([id,t,ic])=>`<span>${ic} ${t}</span>`).join('')}</div></section>`:'';
   const avg=(stars.reduce((a,b)=>a+b,0)/stars.length).toFixed(1);
   const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(FULL)} — Personal Favourites</title>
@@ -225,7 +228,9 @@ h1{font:400 clamp(3.4rem,16vw,10rem)/.95 'Bebas Neue',Impact,sans-serif;text-tra
 .s{color:#c0901f;font-size:1.05rem}.s i{color:#e0d2a6;font-style:normal}
 .p p{font-style:italic;font-size:.76rem;line-height:1.45;margin:8px 0;color:#5a4a28}
 .p em{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#8a6410;font-style:normal}
+.p{text-decoration:none;color:inherit}.p:hover h3{color:#8a6410}.po[hidden]{display:none}.p.im{min-height:0}.po{display:block;width:calc(100% + 24px);max-width:none;margin:-14px -12px 12px;aspect-ratio:2/3;object-fit:cover}.p.im h3{font-size:1.5rem;margin:6px 0}
 .rv{opacity:0;transform:translateY(36px) rotate(-1deg);transition:opacity 1s,transform 1s}.rv.in{opacity:1;transform:none}
+.wl{max-width:1000px;margin:auto;padding:10vh 22px 0;text-align:center}.wl h2{font:400 2rem 'Bebas Neue',sans-serif;letter-spacing:.08em;color:#8a6410;border-bottom:1px solid #d9c07a;padding-bottom:8px;margin-bottom:16px;text-align:left}.wl p{font-style:italic;line-height:1.7;max-width:36rem;margin:0 auto 20px;color:#5a4a28}.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}.chips span{border:1px dashed #c9a24a;background:#fffdf5;border-radius:999px;padding:9px 16px;font-size:.85rem;color:#5a4a28}
 .end{text-align:center;padding:20vh 24px 24vh}
 .end h2{font:400 clamp(2.6rem,12vw,6rem)/1 'Bebas Neue',sans-serif;color:#8a6410;letter-spacing:.08em;overflow-wrap:anywhere}
 .end p{margin-top:14px;color:#7d6d4a;letter-spacing:.12em;font-size:.78rem;text-transform:uppercase;line-height:1.9}
@@ -234,13 +239,20 @@ h1{font:400 clamp(3.4rem,16vw,10rem)/.95 'Bebas Neue',Impact,sans-serif;text-tra
 <div class="grain"></div><div class="frame"></div>
 <section class="hero"><p class="pre">The personal selection of</p><h1>${esc(FULL)}</h1><p class="pre c">Favourite Films &amp; Reads · ${esc(DEPT)}</p><div class="dn">▼</div></section>
 ${wall}
+${watch}
 <section class="end"><h2 class="rv">${esc(FULL)}</h2><p class="rv">Curated and signed<br>${stars.length} titles · average ${avg} ★<br>${date}</p></section>
-<script>const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');o.unobserve(e.target)}}),{threshold:.15});document.querySelectorAll('.rv').forEach(x=>o.observe(x));<\/script>
+<script>const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');o.unobserve(e.target)}}),{threshold:.15});document.querySelectorAll('.rv').forEach(x=>o.observe(x));
+var cs=[].slice.call(document.querySelectorAll('.p[data-t]')).filter(function(c){return c.dataset.t}),ts=[];
+cs.forEach(function(c){if(ts.indexOf(c.dataset.t)<0)ts.push(c.dataset.t)});
+for(var i=0;i<ts.length;i+=50)fetch('https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail&pithumbsize=300&titles='+encodeURIComponent(ts.slice(i,i+50).join('|'))).then(function(r){return r.json()}).then(function(r){
+var q=r.query||{},m={},im={};(q.normalized||[]).concat(q.redirects||[]).forEach(function(x){m[x.from]=x.to});
+Object.keys(q.pages||{}).forEach(function(k){var g=q.pages[k];if(g.thumbnail)im[g.title]=g.thumbnail.source});
+cs.forEach(function(c){var t=c.dataset.t;t=m[t]||t;t=m[t]||t;var u=im[t],p=c.querySelector('.po');if(u&&p){p.hidden=true;p.src=u}})}).catch(function(){});<\/script>
 </body></html>`;
 }
-$('#dl').onclick=()=>{
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([page()],{type:'text/html'}));
+$('#dl').onclick=async()=>{
+  const h=await page(),a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));
   a.download=(FULL+'-favourites').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.html';
   a.click();
 };
