@@ -463,32 +463,44 @@ const POEM_LINES = [
   "But when it comes to finding someone willing to tell you what you're capable of and what you can achieve...",
   "Those people aren't so easy to find.",
   "I believe part of that is because you're the only one that can limit you.",
-  "You're the only one that can define your parameters and decide what you're capable of achieving.",
+  "You're the only one that can define your parameters",
+  "and decide what you're capable of achieving.",
   "We are our greatest supporters and greatest enemies all at the same time.",
-  "When we wake up in the morning, we make a decision of whether we're going to be great or mediocre.",
-  
+  "When we wake up in the morning,",
+  "we make a decision of whether we're going to be great or mediocre.",
   "We decide whether today is going to be another average day where we go through the motions.",
   "Or whether today is going to be a day where we break the monotony and do something great.",
   "We decide every day whether we're simply living for the weekend and waiting for our ship to come in.",
-  "Or whether we're going to make every day count and build the ship ourselves if we have to.",
+  "Or whether we're going to make every day count",
+  "and build the ship ourselves if we have to.",
   "This world is made up of two types of people.",
   "There are those that make excuses and those that make a way.",
-  "There's a Latin proverb attributed to Hannibal that says 'Aut viam inveniam aut faciam'.",
-  "Which is loosely translated to say, I shall either find a way or make one.",
-  
+  "There's a Latin proverb attributed to Hannibal",
+  "that says 'Aut viam inveniam aut faciam'.",
+  "Which is loosely translated to say, I shall either find a way",
+  "or make one.",
   "That's how we must become.",
-  "We must become the type of person that says no matter what comes my way, I'll either find a way or I'll make a way.",
-  "We have to become the type of person that stops making excuses and stops finding reasons why we can't make it.",
+  "We must become the type of person that says no matter what comes my way,",
+  "I'll either find a way", 
+  "or I'll make a way.",
+  "We have to become the type of person that stops making excuses",
+  "and stops finding reasons why we can't make it.",
   "We have to decide that no matter what obstacles come our way...",
   "And no matter what distractions are presented before us...",
-  "That we will either find a way or make one.",
-  "The decision to fail or to succeed is completely yours, but it depends on what you do daily.",
-  "Don't make another excuse why you can't have what you want; either find a way or make one."
+  "That we will either find a way",
+  "or make one.",
+  "The decision to fail or to succeed is completely yours,",
+  "but it depends on what you do daily.",
+  "Don't make another excuse why you can't have what you want.",
+  "Either find a way",
+  "or make one."
 ];
 
-const TOTAL_QUESTIONS = 30;
+const TOTAL_QUESTIONS = POEM_LINES.length;
 
-function stripPunct(w) { return (w || '').replace(/[.,;:!?"'""''()\u2014\u2013]/g, ''); }
+function stripPunct(w) {
+  return (w || '').replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+}
 function shuffle(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -497,80 +509,42 @@ function shuffle(arr) {
   }
   return a;
 }
+function buildPoemQuestions(lines) {
+  // Distractor pool: every distinct word in the speech
+  const allWords = [...new Set(
+    lines.flatMap(l => l.split(/\s+/).map(stripPunct)).filter(w => w.length > 2)
+  )];
 
-function buildPoemQuestions(lines, targetCount = TOTAL_QUESTIONS) {
-  const nonEmpty = lines
-    .map((line, lineIndex) => ({ line, lineIndex }))
-    .filter(x => x.line && x.line.trim());
-
-  if (!nonEmpty.length) return [];
-
-  // Treat every usable word as a possible blank, then spread the
-  // selected blanks across the entire speech so the gaps are frequent.
-  const candidates = [];
-  nonEmpty.forEach(({ line, lineIndex }) => {
-    const words = line.split(/\s+/);
-    words.forEach((word, wordIndex) => {
-      const clean = stripPunct(word);
-      if (clean.length > 2) {
-        candidates.push({ lineIndex, wordIndex, clean });
-      }
-    });
-  });
-
-  const count = Math.min(targetCount, candidates.length);
-  const selected = [];
-  const used = new Set();
-
-  // Evenly distribute the blanks through the speech rather than
-  // clustering them near the beginning or end.
-  for (let i = 0; i < count; i++) {
-    const rawIndex = Math.round((i * (candidates.length - 1)) / Math.max(1, count - 1));
-    let idx = rawIndex;
-
-    // Guard against any duplicate index caused by rounding.
-    while (used.has(idx) && idx < candidates.length - 1) idx++;
-    while (used.has(idx) && idx > 0) idx--;
-
-    if (used.has(idx)) continue;
-    used.add(idx);
-    selected.push(candidates[idx]);
-  }
-
-  const allWords = candidates.map(c => c.clean);
   const questions = [];
+  lines.forEach((line, lineIndex) => {
+    if (!line || !line.trim()) return;
+    const words = line.trim().split(/\s+/);
 
-  selected.forEach(({ lineIndex, wordIndex, clean }) => {
-    const words = lines[lineIndex].split(/\s+/);
-    if (!words[wordIndex]) return;
-
-    const displayWords = words.slice();
-    displayWords[wordIndex] = '_____';
-
-    const pool = allWords.filter(w => w.toLowerCase() !== clean.toLowerCase());
-    const distractors = [];
-    const poolCopy = shuffle(pool);
-
-    for (const cand of poolCopy) {
-      if (!distractors.some(d => d.toLowerCase() === cand.toLowerCase())) {
-        distractors.push(cand);
-      }
-      if (distractors.length === 3) break;
+    // find the LAST word with 3+ letters (skips "to", "in", "us", etc.)
+    let wi = -1;
+    for (let i = words.length - 1; i >= 0; i--) {
+      if (stripPunct(words[i]).length > 2) { wi = i; break; }
     }
+    if (wi < 0) return;
 
-    while (distractors.length < 3) distractors.push('—');
+    const clean = stripPunct(words[wi]);
+    const pos = words[wi].indexOf(clean);
+    const lead = words[wi].slice(0, pos);
+    const trail = words[wi].slice(pos + clean.length);
 
+    const display = words.slice();
+    display[wi] = lead + '_____' + trail; // keeps the full stop / comma / quote
+
+    const distractors = shuffle(allWords.filter(w => w.toLowerCase() !== clean.toLowerCase())).slice(0, 3);
     const options = shuffle([clean, ...distractors]);
-    const correctIndex = options.findIndex(o => o === clean);
 
     questions.push({
-      q: displayWords.join(' '),
+      q: display.join(' '),
       options,
-      correct: correctIndex,
+      correct: options.indexOf(clean),
       at: lineIndex
     });
   });
-
   return questions;
 }
 
@@ -582,7 +556,7 @@ const TEST = {
   description: 'Ron Walker on taking ownership of your path.',
   youtubeId: 'D7lvPNXC65w',
   difficulty: 'Speech',
-  get questions() { return buildPoemQuestions(POEM_LINES, TOTAL_QUESTIONS); }
+get questions() { return buildPoemQuestions(POEM_LINES); }
 };
 
 let currentTest = null;
