@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -487,7 +488,7 @@ const POEM_LINES = [
   "Don't make another excuse why you can't have what you want; either find a way or make one."
 ];
 
-const LINES_PER_BLANK = 2;
+const TOTAL_QUESTIONS = 50;
 
 function stripPunct(w) { return (w || '').replace(/[.,;:!?"'""''()\u2014\u2013]/g, ''); }
 function shuffle(arr) {
@@ -499,47 +500,79 @@ function shuffle(arr) {
   return a;
 }
 
-function buildPoemQuestions(lines, linesPerBlank) {
-  const nonEmpty = lines.filter(l => l && l.trim());
-  if (!nonEmpty.length) return []; 
+function buildPoemQuestions(lines, targetCount = TOTAL_QUESTIONS) {
+  const nonEmpty = lines
+    .map((line, lineIndex) => ({ line, lineIndex }))
+    .filter(x => x.line && x.line.trim());
 
-  const allWords = lines.join(' ').split(/\s+/).map(stripPunct).filter(w => w.length > 2);
+  if (!nonEmpty.length) return [];
+
+  // Treat every usable word as a possible blank, then spread the
+  // selected blanks across the entire speech so the gaps are frequent.
+  const candidates = [];
+  nonEmpty.forEach(({ line, lineIndex }) => {
+    const words = line.split(/\s+/);
+    words.forEach((word, wordIndex) => {
+      const clean = stripPunct(word);
+      if (clean.length > 2) {
+        candidates.push({ lineIndex, wordIndex, clean });
+      }
+    });
+  });
+
+  const count = Math.min(targetCount, candidates.length);
+  const selected = [];
+  const used = new Set();
+
+  // Evenly distribute the blanks through the speech rather than
+  // clustering them near the beginning or end.
+  for (let i = 0; i < count; i++) {
+    const rawIndex = Math.round((i * (candidates.length - 1)) / Math.max(1, count - 1));
+    let idx = rawIndex;
+
+    // Guard against any duplicate index caused by rounding.
+    while (used.has(idx) && idx < candidates.length - 1) idx++;
+    while (used.has(idx) && idx > 0) idx--;
+
+    if (used.has(idx)) continue;
+    used.add(idx);
+    selected.push(candidates[idx]);
+  }
+
+  const allWords = candidates.map(c => c.clean);
   const questions = [];
 
-  for (let i = 0; i < lines.length; i += linesPerBlank) {
-    const chunkLines = lines.slice(i, i + linesPerBlank).filter(l => l && l.trim());
-    if (!chunkLines.length) continue;
-
-    const chunkText = chunkLines.join(' / ');
-    const words = chunkText.split(/\s+/);
-    if (!words.length) continue;
-
-    let blankIdx = words.length - 1;
-    for (let w = words.length - 1; w >= 0; w--) {
-      if (stripPunct(words[w]).length > 2) { blankIdx = w; break; }
-    }
-    const correctWord = stripPunct(words[blankIdx]);
-    if (!correctWord) continue;
+  selected.forEach(({ lineIndex, wordIndex, clean }) => {
+    const words = lines[lineIndex].split(/\s+/);
+    if (!words[wordIndex]) return;
 
     const displayWords = words.slice();
-    displayWords[blankIdx] = '_____';
-    const questionText = displayWords.join(' ');
+    displayWords[wordIndex] = '_____';
 
-    const pool = allWords.filter(w => w.toLowerCase() !== correctWord.toLowerCase());
+    const pool = allWords.filter(w => w.toLowerCase() !== clean.toLowerCase());
     const distractors = [];
-    const poolCopy = pool.slice();
-    while (distractors.length < 3 && poolCopy.length) {
-      const idx = Math.floor(Math.random() * poolCopy.length);
-      const cand = poolCopy.splice(idx, 1)[0];
-      if (!distractors.some(d => d.toLowerCase() === cand.toLowerCase())) distractors.push(cand);
+    const poolCopy = shuffle(pool);
+
+    for (const cand of poolCopy) {
+      if (!distractors.some(d => d.toLowerCase() === cand.toLowerCase())) {
+        distractors.push(cand);
+      }
+      if (distractors.length === 3) break;
     }
+
     while (distractors.length < 3) distractors.push('—');
 
-    const options = shuffle([correctWord, ...distractors]);
-    const correctIndex = options.findIndex(o => o === correctWord);
+    const options = shuffle([clean, ...distractors]);
+    const correctIndex = options.findIndex(o => o === clean);
 
-    questions.push({ q: questionText, options, correct: correctIndex, at: i });
-  }
+    questions.push({
+      q: displayWords.join(' '),
+      options,
+      correct: correctIndex,
+      at: lineIndex
+    });
+  });
+
   return questions;
 }
 
@@ -551,7 +584,7 @@ const TEST = {
   description: 'Ron Walker on taking ownership of your path.',
   youtubeId: 'D7lvPNXC65w',
   difficulty: 'Speech',
-  get questions() { return buildPoemQuestions(POEM_LINES, LINES_PER_BLANK); }
+  get questions() { return buildPoemQuestions(POEM_LINES, TOTAL_QUESTIONS); }
 };
 
 let currentTest = null;
