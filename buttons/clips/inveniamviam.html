@@ -1011,9 +1011,6 @@ function renderQuestionPanel() {
   const finishLocked = isLast && !videoEnded && !audioOverrideUnlocked;
 
   panel.innerHTML = `
-    <div class="qpanel-top-row">
-      <span class="qpanel-counter">Blank ${currentQIndex + 1} of ${total}</span>
-    </div>
     <div class="qpanel-media-controls">
       <button class="qpanel-media-btn" id="qpanelRewind">↶ 10 seconds</button>
       <button class="qpanel-media-btn" id="qpanelPause">❚❚ Pause</button>
