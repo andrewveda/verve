@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Something Close to My Heart</title>
+<script src="../../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf5e4;--c:#fffdf5;--l:#e8d8a8;--g:#b8891f;--gd:#8a6410;--t:#3b2f16;--m:#7d6d4a;--ok:#2f7d4f;--er:#9c2a1f}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg) radial-gradient(ellipse at 15% 0,#f3dfa0 0,transparent 55%);color:var(--t);min-height:100dvh}
+.scr{display:none}.scr.on{display:block}
+.w{max-width:560px;margin:auto;padding:calc(env(safe-area-inset-top) + 18px) 14px 130px}
+h1{font:400 2.6rem/1 'Bebas Neue',Impact,sans-serif;letter-spacing:.04em;color:var(--gd)}
+.card{background:var(--c);border:1px solid var(--l);border-radius:10px;padding:14px;margin-top:14px;box-shadow:0 2px 10px #b8891f14}
+label{display:block;font-size:.8rem;color:var(--m);margin:0 0 5px}
+input,textarea{width:100%;font:inherit;font-size:16px;padding:12px;border-radius:8px;border:1px solid var(--l);background:#fff;color:var(--t)}
+input{min-height:46px}
+textarea{min-height:96px;resize:none;line-height:1.5;font-family:'Playfair Display',Georgia,serif}
+input:focus,textarea:focus{outline:2px solid var(--g);border-color:var(--g)}
+.chip{display:flex;gap:12px;align-items:center}
+.chip img{width:46px;height:46px;border-radius:50%;border:2px solid var(--g);object-fit:cover}
+.note{border-left:3px solid var(--g);background:#f8ecc4;padding:12px;font-size:.85rem;line-height:1.5;margin-top:14px;border-radius:0 8px 8px 0}
+.btn{width:100%;min-height:50px;border:0;border-radius:10px;background:linear-gradient(135deg,#dcb445,#b8891f);color:#2b2008;font:600 1rem Inter,sans-serif;margin-top:16px}
+.btn:active{transform:scale(.98)}.btn.alt{background:transparent;color:var(--t);border:1px solid var(--l)}.btn.ink{background:var(--t);color:var(--bg)}
+.pbar{height:6px;background:var(--l);border-radius:3px;margin:12px 0 4px;overflow:hidden}.pbar div{height:100%;background:var(--g);transition:width .3s}
+.meta{display:flex;justify-content:space-between;font-size:.78rem;color:var(--m)}
+.q{font:700 1.5rem/1.3 'Playfair Display',Georgia,serif;margin:16px 0 12px}
+.lens{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.lens button{min-width:calc(25% - 8px);flex:1 0 auto;min-height:46px;padding:0 12px;border:1px solid var(--l);border-radius:999px;background:var(--c);color:var(--t);font:600 .9rem Inter,sans-serif}
+.lens button.on{background:var(--gd);border-color:var(--gd);color:var(--bg)}
+.row{display:flex;justify-content:flex-end;font-size:.78rem;color:var(--m);margin-top:6px}
+.gc{border-left:3px solid var(--g);background:#f8ecc4;padding:12px;font-size:.9rem;line-height:1.5;margin-top:14px;border-radius:0 8px 8px 0}
+.prev{margin-top:18px}.prev h2{font:400 1.3rem 'Bebas Neue',sans-serif;letter-spacing:.08em;color:var(--gd);border-bottom:1px solid var(--l);padding-bottom:4px;margin-bottom:6px}.prev p{font:.95rem/1.55 'Playfair Display',Georgia,serif;padding:8px 0;border-bottom:1px solid var(--l)}.prev p span{font:600 .72rem Inter,sans-serif;color:var(--m);margin-right:8px}.prev p.me{background:#f8ecc4}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fbf5e4ee;backdrop-filter:blur(8px);border-top:1px solid var(--l);padding:10px 14px calc(env(safe-area-inset-bottom) + 10px);display:flex;gap:10px;z-index:5;max-width:560px;margin:auto}
+.bar .btn{margin:0}#bk{flex:1}#nx{flex:2}
+.toast{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:50%;transform:translate(-50%,-90px);background:var(--er);color:#fff;padding:12px 18px;border-radius:10px;z-index:9;font-size:.85rem;transition:.3s;width:max-content;max-width:90vw;text-align:center}
+.toast.s{transform:translate(-50%,0)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.stats div{background:var(--c);border:1px solid var(--l);border-radius:10px;padding:14px;text-align:center}
+.stats b{display:block;font:400 2rem 'Bebas Neue',sans-serif;color:var(--g)}
+.sp{margin-top:14px;font:1rem/1.7 'Playfair Display',Georgia,serif}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="scr on" id="intro"><div class="w">
+  <h1>Something Close to My Heart</h1>
+  <p style="color:var(--m);margin-top:6px;line-height:1.5">Thirty pages, one line each. Pick a lens on each page (Who, What, When, Where, Why, How, Past, Present, Future, plus or minus) and write one line. Your lines join into a speech about something close to your heart.</p>
+  <div class="card chip"><img id="av" alt=""><div><b id="gn">Loading…</b><br><span id="gd" style="font-size:.8rem;color:var(--m)"></span></div></div>
+  <div class="card">
+    <label for="full">Full name as on your college ID card</label>
+    <input id="full" autocomplete="name">
+    <label for="topic" style="margin-top:12px">Speech title (the thing close to your heart)</label>
+    <input id="topic" maxlength="60" placeholder="e.g. Be extremely specific My Casio F-91WF-1A">
+  </div>
+  <div class="note"><b>Before you begin:</b> at the end you will download an HTML file. Upload it to your repository. Your work is not submitted until it is there.</div>
+  <button class="btn" id="go">Begin</button>
+</div></div>
+
+<div class="scr" id="app"><div class="w">
+  <div class="meta"><span id="pn"></span><span id="st"></span></div>
+  <div class="pbar"><div id="pf"></div></div>
+  <p class="q">Be extremely specific</p>
+  <div class="lens" id="lens"></div>
+  <textarea id="ln" maxlength="220" placeholder="Write one line of your speech…" aria-label="Your line"></textarea>
+  <div class="row"><span id="wc"></span></div>
+  <div class="prev" id="pv"></div>
+</div>
+<div class="bar"><button class="btn alt" id="bk">Back</button><button class="btn ink" id="nx">Next</button></div></div>
+
+<div class="scr" id="end"><div class="w">
+  <h1>Your speech is ready.</h1>
+  <p id="es" style="color:var(--m);margin-top:6px"></p>
+  <div class="stats"><div><b id="ew">0</b>words</div><div><b id="el">0</b>lines</div></div>
+  <div class="card"><div class="sp" id="sp"></div></div>
+  <div class="gc"><b>Do a grammar check first.</b> Read your speech aloud and run it through a grammar checker before you download it. Fix any mistakes, then download.</div>
+  <div class="note">Download your speech, then upload the file to your repository.</div>
+  <button class="btn" id="dl">Download my speech</button>
+  <button class="btn alt" id="cp">Copy speech text</button>
+</div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const EDGE="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+const QUEST="Quest 39";
+const MINW=4;
+const LENS=['Who','What','When','Where','Why','How','Past','Present','Future','+','-'];
+const N=30;
+const L=Array(N).fill(''),C=Array(N).fill('');
+let FULL='',TOPIC='',DEPT='',USER='',start=0,pg=0;
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('s');setTimeout(()=>t.classList.remove('s'),2800)}
+function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));scrollTo(0,0)}
+const wc=s=>s.trim().split(/\s+/).filter(Boolean).length;
+const total=()=>L.reduce((a,l)=>a+wc(l),0);
+
+addEventListener('DOMContentLoaded',()=>{
+  const g=window.GH;
+  USER=g?(g.name||g.username||'Student'):(localStorage.getItem('questPlayerName')||'Test Student');
+  DEPT=g?(g.dept||'Department Unspecified'):(localStorage.getItem('questPlayerDept')||'CSE');
+  $('#gn').textContent=USER;$('#gd').textContent='GitHub login · '+DEPT;
+  $('#av').src=(g&&g.avatar)||'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E';
+});
+$('#go').onclick=()=>{
+  FULL=$('#full').value.trim();TOPIC=$('#topic').value.trim();
+  if(FULL.length<4)return toast('Enter your full name exactly as on your ID card');
+  if(TOPIC.length<3)return toast('Give your speech a title');
+  start=Date.now();pg=0;show('app');render();
+};
+
+function render(){
+  $('#pn').textContent=`Page ${pg+1} of ${N}`;
+  $('#pf').style.width=((pg+1)/N*100)+'%';
+  const lb=$('#lens');lb.innerHTML='';
+  LENS.forEach(k=>{const b=document.createElement('button');b.textContent=k;b.className=C[pg]===k?'on':'';
+    b.onclick=()=>{C[pg]=k;[...lb.children].forEach(x=>x.classList.toggle('on',x===b))};lb.appendChild(b)});
+  $('#ln').value=L[pg];
+  $('#nx').textContent=pg===N-1?'Finish':'Next';
+  upd();
+}
+function list(){
+  const items=L.map((l,i)=>i<pg&&l.trim()?`<p><span>${i+1}</span>${esc(l)}</p>`:'').join('');
+  $('#pv').innerHTML=items?'<h2>Previous lines</h2>'+items:'';
+}
+function upd(){
+  list();
+  const w=wc(L[pg]);
+  $('#wc').textContent=w+' word'+(w===1?'':'s');
+  $('#st').textContent='✍ '+total()+' words';
+}
+$('#ln').onkeydown=e=>{if(e.key==='Enter')e.preventDefault()};
+$('#ln').oninput=e=>{L[pg]=e.target.value.replace(/\s*\n\s*/g,' ');upd()};
+
+$('#bk').onclick=()=>{if(pg){pg--;render();scrollTo(0,0)}};
+$('#nx').onclick=()=>{
+  const v=L[pg].trim();
+  if(!C[pg])return toast('Pick Who, What, When… for this page');
+  if(wc(v)<MINW)return toast(`Write at least ${MINW} words on this page`);
+  L[pg]=v;
+  if(pg<N-1){pg++;render();scrollTo(0,0)}else finish();
+};
+
+function finish(){
+  for(let i=0;i<N;i++)if(wc(L[i])<MINW||!C[i]){pg=i;render();return toast(`Page ${i+1} needs a lens and a line of at least ${MINW} words`)}
+  const words=total(),secs=Math.round((Date.now()-start)/1000);
+  $('#es').textContent=FULL+' · '+DEPT;$('#ew').textContent=words;$('#el').textContent=N;
+  $('#sp').innerHTML=`<b>${esc(TOPIC)}</b><br>`+L.map(esc).join(' ');
+  show('end');
+  fetch(EDGE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_name:USER,github_user:USER,department:DEPT,correct:words,wrong:0,time_spent:secs,quest_id:QUEST,cheat_count:0,cheat_events:[]})}).catch(()=>{});
+}
+
+$('#cp').onclick=async()=>{
+  const t=TOPIC+'\n\n'+L.join(' ')+'\n\n— '+FULL;
+  try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){toast('Copy failed. Select the text instead.')}
+};
+$('#dl').onclick=()=>{
+  const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  const h=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(TOPIC)} — ${esc(FULL)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0}body{background:#fbf5e4;color:#3b2f16;font-family:'Playfair Display',Georgia,serif;padding:12vh 22px 14vh}
+main{max-width:640px;margin:auto}h1{font:400 clamp(2.6rem,12vw,5.5rem)/1 'Bebas Neue',Impact,sans-serif;color:#8a6410;letter-spacing:.04em;overflow-wrap:anywhere}
+.by{margin:12px 0 36px;color:#7d6d4a;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;line-height:1.8}
+p{font-size:1.15rem;line-height:1.9;margin-bottom:.4em}p:first-of-type::first-letter{font:400 3.4rem/.8 'Bebas Neue',sans-serif;float:left;margin:6px 8px 0 0;color:#b8891f}
+.sg{margin-top:40px;font-style:italic;color:#8a6410;border-top:1px solid #d9c07a;padding-top:14px}</style></head><body><main>
+<h1>${esc(TOPIC)}</h1><p class="by">A speech by ${esc(FULL)}<br>${esc(DEPT)} · ${date}</p>
+${L.map(l=>`<p>${esc(l)}</p>`).join('\n')}
+<p class="sg">${esc(FULL)} · ${total()} words</p></main></body></html>`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));
+  a.download=(FULL+'-speech').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.html';
+  a.click();
+};
+</script>
+</body>
+</html>
