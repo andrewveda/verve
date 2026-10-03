@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -242,10 +241,9 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
 .qpanel-top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 10px; }
 .qpanel-counter { font-family: var(--mono); font-size: 10.5px; color: rgba(255,255,255,0.55); white-space: nowrap; }
 
-.qpanel-dots { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 20px; }
-.qpanel-dot { width: 9px; height: 9px; min-width: 9px; border-radius: 50%; background: rgba(255,255,255,0.18); transition: all 0.2s var(--ease); }
-.qpanel-dot.answered { background: var(--teal-light); }
-.qpanel-dot.current { background: var(--gold); transform: scale(1.4); }
+.qpanel-media-controls { display: flex; gap: 10px; margin-bottom: 20px; }
+.qpanel-media-btn { flex: 1; padding: 12px 14px; border-radius: 11px; font-family: var(--sans); font-weight: 500; font-size: 13px; color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.14); transition: all 0.15s var(--ease); }
+.qpanel-media-btn:active { transform: scale(0.97); background: rgba(255,255,255,0.14); }
 
 .qpanel-question { font-family: var(--fell); font-style: italic; font-size: 1.28rem; line-height: 1.35; color: #fff; margin-bottom: 20px; }
 .qpanel-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
@@ -767,11 +765,11 @@ function openIntro(test) {
           <div class="intro-rules-title">Before you start</div>
           <ul>
             <li>Use headphones for the clearest listening.</li>
-            <li>The video plays on its own — it won't pause or wait for you.</li>
-            <li>Answer the ${total} blanks below it at your own pace, in any order.</li>
+           
             <li>Tapping an option locks it in and moves you to the next blank automatically — you can still go back and change it any time.</li>
             <li>Finishing is locked until the video has played all the way through.</li>
             <li>Your score and answer breakdown appear once you finish.</li>
+             <li>Thank you, Kiruthika, for finding this video!</li>
           </ul>
         </div>
         <button class="btn-primary" id="btnStartQuest" style="font-size: 14px; padding: 16px; border-radius: 12px; margin-top: 10px; box-shadow: 0 6px 20px rgba(184,145,58,0.25);">Start Listening →</button>
@@ -1000,13 +998,6 @@ function renderQuestionPanel() {
     return;
   }
 
-  const dotsHtml = currentQuestions.map((_, i) => {
-    let cls = 'qpanel-dot';
-    if (i === currentQIndex) cls += ' current';
-    else if (selectedAnswers[i] !== undefined) cls += ' answered';
-    return `<div class="${cls}" data-qi="${i}"></div>`;
-  }).join('');
-
   const optionsHtml = q.options.map((opt, oi) => {
     const selected = selectedAnswers[currentQIndex] === oi;
     return `
@@ -1023,7 +1014,10 @@ function renderQuestionPanel() {
     <div class="qpanel-top-row">
       <span class="qpanel-counter">Blank ${currentQIndex + 1} of ${total}</span>
     </div>
-    <div class="qpanel-dots" id="qpanelDots">${dotsHtml}</div>
+    <div class="qpanel-media-controls">
+      <button class="qpanel-media-btn" id="qpanelRewind">↶ 10 seconds</button>
+      <button class="qpanel-media-btn" id="qpanelPause">❚❚ Pause</button>
+    </div>
     <div class="qpanel-question">${escHtml(q.q)}</div>
     <div class="qpanel-options" id="qpanelOptions">${optionsHtml}</div>
     <div class="qpanel-nav">
@@ -1047,11 +1041,25 @@ function renderQuestionPanel() {
       }
     });
   });
-  panel.querySelectorAll('.qpanel-dot').forEach(dot => {
-    dot.addEventListener('click', () => {
-      if (advanceTimeout) { clearTimeout(advanceTimeout); advanceTimeout = null; }
-      currentQIndex = parseInt(dot.dataset.qi); renderQuestionPanel();
-    });
+  document.getElementById('qpanelRewind').addEventListener('click', () => {
+    if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+    try {
+      ytPlayer.seekTo(Math.max(0, ytPlayer.getCurrentTime() - 10), true);
+    } catch (e) {}
+  });
+
+  document.getElementById('qpanelPause').addEventListener('click', () => {
+    if (!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
+    try {
+      const btn = document.getElementById('qpanelPause');
+      if (ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+        ytPlayer.pauseVideo();
+        btn.textContent = '▶ Resume';
+      } else {
+        ytPlayer.playVideo();
+        btn.textContent = '❚❚ Pause';
+      }
+    } catch (e) {}
   });
   document.getElementById('qpanelPrev').addEventListener('click', () => {
     if (advanceTimeout) { clearTimeout(advanceTimeout); advanceTimeout = null; }
