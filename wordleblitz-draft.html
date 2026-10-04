@@ -60,7 +60,7 @@ canvas.fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .board-wrap{
   position:relative;width:100%;max-width:460px;
   flex:1 1 auto;
-  min-height:0; /* critical for flex shrink */
+  min-height:0;
   overflow:hidden;
   display:flex;align-items:center;justify-content:center;
 }
@@ -92,12 +92,12 @@ canvas.fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .tile.present{background:var(--present);border-color:transparent;}
 .tile.correct{background:var(--correct);border-color:transparent;}
 
-/* Keyboard — tall keys, easy to tap */
+/* Keyboard */
 .keyboard{display:flex;flex-direction:column;gap:7px;width:100%;max-width:460px;flex-shrink:0;}
 .krow{display:flex;gap:5px;justify-content:center;}
 .key{
   flex:1;
-  padding:18px 0;          /* tall touch target */
+  padding:18px 0;
   border-radius:9px;text-align:center;user-select:none;
   background:#2e4a6e;color:#ffffff;
   font-family:'Rajdhani',sans-serif;font-weight:700;
@@ -116,12 +116,11 @@ canvas.fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 @keyframes enterGlow{0%,100%{box-shadow:0 4px 0 rgba(0,0,0,0.45),0 0 8px rgba(34,197,94,0.4)}50%{box-shadow:0 4px 0 rgba(0,0,0,0.45),0 0 22px rgba(34,197,94,0.85),0 0 40px rgba(34,197,94,0.3)}}
 .key.k-back{background:linear-gradient(135deg,#9b1c1c,#ef4444);border-color:rgba(239,68,68,0.4);box-shadow:0 4px 0 rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.12);}
 
-/* Bottom bar: hint + skip in one row */
+/* Bottom bar */
 .bottom-bar{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:460px;min-height:22px;flex-shrink:0;}
 .hint-bar{font-size:12px;color:#9fb7db;flex:1;text-align:center;}
 .skip-btn{font-size:11px;color:var(--muted);background:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:3px 10px;cursor:pointer;transition:color 0.2s,border-color 0.2s;flex-shrink:0;}
 .skip-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.3);}
-
 
 #solvedFlash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:30;opacity:0;}
 .solved-word{font-family:'Rajdhani',sans-serif;font-size:3.5rem;font-weight:700;color:var(--gold);letter-spacing:4px;text-shadow:0 0 30px rgba(255,215,0,0.6);}
@@ -157,6 +156,7 @@ canvas.fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;}
 .btn{flex:1;padding:14px 10px;border:none;border-radius:12px;font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}
 .btn:hover{transform:scale(1.04);}
+.btn:disabled{opacity:.6;cursor:wait;}
 .btn-primary{background:linear-gradient(135deg,#1e8a4a,#00c6ff);color:white;box-shadow:0 4px 16px rgba(0,198,255,0.25);}
 .btn-secondary{background:var(--surface);color:var(--text);border:1px solid rgba(255,255,255,0.1);}
 .btn-wa{background:linear-gradient(135deg,#128c7e,#25d366);color:white;}
@@ -210,7 +210,6 @@ canvas.fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 <div class="screen" id="gameScreen">
   <div class="timer-area" id="timerArea">
     <div class="timer-arc-wrap">
-      <!-- r=22 → circumference = 2*PI*22 = 138.23 -->
       <svg id="timerArc" width="54" height="54" viewBox="0 0 54 54">
         <circle cx="27" cy="27" r="22" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="5"/>
         <circle id="arcPath" cx="27" cy="27" r="22" fill="none" stroke="#00c6ff" stroke-width="5"
@@ -275,6 +274,7 @@ canvas.fx{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
     <div class="btn-row">
      <button type="button" class="btn btn-primary" id="playAgainBtn">⚡ Play Again</button>
 <button type="button" class="btn btn-wa" id="shareBtn">📲 WhatsApp</button>
+<button type="button" class="btn btn-secondary" id="reportBtn">📄 Report</button>
 <button type="button" class="btn btn-secondary" id="leaderboardBtn">🏆 Leaderboard</button>
     </div>
   </div>
@@ -303,6 +303,9 @@ let accepting = true, transitioning = false;
 let totalAttempts = 0, perfectSolves = 0, fastestSolveSec = 999;
 let totalTimeBonus = 0, longestStreak = 0, currentStreak = 0;
 let _frozenStats = null;
+
+/* seconds spent on the current word */
+const wt = () => Math.round((Date.now() - wordStartTime) / 1000);
 
 /* Safety watchdog */
 setInterval(()=>{
@@ -353,7 +356,6 @@ function generateStatsImage(s, playerName, playerDept) {
   const canvas = document.getElementById('statsCanvas'), ctx = canvas.getContext('2d');
   canvas.width = 1080;
 
-  // ── LAYOUT CONSTANTS ──────────────────────────────────────────
   const PAD = 64;
   const SECTION_GAP = 40;
   const ROW_H = 88;
@@ -362,11 +364,10 @@ function generateStatsImage(s, playerName, playerDept) {
   const allWords = s.solvedLog;
   const wordRows = Math.ceil(allWords.length / 2);
 
-  // Compute all Y positions so canvas height is exact
   let Y = 0;
-  const y_title      = (Y += 50,  Y);           // 50
-  const y_sub        = (Y += 80,  Y);           // 130
-  const y_name       = playerName ? (Y += 52, Y) : Y; // 182
+  const y_title      = (Y += 50,  Y);
+  const y_sub        = (Y += 80,  Y);
+  const y_name       = playerName ? (Y += 52, Y) : Y;
   const y_scorebox   = (Y += SECTION_GAP + 20, Y);
   const SCOREBOX_H   = 160;
   const y_statsrow   = (Y += SCOREBOX_H + SECTION_GAP, Y);
@@ -381,29 +382,23 @@ function generateStatsImage(s, playerName, playerDept) {
 
   canvas.height = TOTAL_H;
 
-  // ── BACKGROUND ────────────────────────────────────────────────
-  // Rich cream base
   ctx.fillStyle = '#f5efe0';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Subtle linen texture via diagonal lines
   ctx.strokeStyle = 'rgba(180,140,80,0.07)';
   ctx.lineWidth = 1;
   for (let i = -canvas.height; i < canvas.width + canvas.height; i += 28) {
     ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + canvas.height, canvas.height); ctx.stroke();
   }
 
-  // Top gold bar
   const topBar = ctx.createLinearGradient(0, 0, canvas.width, 0);
   topBar.addColorStop(0, '#b8860b'); topBar.addColorStop(0.5, '#ffd700'); topBar.addColorStop(1, '#b8860b');
   ctx.fillStyle = topBar;
   ctx.fillRect(0, 0, canvas.width, 12);
 
-  // Bottom gold bar
   ctx.fillStyle = topBar;
   ctx.fillRect(0, canvas.height - 12, canvas.width, 12);
 
-  // Thin gold rule under title area
   ctx.strokeStyle = 'rgba(184,134,11,0.3)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -411,7 +406,6 @@ function generateStatsImage(s, playerName, playerDept) {
   ctx.lineTo(canvas.width - PAD, y_sub + 36);
   ctx.stroke();
 
-  // ── TITLE ─────────────────────────────────────────────────────
   ctx.textAlign = 'center';
   ctx.font = 'bold 78px Rajdhani, sans-serif';
   ctx.fillStyle = '#1a1206';
@@ -428,13 +422,10 @@ function generateStatsImage(s, playerName, playerDept) {
     ctx.fillText(`👤  ${playerName}   ·   ${playerDept}`, canvas.width / 2, y_name);
   }
 
-  // ── SCORE BOX ─────────────────────────────────────────────────
-  // Card shadow
   ctx.fillStyle = 'rgba(160,120,40,0.15)';
   rrect(ctx, PAD + 6, y_scorebox + 6, canvas.width - PAD * 2, SCOREBOX_H, 20);
   ctx.fill();
 
-  // Card face — dark gold
   const sbG = ctx.createLinearGradient(PAD, y_scorebox, canvas.width - PAD, y_scorebox + SCOREBOX_H);
   sbG.addColorStop(0, '#2a1d00'); sbG.addColorStop(1, '#1a1206');
   ctx.fillStyle = sbG;
@@ -446,7 +437,6 @@ function generateStatsImage(s, playerName, playerDept) {
   rrect(ctx, PAD, y_scorebox, canvas.width - PAD * 2, SCOREBOX_H, 20);
   ctx.stroke();
 
-  // Score value — big and bold
   ctx.font = 'bold 96px Rajdhani, sans-serif';
   ctx.fillStyle = '#ffd700';
   ctx.textAlign = 'center';
@@ -456,25 +446,20 @@ function generateStatsImage(s, playerName, playerDept) {
   ctx.fillStyle = '#c8a84b';
   ctx.fillText('T O T A L   S C O R E', canvas.width / 2, y_scorebox + 143);
 
-  // ── SOLVED / FAILED ROW ───────────────────────────────────────
   const sf_w = (canvas.width - PAD * 2 - COL_GAP) / 2;
 
   function statPill(x, y, w, h, label, value, col) {
-    // shadow
     ctx.fillStyle = 'rgba(160,120,40,0.12)';
     rrect(ctx, x + 4, y + 4, w, h, 16); ctx.fill();
-    // bg
     ctx.fillStyle = '#fffdf5';
     rrect(ctx, x, y, w, h, 16); ctx.fill();
     ctx.strokeStyle = col;
     ctx.lineWidth = 2;
     rrect(ctx, x, y, w, h, 16); ctx.stroke();
-    // value
     ctx.font = 'bold 64px Rajdhani, sans-serif';
     ctx.fillStyle = col;
     ctx.textAlign = 'center';
     ctx.fillText(String(value), x + w / 2, y + 72);
-    // label
     ctx.font = '20px Nunito, sans-serif';
     ctx.fillStyle = '#8b6914';
     ctx.fillText(label, x + w / 2, y + 98);
@@ -483,7 +468,6 @@ function generateStatsImage(s, playerName, playerDept) {
   statPill(PAD, y_statsrow, sf_w, STATSROW_H, 'WORDS SOLVED', s.wordsSolved, '#1e6b3a');
   statPill(PAD + sf_w + COL_GAP, y_statsrow, sf_w, STATSROW_H, 'WORDS MISSED', s.failedCount, '#b71c1c');
 
-  // ── METRICS 2×3 GRID ──────────────────────────────────────────
   const metrics = [
     { label: 'Perfect Solves', value: s.perfectSolves,        emoji: '🎯' },
     { label: 'Longest Streak', value: s.longestStreak,        emoji: '🔥' },
@@ -499,36 +483,29 @@ function generateStatsImage(s, playerName, playerDept) {
     const mx = PAD + col * (M_W + COL_GAP);
     const my = y_metrics + row * (METRIC_H + METRIC_GAP);
 
-    // shadow
     ctx.fillStyle = 'rgba(160,120,40,0.1)';
     rrect(ctx, mx + 3, my + 3, M_W, METRIC_H, 14); ctx.fill();
-    // bg
     ctx.fillStyle = '#fffdf5';
     rrect(ctx, mx, my, M_W, METRIC_H, 14); ctx.fill();
     ctx.strokeStyle = 'rgba(184,134,11,0.3)';
     ctx.lineWidth = 1.5;
     rrect(ctx, mx, my, M_W, METRIC_H, 14); ctx.stroke();
 
-    // emoji
     ctx.font = '36px sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(m.emoji, mx + 20, my + 66);
 
-    // value
     ctx.font = 'bold 46px Rajdhani, sans-serif';
     ctx.fillStyle = '#2a1d00';
     ctx.textAlign = 'right';
     ctx.fillText(String(m.value), mx + M_W - 20, my + 62);
 
-    // label
     ctx.font = '18px Nunito, sans-serif';
     ctx.fillStyle = '#8b6914';
     ctx.textAlign = 'right';
     ctx.fillText(m.label.toUpperCase(), mx + M_W - 20, my + 88);
   });
 
-  // ── WORDS SECTION ─────────────────────────────────────────────
-  // Section divider
   ctx.strokeStyle = 'rgba(184,134,11,0.3)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
@@ -549,30 +526,24 @@ function generateStatsImage(s, playerName, playerDept) {
     const wh = ROW_H - 12;
     const failed = entry.failed;
 
-    // shadow
     ctx.fillStyle = 'rgba(160,120,40,0.1)';
     rrect(ctx, wx + 3, wy + 3, COL_W, wh, 12); ctx.fill();
 
-    // card bg
     ctx.fillStyle = failed ? '#fff5f5' : '#fffdf5';
     rrect(ctx, wx, wy, COL_W, wh, 12); ctx.fill();
 
-    // left accent bar
     ctx.fillStyle = failed ? '#e53935' : '#1e8a4a';
     rrect(ctx, wx, wy, 6, wh, 12); ctx.fill();
 
-    // border
     ctx.strokeStyle = failed ? 'rgba(229,57,53,0.25)' : 'rgba(30,138,74,0.2)';
     ctx.lineWidth = 1.5;
     rrect(ctx, wx, wy, COL_W, wh, 12); ctx.stroke();
 
-    // word
     ctx.font = 'bold 34px Rajdhani, sans-serif';
     ctx.fillStyle = failed ? '#c62828' : '#1a1206';
     ctx.textAlign = 'left';
     ctx.fillText(entry.word.toUpperCase(), wx + 22, wy + wh * 0.64);
 
-    // tries / missed
     if (failed) {
       ctx.font = '20px Nunito, sans-serif';
       ctx.fillStyle = '#e53935';
@@ -587,14 +558,12 @@ function generateStatsImage(s, playerName, playerDept) {
       ctx.fillText(badge, wx + COL_W * 0.62, wy + wh * 0.64);
     }
 
-    // points
     ctx.font = 'bold 30px Rajdhani, sans-serif';
     ctx.fillStyle = failed ? '#bbb' : '#b8860b';
     ctx.textAlign = 'right';
     ctx.fillText(failed ? '–' : '+' + entry.pts, wx + COL_W - 16, wy + wh * 0.64);
   });
 
-  // ── FOOTER ────────────────────────────────────────────────────
   ctx.font = '24px Nunito, sans-serif';
   ctx.fillStyle = '#8b6914';
   ctx.textAlign = 'center';
@@ -729,7 +698,7 @@ function onWordSolved(){
   const bonus=calcTimeBonus(tries);totalTimeBonus+=bonus;
   currentStreak++;longestStreak=Math.max(longestStreak,currentStreak);
   const pts=calcScore(tries,elapsed);score+=pts;wordsSolved++;wordAttempts+=tries;
-  solvedLog.push({word:currentWord,guesses:[...guesses],pts,grid:buildGrid(currentWord,guesses)});
+  solvedLog.push({word:currentWord,guesses:[...guesses],pts,grid:buildGrid(currentWord,guesses),time:elapsed});
   const row=document.getElementById('board').children[tries-1];
   if(row)Array.from(row.children).forEach((t,i)=>setTimeout(()=>anim(t,'jump'),80+i*80));
   if(bonus>0){timeLeft=Math.min(timeLeft+bonus,TOTAL_TIME);updateArc();showTimeBonusFlash('+'+bonus+'s');}
@@ -741,13 +710,13 @@ function onWordSolved(){
 }
 
 function onWordFailed(){
-  solvedLog.push({word:currentWord,guesses:[...guesses],pts:0,grid:buildGrid(currentWord,guesses),failed:true});
+  solvedLog.push({word:currentWord,guesses:[...guesses],pts:0,grid:buildGrid(currentWord,guesses),failed:true,time:wt()});
   currentStreak=0;totalAttempts+=Math.max(1,guesses.length);
   flashSolved(currentWord.toUpperCase(),0,0,true);
   setTimeout(nextWord,1800);
 }
 
-/* ── NEXT WORD — FIX: proper guard ordering ── */
+/* ── NEXT WORD ── */
 function nextWord(){
   if(!gameActive||transitioning)return;
   transitioning=true;accepting=false;
@@ -829,13 +798,12 @@ function startGame(){
   document.addEventListener('keydown',keydownHandler);
 }
 
-/* ── END GAME — FIX: don't double-log word already in solvedLog ── */
+/* ── END GAME ── */
 function endGame(){
   gameActive=false;clearInterval(timerInterval);document.removeEventListener('keydown',keydownHandler);
-  /* Only push as failed if this word was never logged */
   const alreadyLogged=solvedLog.some(e=>e.word===currentWord);
   if(currentWord&&!alreadyLogged&&guesses.length<6){
-    solvedLog.push({word:currentWord,guesses:[...guesses],pts:0,grid:buildGrid(currentWord,guesses),failed:true});
+    solvedLog.push({word:currentWord,guesses:[...guesses],pts:0,grid:buildGrid(currentWord,guesses),failed:true,time:wt()});
     currentStreak=0;totalAttempts+=Math.max(1,guesses.length);
   }
   const failedCount=solvedLog.filter(e=>e.failed).length;
@@ -884,6 +852,7 @@ function showEndScreen(){
   document.getElementById('playAgainBtn').onclick=startGame;
   document.getElementById('leaderboardBtn').onclick=()=>window.open('https://andrewveda.com/verve/buttons/wordleleaderboard','_blank');
   document.getElementById('shareBtn').onclick=()=>shareOnWhatsApp(s,sName,sDept);
+  document.getElementById('reportBtn').onclick=()=>downloadReport(s,localStorage.getItem(NAME_KEY),localStorage.getItem(DEPT_KEY));
 }
 
 function saveFallbackIdentity(fs){
@@ -905,7 +874,7 @@ function submitScore(name,dept,s){
 
 /* ── SHARE ── */
 function shareOnWhatsApp(s,playerName,playerDept){
-  generateStatsImage(s,playerName,playerDept); // draws to canvas
+  generateStatsImage(s,playerName,playerDept);
   document.getElementById('statsCanvas').toBlob(blob=>{
     if(!blob){fallbackShare(s);return;}
     const file=new File([blob],'wordle-blitz-stats.png',{type:'image/png'});
@@ -924,22 +893,136 @@ function fallbackShare(s){
   window.open(`https://wa.me/?text=${encodeURIComponent(`⚡ Wordle Blitz — I solved ${s.wordsSolved} words and scored ${s.score} pts!\n\n${grids}\n\n🎯 Try it: https://andrewveda.com/verve/buttons/wordle-hub`)}`,'_blank');
 }
 
-/* ── SKIP — FIX: guard transitioning immediately, not inside timeout ── */
+/* ── SKIP ── */
 document.getElementById('skipBtn').onclick=()=>{
   if(!gameActive||!accepting||transitioning)return;
-  solvedLog.push({word:currentWord,guesses:[...guesses],pts:0,grid:buildGrid(currentWord,guesses),failed:true});
+  solvedLog.push({word:currentWord,guesses:[...guesses],pts:0,grid:buildGrid(currentWord,guesses),failed:true,time:wt()});
   currentStreak=0;
   flashSolved(currentWord.toUpperCase(),0,0,true);
   accepting=false;
-  transitioning=true; // set immediately — blocks any race condition
+  transitioning=true;
   setTimeout(()=>{transitioning=false;nextWord();},700);
 };
 document.getElementById('fallbackName').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
-    e.preventDefault(); // Stop any default browser behavior
-    document.getElementById('fallbackDept').focus(); // Move to the dropdown
+    e.preventDefault();
+    document.getElementById('fallbackDept').focus();
   }
 });
+
+/* =====================================================================
+   DOWNLOADABLE REPORT  (words + time per word + meanings)
+   ===================================================================== */
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtT = s => s >= 60 ? Math.floor(s / 60) + 'm ' + String(s % 60).padStart(2, '0') + 's' : s + 's';
+
+/* Free Dictionary API — no key needed */
+async function fetchMeaning(word) {
+  try {
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 6000);
+    const r = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + word, { signal: ac.signal });
+    clearTimeout(t);
+    if (!r.ok) return null;
+    const d = await r.json(), out = [];
+    for (const m of d[0].meanings) {
+      const df = m.definitions[0];
+      if (df) out.push({ pos: m.partOfSpeech, def: df.definition, ex: df.example || '' });
+      if (out.length === 2) break;
+    }
+    return out.length ? out : null;
+  } catch (e) { return null; }
+}
+
+function tilesHTML(word, guess) {
+  const a = word.split(''), g = guess.split(''), res = Array(5).fill('a'), f = {};
+  a.forEach(c => f[c] = (f[c] || 0) + 1);
+  for (let i = 0; i < 5; i++) if (g[i] === a[i]) { res[i] = 'c'; f[g[i]]--; }
+  for (let i = 0; i < 5; i++) if (res[i] === 'a' && f[g[i]] > 0) { res[i] = 'p'; f[g[i]]--; }
+  return g.map((ch, i) => `<i class="${res[i]}">${ch}</i>`).join('');
+}
+
+function buildReportHTML(s, name, dept, meanings) {
+  const log = s.solvedLog;
+  const solved = log.filter(e => !e.failed);
+  const avg = log.length ? Math.round(log.reduce((a, e) => a + (e.time || 0), 0) / log.length) : 0;
+  const cards = log.map((e, i) => {
+    const m = meanings[i];
+    const rows = e.guesses.length
+      ? e.guesses.map(g => `<div class="g">${tilesHTML(e.word, g)}</div>`).join('')
+      : '<div class="skip">skipped before guessing</div>';
+    const mean = m
+      ? m.map(x => `<p><b>${esc(x.pos)}</b> ${esc(x.def)}</p>`).join('') + (m[0].ex ? `<p class="ex">“${esc(m[0].ex)}”</p>` : '')
+      : `<p class="mean-missing" data-w="${e.word}">Looking up meaning…</p>`;
+    return `<section class="card ${e.failed ? 'bad' : 'ok'}">
+      <div class="top"><span class="w">${e.word.toUpperCase()}</span>
+        <span class="chip t">⏱ ${fmtT(e.time || 0)}</span>
+        <span class="chip ${e.failed ? 'x' : 'p'}">${e.failed ? 'missed' : '+' + e.pts + ' pts'}</span></div>
+      <div class="meta">#${i + 1} · ${e.failed ? 'not solved' : e.guesses.length + (e.guesses.length === 1 ? ' try' : ' tries')}</div>
+      <div class="grid">${rows}</div>
+      <div class="mean">${mean}</div></section>`;
+  }).join('');
+
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Wordle Blitz Report</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#080e1a;color:#e8f0fe;
+ padding:max(14px,env(safe-area-inset-top)) 14px max(24px,env(safe-area-inset-bottom));max-width:520px;margin:0 auto}
+h1{font-size:1.5rem;text-align:center;background:linear-gradient(135deg,#00c6ff,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.who{text-align:center;color:#7a93b8;font-size:.85rem;margin:2px 0 14px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.sum div{background:#0d1525;border:1px solid #1b2a44;border-radius:12px;padding:10px 4px;text-align:center}
+.sum b{display:block;font-size:1.5rem;color:#ffd700;line-height:1.1}
+.sum span{font-size:.65rem;color:#7a93b8;text-transform:uppercase;letter-spacing:.5px}
+.card{background:#0d1525;border:1px solid #1b2a44;border-left:4px solid #1e8a4a;border-radius:14px;padding:12px 14px;margin-bottom:12px}
+.card.bad{border-left-color:#e53935}
+.top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.w{font-size:1.4rem;font-weight:800;letter-spacing:2px;margin-right:auto}
+.chip{font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:99px;background:#111e30}
+.chip.t{color:#00c6ff}.chip.p{color:#ffd700}.chip.x{color:#ff6b6b}
+.meta{font-size:.75rem;color:#7a93b8;margin:2px 0 8px}
+.grid{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.g{display:flex;gap:3px}
+.g i{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;font:700 .85rem/1 system-ui;text-transform:uppercase;color:#fff;font-style:normal}
+.g .c{background:#1e8a4a}.g .p{background:#c8920a}.g .a{background:#2a2d35}
+.skip{font-size:.8rem;color:#7a93b8;font-style:italic}
+.mean{font-size:.9rem;color:#bcd3ef;border-top:1px solid #1b2a44;padding-top:8px}
+.mean p+p{margin-top:4px}.mean b{color:#00c6ff;font-style:italic;font-weight:600;margin-right:4px}
+.ex{color:#7a93b8;font-style:italic}.mean-missing{color:#7a93b8}
+footer{text-align:center;color:#7a93b8;font-size:.7rem;margin-top:18px}
+</style></head><body>
+<h1>⚡ WORDLE BLITZ</h1>
+<div class="who">${name ? '👤 ' + esc(name) + (dept ? ' · ' + esc(dept) : '') + ' · ' : ''}${new Date().toLocaleDateString()}</div>
+<div class="sum">
+ <div><b>${s.score}</b><span>Score</span></div>
+ <div><b>${solved.length}/${log.length}</b><span>Solved</span></div>
+ <div><b>${fmtT(avg)}</b><span>Avg / word</span></div></div>
+${cards}
+<footer>Meanings via dictionaryapi.dev</footer>
+<script>
+document.querySelectorAll('.mean-missing').forEach(function(el){
+  fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+el.dataset.w).then(function(r){return r.json()}).then(function(d){
+    var m=d[0].meanings[0];el.innerHTML='<b>'+m.partOfSpeech+'</b> '+m.definitions[0].definition;el.className='';
+  }).catch(function(){el.textContent='No meaning found (offline or not in dictionary).'});
+});
+<\/script></body></html>`;
+}
+
+async function downloadReport(s, name, dept) {
+  const btn = document.getElementById('reportBtn'), old = btn.textContent;
+  btn.textContent = '⏳ Preparing…'; btn.disabled = true;
+  try {
+    const meanings = await Promise.all(s.solvedLog.map(e => fetchMeaning(e.word)));
+    const blob = new Blob([buildReportHTML(s, name, dept, meanings)], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'wordle-blitz-report.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  } catch (e) { console.error('❌ report:', e); }
+  finally { btn.textContent = old; btn.disabled = false; }
+}
+
 /* ── INIT ── */
 document.getElementById('startBtn').onclick=startGame;
 (async function init(){
