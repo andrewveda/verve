@@ -504,54 +504,139 @@ function showToast(msg, isCheat = false) {
 
 /* ========== DATA ========== */
 let quizData = [
-  { 
-    questionItems: [
-      {word: "He carefully placed the chandelier ________ the box.", answer: "into"}, 
-      {word: "He carefully placed the chandelier into the box ________ his friend.", answer: "for"},
-      {word: "The hikers walked ________ the forest.", answer: "through"},
-      {word: "The hikers walked through the forest ________ an experienced guide.", answer: "with"}
-    ], 
-    answers: ["into", "for", "through", "with"] 
+  {
+    "questionItems": [
+      {"word": "She ___ the bill with an extra tip yesterday. (pay)", "answer": "had already paid"},
+      {"word": "She ___ the bill with an extra tip today. (pay)", "answer": "has already paid"},
+      {"word": "She ___ the bill with an extra tip by tomorrow. (pay)", "answer": "will have already paid"}
+    ],
+    "answers": ["had already paid", "has already paid", "will have already paid"]
   },
 
-  { 
-    questionItems: [
-      {word: "A bridge stretches ________ the river.", answer: "across"}, 
-      {word: "A bridge stretches across the river ________ the two villages.", answer: "between"},
-      {word: "We met ________ the station.", answer: "at"},
-      {word: "We met at the station ________ sunrise.", answer: "before"}
-    ], 
-    answers: ["across", "between", "at", "before"] 
+  {
+    "questionItems": [
+      {"word": "The boys ___ everyone present at the party yesterday. (annoy)", "answer": "annoyed"},
+      {"word": "The boys ___ everyone present at the party today. (annoy)", "answer": "are annoying"},
+      {"word": "The boys ___ everyone present at the party tomorrow. (annoy)", "answer": "will annoy"}
+    ],
+    "answers": ["annoyed", "are annoying", "will annoy"]
   },
 
-  { 
-    questionItems: [
-      {word: "The cat slept ________ the table.", answer: "under"}, 
-      {word: "The cat slept under the table ________ lunch.", answer: "during"},
-      {word: "The children ran ________ the playground.", answer: "across"}, 
-      {word: "The children ran across the playground ________ their class.", answer: "after"}
-    ], 
-    answers: ["under", "during", "across", "after"] 
+  {
+    "questionItems": [
+      {"word": "My mother ___ a sweater for my sister yesterday. (knit)", "answer": "knitted"},
+      {"word": "My mother ___ a sweater for my sister today. (knit)", "answer": "is knitting"},
+      {"word": "My mother ___ a sweater for my sister tomorrow. (knit)", "answer": "will knit"}
+    ],
+    "answers": ["knitted", "is knitting", "will knit"]
   },
 
-  { 
-    questionItems: [
-      {word: "A colourful kite floated ________ the trees.", answer: "above"}, 
-      {word: "A colourful kite floated above the trees ________ the festival.", answer: "during"},
-      {word: "She received a letter ________ her cousin.", answer: "from"}, 
-      {word: "She received a letter from her cousin ________ the competition.", answer: "about"}
-    ], 
-    answers: ["above", "during", "from", "about"] 
+  {
+    "questionItems": [
+      {"word": "The Principal ___ to speak to Raj yesterday. (want)", "answer": "wanted"},
+      {"word": "The Principal ___ to speak to Raj today. (want)", "answer": "wants"},
+      {"word": "The Principal ___ to speak to Raj tomorrow. (want)", "answer": "will want"}
+    ],
+    "answers": ["wanted", "wants", "will want"]
   },
 
-  { 
-    questionItems: [
-      {word: "The painting ________ the castle hangs on the wall.", answer: "of"}, 
-      {word: "The painting of the castle hangs ________ the wall.", answer: "on"},
-      {word: "We gathered ________ the campfire.", answer: "around"}, 
-      {word: "We gathered around the campfire ________ the lake.", answer: "by"}
-    ], 
-    answers: ["of", "on", "around", "by"] 
+  {
+    "questionItems": [
+      {"word": "The man ___ the streets for hours yesterday. (wander)", "answer": "wandered"},
+      {"word": "The man ___ the streets for hours today. (wander)", "answer": "has been wandering"},
+      {"word": "The man ___ the streets for hours tomorrow. (wander)", "answer": "will wander"}
+    ],
+    "answers": ["wandered", "has been wandering", "will wander"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "It ___ for three hours before dawn yesterday. (rain)", "answer": "had been raining"},
+      {"word": "It ___ since dawn today. (rain)", "answer": "has been raining"},
+      {"word": "By tomorrow morning, it ___ for three hours. (rain)", "answer": "will have been raining"}
+    ],
+    "answers": ["had been raining", "has been raining", "will have been raining"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "Why ___ such a strange noise yesterday? (make)", "answer": "did the machine make"},
+      {"word": "Why ___ such a strange noise today? (make)", "answer": "is the machine making"},
+      {"word": "Why ____ such a strange noise tomorrow? (make)", "answer": "will the machine make"}
+    ],
+    "answers": ["did, make", "is, making", "will, make"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "The birds ___ all day long yesterday. (chirp)", "answer": "chirped"},
+      {"word": "The birds ___ all day long today. (chirp)", "answer": "are chirping"},
+      {"word": "The birds ___ all day long tomorrow. (chirp)", "answer": "will chirp"}
+    ],
+    "answers": ["chirped", "are chirping", "will chirp"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "He ___ under the pressure of his boss yesterday. (work)", "answer": "worked"},
+      {"word": "He ___ under the pressure of his boss today. (work)", "answer": "is working"},
+      {"word": "He ___ under the pressure of his boss tomorrow. (work)", "answer": "will work"}
+    ],
+    "answers": ["worked", "is working", "will work"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "I ___ up at 7:00 a.m. yesterday. (get)", "answer": "got"},
+      {"word": "I ___ up at 7:00 a.m. every day, including today. (get)", "answer": "get"},
+      {"word": "I ___ up at 7:00 a.m. tomorrow. (get)", "answer": "will get"}
+    ],
+    "answers": ["got", "get", "will get"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "She ___ in the research laboratory throughout last semester. (work)", "answer": "worked"},
+      {"word": "She ___ in the research laboratory this semester. (work)", "answer": "is working"},
+      {"word": "She ___ in the research laboratory next semester. (work)", "answer": "will work"}
+    ],
+    "answers": ["worked", "is working", "will work"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "My brother ___ three programming languages last year. (know)", "answer": "knew"},
+      {"word": "My brother ___ three programming languages as of today. (know)", "answer": "knows"},
+      {"word": "My brother ___ three programming languages by next year. (know)", "answer": "will know"}
+    ],
+    "answers": ["knew", "knows", "will know"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "We ___ the project report yesterday, so we submitted it before the deadline. (finish)", "answer": "finished"},
+      {"word": "We ___ the project report today, so we can submit it before the deadline. (finish)", "answer": "have finished"},
+      {"word": "We ___ the project report by tomorrow, so we can submit it before the deadline. (finish)", "answer": "will have finished"}
+    ],
+    "answers": ["finished", "have finished", "will have finished"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "The principal ___ with the faculty members to discuss the new academic regulations yesterday. (meet)", "answer": "met"},
+      {"word": "The principal ___ with the faculty members to discuss the new academic regulations today. (meet)", "answer": "is meeting"},
+      {"word": "The principal ___ with the faculty members to discuss the new academic regulations tomorrow. (meet)", "answer": "will meet"}
+    ],
+    "answers": ["met", "is meeting", "will meet"]
+  },
+
+  {
+    "questionItems": [
+      {"word": "Last semester, our department ___ workshops to improve students' communication skills. (conduct)", "answer": "conducted"},
+      {"word": "This semester, our department ___ workshops to improve students' communication skills. (conduct)", "answer": "is conducting"},
+      {"word": "Next semester, our department ___ workshops to improve students' communication skills. (conduct)", "answer": "will conduct"}
+    ],
+    "answers": ["conducted", "is conducting", "will conduct"]
   }
 ];
 
