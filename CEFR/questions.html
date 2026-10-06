@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WH Questions — A Study in Open Questions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F8F1DF;--parchment:#F1E5C6;--bronze-deep:#6E4520;--gold:#B8862E;--gold-bright:#C79A3D;
+  --ink:#3A2A17;--ink-soft:#5E4A31;--line:#D5BE86;--shadow:rgba(90,62,21,.16);--btn-text:#F8F1DF;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--cream:#1F1710;--parchment:#2C2216;--bronze-deep:#D9AE72;--gold:#D2A04A;--gold-bright:#DDAF5A;--ink:#F3E8CF;--ink-soft:#CDBB98;--line:#5A4628;--shadow:rgba(0,0,0,.4);--btn-text:#1F1710}
+}
+:root[data-theme="dark"]{--cream:#1F1710;--parchment:#2C2216;--bronze-deep:#D9AE72;--gold:#D2A04A;--gold-bright:#DDAF5A;--ink:#F3E8CF;--ink-soft:#CDBB98;--line:#5A4628;--shadow:rgba(0,0,0,.4);--btn-text:#1F1710}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:'Public Sans',-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:640px;margin:0 auto;padding:0 22px}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;margin:0;letter-spacing:-.01em}
+p{margin:0 0 1em}
+.flourish{display:flex;align-items:center;gap:14px;margin:38px 0;color:var(--gold)}
+.flourish .bar{height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--line) 20%,var(--line) 80%,transparent)}
+.hero{padding:56px 0 8px;text-align:center}
+.qmark{width:74px;height:74px;margin:0 auto 22px;display:block;color:var(--gold)}
+.kicker{font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;font-size:15px;color:var(--bronze-deep);margin-bottom:18px}
+.hero h1{font-size:clamp(38px,11vw,54px);font-weight:600;line-height:1.05}
+.sub{margin:16px auto 0;font-size:17px;color:var(--ink-soft);max-width:30ch}
+.cta{text-align:center;padding:40px 0 8px}
+.cta h2{font-size:clamp(24px,6vw,28px);margin:0 auto 26px;max-width:22ch}
+.btn{display:inline-flex;align-items:center;justify-content:center;width:100%;max-width:340px;min-height:52px;padding:15px 18px;font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:17px;text-decoration:none;border-radius:4px;background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:var(--btn-text);box-shadow:0 6px 16px var(--shadow);transition:transform .15s}
+.btn:active{transform:translateY(1px) scale(.98)}
+.lede{font-size:19px}
+.lede::first-letter{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:3.4em;float:left;line-height:.8;padding:6px 8px 0 0;color:var(--bronze-deep)}
+.callout{background:var(--parchment);border:1px solid var(--line);border-radius:4px;padding:20px 22px;margin:22px 0;position:relative}
+.callout::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;background:var(--gold);border-radius:2px}
+.callout p{margin:0;padding-left:14px}
+.callout .label{display:block;padding-left:14px;font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:14px;color:var(--bronze-deep);margin-bottom:6px}
+.section-head{margin-bottom:22px}
+.section-head h2{font-size:clamp(24px,6vw,30px);font-weight:600}
+.tag{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:14px;color:var(--bronze-deep);display:block;margin-bottom:8px}
+.entry{display:flex;gap:16px;padding:22px 0;border-top:1px solid var(--line)}
+.num{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:20px;color:var(--gold);width:34px;flex-shrink:0;padding-top:2px}
+.entry h3{font-size:19px;font-weight:600;margin-bottom:6px}
+.entry p{font-size:15.5px;color:var(--ink-soft);margin-bottom:10px}
+.example{background:var(--parchment);border-radius:4px;padding:12px 14px;font-size:14.5px}
+.example .q{font-weight:600}
+.example .a{color:var(--bronze-deep);margin-top:4px}
+.compare{display:flex;flex-direction:column;gap:14px}
+.col{border:1px solid var(--line);border-radius:6px;padding:20px;background:var(--parchment)}
+.col.open{border-color:var(--gold);box-shadow:0 4px 14px var(--shadow)}
+.col h3{font-size:18px;margin-bottom:8px}
+.col p{font-size:15px;color:var(--ink-soft);margin-bottom:10px}
+.col .ex{font-size:14.5px;color:var(--ink-soft);padding-top:10px;border-top:1px dashed var(--line)}
+.rows{margin-top:26px;display:grid;gap:12px}
+.row{background:var(--parchment);border-radius:4px;padding:14px 16px;font-size:14.5px}
+.row .yn{color:var(--ink-soft)}
+.row .wh{font-weight:600;margin-top:4px}
+.row small{display:block;color:var(--bronze-deep);font-style:italic;margin-top:4px;font-size:13px}
+.diff{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:6px}
+.diff th,.diff td{text-align:left;padding:10px 10px 10px 0;border-top:1px solid var(--line);vertical-align:top}
+.diff th{font-family:'Fraunces',Georgia,serif;color:var(--bronze-deep);font-weight:600}
+.scroll{overflow-x:auto}
+footer{text-align:center;padding:20px 0 44px;font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:13px;color:var(--ink-soft);opacity:.75}
+@media (min-width:560px){.compare{flex-direction:row}.col{flex:1}}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+:focus-visible{outline:2px solid var(--bronze-deep);outline-offset:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section class="hero">
+  <svg class="qmark" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+    <path d="M30 38C30 24 40 16 52 16C64 16 74 24 74 37C74 48 66 52 58 58C51 63 49 68 49 74" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+    <circle cx="49" cy="90" r="4.5" fill="currentColor"/>
+  </svg>
+  <div class="kicker">A short study in questions</div>
+  <h1>WH Questions</h1>
+  <p class="sub">The questions that open the door — and how they differ from Yes/No.</p>
+</section>
+
+<section class="cta">
+  <h2>Ready to test what you know?</h2>
+  <a class="btn" href="https://andrewveda.com/verve/buttons/daily/3" rel="noopener">Take the test</a>
+</section>
+
+<div class="flourish"><span class="bar"></span><svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 0L11 7L18 9L11 11L9 18L7 11L0 9L7 7Z" fill="currentColor"/></svg><span class="bar"></span></div>
+
+<section>
+  <p class="lede">A WH question is a type of question that asks for specific information — a person, a thing, a time, a place, a reason, or a manner. It cannot be answered with just "yes" or "no"; the speaker is asking you to supply something new.</p>
+  <div class="callout">
+    <span class="label">Also called</span>
+    <p>An <strong>open question</strong> or <strong>information question</strong>. It takes its name from the question words, most of which begin with <em>wh</em> — <em>who, what, when, where, why, which</em> — plus <em>how</em>, which joins the family despite spelling.</p>
+  </div>
+  <p>Most WH questions put the question word first, followed by a helping verb and then the subject: <em>Where do you live?</em> The opening word tells the listener exactly what kind of answer is wanted.</p>
+</section>
+
+<div class="flourish"><span class="bar"></span><svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 0L11 7L18 9L11 11L9 18L7 11L0 9L7 7Z" fill="currentColor"/></svg><span class="bar"></span></div>
+
+<section>
+  <div class="section-head"><span class="tag">A taxonomy</span><h2>Nine question words, nine kinds of answer</h2></div>
+
+  <div class="entry"><div class="num">I</div><div><h3>Who</h3><p>Asks about a person — the subject of an action.</p><div class="example"><div class="q">Who called you this morning?</div><div class="a">My sister did.</div></div></div></div>
+  <div class="entry"><div class="num">II</div><div><h3>Whom</h3><p>Asks about the person receiving an action. Formal; in everyday speech, <em>who</em> often replaces it.</p><div class="example"><div class="q">Whom did you invite?</div><div class="a">The whole team.</div></div></div></div>
+  <div class="entry"><div class="num">III</div><div><h3>Whose</h3><p>Asks about ownership or belonging.</p><div class="example"><div class="q">Whose umbrella is this?</div><div class="a">It's Maya's.</div></div></div></div>
+  <div class="entry"><div class="num">IV</div><div><h3>What</h3><p>Asks about a thing, an idea, or an action. The most open-ended of them all.</p><div class="example"><div class="q">What are you reading?</div><div class="a">A novel about the sea.</div></div></div></div>
+  <div class="entry"><div class="num">V</div><div><h3>Which</h3><p>Asks you to choose from a known set of options.</p><div class="example"><div class="q">Which route do you prefer?</div><div class="a">The coastal one.</div></div></div></div>
+  <div class="entry"><div class="num">VI</div><div><h3>When</h3><p>Asks about time — a moment, a date, or a period.</p><div class="example"><div class="q">When does the class begin?</div><div class="a">At half past nine.</div></div></div></div>
+  <div class="entry"><div class="num">VII</div><div><h3>Where</h3><p>Asks about place or direction.</p><div class="example"><div class="q">Where did you park?</div><div class="a">Behind the library.</div></div></div></div>
+  <div class="entry"><div class="num">VIII</div><div><h3>Why</h3><p>Asks for a reason or a cause. These answers often begin with <em>because</em>.</p><div class="example"><div class="q">Why did you leave early?</div><div class="a">Because the train was delayed.</div></div></div></div>
+  <div class="entry"><div class="num">IX</div><div><h3>How</h3><p>Asks about manner, method, degree, or condition — and pairs with other words: <em>how much, how many, how long, how often</em>.</p><div class="example"><div class="q">How did you fix it?</div><div class="a">I restarted the whole system.</div></div></div></div>
+</section>
+
+<div class="flourish"><span class="bar"></span><svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 0L11 7L18 9L11 11L9 18L7 11L0 9L7 7Z" fill="currentColor"/></svg><span class="bar"></span></div>
+
+<section>
+  <div class="section-head"><span class="tag">Know the difference</span><h2>WH questions vs. Yes/No questions</h2></div>
+
+  <div class="compare">
+    <div class="col">
+      <h3>Yes/No question</h3>
+      <p>A closed question. It allows only two replies and starts with a helping verb.</p>
+      <div class="ex">"Did you enjoy the film?"</div>
+    </div>
+    <div class="col open">
+      <h3>WH question</h3>
+      <p>An open question. It invites a full answer and starts with a question word.</p>
+      <div class="ex">"What did you think of the film?"</div>
+    </div>
+  </div>
+
+  <div class="scroll">
+  <table class="diff">
+    <tr><th></th><th>Yes/No</th><th>WH</th></tr>
+    <tr><td><strong>Starts with</strong></td><td>A helping verb (<em>do, is, can</em>)</td><td>A question word (<em>who, what, why</em>)</td></tr>
+    <tr><td><strong>Answer</strong></td><td>Yes or no</td><td>A specific piece of information</td></tr>
+    <tr><td><strong>Length of reply</strong></td><td>Can be a single word</td><td>Usually a phrase or sentence</td></tr>
+    <tr><td><strong>Voice at the end</strong></td><td>Typically rises ↗</td><td>Typically falls ↘</td></tr>
+    <tr><td><strong>Best for</strong></td><td>Confirming, checking, deciding</td><td>Exploring, discovering, explaining</td></tr>
+  </table>
+  </div>
+
+  <div class="rows">
+    <div class="row"><div class="yn">Yes/No: Do you like coffee?</div><div class="wh">WH: What do you like to drink in the morning?</div><small>One checks a fact; the other opens the topic.</small></div>
+    <div class="row"><div class="yn">Yes/No: Is the meeting at noon?</div><div class="wh">WH: When is the meeting?</div><small>The WH version asks for the time instead of testing a guess.</small></div>
+    <div class="row"><div class="yn">Yes/No: Did the plan fail?</div><div class="wh">WH: Why did the plan fail?</div><small>"Yes" settles the fact. "Why" reaches the cause.</small></div>
+    <div class="row"><div class="yn">Yes/No: Can you help me?</div><div class="wh">WH: How can you help me?</div><small>The WH form invites ideas, not just agreement.</small></div>
+  </div>
+</section>
+
+<footer>End of lesson</footer>
+</div>
+</body>
+</html>
