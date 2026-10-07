@@ -84,7 +84,7 @@
   /* ---------- GATE CARD (GitHub Auth) ---------- */
   #nameFormScreen { justify-content: center; padding: 24px; }
   .gate-card {
-    width: 100%; max-width: 420px; background: var(--card); border: 1.5px solid var(--card-line);
+    width: 100%; max-width: 460px; background: var(--card); border: 1.5px solid var(--card-line);
     border-radius: 20px; padding: 34px 26px 28px; box-shadow: 0 20px 60px rgba(45,38,32,.14);
     display: flex; flex-direction: column; align-items: stretch; gap: 14px;
     animation: cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards; text-align: center;
@@ -121,6 +121,22 @@
   .stat-strip { background: var(--card); border: 1.5px solid var(--card-line); border-radius: 12px; padding: 9px 14px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; }
   .stat-nums { font-family: 'Space Mono', monospace; font-size: .75rem; color: var(--ink-muted); font-weight: 700; }
   .stat-nums b { color: var(--clay); font-size: 1.1em; margin: 0 2px; }
+
+  .stat-strip { gap: 8px; }
+  .icon-btn.mini { width: 32px; height: 32px; font-size: 1rem; box-shadow: none; flex-shrink: 0; }
+
+  /* ---------- INSTRUCTIONS (GATE) ---------- */
+  .how { text-align: left; background: #fffdf7; border: 1.5px solid var(--card-line); border-radius: 14px; padding: 14px 16px; }
+  .how h3 { font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--forest); margin-bottom: 4px; }
+  .how .lede { font-size: .8rem; color: var(--ink-muted); line-height: 1.45; margin-bottom: 10px; }
+  .how ol { list-style: none; counter-reset: step; }
+  .how li { counter-increment: step; position: relative; padding: 7px 0 7px 32px; font-size: .84rem; line-height: 1.45; border-top: 1px dashed var(--card-line); }
+  .how li:first-child { border-top: none; }
+  .how li::before { content: counter(step); position: absolute; left: 0; top: 7px; width: 22px; height: 22px; border-radius: 50%; background: var(--forest); color: #fff; font-family: 'Space Mono', monospace; font-size: .7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .how li b { color: var(--forest); }
+  .how .demo { display: inline-block; font-family: 'Fraunces', serif; background: var(--card); border: 1px solid var(--card-line); border-radius: 6px; padding: 1px 6px; }
+  .how .demo u { text-decoration: none; border-bottom: 2px dashed #c9b98d; padding: 0 5px; }
+  .how .demo em { font-style: normal; color: var(--prep); font-weight: 700; }
 
   .cheat-counter { display: flex; align-items: center; gap: 4px; background: #fef2f2; color: var(--cheat); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; border: 1px solid #fecaca; }
   .cheat-counter.active { background: var(--cheat); color: white; animation: shake 0.5s; }
@@ -258,32 +274,39 @@
         </div>
       </div>
 
+      <div class="how">
+        <h3>How to play</h3>
+        <p class="lede">Each set gives you one sentence with <b>no capitals and no punctuation</b>. Your job is to fix it, one tap at a time.</p>
+        <ol>
+          <li><b>Read the sentence.</b> A blank <span class="demo">word<u>&nbsp;</u> word<u>&nbsp;</u></span> sits after every word, including the last one. Most blanks need nothing, and a few need a mark.</li>
+          <li><b>Pick a tool, then tap a target</b>, or tap the target first and then pick the tool. Both orders work. Your tool stays selected, so you can fix several spots in a row.</li>
+          <li><b>Two kinds of targets.</b> Marks like <span class="demo">. , ? ! : ; “ ” - ( )</span> go in the <b>blanks</b>. <b>Aa Capital</b> and the <b>apostrophe ’</b> work on the <b>words</b> themselves (e.g. tap <i>todays</i> with ’ to make <span class="demo">today<em>’</em>s</span>).</li>
+          <li><b>Some blanks need two marks</b>, placed in order. For example, after <i>said</i> you might need a comma <em>and then</em> an opening quote. After a sentence that ends a quotation, a full stop comes <em>before</em> the closing quote.</li>
+          <li><b>Nothing needed?</b> Just leave the blank alone, or tap it with <b>No mark</b>. Some commas are optional; they are accepted if you add them but not required.</li>
+          <li><b>Scoring.</b> Every correct fix earns <b>+1 💎</b>. Every wrong tap costs <b>−1 💎</b>, and a set with a mistake comes back once more at the end.</li>
+          <li><b>Stuck?</b> After two wrong tries on the same spot, a <b>💡 hint</b> appears to point you in the right direction.</li>
+          <li><b>Learn the rule.</b> When a set is complete, a short <b>“Why?”</b> card explains the rules behind it. Read it, then tap <b>Next set</b>.</li>
+        </ol>
+      </div>
+
       <div class="security-notice">
         <strong>🔒 Secure Test Environment</strong>
         This test is actively monitored. Switching tabs, minimizing the window, or attempting to copy content will be recorded in your final assessment.
       </div>
 
-      <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>✿ Enter The Guide</button>
+      <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>✿ I'm ready — Enter The Guide</button>
     </div>
   </div>
 
   <!-- QUIZ SCREEN -->
   <div class="screen" id="quizContent">
     <div class="col">
-      <div class="top-bar">
-        <div class="brand"><h1>The <span>Punctuation</span> Guide</h1><div class="sub">Spot it · Fix it</div></div>
-        <div style="display: flex; gap: 8px;">
-          <button id="muteBtn" class="icon-btn" onclick="toggleMute()" title="Toggle Sound">🔊</button>
-          <div class="timer-pill">
-            <div class="timer-text" id="timer">00:00</div>
-          </div>
-        </div>
-      </div>
-
       <div class="stat-strip">
         <span class="stat-nums">📍 <b id="progressTracker">1 of X</b></span>
         <div class="cheat-counter" id="cheatCounter"><span>🛡</span><span id="cheatCount">0</span></div>
         <span class="stat-nums" id="gemsCounter">💎 <b>0</b></span>
+        <button id="muteBtn" class="icon-btn mini" onclick="toggleMute()" title="Toggle Sound">🔊</button>
+        <span id="timer" hidden>00:00</span>
       </div>
 
       <div class="mount" id="mount">
@@ -326,7 +349,7 @@
   </div>
 
 <script>
-const QUEST_ID = "Quest 44";              
+const QUEST_ID = "Quest 44";               // <- change to your real quest id
 const QUEST_TITLE = "Punctuation Guide";
 
 /* ========== GITHUB AUTH INTEGRATION ========== */
