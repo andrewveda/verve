@@ -742,7 +742,7 @@ const TESTS = [
 },
   {
   id: "bob-dylan-like-a-rolling-stone",
-  questId: "Quest Song 26",
+  questId: "Quest Song 50",
   category: "Bob Dylan",
   difficulty: "Advanced",
   title: "Bob Dylan - Like a Rolling Stone (Lyrics)",
@@ -797,7 +797,7 @@ const TESTS = [
 },
   {
   id: "bob-dylan-hurricane",
-  questId: "Quest Song 27",
+  questId: "Quest Song 51",
   category: "Bob Dylan",
   difficulty: "Advanced",
   title: "Bob Dylan - Hurricane (Lyrics)",
@@ -861,7 +861,7 @@ const TESTS = [
 },
   {
   id: "bob-dylan-mr-tambourine-man",
-  questId: "Quest Song 28",
+  questId: "Quest Song 52",
   category: "Bob Dylan",
   difficulty: "Advanced",
   title: "Bob Dylan - Mr. Tambourine Man (Lyrics)",
@@ -890,7 +890,7 @@ const TESTS = [
 },
   {
   id: "bob-dylan-blowin-in-the-wind",
-  questId: "Quest Song 29",
+  questId: "Quest Song 53",
   category: "Bob Dylan",
   difficulty: "Advanced",
   title: "Bob Dylan - Blowin' in the Wind (Lyrics)",
@@ -926,7 +926,7 @@ const TESTS = [
 },
   {
   id: "bob-dylan-the-times-they-are-a-changin",
-  questId: "Quest Song 30",
+  questId: "Quest Song 54",
   category: "Bob Dylan",
   difficulty: "Advanced",
   title: "Bob Dylan - The Times They Are A-Changin' (Lyrics)",
@@ -979,7 +979,7 @@ const TESTS = [
 },
      {
   id: "bob-dylan-dont-think-twice-its-all-right",
-  questId: "Quest Song 31",
+  questId: "Quest Song 55",
   category: "Bob Dylan",
   difficulty: "Advanced",
   title: "Bob Dylan - Don't Think Twice, It's All Right (Lyrics)",
@@ -1023,7 +1023,7 @@ const TESTS = [
 },
   {
   id: "bob-dylan-make-you-feel-my-love",
-  questId: "Quest Song 32",
+  questId: "Quest Song 56",
   category: "Bob Dylan",
   difficulty: "Advanced",
   title: "Bob Dylan - Make You Feel My Love (Lyrics)",
@@ -1065,7 +1065,7 @@ const TESTS = [
 },
     {
   id: "bob-dylan-forever-young",
-  questId: "Quest Song 33",
+  questId: "Quest Song 57",
   category: "Bob Dylan",
   difficulty: "Advanced",
   title: "Bob Dylan - Forever Young (Lyrics)",
