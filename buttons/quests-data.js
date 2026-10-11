@@ -1101,5 +1101,97 @@ const TESTS = [
     { at: 251, tier: 1, q: "Forever young, forever _____", options: ["young", "true", "free", "strong"], correct: 0 },
     { at: 261, tier: 1, q: "May you stay forever _____", options: ["young", "strong", "happy", "free"], correct: 0 }
   ]
+},
+{
+  id: "bob-dylan-its-alright-ma-im-only-bleeding",
+  questId: "Quest Song 59",
+  category: "Bob Dylan",
+  difficulty: "Advanced",
+  title: "It's Alright, Ma",
+  youtubeId: "_CJHbfkROow",
+  durationHint: 449,
+  description: "Bob Dylan's incisive critique of hypocrisy, conformity, consumerism, authority, and the contradictions of modern society.",
+  questions: [
+    { at: 0, tier: 1, q: "Darkness at the break of ______", options: ["noon", "dawn", "night", "morning"], correct: 0 },
+    { at: 7, tier: 2, q: "Shadows even the silver ______", options: ["spoon", "moon", "blade", "light"], correct: 0 },
+    { at: 14, tier: 2, q: "The handmade blade, the child's ______", options: ["balloon", "toy", "doll", "rattle"], correct: 0 },
+    { at: 21, tier: 2, q: "Eclipses both the sun and ______", options: ["moon", "stars", "sky", "earth"], correct: 0 },
+    { at: 28, tier: 3, q: "To understand you know too ______", options: ["soon", "late", "much", "little"], correct: 0 },
+    { at: 35, tier: 1, q: "There is no sense in ______", options: ["trying", "lying", "crying", "waiting"], correct: 0 },
+
+    { at: 43, tier: 2, q: "Pointed threats, they bluff with ______", options: ["scorn", "pride", "fear", "shame"], correct: 0 },
+    { at: 50, tier: 3, q: "Suicide remarks are ______", options: ["torn", "spoken", "hidden", "written"], correct: 0 },
+    { at: 57, tier: 3, q: "From the fool's gold ______", options: ["mouthpiece", "treasure", "pocket", "mirror"], correct: 0 },
+    { at: 64, tier: 3, q: "The hollow horn plays wasted ______", options: ["words", "notes", "dreams", "sounds"], correct: 0 },
+    { at: 71, tier: 3, q: "He not busy being born is busy ______", options: ["dying", "trying", "flying", "crying"], correct: 0 },
+
+    { at: 80, tier: 2, q: "Temptation's page flies out the ______", options: ["door", "window", "gate", "wall"], correct: 0 },
+    { at: 87, tier: 2, q: "You follow, find yourself at ______", options: ["war", "peace", "home", "work"], correct: 0 },
+    { at: 94, tier: 3, q: "Watch waterfalls of pity ______", options: ["roar", "fall", "flow", "rise"], correct: 0 },
+    { at: 101, tier: 3, q: "You discover that you'd just be one more person ______", options: ["crying", "trying", "waiting", "lying"], correct: 0 },
+    { at: 110, tier: 1, q: "So don't fear if you ______", options: ["hear", "fall", "fail", "cry"], correct: 0 },
+    { at: 117, tier: 2, q: "A foreign sound to your ______", options: ["ear", "eye", "mind", "heart"], correct: 0 },
+    { at: 124, tier: 1, q: "It's alright, Ma, I'm only ______", options: ["sighing", "trying", "lying", "crying"], correct: 0 },
+
+    { at: 134, tier: 2, q: "As some warn victory, some ______", options: ["downfall", "failure", "danger", "sorrow"], correct: 0 },
+    { at: 141, tier: 2, q: "Private reasons great or ______", options: ["small", "weak", "false", "hidden"], correct: 0 },
+    { at: 148, tier: 3, q: "Can be seen in the eyes of those that ______", options: ["call", "speak", "judge", "fight"], correct: 0 },
+    { at: 155, tier: 3, q: "While others say don't hate nothing at all except ______", options: ["hatred", "violence", "war", "injustice"], correct: 0 },
+
+    { at: 164, tier: 2, q: "Disillusioned words like bullets ______", options: ["bark", "fly", "fall", "burn"], correct: 0 },
+    { at: 171, tier: 2, q: "As human gods aim for their ______", options: ["mark", "goal", "enemy", "target"], correct: 0 },
+    { at: 178, tier: 3, q: "Toy guns that ______", options: ["spark", "shine", "flash", "break"], correct: 0 },
+    { at: 185, tier: 3, q: "Flesh-colored Christs that glow in the ______", options: ["dark", "light", "night", "sky"], correct: 0 },
+    { at: 192, tier: 3, q: "Not much is really ______", options: ["sacred", "certain", "valuable", "lasting"], correct: 0 },
+
+    { at: 201, tier: 2, q: "While preachers preach of evil ______", options: ["fates", "spirits", "souls", "dreams"], correct: 0 },
+    { at: 208, tier: 2, q: "Teachers teach that knowledge ______", options: ["waits", "wins", "works", "follows"], correct: 0 },
+    { at: 215, tier: 3, q: "Goodness hides behind its ______", options: ["gates", "walls", "doors", "rules"], correct: 0 },
+    { at: 222, tier: 3, q: "Even the president of the United States sometimes must have to stand ______", options: ["naked", "alone", "silent", "still"], correct: 0 },
+    { at: 231, tier: 3, q: "It's only people's games that you got to ______", options: ["dodge", "play", "learn", "win"], correct: 0 },
+    { at: 238, tier: 1, q: "It's alright, Ma, I can make ______", options: ["it", "this", "that", "sense"], correct: 0 },
+
+    { at: 247, tier: 2, q: "Advertising signs they ______", options: ["con", "shine", "sell", "glow"], correct: 0 },
+    { at: 254, tier: 2, q: "Into thinking you're the ______", options: ["one", "best", "winner", "chosen"], correct: 0 },
+    { at: 261, tier: 3, q: "That can do what's never been ______", options: ["done", "seen", "said", "known"], correct: 0 },
+    { at: 268, tier: 3, q: "That can win what's never been ______", options: ["won", "lost", "earned", "found"], correct: 0 },
+    { at: 275, tier: 2, q: "Meantime life outside goes ______", options: ["on", "away", "wrong", "round"], correct: 0 },
+    { at: 282, tier: 1, q: "Meantime life goes on all around ______", options: ["you", "us", "them", "me"], correct: 0 },
+
+    { at: 291, tier: 2, q: "You lose yourself, you ______", options: ["reappear", "disappear", "remember", "awaken"], correct: 0 },
+    { at: 298, tier: 2, q: "You suddenly find you got nothing to ______", options: ["fear", "lose", "prove", "hide"], correct: 0 },
+    { at: 305, tier: 2, q: "Alone you stand with nobody ______", options: ["near", "there", "watching", "calling"], correct: 0 },
+    { at: 312, tier: 3, q: "A trembling distant voice, ______", options: ["unclear", "unheard", "untrue", "unknown"], correct: 0 },
+    { at: 319, tier: 3, q: "Somebody thinks they really found ______", options: ["you", "him", "them", "truth"], correct: 0 },
+
+    { at: 328, tier: 2, q: "A question in your nerves is ______", options: ["lit", "born", "lost", "heard"], correct: 0 },
+    { at: 335, tier: 3, q: "Yet you know there is no answer ______", options: ["fit", "true", "right", "clear"], correct: 0 },
+    { at: 342, tier: 3, q: "To satisfy, insure you not to ______", options: ["quit", "fall", "fail", "hide"], correct: 0 },
+    { at: 349, tier: 3, q: "It is not he or she or them or ______", options: ["it", "us", "you", "all"], correct: 0 },
+    { at: 356, tier: 2, q: "That you belong ______", options: ["to", "with", "for", "by"], correct: 0 },
+
+    { at: 365, tier: 2, q: "Although the masters make the ______", options: ["rules", "laws", "choices", "plans"], correct: 0 },
+    { at: 372, tier: 2, q: "For the wise men and the ______", options: ["fools", "weak", "poor", "young"], correct: 0 },
+    { at: 379, tier: 1, q: "I got nothing, Ma, to live up ______", options: ["to", "with", "for", "against"], correct: 0 },
+
+    { at: 388, tier: 3, q: "For them that must obey ______", options: ["authority", "society", "tradition", "morality"], correct: 0 },
+    { at: 395, tier: 3, q: "Who despise their jobs, their ______", options: ["destinies", "families", "duties", "fortunes"], correct: 0 },
+    { at: 402, tier: 2, q: "Speak jealously of them that are ______", options: ["free", "strong", "rich", "wise"], correct: 0 },
+    { at: 409, tier: 3, q: "Nothing more than something they invest ______", options: ["in", "on", "for", "with"], correct: 0 },
+
+    { at: 418, tier: 2, q: "Social clubs in drag ______", options: ["disguise", "costume", "parade", "display"], correct: 0 },
+    { at: 425, tier: 3, q: "Tell nothing except who to ______", options: ["idolize", "criticize", "follow", "obey"], correct: 0 },
+    { at: 432, tier: 2, q: "Gargles in the rat race ______", options: ["choir", "crowd", "chorus", "arena"], correct: 0 },
+    { at: 439, tier: 3, q: "Money doesn't talk, it ______", options: ["swears", "lies", "shouts", "sings"], correct: 0 },
+    { at: 446, tier: 3, q: "Propaganda, all is ______", options: ["phony", "empty", "hollow", "false"], correct: 0 },
+    { at: 453, tier: 3, q: "Life sometimes must get ______", options: ["lonely", "difficult", "painful", "strange"], correct: 0 },
+
+    { at: 460, tier: 2, q: "At pettiness which plays so ______", options: ["rough", "hard", "loud", "fast"], correct: 0 },
+    { at: 467, tier: 2, q: "Say okay, I have had ______", options: ["enough", "everything", "my share", "my fill"], correct: 0 },
+    { at: 474, tier: 2, q: "What else can you show ______", options: ["me", "us", "them", "him"], correct: 0 },
+    { at: 481, tier: 3, q: "They'd probably put my head in a ______", options: ["guillotine", "prison", "cage", "coffin"], correct: 0 },
+    { at: 488, tier: 1, q: "But it's alright, Ma, it's life, and life ______", options: ["only", "always", "itself", "again"], correct: 0 }
+  ]
 }
+  
 ];
