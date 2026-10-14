@@ -567,7 +567,7 @@ function generateStatsImage(s, playerName, playerDept) {
   ctx.font = '24px Nunito, sans-serif';
   ctx.fillStyle = '#8b6914';
   ctx.textAlign = 'center';
-  ctx.fillText('andrewveda.com/verve/buttons/wordle-hub', canvas.width / 2, y_footer + 20);
+  ctx.fillText('andrewveda.com/verve/buttons/wordleblitz', canvas.width / 2, y_footer + 20);
 
   return canvas.toDataURL('image/png');
 }
@@ -867,7 +867,7 @@ function saveFallbackIdentity(fs){
 }
 
 function submitScore(name,dept,s){
-  const p={student_name:name,department:dept,score:Number(s.score),correct:Number(s.wordsSolved),wrong:Number(s.failedCount),time_spent:Number(s.timeSpent),total_attempts:Number(s.totalAttempts),perfect_solves:Number(s.perfectSolves),fastest_solve_sec:Number(s.fastestSolveSec),total_time_bonus:Number(s.totalTimeBonus),longest_streak:Number(s.longestStreak),quest_id:"Quest 45, Wordleblitz"};
+  const p={student_name:name,department:dept,score:Number(s.score),correct:Number(s.wordsSolved),wrong:Number(s.failedCount),time_spent:Number(s.timeSpent),total_attempts:Number(s.totalAttempts),perfect_solves:Number(s.perfectSolves),fastest_solve_sec:Number(s.fastestSolveSec),total_time_bonus:Number(s.totalTimeBonus),longest_streak:Number(s.longestStreak),quest_id:"Wordleblitz"};
   fetch(EDGE_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)})
     .then(r=>r.json()).then(d=>console.log("✅ Submitted:",d)).catch(e=>console.error("❌ Submit:",e));
 }
@@ -880,7 +880,7 @@ function shareOnWhatsApp(s,playerName,playerDept){
     const file=new File([blob],'wordle-blitz-stats.png',{type:'image/png'});
     if(navigator.share&&navigator.canShare?.({files:[file]})){
       const grids=s.solvedLog.filter(e=>!e.failed).map(e=>`${e.word.toUpperCase()}: ${e.grid.split('\n')[0]}`).join('\n');
-      navigator.share({title:'Wordle Blitz Stats',text:`⚡ Wordle Blitz — I solved ${s.wordsSolved} words and scored ${s.score} pts!\n\n${grids}\n\n🎯 Try it: https://andrewveda.com/verve/buttons/wordle-hub`,files:[file]}).catch(()=>fallbackShare(s));
+      navigator.share({title:'Wordle Blitz Stats',text:`⚡ Wordle Blitz — I solved ${s.wordsSolved} words and scored ${s.score} pts!\n\n${grids}\n\n🎯 Try it: https://andrewveda.com/verve/wordleblitz`,files:[file]}).catch(()=>fallbackShare(s));
     }else{
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wordle-blitz-stats.png';a.click();
       setTimeout(()=>URL.revokeObjectURL(a.href),5000);
@@ -890,7 +890,7 @@ function shareOnWhatsApp(s,playerName,playerDept){
 }
 function fallbackShare(s){
   const grids=s.solvedLog.filter(e=>!e.failed).map(e=>`${e.word.toUpperCase()}: ${e.grid.split('\n')[0]}`).join('\n');
-  window.open(`https://wa.me/?text=${encodeURIComponent(`⚡ Wordle Blitz — I solved ${s.wordsSolved} words and scored ${s.score} pts!\n\n${grids}\n\n🎯 Try it: https://andrewveda.com/verve/buttons/wordle-hub`)}`,'_blank');
+  window.open(`https://wa.me/?text=${encodeURIComponent(`⚡ Wordle Blitz — I solved ${s.wordsSolved} words and scored ${s.score} pts!\n\n${grids}\n\n🎯 Try it: https://andrewveda.com/verve/wordleblitz`)}`,'_blank');
 }
 
 /* ── SKIP ── */
