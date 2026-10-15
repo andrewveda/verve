@@ -12,8 +12,21 @@
     "video": "https://www.youtube.com/watch?v=IzlM7gM9Cks",
     "category": "Interviews",
     "watchTarget": 12
+  },   
+  {
+    "questId": "Video 412",
+    "title": "Lorde's Everybody Wants To Rule The World",
+    "video": "https://www.youtube.com/watch?v=jlm4QqNAPiE",
+    "category": "Songs",
+    "watchTarget": 12
   },
-
+  {
+    "questId": "Video 413",
+    "title": "Tears for Fears Everybody Wants To Rule The World",
+    "video": "https://www.youtube.com/watch?v=aGCdLKXNF3w",
+    "category": "Songs",
+    "watchTarget": 12
+  },
   {
     "questId": "Video 402",
     "title": "Elon Musk - The Importance of Questions",
