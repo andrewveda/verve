@@ -258,7 +258,7 @@ function showIdentity(){
   const id=getIdentity();
   if(id.dept&&!DEPTS.includes(id.dept))sel.add(new Option(id.dept,id.dept));
   nm.value=id.name||"";sel.value=id.dept||"";
-  if(readAuth()&&id.name&&id.dept)$("introBadge").textContent="✓ Details loaded from your login. Edit if needed.";
+  if(readAuth()&&id.name&&id.dept)$("introBadge").textContent="✓ Who is awesome?";
   const check=()=>{btn.disabled=!(nm.value.trim()&&sel.value)};
   check();nm.addEventListener("input",check);sel.addEventListener("change",check);
   nm.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();sel.focus()}});
