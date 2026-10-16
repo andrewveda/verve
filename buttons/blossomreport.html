@@ -1447,33 +1447,53 @@ function downloadResultHTML() {
 
   const words = [...foundWords].sort((a,b) => b.length - a.length || a.localeCompare(b));
   const pct = getDiscoveryPct();
-  const chips = words.map(w => `<span class="chip${isPangram(w)?' pg':''}">${esc(w)}</span>`).join('') || '<em>None found this round.</em>';
+  const chips = words.map(w => `<span class="chip${isPangram(w)?' pg':''}">${esc(w.toUpperCase())}</span>`).join('') || '<em>None found this round.</em>';
+  // Include every possible word not found by the player, not merely the on-screen preview.
+  const missedWords = [...allPossibleWords]
+    .filter(w => !foundWords.has(w.toUpperCase()))
+    .sort((a,b) => b.length-a.length || a.localeCompare(b));
+  const missedChips = missedWords.map(w => `<span class="chip missed${isPangram(w.toUpperCase())?' pg':''}">${isPangram(w.toUpperCase())?'★ ':''}${esc(w.toUpperCase())}</span>`).join('') || '<em>None — you found every word!</em>';
+  // Draw the seven puzzle letters as a self-contained SVG so the report works offline.
+  const letterNodes = letters.map((l,i) => {
+    const angle = (i * 60 - 90) * Math.PI / 180;
+    const x = 150 + (i===0 ? 0 : Math.cos(angle)*78);
+    const y = 112 + (i===0 ? 0 : Math.sin(angle)*78);
+    const center = i===0;
+    return `<g><circle cx="${x}" cy="${y}" r="27" fill="${center?'#f0603f':'#f0d6d2'}" stroke="${center?'#dd4c2f':'#e8bfc0'}" stroke-width="2"/><text x="${x}" y="${y+8}" text-anchor="middle" font-size="${center?25:23}" font-family="Georgia,serif" font-weight="700" fill="${center?'#ffffff':'#2a1f1a'}">${esc(l.toUpperCase())}</text></g>`;
+  }).join('');
+  const letterGraphic = `<svg class="flower" viewBox="0 0 300 230" role="img" aria-label="Puzzle letters: ${esc(letters.map(l=>l.toUpperCase()).join(', '))}"><g>${letterNodes}</g></svg>`;
 
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Blossom Result – ${esc(name)}</title>
 <style>
-body{font-family:system-ui,sans-serif;background:#fff8f0;color:#3a2e2a;max-width:560px;margin:0 auto;padding:24px}
+*{box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#fff8f0;color:#3a2e2a;max-width:760px;margin:0 auto;padding:clamp(16px,4vw,30px)}
 h1{margin:0 0 4px}.sub{color:#8a7a70;margin-bottom:20px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
-.box{background:#fff;border:1.5px solid #f0dcc8;border-radius:12px;padding:12px;text-align:center}
-.box b{display:block;font-size:1.5rem}.box span{font-size:.8rem;color:#8a7a70}
-.chip{display:inline-block;background:#fdf0e2;border-radius:999px;padding:4px 12px;margin:3px;font-size:.9rem}
-.chip.pg{background:#f9c6d0;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.box{background:#fff;border:1.5px solid #f0dcc8;border-radius:12px;padding:12px;text-align:center;min-width:0}
+.box b{display:block;font-size:1.5rem;overflow-wrap:anywhere}.box span{font-size:.8rem;color:#8a7a70}
+.chip{display:inline-block;background:#fdf0e2;border:1px solid #f0dcc8;border-radius:999px;padding:5px 11px;margin:3px;font-size:.9rem;overflow-wrap:anywhere}
+.chip.pg{background:#fff3d6;border-color:#e8a020;font-weight:700}.chip.missed{background:#fff0ee;border-color:#f4b6b0;color:#9c4c40}
+section{margin:24px 0}h2{font-size:1.15rem;margin:0 0 10px}.flower-wrap{display:flex;justify-content:center;background:#fff;border:1.5px solid #f0dcc8;border-radius:16px;margin:12px auto 18px;max-width:340px}.flower{width:100%;height:auto;max-height:260px}
+.small{font-size:.85rem;color:#8a7a70} @media(min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media print{body{background:#fff;max-width:none}.chip{break-inside:avoid}.flower-wrap{border-color:#ddd}}
 </style></head><body>
 <h1>🌸 Blossom Result</h1>
 <div class="sub">${esc(name)}${dept?' · '+esc(dept):''}<br>${esc(now.toLocaleString())}</div>
+<div class="flower-wrap">${letterGraphic}</div>
+<div class="small" style="text-align:center;margin-top:-8px;margin-bottom:18px">Centre letter is compulsory. Use only these seven letters.</div>
 <div class="grid">
 <div class="box"><b>${score}</b><span>Score</span></div>
-<div class="box"><b>${foundWords.size}/${totalPossibleWords.length}</b><span>Words</span></div>
+<div class="box"><b>${foundWords.size}/${totalPossibleWords.length}</b><span>Words found</span></div>
 <div class="box"><b>${pct}%</b><span>Discovery ${esc(getStarRating(pct))}</span></div>
-<div class="box"><b>${pangrams.length}</b><span>Pangrams</span></div>
+<div class="box"><b>${pangrams.length}</b><span>Pangrams found</span></div>
 <div class="box"><b>${esc(longestWord||'—')}</b><span>Longest word</span></div>
 <div class="box"><b>${cheatEvents.length}</b><span>Focus events</span></div>
 </div>
 <p><b>Rank:</b> ${esc(getRankName(score))}</p>
-<h3>Words found</h3><div>${chips}</div>
+<section><h2>✅ Words found (${words.length})</h2><div>${chips}</div></section>
+<section><h2>🌸 Missed words (${missedWords.length})</h2><p class="small">This is the complete list of words in the game's dictionary that fit this puzzle and were not found during this round.</p><div>${missedChips}</div></section>
 </body></html>`;
 
   const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
