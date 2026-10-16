@@ -1,0 +1,1472 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+  <title>Blossom — Word Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --petal:#f0d6d2; --petal-hover:#e8bfc0; --center:#f0603f; --center-hover:#dd4c2f;
+      --stem:#4a8c5c; --stem-light:#7dbb8f; --ink:#2a1f1a; --ink-muted:#8a7060;
+      --gold:#e8a020; --bg:#fdf0e2; --card:#fffdf9; --card-soft:#faf1e2;
+      --shadow:rgba(74,60,50,0.12);
+      --shadow-sm: 0 1px 2px rgba(74,54,40,0.05), 0 3px 8px rgba(74,54,40,0.07);
+      --shadow-md: 0 1px 2px rgba(74,54,40,0.06), 0 8px 22px rgba(74,54,40,0.10);
+      --shadow-lg: 0 2px 6px rgba(224,78,53,0.16), 0 16px 34px rgba(74,54,40,0.16);
+      --hairline: inset 0 1px 0 rgba(255,255,255,0.7);
+      --ease: cubic-bezier(.16,1,.3,1);
+    }
+    button, input, select { font-variant-numeric: tabular-nums; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline:2px solid var(--stem); outline-offset:2px;
+    }
+    .timer-text, .rank-name, .stat-nums, #score, #word-count, #best-score { font-variant-numeric: tabular-nums; }
+    html, body { min-height:100%; overscroll-behavior-x:none; }
+    body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100dvh; display:flex; flex-direction:column; align-items:center; overflow-x:hidden; }
+    body::before { content:''; position:fixed; inset:0; background:radial-gradient(ellipse 80% 60% at 10% 20%,#fde8d880 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 90% 80%,#f9c6d040 0%,transparent 60%); pointer-events:none; z-index:0; }
+    .screen { display:none; flex-direction:column; align-items:center; width:100%; min-height:100dvh; position:relative; z-index:1; overflow:visible; }
+    .screen.active { display:flex; }
+
+    /* ══ GAME SCREEN — redesigned as a hero-first layout: the flower dominates,
+       everything else is compressed into slim utility bars around it ══ */
+    #gameScreen { align-items:stretch; }
+    .game-col { display:flex; flex-direction:column; width:100%; min-height:100%; max-width:480px; margin:0 auto; padding:calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 10px); gap:clamp(7px,1.4dvh,14px); }
+
+    /* Top bar: end-game + new-puzzle icons, brand, timer — one row, nothing else */
+    .top-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; flex:0 0 auto; }
+    .top-actions { display:flex; align-items:center; gap:6px; flex:0 0 auto; }
+    .icon-btn { flex:0 0 auto; width:clamp(32px,6dvh,40px); height:clamp(32px,6dvh,40px); border-radius:50%; border:1px solid rgba(232,216,200,0.7); background:var(--card-soft); display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--shadow-sm), var(--hairline); color:var(--ink-muted); transition:background 0.18s var(--ease),color 0.18s var(--ease),transform 0.18s var(--ease),box-shadow 0.18s var(--ease); }
+    .icon-btn svg { width:44%; height:44%; }
+    .icon-btn:hover { background:#fde3e0; color:var(--center); box-shadow:var(--shadow-md), var(--hairline); }
+    .icon-btn:active { transform:scale(0.9); }
+    .brand { flex:1 1 auto; text-align:center; }
+    .brand h1 { font-family:'Playfair Display',serif; font-size:clamp(1.15rem,3.6dvh,1.7rem); font-weight:900; letter-spacing:-0.5px; color:var(--ink); line-height:1; }
+    .brand h1 span { color:var(--center); }
+    .timer-pill { flex:0 0 auto; display:flex; align-items:center; gap:6px; background:var(--card-soft); border-radius:99px; padding:3px 13px 3px 3px; box-shadow:var(--shadow-sm), var(--hairline); }
+    .timer-arc-wrap { position:relative; width:clamp(28px,5.2dvh,36px); height:clamp(28px,5.2dvh,36px); flex:0 0 auto; }
+    #timerArc { transform:rotate(-90deg); width:100%; height:100%; display:block; }
+    .timer-text { font-family:'Playfair Display',serif; font-size:clamp(0.7rem,1.7dvh,0.86rem); font-weight:700; color:var(--ink); transition:color 0.4s; white-space:nowrap; }
+    .timer-text.amber { color:var(--gold); }
+    .timer-text.danger { color:var(--center); animation:timerPulse 0.6s ease-in-out infinite; }
+    @keyframes timerPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+
+    /* Stat strip: rank name, score/words/best, progress — one slim card */
+    .stat-strip { flex:0 0 auto; background:var(--card-soft); border-radius:14px; padding:clamp(6px,1.2dvh,10px) 16px; box-shadow:var(--shadow-sm), var(--hairline); display:flex; flex-direction:column; gap:5px; }
+    .stat-strip-top { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+    .rank-name { font-family:'Playfair Display',serif; font-weight:700; font-size:clamp(0.76rem,1.8dvh,0.94rem); color:var(--center); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .stat-nums { font-size:clamp(0.6rem,1.3dvh,0.74rem); color:var(--ink-muted); white-space:nowrap; letter-spacing:0.02em; }
+    .stat-nums b { font-family:'Playfair Display',serif; color:var(--stem); font-weight:700; font-size:1.55em; letter-spacing:0; margin:0 1px; }
+    .rank-track { height:5px; background:#eee0cf; border-radius:99px; overflow:hidden; box-shadow:inset 0 1px 2px rgba(74,54,40,0.1); }
+    .rank-fill { height:100%; background:linear-gradient(90deg,var(--stem-light),var(--center)); border-radius:99px; transition:width 0.6s var(--ease); }
+
+    /* Word pill — delete now lives in the action row instead, so this is just the typed word */
+    .input-row { flex:0 0 auto; width:100%; }
+    .word-display { width:100%; background:var(--card); border:1px solid rgba(232,216,200,0.8); border-radius:12px; padding:clamp(6px,1.2dvh,10px) 18px; font-family:'Playfair Display',serif; font-size:clamp(1rem,2.6dvh,1.35rem); letter-spacing:0.05em; color:var(--ink); height:clamp(40px,6.6dvh,50px); display:flex; align-items:center; gap:8px; box-shadow:var(--shadow-md), var(--hairline); text-transform:uppercase; transition:border-color 0.2s var(--ease), box-shadow 0.2s var(--ease); }
+    .word-display.error  { border-color:#e04e35; animation:shake 0.35s ease; }
+    .word-display.success{ border-color:var(--stem); animation:wordAccept 0.4s var(--ease); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+    @keyframes wordAccept { 0%{transform:scale(1)} 45%{transform:scale(1.035)} 100%{transform:scale(1)} }
+    #typed-letters { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .word-display .cursor { display:inline-block; width:2px; height:1.1em; background:var(--ink-muted); margin-left:2px; animation:blink 1s step-end infinite; vertical-align:middle; flex:0 0 auto; }
+    @keyframes blink { 50%{opacity:0} }
+
+    /* Flower — the hero. Grows to fill whatever space remains. */
+    .flower-stage { flex:1 1 auto; min-height:0; width:100%; display:flex; align-items:center; justify-content:center; }
+    @keyframes petalRipple { from{ r:2; opacity:0.45; } to{ r:52; opacity:0; } }
+
+    /* Action row: delete · shuffle · Enter Word — one row, delete sits right beside Enter */
+    .action-row { display:flex; align-items:stretch; gap:8px; width:100%; flex:0 0 auto; }
+    .btn-shuffle, .btn-icon-action { flex:0 0 auto; width:clamp(42px,7.6dvh,54px); background:var(--card-soft); border:1px solid rgba(232,216,200,0.7); border-radius:14px; display:flex; align-items:center; justify-content:center; color:var(--ink-muted); cursor:pointer; box-shadow:var(--shadow-sm), var(--hairline); transition:background 0.18s var(--ease),color 0.18s var(--ease),transform 0.18s var(--ease); }
+    .btn-shuffle svg, .btn-icon-action svg { width:44%; height:44%; }
+    .btn-shuffle:hover, .btn-icon-action:hover { background:#fde3e0; color:var(--center); }
+    .btn-shuffle:active, .btn-icon-action:active { transform:scale(0.92); }
+    .btn-shuffle.spin svg { animation:shuffleSpin 0.5s var(--ease); }
+    @keyframes shuffleSpin { from{transform:rotate(0)} to{transform:rotate(180deg)} }
+    .btn-enter { flex:1 1 auto; padding:clamp(9px,1.6dvh,15px); background:linear-gradient(160deg,var(--stem),#3e7a4f); color:#fff; border:none; border-radius:14px; font-family:'DM Sans',sans-serif; font-size:clamp(0.8rem,1.9dvh,0.98rem); font-weight:600; letter-spacing:0.06em; text-transform:uppercase; cursor:pointer; box-shadow:0 2px 4px rgba(40,90,55,0.25), 0 10px 24px rgba(74,140,92,0.32), inset 0 1px 0 rgba(255,255,255,0.18); transition:background 0.18s var(--ease), transform 0.18s var(--ease), box-shadow 0.18s var(--ease); }
+    .btn-enter:hover { background:linear-gradient(160deg,#559966,#346641); transform:translateY(-1px); }
+    .btn-enter:active { transform:translateY(1px) scale(0.99); }
+    .btn-enter:disabled { background:#c8d8c0; cursor:default; transform:none; box-shadow:none; }
+    .spinner { display:inline-block; width:18px; height:18px; border:2.5px solid #ffffff44; border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* Toast */
+    .toast { position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-80px); background:var(--ink); color:#fff; padding:10px 22px; border-radius:99px; font-size:0.9rem; font-weight:500; z-index:200; pointer-events:none; transition:transform 0.35s var(--ease),opacity 0.35s var(--ease); opacity:0; white-space:nowrap; box-shadow:0 10px 30px rgba(0,0,0,0.25); }
+    .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    .toast.good { background:linear-gradient(135deg,var(--stem),#3e7a4f); }
+    .toast.bad  { background:linear-gradient(135deg,var(--center),var(--center-hover)); }
+
+    /* Found words — no longer height-capped or internally scrolling.
+       It grows with the list; the page scrolls to reveal it, while the
+       flower and everything above keep their normal fixed positions. */
+    .found-ticker { flex:0 0 auto; width:100%; background:var(--card-soft); border-radius:14px; padding:8px 14px; box-shadow:var(--shadow-sm), var(--hairline); display:flex; align-items:flex-start; gap:10px; min-height:clamp(34px,6.2dvh,44px); }
+    .found-label { flex:0 0 auto; font-size:clamp(0.6rem,1.3dvh,0.72rem); color:var(--ink-muted); text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap; padding-top:2px; }
+    .found-label b { color:var(--stem); font-family:'Playfair Display',serif; font-size:1.05em; }
+    .found-list { flex:1 1 auto; min-width:0; display:flex; flex-wrap:wrap; align-content:flex-start; gap:5px 6px; }
+    .found-hint { color:var(--ink-muted); font-size:0.72rem; white-space:nowrap; }
+    .found-word { flex:0 0 auto; background:#f0f8f2; border:1.5px solid #c8e8d4; color:var(--stem); border-radius:8px; padding:3px 9px; font-size:0.74rem; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; white-space:nowrap; animation:pop-in 0.3s cubic-bezier(.2,1.5,.4,1); }
+    @keyframes pop-in { from{transform:scale(0.6);opacity:0} to{transform:scale(1);opacity:1} }
+    .found-word.pangram { background:#fff8e6; border-color:var(--gold); color:#b07010; }
+    .found-word.pangram::before { content:'★ '; }
+
+    
+    /* Discovery & Stars */
+    .discovery-pct { font-family:'Playfair Display',serif; font-size:clamp(1.1rem,3dvh,1.5rem); font-weight:900; color:var(--stem); line-height:1; transition:color 0.3s; }
+    .stars { font-size:clamp(0.8rem,2dvh,1.1rem); letter-spacing:2px; color:var(--gold); transition:transform 0.3s var(--ease); }
+    .star-pop { animation:starPop 0.45s cubic-bezier(.2,1.5,.4,1); }
+    @keyframes starPop { 0%{transform:scale(1)} 50%{transform:scale(1.4)} 100%{transform:scale(1)} }
+
+    /* Cheat overlay — full-screen warning */
+    .cheat-overlay { position:fixed; inset:0; background:rgba(42,31,26,0.94); z-index:300; display:none; flex-direction:column; align-items:center; justify-content:center; color:#fff; text-align:center; padding:24px; backdrop-filter:blur(10px); }
+    .cheat-overlay.active { display:flex; animation:fadeIn 0.25s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .cheat-overlay h2 { font-family:'Playfair Display',serif; font-size:clamp(1.6rem,5dvh,2.2rem); color:var(--center); margin-bottom:8px; }
+    .cheat-overlay p { font-size:clamp(0.9rem,2.2dvh,1.1rem); color:#c8b8a8; max-width:340px; margin-bottom:20px; line-height:1.5; }
+    .cheat-count-big { font-size:clamp(3rem,10dvh,5rem); font-weight:900; font-family:'Playfair Display',serif; color:var(--gold); line-height:1; }
+    .cheat-badge { display:none; align-items:center; gap:4px; background:#fff0ee; border:1.5px solid #f4a3b5; color:var(--center); padding:3px 10px; border-radius:99px; font-size:0.72rem; font-weight:700; white-space:nowrap; animation:pop-in 0.3s var(--ease); }
+    .cheat-badge.show { display:flex; }
+
+    /* Long word celebration */
+    .toast.bonus { background:linear-gradient(135deg,var(--gold),#c88010); }
+
+    /* End screen discovery */
+    .stat-box.discovery { background:linear-gradient(135deg,#f0f8f2,#e8f5e9); border-color:#4a8c5c; }
+    .stat-box.cheats { background:#fff0ee; border-color:#f4a3b5; }
+    .stat-box.cheats.clean { background:#f0f8f2; border-color:#c8e8d4; }
+    .stat-box.cheats.clean .stat-num { color:var(--stem); }
+    .stat-box.cheats .stat-num { color:var(--center); }
+
+    /* ══ END SCREEN ══ */
+    #endScreen { justify-content:flex-start; padding:30px 16px 50px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+    .end-card { background:var(--card); border:1.5px solid rgba(246,101,74,0.18); border-radius:24px; padding:36px 28px; max-width:480px; width:100%; box-shadow:0 0 50px rgba(246,101,74,0.07),0 20px 60px rgba(0,0,0,0.08); animation:cardIn 0.6s cubic-bezier(0.34,1.4,0.64,1) forwards; }
+    @keyframes cardIn { from{opacity:0;transform:translateY(32px) scale(0.96)} to{opacity:1;transform:none} }
+    .end-title { font-family:'Playfair Display',serif; font-size:2.4rem; font-weight:900; text-align:center; color:var(--center); margin-bottom:4px; }
+    .end-subtitle { text-align:center; font-size:0.82rem; color:var(--ink-muted); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:22px; }
+    .end-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px; }
+    .stat-box { background:#fdf0e2; border-radius:12px; padding:14px 8px; text-align:center; border:1.5px solid #f0d8c0; }
+    .stat-num { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--stem); line-height:1; }
+    .stat-lbl { font-size:0.68rem; color:var(--ink-muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:4px; }
+
+    /* Word chips */
+    .words-section-title { font-size:0.78rem; color:var(--ink-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px; }
+    .end-words-grid { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; }
+    .end-word-chip { background:#f0f8f2; border:1.5px solid #c8e8d4; color:var(--stem); border-radius:8px; padding:4px 12px; font-size:0.82rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; animation:pop-in 0.35s cubic-bezier(.2,1.5,.4,1) backwards; }
+    .end-word-chip.pangram { background:#fff8e6; border-color:var(--gold); color:#b07010; }
+    .end-word-chip.pangram::before { content:'★ '; }
+    .end-word-chip.missed { background:#fff0ee; border-color:var(--petal-hover); color:#c0604a; opacity:0.85; }
+    .end-word-chip.missed.pangram { background:#fff3e0; border-color:#e8a020; color:#9a6010; }
+
+    /* Possible words section */
+    .possible-section { background:#fdf0e2; border-radius:14px; padding:14px 18px; border:1.5px solid #f0d8c0; margin-bottom:18px; }
+    .possible-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+    .possible-title { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:var(--ink); }
+    .possible-subtitle { font-size:0.72rem; color:var(--ink-muted); margin-bottom:10px; }
+    .possible-loading { display:flex; align-items:center; gap:8px; font-size:0.82rem; color:var(--ink-muted); }
+    .progress-bar { height:5px; background:#e8d8c8; border-radius:99px; overflow:hidden; margin-bottom:10px; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,var(--stem-light),var(--stem)); border-radius:99px; transition:width 0.3s; }
+
+    /* Legend */
+    .legend { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; font-size:0.72rem; color:var(--ink-muted); }
+    .legend-item { display:flex; align-items:center; gap:4px; }
+    .legend-dot { width:10px; height:10px; border-radius:2px; }
+
+    /* Identity */
+    .identity-section { background:#fdf0e2; border-radius:14px; padding:16px 18px; border:1.5px solid #f0d8c0; margin-bottom:18px; }
+    .identity-section h4 { font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:var(--ink); margin-bottom:12px; }
+    .identity-known { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:var(--stem); display:flex; align-items:center; gap:8px; }
+    .identity-known .id-sub { font-family:'DM Sans',sans-serif; font-size:0.8rem; color:var(--ink-muted); font-weight:400; }
+    .identity-fields { display:flex; flex-direction:column; gap:8px; }
+    .identity-fields input, .identity-fields select { padding:10px 14px; border-radius:10px; border:1.5px solid #e8d8c8; background:var(--card); color:var(--ink); font-size:0.92rem; font-family:'DM Sans',sans-serif; outline:none; transition:border-color 0.2s; width:100%; }
+    .identity-fields input:focus, .identity-fields select:focus { border-color:var(--stem); }
+    .id-note { font-size:0.72rem; color:var(--ink-muted); margin-top:4px; text-align:center; }
+    .submit-status { font-size:0.78rem; text-align:center; margin-top:8px; min-height:18px; color:var(--stem); }
+    .submit-status.err { color:var(--center); }
+
+    /* End buttons */
+    .end-btn-row { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn-end { flex:1; padding:13px 10px; border:none; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.88rem; font-weight:600; letter-spacing:0.04em; cursor:pointer; transition:transform 0.15s; text-transform:uppercase; min-width:90px; }
+    .btn-end:hover { transform:scale(1.03); }
+    .btn-end-primary   { background:linear-gradient(135deg,var(--stem),#7dbb8f); color:white; box-shadow:0 4px 16px rgba(74,140,92,0.25); }
+    .btn-end-share     { background:linear-gradient(135deg,#128c7e,#25d366); color:white; }
+    .btn-end-secondary { background:#fdf0e2; color:var(--ink-muted); border:1.5px solid #e8d8c8; }
+
+    .flower-svg {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 340px;
+  aspect-ratio: 1 / 1;
+  display: block;
+  overflow: visible;
+}
+
+.flower-letter {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  cursor: pointer;
+  user-select: none;
+  pointer-events: none;
+}
+
+.outer-petal {
+  fill: url(#petalGradient);
+  filter: drop-shadow(0 3px 6px rgba(74,54,40,0.16));
+  transition: transform 0.16s var(--ease), filter 0.16s var(--ease);
+  transform-box: fill-box;
+  transform-origin: center;
+  cursor: pointer;
+}
+
+.outer-petal:hover {
+  filter: drop-shadow(0 4px 10px rgba(224,78,53,0.22));
+  transform: scale(1.05);
+}
+
+.outer-petal.pressed {
+  transform: scale(0.93);
+  filter: drop-shadow(0 1px 3px rgba(74,54,40,0.14));
+}
+
+.center-petal {
+  fill: url(#centerGradient);
+  filter: drop-shadow(0 5px 14px rgba(224,78,53,0.35));
+  transition: transform 0.16s var(--ease), filter 0.16s var(--ease);
+  transform-box: fill-box;
+  transform-origin: center;
+  cursor: pointer;
+}
+
+.center-petal:hover {
+  filter: drop-shadow(0 6px 18px rgba(224,78,53,0.42));
+  transform: scale(1.05);
+}
+
+.center-petal.pressed {
+  transform: scale(0.93);
+}
+
+.petal-ripple {
+  fill: #fff;
+  pointer-events: none;
+  animation: petalRipple 0.5s var(--ease) forwards;
+}
+  </style>
+<base target="_blank">
+</head>
+<body>
+
+<!-- Hidden canvas for stats image -->
+<canvas id="statsCanvas" style="display:none;"></canvas>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ GAME SCREEN ══ -->
+<div class="screen active" id="gameScreen">
+  <div class="game-col">
+    <div class="top-bar">
+      <div class="top-actions">
+        <button class="icon-btn" id="btn-end-game" aria-label="End game">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 3.5L16 11H5"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-new" aria-label="New puzzle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>
+        </button>
+        <div class="cheat-badge" id="cheatBadge"><span>⚠️</span><span id="cheatCount">0</span></div>
+      </div>
+      <div class="brand"><h1>Bloss<span>✿</span>m</h1></div>
+      <div class="timer-pill">
+        <div class="timer-arc-wrap">
+          <svg id="timerArc" width="36" height="36" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(74,60,50,0.1)" stroke-width="4"/>
+            <circle id="arcPath" cx="28" cy="28" r="22" fill="none" stroke="var(--stem)" stroke-width="4"
+              stroke-dasharray="138.2" stroke-dashoffset="0" stroke-linecap="round"
+              style="transition:stroke-dashoffset 1s linear,stroke 0.5s ease;"/>
+          </svg>
+        </div>
+        <div class="timer-text" id="timerText">3:00</div>
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-strip-top">
+        <span class="rank-name" id="rank-name">Seedling 🌱</span>
+        <div style="text-align:right;">
+          <div class="discovery-pct" id="discovery-pct">0%</div>
+          <div class="stars" id="star-rating">☆☆☆☆☆</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+        <span class="stat-nums"><b id="word-count">0</b> / <b id="total-possible">0</b> found</span>
+        <span class="stat-nums" id="score-wrap" style="opacity:0.55;"><b id="score">0</b> pts · best <b id="best-score">0</b></span>
+      </div>
+      <div class="rank-track" style="margin-top:6px;"><div class="rank-fill" id="rank-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="input-row">
+      <div class="word-display" id="word-display">
+        <span id="typed-letters"></span><span class="cursor"></span>
+      </div>
+    </div>
+
+    <div class="flower-stage">
+      <svg id="flower" viewBox="0 0 300 300" class="flower-svg"></svg>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-shuffle" id="btn-shuffle" aria-label="Shuffle letters">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+      </button>
+      <button class="btn-enter" id="btn-enter">Enter Word</button>
+      <button class="btn-icon-action" id="btn-delete" aria-label="Delete letter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-6 8 6 8h13a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1Z"/><path d="M13 9l4 6M17 9l-4 6"/></svg>
+      </button>
+    </div>
+
+    <div class="found-ticker">
+      <span class="found-label">Found <b id="found-count">0</b></span>
+      <div class="found-list" id="found-list"><span class="found-hint">Words you find will appear here…</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Cheat Warning Overlay -->
+<div class="cheat-overlay" id="cheatOverlay">
+  <div style="font-size:3rem;margin-bottom:8px;">👁️</div>
+  <h2>Focus Check</h2>
+  <p>Switching tabs or leaving the window is detected to keep the game fair for everyone.</p>
+  <div class="cheat-count-big" id="cheatOverlayCount">0</div>
+  <p style="margin-top:8px;">focus event<span id="cheatPlural">s</span> recorded</p>
+  <button class="btn-enter" onclick="dismissCheatWarning()" style="margin-top:24px;min-width:140px;">I'm Back</button>
+</div>
+
+<!-- ══ END SCREEN ══ -->
+<div class="screen" id="endScreen">
+  <div class="end-card">
+    <div class="end-title" id="endTitle">🌸 Time's Up!</div>
+    <div class="end-subtitle" id="endSubtitle">Blossom Word Game</div>
+    <div class="end-stats">
+      <div class="stat-box discovery">
+        <div class="stat-num" id="endDiscovery" style="font-size:1.7rem;">0%</div>
+        <div class="stat-lbl" id="endStars" style="color:var(--gold);letter-spacing:2px;font-size:0.9rem;">☆☆☆☆☆</div>
+      </div>
+      <div class="stat-box"><div class="stat-num" id="endScore">0</div><div class="stat-lbl">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="endWords">0</div><div class="stat-lbl">Words Found</div></div>
+      <div class="stat-box"><div class="stat-num" id="endPangrams">0</div><div class="stat-lbl">Pangrams ★</div></div>
+      <div class="stat-box"><div class="stat-num" id="endLongest">—</div><div class="stat-lbl">Longest Word</div></div>
+      <div class="stat-box" id="cheatBox"><div class="stat-num" id="endCheats">0</div><div class="stat-lbl" id="cheatLabel">Focus Events</div></div>
+    </div>
+ <!-- Identity -->
+    <div class="identity-section">
+      <h4>📋 Record Your Score</h4>
+      <div class="identity-known" id="identityKnown" style="display:none;">
+        <span>👤</span>
+        <div><div id="knownName"></div><div class="id-sub" id="knownDept"></div></div>
+      </div>
+      <div class="identity-fields" id="identityFields">
+        <input type="text" id="playerName" placeholder="Your name" maxlength="60"/>
+        <select id="playerDept">
+          <option value="">— Select Department —</option>
+           <option value="MCA">MCA</option>
+          <option value="Cyber Security">Cyber Security</option>
+          <option value="EIE">EIE</option>
+          <option value="CSE-1">CSE-1</option><option value="CSE-2">CSE-2</option><option value="CSE-3">CSE-3</option>
+          <option value="Mechanical Engineering">Mechanical Engineering</option>
+          <option value="ECE-1">ECE-1</option><option value="ECE-2">ECE-2</option><option value="ECE-3">ECE-3</option>
+          <option value="AI DS-1">AI DS-1</option><option value="AI DS-2">AI DS-2</option>
+          <option value="Agri and Civil">Agri and Civil</option>
+          <option value="EEE">EEE</option>
+          <option value="Medical Electronics">Medical Electronics</option>
+          <option value="IT-1">IT-1</option><option value="IT-2">IT-2</option>
+        </select>
+        <div class="id-note">Your score will be submitted to the leaderboard.</div>
+      </div>
+      <div class="submit-status" id="submitStatus"></div>
+    </div>
+
+    <div class="end-btn-row">
+      <button class="btn-end btn-end-primary"   id="btnPlayAgain">✿ Play Again</button>
+      <button class="btn-end btn-end-share"      id="btnShare">📲 Share</button>
+      <button class="btn-end btn-end-secondary"  id="btnLeaderboard">🏆 Board</button>
+    </div>
+    <!-- Words YOU found -->
+    <div class="words-section-title">✅ Words You Found</div>
+    <div class="end-words-grid" id="endWordsFound"></div>
+
+    <!-- All possible words (loaded after game) -->
+    <div class="possible-section" id="possibleSection">
+      <div class="possible-header">
+        <div class="possible-title">🌸 Missed Words</div>
+        <div id="possibleCount" style="font-size:0.78rem;color:var(--ink-muted);"></div>
+      </div>
+      <div class="possible-subtitle" id="possibleSubtitle">Finding all valid words for this puzzle…</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#c8e8d4;border:1px solid #4a8c5c;"></div> Found by you</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ffe0d8;border:1px solid #f4a3b5;"></div> Missed</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fff8e6;border:1px solid #e8a020;"></div> Pangram</div>
+      </div>
+      <div class="end-words-grid" id="endWordsAll"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+// Loaded from words.json so the dictionary can be updated independently.
+let ALL_WORDS = [];
+let ALL_WORDS_SET = new Set();
+
+async function loadWordBank() {
+  const response = await fetch('./words.json', { cache: 'no-cache' });
+  if (!response.ok) throw new Error(`Could not load words.json (${response.status})`);
+  const data = await response.json();
+  const words = Array.isArray(data) ? data : data.words;
+  if (!Array.isArray(words)) throw new Error('words.json must contain an array of words');
+  ALL_WORDS = [...new Set(words
+    .map(w => String(w).trim().toLowerCase())
+    .filter(w => /^[a-z]{4,}$/.test(w))
+  )];
+  ALL_WORDS_SET = new Set(ALL_WORDS);
+}
+
+/* ═══════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════ */
+const EDGE_URL  = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/submit-quest"; 
+const NAME_KEY  = 'blossomPlayerName';
+const DEPT_KEY  = 'blossomPlayerDept';
+const BEST_KEY  = 'blossomBest';
+const GAME_SECS = 300;
+const ARC_CIRC  = 138.2;
+
+const PUZZLES = [
+  ['E','G','L','N','H','Y','T'],
+  ['S','O','L','M','D','E','N'],
+  ['S','O','G','Y','E','T','Z'],
+  ['E','W','G','L','D','N','I'],
+  ['A','O','G','L','M','R','S'],
+  ['E','C','L','U','N','T','I'],
+  ['L','V','O','A','E','R','I'],
+  ['A','C','M','N','E','R','I'],
+  ['S','W','C','A','K','E','T'],
+  ['S','F','W','E','H','J','I'],
+  ['S','O','U','A','D','N','B'],
+  ['N','O','A','M','U','T','I'],
+  ['O','C','L','U','N','S','I'],
+  ['A','D','N','Y','T','B','S'],
+  ['S','O','M','E','Z','B','I'],
+  ['E','F','L','U','D','S','I'],
+  ['A','F','L','U','N','Y','T'],
+  ['E','O','R','U','M','N','T'],
+  ['A','Q','U','N','Y','R','I'],
+  ['E','F','C','L','H','R','I'],
+  ['S','T','O','C','Y','P','I'],
+  ['A','W','C','M','E','N','R'],
+  ['T','F','A','E','N','I','X'],
+  ['E','W','R','N','Y','T','I'],
+  ['E','O','P','D','N','T','I'],
+  ['T','O','C','A','Y','P','I'],
+  ['E','T','O','W','U','D','R'],
+  ['S','L','A','K','E','B','I'],
+  ['E','T','O','C','U','N','R'],
+  ['S','O','W','A','E','N','P'],
+  ['E','O','W','L','J','R','I'],
+  ['E','O','U','D','N','R','I'],
+  ['I','O','G','L','N','T','B'],
+  ['T','O','W','G','U','H','R'],
+  ['O','A','D','H','N','R','S'],
+  ['O','C','U','K','D','R','B'],
+  ['R','O','C','A','M','K','E'],
+  ['E','O','L','D','H','B','S'],
+  ['A','C','K','E','T','B','S'],
+  ['S','F','O','I','A','N','R'],
+  ['A','O','L','D','R','B','I'],
+  ['A','C','L','M','H','Y','S'],
+  ['T','O','L','U','H','R','I'],
+  ['A','C','R','H','Y','T','S'],
+  ['A','M','E','N','T','B','I'],
+  ['S','T','I','P','U','D','R'],
+  ['E','V','W','R','U','P','I'],
+  ['O','R','M','H','T','B','I'],
+  ['R','O','C','A','D','P','I'],
+  ['A','F','C','L','N','Y','I'],
+  ['S','O','A','K','D','N','I'],
+  ['N','O','G','C','L','A','I'],
+  ['E','F','L','U','A','N','R'],
+  ['E','O','L','A','U','D','R'],
+  ['E','O','U','D','H','N','P'],
+  ['E','M','U','R','B','S','I'],
+  ['T','O','C','A','U','E','S'],
+  ['S','F','C','U','A','E','T'],
+  ['O','P','H','Y','N','T','S'],
+  ['R','O','W','C','H','E','B'],
+  ['S','O','M','A','D','N','I'],
+  ['A','L','D','H','Y','S','I'],
+  ['N','O','G','P','U','T','I'],
+  ['S','G','L','A','H','T','I'],
+  ['R','T','O','W','U','A','D'],
+  ['E','G','L','U','D','R','I'],
+  ['E','L','A','H','N','S','I'],
+  ['I','G','C','A','N','R','Z'],
+  ['E','C','U','M','H','N','R'],
+  ['N','O','G','U','D','S','I'],
+  ['R','O','D','E','T','B','I'],
+  ['A','L','U','D','N','R','I'],
+  ['O','C','L','A','K','D','P'],
+  ['L','C','A','E','T','B','I'],
+  ['E','R','A','H','N','P','I'],
+  ['T','O','R','U','N','E','I'],
+  ['E','V','O','L','A','Y','R'],
+  ['E','O','L','M','Y','R','B'],
+  ['A','C','L','K','N','E','R'],
+  ['E','O','C','L','K','D','B'],
+  ['S','I','C','A','E','R','Z'],
+  ['A','W','K','D','Y','R','S'],
+  ['O','T','C','U','M','E','P'],
+  ['A','O','C','L','N','Y','B'],
+  ['T','F','C','A','E','Y','I'],
+  ['O','T','G','U','H','R','B'],
+  ['E','C','P','D','H','T','I'],
+  ['S','O','P','M','A','N','T'],
+  ['O','C','L','M','E','P','S'],
+  ['S','O','G','C','H','E','I'],
+  ['A','C','D','N','B','S','I'],
+  ['S','O','G','C','U','A','H'],
+  ['R','F','O','A','M','E','N'],
+  ['A','O','M','D','N','R','S'],
+  ['E','F','L','U','D','R','I'],
+  ['L','O','P','A','D','E','T'],
+  ['D','Q','L','A','U','E','I'],
+  ['O','C','P','H','R','B','I'],
+  ['E','O','R','U','D','T','B'],
+  ['A','C','M','D','Y','N','I'],
+  ['S','U','A','D','H','E','B'],
+  ['E','W','G','D','H','N','I'],
+  ['A','K','E','N','R','B','S'],
+  ['L','O','U','A','D','N','P'],
+  ['E','O','A','D','N','Z','I'],
+  ['N','O','G','L','U','S','I'],
+  ['E','V','L','U','A','D','T'],
+  ['L','O','M','A','P','S','I'],
+  ['A','W','M','D','Y','S','I'],
+  ['T','O','G','U','A','R','S'],
+  ['R','A','U','K','H','E','B'],
+  ['A','C','N','H','J','T','I'],
+  ['E','F','O','L','U','D','T'],
+  ['N','O','G','U','H','S','I'],
+  ['L','C','M','U','A','E','T'],
+  ['S','V','O','L','E','P','I'],
+  ['O','L','H','N','E','P','I'],
+  ['S','G','C','A','H','N','E'],
+  ['E','C','R','U','N','Y','T'],
+  ['A','L','P','M','E','Y','R'],
+  ['S','A','U','J','R','B','I'],
+  ['S','O','K','E','H','N','Y'],
+  ['L','M','U','D','Y','P','I'],
+  ['S','C','A','Y','H','E','R'],
+  ['A','W','L','E','H','Y','T'],
+  ['A','F','R','M','U','N','T'],
+  ['A','T','O','M','D','N','R'],
+  ['E','O','M','D','Y','T','S'],
+  ['E','O','L','A','M','N','T'],
+  ['S','O','G','U','H','R','I'],
+  ['E','T','C','P','M','U','R'],
+  ['S','I','M','U','H','T','B'],
+  ['L','A','Y','H','N','E','I'],
+  ['E','T','O','G','A','P','B'],
+  ['A','V','C','L','N','E','Y'],
+  ['E','C','L','K','D','P','I'],
+  ['S','L','A','K','N','E','R'],
+  ['E','W','C','A','K','D','R'],
+  ['E','T','L','M','Y','P','I'],
+  ['I','G','M','U','N','P','B'],
+  ['S','O','U','M','E','R','I'],
+  ['N','G','L','A','K','E','I'],
+  ['S','P','U','A','D','N','T'],
+  ['S','L','U','D','E','T','B'],
+  ['N','O','C','A','T','B','I'],
+  ['E','G','L','H','T','S','I'],
+  ['I','O','A','D','N','T','X'],
+  ['E','L','A','K','N','R','I'],
+  ['A','O','G','L','M','B','S'],
+  ['A','G','M','T','B','S','I'],
+  ['S','C','U','K','H','B','I'],
+  ['S','F','W','L','U','H','I'],
+  ['A','O','C','M','H','R','Z'],
+  ['E','F','L','A','D','H','S'],
+  ['S','O','L','U','A','Y','T'],
+  ['E','C','A','M','D','H','T'],
+  ['N','I','W','G','A','J','S'],
+  ['S','T','R','A','U','P','B'],
+  ['E','C','D','N','Y','R','I'],
+  ['S','L','U','H','Y','P','I'],
+  ['I','L','M','U','D','Y','T'],
+  ['O','H','N','E','P','B','I'],
+  ['A','L','H','Y','R','B','S'],
+  ['S','L','U','D','H','E','R'],
+  ['S','O','L','Y','H','E','P'],
+  ['S','F','O','L','D','E','N'],
+  ['A','T','F','L','Y','R','I'],
+  ['T','V','C','U','A','Y','I'],
+  ['A','C','L','R','E','P','I'],
+  ['T','F','G','A','U','E','I'],
+  ['S','C','A','U','K','N','T'],
+  ['L','O','C','A','H','E','S'],
+  ['S','O','L','U','H','T','I'],
+  ['E','U','A','D','N','J','T'],
+  ['A','I','C','R','Y','P','S'],
+  ['E','O','L','U','D','N','R'],
+  ['O','C','R','P','T','S','I'],
+  ['O','F','L','A','U','D','R'],
+  ['R','T','V','C','D','E','I'],
+  ['O','C','K','E','Y','J','S'],
+  ['N','O','G','R','B','S','I'],
+  ['S','O','M','A','E','N','B'],
+  ['R','C','U','K','Y','E','I'],
+  ['S','O','C','L','U','K','P'],
+  ['L','O','U','E','P','S','I'],
+  ['S','O','M','U','H','R','B'],
+  ['G','O','E','N','Z','R','I'],
+  ['I','G','A','Y','N','T','X'],
+  ['S','V','O','A','D','R','I'],
+  ['S','O','C','A','D','Z','I'],
+  ['E','O','H','N','P','S','I'],
+  ['A','C','L','U','T','B','I'],
+  ['S','G','A','H','N','P','I'],
+  ['S','C','U','K','E','T','B'],
+  ['N','O','W','L','E','T','I'],
+  ['O','G','A','E','Y','P','B'],
+  ['L','U','A','E','Y','J','B'],
+  ['E','F','C','A','U','N','R'],
+  ['E','C','R','U','M','N','T'],
+  ['E','F','M','A','N','R','I'],
+  ['L','Q','F','A','U','Y','I'],
+  ['S','U','A','E','J','R','B'],
+  ['L','W','A','N','E','J','I'],
+  ['N','O','W','G','C','H','I'],
+  ['A','T','F','O','M','N','R'],
+  ['E','F','C','L','H','S','I'],
+  ['S','C','M','K','E','Y','I'],
+  ['E','F','G','U','R','S','I'],
+  ['E','T','L','Y','R','B','I'],
+  ['E','V','C','U','N','R','I'],
+  ['A','G','L','H','Y','T','S'],
+  ['E','O','M','A','D','N','B'],
+  ['D','O','G','U','H','E','T'],
+  ['A','F','M','D','N','Y','I'],
+  ['E','W','G','H','N','R','I'],
+  ['O','G','P','M','U','D','R'],
+  ['O','C','L','P','Y','R','I'],
+  ['I','G','L','A','N','R','B'],
+  ['C','O','A','H','N','P','I'],
+  ['S','C','Y','N','E','T','I']
+];
+
+const RANKS = [
+  {name:'Seedling 🌱',min:0},{name:'Sprout 🌿',min:10},
+  {name:'Budding 🌸',min:25},{name:'Blooming 🌺',min:50},
+  {name:'Flourishing 🌻',min:80},{name:'Garden Genius 🏆',min:120},
+];
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+let letters=[], outerLetters=[];
+let currentWord='', foundWords=new Set(), pangrams=[];
+let score=0, bestScore=parseInt(localStorage.getItem(BEST_KEY)||'0');
+let validating=false;
+let timeLeft=GAME_SECS, timerInterval=null, gameActive=false;
+let allPossibleWords=[];  // computed at end
+let totalPossibleWords=[]; // all valid words for this puzzle (computed at start)
+let cheatEvents=[];        // {type,time,timeLeft,wordAtTime}
+let longestWord='';
+let lastCheatTime=0;
+let cheatWarningTimer=null;
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+loadWordBank()
+  .then(() => newPuzzle())
+  .catch(error => {
+    console.error('Blossom word-bank loading failed:', error);
+    showToast('Could not load words.json. Please refresh.', 'bad');
+    document.getElementById('btn-enter').disabled = true;
+  });
+
+function newPuzzle() {
+  clearInterval(timerInterval);
+  const pick = PUZZLES[Math.floor(Math.random()*PUZZLES.length)];
+  letters      = [...pick];
+  outerLetters = letters.slice(1);
+  foundWords   = new Set();
+  pangrams     = [];
+  score        = 0;
+  currentWord  = '';
+  gameActive   = true;
+  timeLeft     = GAME_SECS;
+  allPossibleWords = [];
+  totalPossibleWords = getCandidateWords();
+  cheatEvents  = [];
+  longestWord  = '';
+  lastCheatTime= 0;
+  updateScoreDisplay();
+  updateFoundList();
+  updateDiscoveryDisplay();
+  renderFlower();
+  renderInput();
+  updateTimerDisplay();
+  updateArc();
+  startTimer();
+  document.getElementById('cheatBadge').classList.remove('show');
+  document.getElementById('cheatCount').textContent='0';
+  document.getElementById('total-possible').textContent=totalPossibleWords.length;
+}
+
+/* ═══════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════ */
+function startTimer() {
+  timerInterval = setInterval(()=>{
+    if (!gameActive) return;
+    timeLeft--;
+    updateTimerDisplay();
+    updateArc();
+    if (timeLeft<=0) endGame();
+  },1000);
+}
+
+function updateTimerDisplay() {
+  const m=Math.floor(timeLeft/60), s=timeLeft%60;
+  document.getElementById('timerText').textContent=m+':'+(s<10?'0':'')+s;
+  const el=document.getElementById('timerText');
+  el.classList.remove('amber','danger');
+  if (timeLeft<=30) el.classList.add('danger');
+  else if (timeLeft<=60) el.classList.add('amber');
+}
+
+function updateArc() {
+  const frac=Math.max(0,timeLeft/GAME_SECS);
+  document.getElementById('arcPath').style.strokeDashoffset=ARC_CIRC*(1-frac);
+  document.getElementById('arcPath').style.stroke=timeLeft<=30?'var(--center)':timeLeft<=60?'var(--gold)':'var(--stem)';
+}
+
+/* ═══════════════════════════════════════════════
+   FLOWER
+═══════════════════════════════════════════════ */
+function renderFlower() {
+  const svg = document.getElementById('flower');
+  svg.innerHTML = '';
+  const NS = "http://www.w3.org/2000/svg";
+
+  // Gradient defs — soft light-to-dark shading so petals read as domed, pressable objects
+  const defs = document.createElementNS(NS, "defs");
+  defs.innerHTML = `
+    <radialGradient id="petalGradient" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#fbe9e6"/>
+      <stop offset="55%" stop-color="${getComputedStyle(document.documentElement).getPropertyValue('--petal').trim()||'#f0d6d2'}"/>
+      <stop offset="100%" stop-color="${getComputedStyle(document.documentElement).getPropertyValue('--petal-hover').trim()||'#e8bfc0'}"/>
+    </radialGradient>
+    <radialGradient id="centerGradient" cx="35%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#ff8a68"/>
+      <stop offset="55%" stop-color="${getComputedStyle(document.documentElement).getPropertyValue('--center').trim()||'#f0603f'}"/>
+      <stop offset="100%" stop-color="${getComputedStyle(document.documentElement).getPropertyValue('--center-hover').trim()||'#dd4c2f'}"/>
+    </radialGradient>`;
+  svg.appendChild(defs);
+
+  const centerX = 150;
+  const centerY = 150;
+  const radius = 85;
+  const outerRadius = 42;
+  const centerRadius = 48;
+
+  function tapFeedback(circle, x, y, r) {
+    circle.classList.add('pressed');
+    setTimeout(()=>circle.classList.remove('pressed'), 140);
+    const ripple = document.createElementNS(NS, "circle");
+    ripple.setAttribute("cx", x); ripple.setAttribute("cy", y); ripple.setAttribute("r", r*0.4);
+    ripple.setAttribute("class", "petal-ripple");
+    ripple.style.transformOrigin = `${x}px ${y}px`;
+    svg.appendChild(ripple);
+    setTimeout(()=>ripple.remove(), 520);
+    if (navigator.vibrate) navigator.vibrate(6);
+  }
+
+  // Draw outer petals
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i - Math.PI / 2;
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+
+    const circle = document.createElementNS(NS, "circle");
+    circle.setAttribute("cx", x);
+    circle.setAttribute("cy", y);
+    circle.setAttribute("r", outerRadius);
+    circle.setAttribute("class", "outer-petal");
+
+    const text = document.createElementNS(NS, "text");
+    text.setAttribute("x", x);
+    text.setAttribute("y", y + 2);
+    text.setAttribute("class", "flower-letter");
+    text.setAttribute("font-size", "28");
+    text.setAttribute("fill", "var(--ink)");
+    text.textContent = outerLetters[i];
+
+    const onTap = () => { tapFeedback(circle, x, y, outerRadius); addLetter(outerLetters[i]); };
+    circle.addEventListener('click', onTap);
+    text.addEventListener('click', onTap);
+
+    svg.appendChild(circle);
+    svg.appendChild(text);
+  }
+
+  // Draw center petal
+  const centerCircle = document.createElementNS(NS, "circle");
+  centerCircle.setAttribute("cx", centerX);
+  centerCircle.setAttribute("cy", centerY);
+  centerCircle.setAttribute("r", centerRadius);
+  centerCircle.setAttribute("class", "center-petal");
+
+  const centerText = document.createElementNS(NS, "text");
+  centerText.setAttribute("x", centerX);
+  centerText.setAttribute("y", centerY + 3);
+  centerText.setAttribute("class", "flower-letter");
+  centerText.setAttribute("font-size", "32");
+  centerText.setAttribute("fill", "#fff");
+  centerText.textContent = letters[0];
+
+  const onCenterTap = () => { tapFeedback(centerCircle, centerX, centerY, centerRadius); addLetter(letters[0]); };
+  centerCircle.addEventListener('click', onCenterTap);
+  centerText.addEventListener('click', onCenterTap);
+
+  svg.appendChild(centerCircle);
+  svg.appendChild(centerText);
+}
+/* ═══════════════════════════════════════════════
+   INPUT
+═══════════════════════════════════════════════ */
+function addLetter(l) { if(!gameActive||currentWord.length>=20)return; currentWord+=l.toUpperCase(); renderInput(); }
+function deleteLetter() { if(!currentWord.length)return; currentWord=currentWord.slice(0,-1); renderInput(); if(navigator.vibrate) navigator.vibrate(5); }
+function renderInput() { document.getElementById('typed-letters').textContent=currentWord; document.getElementById('word-display').classList.remove('error','success'); }
+function shakeDisplay() { const d=document.getElementById('word-display'); d.classList.add('error'); setTimeout(()=>d.classList.remove('error'),500); }
+
+/* ═══════════════════════════════════════════════
+   SCORING
+═══════════════════════════════════════════════ */
+function isPangram(word) { const u=new Set(word.split('')); return letters.every(l=>u.has(l.toUpperCase())); }
+function wordScore(word) { return word.length===4?1:word.length+(isPangram(word)?7:0); }
+
+/* ═══════════════════════════════════════════════
+   WORD VALIDATION (local word bank only)
+═══════════════════════════════════════════════ */
+function submitWord() {
+  if (validating||!gameActive) return;
+  const word=currentWord.toUpperCase();
+  if (word.length<4)                                              { showToast('Too short! (4+ letters)','bad'); shakeDisplay(); return; }
+  if (!word.includes(letters[0].toUpperCase()))                   { showToast(`Must use "${letters[0].toUpperCase()}"`, 'bad'); shakeDisplay(); return; }
+  if (![...word].every(c=>letters.map(l=>l.toUpperCase()).includes(c))) { showToast('Use only the flower letters!','bad'); shakeDisplay(); return; }
+  if (foundWords.has(word))                                       { showToast('Already found!','bad'); shakeDisplay(); return; }
+
+  const valid = ALL_WORDS_SET.has(word.toLowerCase());
+  if (!valid) { showToast('Not a valid word','bad'); shakeDisplay(); return; }
+
+  const pts=wordScore(word);
+  score+=pts; foundWords.add(word);
+  if (isPangram(word)) pangrams.push(word);
+  if (word.length > longestWord.length) longestWord = word;
+  currentWord=''; renderInput();
+  updateScoreDisplay(); updateFoundList(); updateDiscoveryDisplay();
+  let msg='', toastType='good';
+  if (isPangram(word)) { msg='★ Pangram! +'+pts; }
+  else if (word.length >= 7) { msg=`🔥 ${word.length} letters! +${pts}`; toastType='bonus'; }
+  else if (word.length === 4) { msg='+1 point'; }
+  else { msg=`+${pts} points`; }
+  showToast(msg,toastType);
+  document.getElementById('word-display').classList.add('success');
+  setTimeout(()=>document.getElementById('word-display').classList.remove('success'),700);
+  if (navigator.vibrate) navigator.vibrate(isPangram(word) ? [20,40,20] : 18);
+}
+
+/* ═══════════════════════════════════════════════
+   POSSIBLE WORDS — computed entirely from the
+   embedded local word list, no network calls
+═══════════════════════════════════════════════ */
+function getCandidateWords() {
+  const center=letters[0].toUpperCase();
+  const allowed=new Set(letters.map(l=>l.toUpperCase()));
+  return ALL_WORDS.filter(w=>{
+    const up=w.toUpperCase();
+    return up.includes(center) && [...up].every(c=>allowed.has(c));
+  });
+}
+
+function findAllPossibleWords(onProgress) {
+  const candidates = getCandidateWords();
+  onProgress(100);
+  // sort: pangrams first, then by length desc, then alpha
+  return candidates.sort((a,b)=>{
+    const pa=isPangram(a.toUpperCase()),pb=isPangram(b.toUpperCase());
+    if (pa&&!pb) return -1; if (!pa&&pb) return 1;
+    return b.length-a.length||a.localeCompare(b);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   SCORE / RANK DISPLAY
+═══════════════════════════════════════════════ */
+function updateScoreDisplay() {
+  document.getElementById('score').textContent=score;
+  document.getElementById('word-count').textContent=foundWords.size;
+  if (score>bestScore){ bestScore=score; localStorage.setItem(BEST_KEY,bestScore); }
+  document.getElementById('best-score').textContent=bestScore;
+  let ri=0;
+  for(let i=RANKS.length-1;i>=0;i--){ if(score>=RANKS[i].min){ri=i;break;} }
+  const rank=RANKS[ri],next=RANKS[ri+1];
+  document.getElementById('rank-name').textContent=rank.name;
+  if(next){ document.getElementById('rank-fill').style.width=Math.min(100,((score-rank.min)/(next.min-rank.min))*100)+'%'; }
+  else { document.getElementById('rank-fill').style.width='100%'; }
+}
+
+function updateFoundList() {
+  document.getElementById('found-count').textContent=foundWords.size;
+  const list=document.getElementById('found-list');
+  if(!foundWords.size){ list.innerHTML='<span class="found-hint">Words you find will appear here…</span>'; return; }
+  list.innerHTML='';
+  [...foundWords].sort((a,b)=>b.length-a.length||a.localeCompare(b)).forEach(w=>{
+    const span=document.createElement('span');
+    span.className='found-word'+(isPangram(w)?' pangram':'');
+    span.textContent=w; list.appendChild(span);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   DISCOVERY % & STARS
+═══════════════════════════════════════════════ */
+function getDiscoveryPct() {
+  if (!totalPossibleWords.length) return 0;
+  return Math.round((foundWords.size / totalPossibleWords.length) * 100);
+}
+
+function getStarRating(pct) {
+  if (pct >= 100) return '★★★★★';
+  if (pct >= 80)  return '★★★★☆';
+  if (pct >= 60)  return '★★★☆☆';
+  if (pct >= 40)  return '★★☆☆☆';
+  if (pct >= 20)  return '★☆☆☆☆';
+  return '☆☆☆☆☆';
+}
+
+function updateDiscoveryDisplay() {
+  const pct = getDiscoveryPct();
+  const pctEl = document.getElementById('discovery-pct');
+  const starEl = document.getElementById('star-rating');
+  pctEl.textContent = pct + '%';
+  const newStars = getStarRating(pct);
+  if (starEl.textContent !== newStars) {
+    starEl.textContent = newStars;
+    starEl.classList.remove('star-pop');
+    void starEl.offsetWidth;
+    starEl.classList.add('star-pop');
+  }
+  // Rank fill driven by discovery % instead of score
+  const thresholds = [0,20,40,60,80,100];
+  let prev = 0, next = 100;
+  for (let i = 0; i < thresholds.length - 1; i++) {
+    if (pct >= thresholds[i] && pct < thresholds[i+1]) { prev = thresholds[i]; next = thresholds[i+1]; break; }
+    if (pct >= 100) { prev = 80; next = 100; }
+  }
+  const denom = next - prev;
+  const fillPct = denom > 0 ? Math.min(100, ((pct - prev) / denom) * 100) : 100;
+  document.getElementById('rank-fill').style.width = fillPct + '%';
+  const ri = RANKS.slice().reverse().find(r => pct >= r.min) || RANKS[0];
+  document.getElementById('rank-name').textContent = ri.name;
+}
+
+/* ═══════════════════════════════════════════════
+   ANTI-CHEAT
+═══════════════════════════════════════════════ */
+function recordCheat(type) {
+  if (!gameActive) return;
+  const now = Date.now();
+  // Debounce: ignore events within 1.5s of last recorded cheat
+  if (now - lastCheatTime < 1500) return;
+  lastCheatTime = now;
+  cheatEvents.push({ type, time: now, timeLeft, wordAtTime: currentWord });
+  const badge = document.getElementById('cheatBadge');
+  const countEl = document.getElementById('cheatCount');
+  badge.classList.add('show');
+  countEl.textContent = cheatEvents.length;
+  showCheatWarning();
+}
+
+function showCheatWarning() {
+  const overlay = document.getElementById('cheatOverlay');
+  const countEl = document.getElementById('cheatOverlayCount');
+  const pluralEl = document.getElementById('cheatPlural');
+  countEl.textContent = cheatEvents.length;
+  pluralEl.textContent = cheatEvents.length === 1 ? '' : 's';
+  overlay.classList.add('active');
+  clearTimeout(cheatWarningTimer);
+  cheatWarningTimer = setTimeout(() => overlay.classList.remove('active'), 3500);
+}
+
+function dismissCheatWarning() {
+  document.getElementById('cheatOverlay').classList.remove('active');
+}
+
+function getRankName(pts) {
+  let ri=0; for(let i=RANKS.length-1;i>=0;i--){if(pts>=RANKS[i].min){ri=i;break;}} return RANKS[ri].name;
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg,type='') {
+  const t=document.getElementById('toast'); t.textContent=msg; t.className='toast show '+type;
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ═══════════════════════════════════════════════
+   SHUFFLE
+═══════════════════════════════════════════════ */
+function shuffle() {
+  for(let i=outerLetters.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [outerLetters[i],outerLetters[j]]=[outerLetters[j],outerLetters[i]];
+  }
+  renderFlower();
+}
+
+/* ═══════════════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(!document.getElementById('gameScreen').classList.contains('active'))return;
+  const key=e.key.toUpperCase();
+  if(key.length===1&&/[A-Z]/.test(key)){
+    if(letters.map(l=>l.toUpperCase()).includes(key)) addLetter(key);
+    else { shakeDisplay(); showToast('Not in the flower!','bad'); }
+  } else if(e.key==='Backspace') deleteLetter();
+  else if(e.key==='Enter') submitWord();
+});
+
+/* ═══════════════════════════════════════════════
+   GAME CONTROLS
+═══════════════════════════════════════════════ */
+document.getElementById('btn-delete').addEventListener('click',deleteLetter);
+document.getElementById('btn-enter').addEventListener('click',submitWord);
+document.getElementById('btn-shuffle').addEventListener('click',()=>{
+  const b=document.getElementById('btn-shuffle');
+  b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin');
+  if (navigator.vibrate) navigator.vibrate(10);
+  shuffle();
+});
+document.getElementById('btn-new').addEventListener('click',()=>{
+  if(confirm('Start a new puzzle? Your current progress will be lost.')) newPuzzle();
+});
+document.getElementById('btn-end-game').addEventListener('click',()=>{
+  if(confirm('End the game and see your results?')) endGame();
+});
+
+/* ═══════════════════════════════════════════════
+   END GAME
+═══════════════════════════════════════════════ */
+function endGame() {
+  gameActive=false; clearInterval(timerInterval);
+  setTimeout(showEndScreen,300);
+}
+
+/* ═══════════════════════════════════════════════
+   END SCREEN
+═══════════════════════════════════════════════ */
+function showEndScreen() {
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('endScreen').classList.add('active');
+
+  // Title driven by Discovery %
+  const discoveryPct = getDiscoveryPct();
+  const tm=[[100,'🏆 Perfect Bloom!'],[80,'🌻 Flourishing!'],[60,'🌺 Blooming!'],[40,'🌸 Budding!'],[20,'🌱 Sprouting!'],[0,'🌱 Good effort!']];
+  document.getElementById('endTitle').textContent=(tm.find(([m])=>discoveryPct>=m)||tm[5])[1];
+  document.getElementById('endSubtitle').textContent=`Blossom · ${foundWords.size}/${totalPossibleWords.length} words · Discovery: ${discoveryPct}% ${getStarRating(discoveryPct)}`;
+
+  document.getElementById('endScore').textContent=score;
+  document.getElementById('endWords').textContent=foundWords.size;
+  document.getElementById('endPangrams').textContent=pangrams.length;
+
+  // NEW metrics
+  document.getElementById('endDiscovery').textContent = discoveryPct + '%';
+  document.getElementById('endStars').textContent = getStarRating(discoveryPct);
+  document.getElementById('endLongest').textContent = longestWord || '—';
+  document.getElementById('endCheats').textContent = cheatEvents.length;
+  const cheatBox = document.getElementById('cheatBox');
+  const cheatLabel = document.getElementById('cheatLabel');
+  if (cheatEvents.length === 0) {
+    cheatBox.classList.add('clean');
+    cheatLabel.textContent = 'Perfect Focus 🎯';
+  } else {
+    cheatBox.classList.remove('clean');
+    cheatLabel.textContent = 'Focus Events';
+  }
+
+  // Words YOU found
+  const foundGrid=document.getElementById('endWordsFound');
+  foundGrid.innerHTML='';
+  if(!foundWords.size){ foundGrid.innerHTML='<span style="font-size:0.82rem;color:var(--ink-muted)">None found this round.</span>'; }
+  else {
+    [...foundWords].sort((a,b)=>b.length-a.length||a.localeCompare(b)).forEach((w,i)=>{
+      const chip=document.createElement('span');
+      chip.className='end-word-chip'+(isPangram(w)?' pangram':'');
+      chip.textContent=w; chip.style.animationDelay=(i*0.05)+'s';
+      foundGrid.appendChild(chip);
+    });
+  }
+
+  // Identity
+  const storedName=localStorage.getItem(NAME_KEY);
+  const storedDept=localStorage.getItem(DEPT_KEY);
+  document.getElementById('submitStatus').textContent='';
+  document.getElementById('submitStatus').className='submit-status';
+
+  if(storedName&&storedDept){
+    showKnownIdentity(storedName,storedDept);
+    submitScore(storedName,storedDept);
+  } else {
+    document.getElementById('identityKnown').style.display='none';
+    document.getElementById('identityFields').style.display='flex';
+    document.getElementById('playerName').value='';
+    document.getElementById('playerDept').value='';
+    const trySubmit=()=>{
+      const n=document.getElementById('playerName').value.trim();
+      const d=document.getElementById('playerDept').value;
+      if(!n||!d)return;
+      localStorage.setItem(NAME_KEY,n); localStorage.setItem(DEPT_KEY,d);
+      showKnownIdentity(n,d); submitScore(n,d);
+      document.getElementById('btnShare').onclick=()=>shareResult(n,d);
+    };
+    document.getElementById('playerName').onblur=trySubmit;
+    document.getElementById('playerDept').onchange=trySubmit;
+  }
+
+  // Buttons
+  document.getElementById('btnPlayAgain').onclick=()=>{
+    document.getElementById('endScreen').classList.remove('active');
+    document.getElementById('gameScreen').classList.add('active');
+    newPuzzle();
+  };
+  document.getElementById('btnShare').onclick=()=>shareResult(storedName,storedDept);
+  document.getElementById('btnLeaderboard').onclick=()=>window.open('https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/blossom_leaderboard','_blank');
+
+  // Start finding all possible words in background
+  loadPossibleWords();
+}
+
+/* ═══════════════════════════════════════════════
+   POSSIBLE WORDS LOADER
+═══════════════════════════════════════════════ */
+async function loadPossibleWords() {
+  const progressFill = document.getElementById('progressFill');
+  const subtitle     = document.getElementById('possibleSubtitle');
+  const allGrid      = document.getElementById('endWordsAll');
+  const countEl      = document.getElementById('possibleCount');
+
+  subtitle.textContent = 'Finding possible words…';
+  allGrid.innerHTML    = '';
+  progressFill.style.width = '0%';
+
+  allPossibleWords = findAllPossibleWords(pct => {
+    progressFill.style.width = pct + '%';
+  });
+
+  progressFill.style.width = '100%';
+  subtitle.textContent     = '';
+
+  const missed = allPossibleWords.filter(w=>!foundWords.has(w.toUpperCase()));
+  const found  = allPossibleWords.filter(w=> foundWords.has(w.toUpperCase()));
+  countEl.textContent = `${allPossibleWords.length} words · ${found.length} found · ${missed.length} missed`;
+
+  // Render all — found ones first (green), missed ones (coral)
+  const sorted = [
+    ...found.map(w=>({w,found:true})),
+    ...missed.map(w=>({w,found:false}))
+  ].sort((a,b)=>{
+    // pangrams first within each group
+    const pa=isPangram(a.w.toUpperCase()), pb=isPangram(b.w.toUpperCase());
+    if(a.found!==b.found) return a.found?-1:1;
+    if(pa&&!pb) return -1; if(!pa&&pb) return 1;
+    return b.w.length-a.w.length||a.w.localeCompare(b.w);
+  });
+
+  sorted.forEach((item,i)=>{
+    const chip=document.createElement('span');
+    const pg=isPangram(item.w.toUpperCase());
+    chip.className='end-word-chip'+(item.found?'':' missed')+(pg?' pangram':'');
+    chip.textContent=item.w.toUpperCase();
+    chip.style.animationDelay=(i*0.02)+'s';
+    allGrid.appendChild(chip);
+  });
+
+  // Now generate stats image (words are ready)
+  generateStatsImage();
+}
+
+/* ═══════════════════════════════════════════════
+   CANVAS STATS IMAGE
+═══════════════════════════════════════════════ */
+let statsImageDataUrl = null;
+
+function generateStatsImage() {
+  const canvas = document.getElementById('statsCanvas');
+  const ctx    = canvas.getContext('2d');
+  const W = 1080, H = 1920;
+  canvas.width=W; canvas.height=H;
+
+  const name = localStorage.getItem(NAME_KEY)||'';
+  const dept = localStorage.getItem(DEPT_KEY)||'';
+
+  // ── Background ──
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#fdf0e2'); bg.addColorStop(1,'#fce8d4');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+
+  // Soft petal blobs
+  const drawBlob=(x,y,r,col)=>{ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();};
+  drawBlob(100,200,260,'rgba(249,198,208,0.35)');
+  drawBlob(980,1700,300,'rgba(249,198,208,0.3)');
+  drawBlob(900,400,200,'rgba(122,187,143,0.18)');
+
+  // ── Flower decoration (top) ──
+  const fc=440, fy=200, fr=68;
+  for(let i=0;i<6;i++){
+    const a=(Math.PI/3)*i-Math.PI/2;
+    ctx.beginPath(); ctx.arc(fc+fr*Math.cos(a),fy+fr*Math.sin(a),38,0,Math.PI*2);
+    ctx.fillStyle='rgba(249,198,208,0.9)'; ctx.fill();
+  }
+  ctx.beginPath(); ctx.arc(fc,fy,44,0,Math.PI*2);
+  ctx.fillStyle='#f6654a'; ctx.fill();
+  ctx.font='bold 38px serif'; ctx.fillStyle='#fff'; ctx.textAlign='center';
+  ctx.fillText(letters[0]||'✿',fc,fy+13);
+
+  // ── Title ──
+  ctx.font='bold 90px Georgia,serif'; ctx.fillStyle='#2a1f1a'; ctx.textAlign='center';
+  ctx.fillText('Blossom', W/2, 420);
+  ctx.font='28px sans-serif'; ctx.fillStyle='#8a7060';
+  ctx.fillText('WORD GAME  ·  3 MINUTE CHALLENGE', W/2, 470);
+
+  // ── Player ──
+  if(name){
+    ctx.font='bold 40px sans-serif'; ctx.fillStyle='#4a8c5c';
+    ctx.fillText(`👤 ${name}${dept?' · '+dept:''}`, W/2, 540);
+  }
+
+  // ── Score card ──
+  rrect(ctx,80,590,W-160,260,28,'#fffdf9',true,'rgba(246,101,74,0.25)',4);
+  ctx.font='bold 130px Georgia,serif'; ctx.fillStyle='#4a8c5c'; ctx.textAlign='center';
+  ctx.fillText(score, W/2, 760);
+  ctx.font='28px sans-serif'; ctx.fillStyle='#8a7060';
+  ctx.fillText('TOTAL SCORE', W/2, 800);
+
+  // Discovery & Stars
+  const discoveryPct = getDiscoveryPct();
+  ctx.font='bold 56px Georgia,serif'; ctx.fillStyle='#4a8c5c'; ctx.textAlign='center';
+  ctx.fillText(discoveryPct+'%', W/2, 850);
+  ctx.font='40px serif'; ctx.fillStyle='var(--gold)';
+  ctx.fillText(getStarRating(discoveryPct), W/2, 890);
+  ctx.font='24px sans-serif'; ctx.fillStyle='#8a7060';
+  ctx.fillText('DISCOVERY', W/2, 920);
+
+  // Sub stats
+  const subY=960;
+  const stats=[
+    {v:foundWords.size+'/'+totalPossibleWords.length, l:'Words Found'},
+    {v:pangrams.length, l:'Pangrams ★'},
+    {v:longestWord||'—', l:'Longest'},
+  ];
+  stats.forEach((s,i)=>{
+    const x=160+i*280;
+    rrect(ctx,x-90,subY-10,180,140,16,'#fdf0e2',true,'#f0d8c0',2);
+    ctx.font='bold 58px Georgia,serif'; ctx.fillStyle='#4a8c5c'; ctx.textAlign='center';
+    ctx.fillText(String(s.v),x,subY+65);
+    ctx.font='22px sans-serif'; ctx.fillStyle='#8a7060';
+    ctx.fillText(s.l.toUpperCase(),x,subY+100);
+  });
+
+  // ── Words You Found ──
+  const wY=1090;
+  ctx.font='bold 34px sans-serif'; ctx.fillStyle='#2a1f1a'; ctx.textAlign='left';
+  ctx.fillText('✅  WORDS YOU FOUND', 80, wY);
+
+  const found=[...foundWords].sort((a,b)=>b.length-a.length||a.localeCompare(b));
+  let wx=80, wy=wY+50;
+  ctx.font='bold 28px monospace';
+  found.slice(0,30).forEach(w=>{
+    const isPg=isPangram(w);
+    const label=(isPg?'★ ':'')+w;
+    const tw=ctx.measureText(label).width+24;
+    if(wx+tw>W-80){wx=80;wy+=52;}
+    if(wy>1400) return;
+    rrect(ctx,wx,wy-28,tw,42,8,isPg?'#fff8e6':'#f0f8f2',true,isPg?'#e8a020':'#c8e8d4',2);
+    ctx.fillStyle=isPg?'#b07010':'#4a8c5c';
+    ctx.fillText(label,wx+12,wy+6);
+    wx+=tw+10;
+  });
+  if(found.length>30){
+    ctx.font='24px sans-serif'; ctx.fillStyle='#8a7060'; ctx.textAlign='left';
+    ctx.fillText(`+ ${found.length-30} more…`,80,wy+60);
+    wy+=60;
+  }
+
+  // ── Missed words (top 8) ──
+  const missed=allPossibleWords.filter(w=>!foundWords.has(w.toUpperCase())).slice(0,8);
+  if(missed.length){
+    const mY=Math.max(wy+80,1500);
+    ctx.font='bold 34px sans-serif'; ctx.fillStyle='#2a1f1a'; ctx.textAlign='left';
+    ctx.fillText('💡  YOU MISSED', 80, mY);
+    let mwx=80,mwy=mY+50;
+    ctx.font='bold 28px monospace';
+    missed.forEach(w=>{
+      const isPg=isPangram(w.toUpperCase());
+      const label=(isPg?'★ ':'')+w.toUpperCase();
+      const tw=ctx.measureText(label).width+24;
+      if(mwx+tw>W-80){mwx=80;mwy+=52;}
+      rrect(ctx,mwx,mwy-28,tw,42,8,isPg?'#fff3e0':'#fff0ee',true,isPg?'#e8a020':'#f4a3b5',2);
+      ctx.fillStyle=isPg?'#9a6010':'#c0604a';
+      ctx.fillText(label,mwx+12,mwy+6);
+      mwx+=tw+10;
+    });
+  }
+
+  // ── Puzzle letters strip ──
+  const pY=H-200;
+  ctx.font='bold 30px sans-serif'; ctx.fillStyle='#8a7060'; ctx.textAlign='center';
+  ctx.fillText('PUZZLE LETTERS', W/2, pY);
+  letters.forEach((l,i)=>{
+    const lx=W/2+(i-3)*100+(i>=3?50:0);
+    const ly=pY+60;
+    ctx.beginPath(); ctx.arc(lx,ly,36,0,Math.PI*2);
+    ctx.fillStyle=i===0?'#f6654a':'#f9c6d0'; ctx.fill();
+    ctx.font=`bold ${i===0?34:30}px Georgia,serif`;
+    ctx.fillStyle=i===0?'#fff':'#2a1f1a'; ctx.textAlign='center';
+    ctx.fillText(l.toUpperCase(),lx,ly+12);
+  });
+
+  // ── Focus / Cheat line ──
+  if (cheatEvents.length > 0) {
+    ctx.font='bold 26px sans-serif'; ctx.fillStyle='#e04e35'; ctx.textAlign='center';
+    ctx.fillText(`⚠️ ${cheatEvents.length} focus event${cheatEvents.length>1?'s':''} detected`, W/2, H-100);
+  }
+  // ── Footer ──
+  ctx.font='24px sans-serif'; ctx.fillStyle='#8a7060'; ctx.textAlign='center';
+  ctx.fillText('🌸  play at andrewveda.github.io ', W/2, H-60);
+
+  statsImageDataUrl = canvas.toDataURL('image/png');
+}
+
+// rounded rect helper
+function rrect(ctx,x,y,w,h,r,fill,stroke,strokeColor,lw){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=strokeColor;ctx.lineWidth=lw;ctx.stroke();}
+}
+
+/* ═══════════════════════════════════════════════
+   IDENTITY
+═══════════════════════════════════════════════ */
+function showKnownIdentity(name,dept) {
+  document.getElementById('identityFields').style.display='none';
+  document.getElementById('identityKnown').style.display='flex';
+  document.getElementById('knownName').textContent='👤 '+name;
+  document.getElementById('knownDept').textContent=dept;
+}
+
+/* ═══════════════════════════════════════════════
+   SUPABASE SUBMISSION
+═══════════════════════════════════════════════ */
+function submitScore(name,dept) {
+  const status=document.getElementById('submitStatus');
+  status.className='submit-status'; status.textContent='⏳ Submitting score…';
+  const payload={
+    student_name:name, department:dept,
+    score:Number(bestScore), correct:Number(foundWords.size), wrong:0,
+    time_spent:String(GAME_SECS-timeLeft), total_attempts:Number(foundWords.size),
+    perfect_solves:Number(pangrams.length), fastest_solve_sec:0,
+    total_time_bonus:0, longest_streak:0, quest_id:'Blossom'
+  };
+  console.log('📤 Blossom payload:',JSON.stringify(payload));
+  fetch(EDGE_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(r=>r.json())
+    .then(d=>{ console.log('✅',JSON.stringify(d)); status.textContent=`✅ Score recorded for ${name}`; })
+    .catch(err=>{ console.error('❌',err); status.className='submit-status err'; status.textContent='⚠️ Could not submit — check your connection.'; });
+}
+
+/* ═══════════════════════════════════════════════
+   ANTI-CHEAT EVENT LISTENERS
+═══════════════════════════════════════════════ */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && gameActive) recordCheat('tab_switch');
+});
+
+window.addEventListener('blur', () => {
+  if (gameActive) recordCheat('window_blur');
+});
+
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && gameActive && timeLeft < GAME_SECS - 3) {
+    recordCheat('fullscreen_exit');
+  }
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  if (!document.webkitFullscreenElement && gameActive && timeLeft < GAME_SECS - 3) {
+    recordCheat('fullscreen_exit');
+  }
+});
+
+/* ═══════════════════════════════════════════════
+   SHARE — image + text to WhatsApp
+═══════════════════════════════════════════════ */
+async function shareResult(name, dept) {
+  const wordSample=[...foundWords].sort((a,b)=>b.length-a.length).slice(0,5).join(', ');
+  const pgLine=pangrams.length?`\n★ Pangram${pangrams.length>1?'s':''}: ${pangrams.join(', ')}`:'';
+  const id=(name&&dept)?`\n👤 ${name} · ${dept}`:'';
+  const msg=`🌸 Blossom Word Game${id}\nScore: ${score} pts · ${foundWords.size} word${foundWords.size!==1?'s':''} · ${getRankName(score)}\n${wordSample?`Words: ${wordSample}${pgLine}\n`:''}\n🌺 Play: [https://andrewveda.github.io/SRM-VEC-English-PWA/buttons/bullseye]`;
+
+  // Try sharing image via Web Share API
+  if (statsImageDataUrl && navigator.share && navigator.canShare) {
+    try {
+      const blob = await (await fetch(statsImageDataUrl)).blob();
+      const file = new File([blob],'blossom-stats.png',{type:'image/png'});
+      if (navigator.canShare({files:[file]})) {
+        await navigator.share({title:'Blossom Word Game',text:msg,files:[file]});
+        return;
+      }
+    } catch(e) { console.log('Image share failed, falling back',e); }
+  }
+
+  // Fallback 1: text-only Web Share
+  if (navigator.share) {
+    try { await navigator.share({title:'Blossom Word Game',text:msg}); return; }
+    catch(e) { /* fall through */ }
+  }
+
+  // Fallback 2: download image + open WhatsApp
+  if (statsImageDataUrl) {
+    const a=document.createElement('a'); a.href=statsImageDataUrl;
+    a.download='blossom-stats.png'; a.click();
+    setTimeout(()=>window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'),600);
+  } else {
+    window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  }
+}
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"14ed74a8395a4caaabc04f8e17f83022","r":1}' crossorigin="anonymous"></script>
+</body>
+</html>
