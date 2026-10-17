@@ -40,7 +40,7 @@ export const APP_CONFIG = {
 
 export const QUESTS = [
     {
-    questId: "Quest Story 20",
+    questId: "Quest 49",
     title: "The Stories That Shape Us",
     subheading: "On finding our identity through fiction, quotes, and the people around us",
     date: "24 August 2026",
