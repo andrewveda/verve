@@ -366,6 +366,19 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
   color: #1c1a16;
   font-weight: 500;
 }
+
+/* ═══ REFLECTION NOTES ═══ */
+.notes-intro { font-family: var(--serif); font-size: 14.5px; color: var(--ink-mid); line-height: 1.5; margin-bottom: 18px; }
+.note-card { background: var(--surface); border: 1px solid rgba(28,26,22,0.07); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+.note-line { font-family: var(--serif); font-size: 15px; color: var(--ink); line-height: 1.4; margin-bottom: 8px; }
+.note-line .nl-num { font-family: var(--mono); font-size: 10px; color: var(--gold); margin-right: 6px; }
+.note-label { font-family: var(--mono); font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); margin-bottom: 4px; }
+.note-prompt { font-family: var(--fell); font-style: italic; font-size: 14px; color: var(--crimson); margin-bottom: 8px; line-height: 1.35; }
+.note-card textarea { width: 100%; min-height: 76px; resize: vertical; border: 1px solid var(--gold-border); border-radius: 10px; padding: 10px 12px; font-family: var(--serif); font-size: 15px; color: var(--ink); background: var(--paper); outline: none; }
+.note-card textarea:focus { border-color: var(--gold); }
+.results-actions.stack { flex-direction: column; margin-top: 14px; }
+.results-btn.secondary { background: var(--surface); color: var(--ink); border: 1px solid var(--gold-border); }
+.bd-note { margin-top: 8px; padding: 8px 10px; border-left: 3px solid var(--teal); background: var(--teal-pale); font-family: var(--serif); font-size: 13.5px; color: var(--ink-mid); white-space: pre-wrap; }
 </style>
 </head>
 <body>
@@ -413,6 +426,10 @@ button { touch-action: manipulation; font-family: inherit; border: none; backgro
   <div class="qpanel" id="qpanel"></div>
 </div>
 
+<!-- NOTES SCREEN -->
+<div class="screen" id="screenNotes">
+  <div class="results-scroll" id="notesScroll"></div>
+</div>
 <!-- RESULTS SCREEN -->
 <div class="screen" id="screenResults">
   <div class="results-scroll" id="resultsScroll"></div>
@@ -487,6 +504,19 @@ const POEM_LINES = [
   "And it's having a really crazy effect on him personally and physically.",
   "And it just goes to show that we are a product of the people we surround ourselves with,",
   "And friendship is the most important part of life."
+];
+
+const NOTE_PROMPTS = [
+  "Do you agree that asking for help is brave? Why or why not?",
+  "Think of a time you felt alone. Who could you have turned to?",
+  "Who do you turn to when things get hard? What makes them trustworthy?",
+  "What does it mean to 'lean on' someone? Is it easy or hard for you?",
+  "What lesson about friendship have you learned from a film, show or book?",
+  "What do you think 'neglecting your human side' means?",
+  "How are you part of a community (college, friends, family)? What do you give back?",
+  "Can loneliness affect our body as well as our mind? Give an example.",
+  "Which people shape who you are, and how?",
+  "Do you agree that friendship is the most important part of life? Why?"
 ];
 
 const TOTAL_QUESTIONS = POEM_LINES.length;
@@ -659,7 +689,7 @@ async function init() {
 let currentScreen = 'home';
 function showScreen(which, title, dark) {
   currentScreen = which;
-  ['Home','Intro','Player','Results'].forEach(s => {
+  ['Home','Intro','Player','Notes','Results'].forEach(s => {
     document.getElementById('screen'+s).classList.toggle('active', s.toLowerCase() === which);
   });
   document.getElementById('tbTitle').textContent = title || 'Listening Lab';
@@ -1122,6 +1152,7 @@ function finishTest(test) {
     const isCorrect = chosen === q.correct;
     if (isCorrect) correct++;
     return {
+      fullLine: POEM_LINES[q.at],
       question: q.q,
       chosenText: chosen !== undefined ? q.options[chosen] : '—',
       correctText: q.options[q.correct],
@@ -1143,9 +1174,82 @@ function finishTest(test) {
   totalXP += xpEarned;
   saveJSON('lst_xp', totalXP);
 
-  renderResults(test, record);
-  showScreen('results', test.title, false);
-  submitScore(test, record);
+  renderNotes(test, record);
+  showScreen('notes', 'What do I think?', false);
+}
+
+/* ── REFLECTION NOTES ── */
+function renderNotes(test, record) {
+  const scroll = document.getElementById('notesScroll');
+  const saved = record.notes || [];
+  scroll.innerHTML = `
+    <div class="breakdown-title">What do I think?</div>
+    <div class="notes-intro">Great listening! Before you see your results, write what <i>you</i> think about each line. There are no right or wrong answers.</div>
+    ${record.answers.map((a, i) => `
+      <div class="note-card">
+        <div class="note-line"><span class="nl-num">${i + 1}</span>${escHtml(a.fullLine)}</div>
+        <div class="note-label">What do I think?</div>
+        <div class="note-prompt">${escHtml(NOTE_PROMPTS[i] || 'What do you think about this line?')}</div>
+        <textarea data-ni="${i}" placeholder="Type your thoughts here…">${escHtml(saved[i] || '')}</textarea>
+      </div>`).join('')}
+    <div class="results-actions"><button class="results-btn primary" id="btnNotesDone">See my results →</button></div>
+  `;
+  scroll.scrollTop = 0;
+  document.getElementById('btnNotesDone').addEventListener('click', () => {
+    record.notes = Array.from(scroll.querySelectorAll('textarea')).map(t => t.value.trim());
+    scoresMap[scoreKey(test.id)] = record;
+    saveJSON('lst_scores', scoresMap);
+    renderResults(test, record);
+    showScreen('results', test.title, false);
+    submitScore(test, record);
+  });
+}
+
+/* ── DOWNLOAD REPORT ── */
+function downloadReport(test, record) {
+  const e = escHtml;
+  const link = 'https://www.youtube.com/watch?v=' + encodeURIComponent(test.youtubeId);
+  const date = new Date(record.completedAt).toLocaleString();
+  const items = record.answers.map((a, i) => `
+    <div class="item">
+      <div class="line"><span class="n">${i + 1}</span>${e(a.fullLine)}</div>
+      <div class="ans ${a.isCorrect ? 'ok' : 'no'}">${a.isCorrect ? '✓' : '✕'} Your answer: <b>${e(a.chosenText)}</b>${a.isCorrect ? '' : ` &nbsp;·&nbsp; Correct: <b>${e(a.correctText)}</b>`}</div>
+      <div class="lbl">What do I think?</div>
+      <div class="prompt">${e(NOTE_PROMPTS[i] || '')}</div>
+      <div class="note">${(record.notes && record.notes[i]) ? e(record.notes[i]) : '<span class="empty">No note written.</span>'}</div>
+    </div>`).join('');
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${e(test.title)} – ${e(playerName)}</title>
+<style>
+body{font-family:Georgia,serif;background:#f8f5ef;color:#1c1a16;margin:0;padding:24px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto}
+h1{font-style:italic;font-weight:400;margin:0 0 4px}
+.meta{color:#4a4640;font-size:14px;margin-bottom:14px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 20px}
+.stat{background:#fff;border:1px solid #e3d9c2;border-radius:10px;padding:8px 14px;font-size:14px}
+a{color:#2f6f6b}
+.item{background:#fff;border:1px solid #e8e2d6;border-radius:12px;padding:14px 16px;margin-bottom:12px;page-break-inside:avoid}
+.line{font-size:17px;margin-bottom:6px}.n{color:#b8913a;font-family:monospace;font-size:12px;margin-right:8px}
+.ans{font-size:13.5px;margin-bottom:10px}.ok{color:#2f8f5b}.no{color:#b8393a}
+.lbl{font-family:monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#2f6f6b}
+.prompt{font-style:italic;color:#6b0f1a;margin:2px 0 6px;font-size:14px}
+.note{border-left:3px solid #2f6f6b;background:rgba(47,111,107,.08);padding:8px 12px;white-space:pre-wrap;font-size:15px}
+.empty{color:#8a837a;font-style:italic}
+@media print{body{background:#fff}}
+</style></head><body><div class="wrap">
+<h1>${e(test.title)}</h1>
+<div class="meta"><b>${e(playerName)}</b> · ${e(playerDept)} · ${e(date)}</div>
+<div class="meta">🎧 Video: <a href="${link}" target="_blank" rel="noopener">${link}</a></div>
+<div class="stats"><div class="stat">Score: <b>${record.score} / ${record.total}</b> (${record.percentage}%)</div><div class="stat">Time taken: <b>${fmtTime(record.timeTaken)}</b></div></div>
+${items}
+</div></body></html>`;
+  const blob = new Blob([html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (playerName || 'student').replace(/[^\w\-]+/g, '_') + '_listening_report.html';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
 /* ── RESULTS ── */
@@ -1188,18 +1292,21 @@ function renderResults(test, record) {
           <div class="bd-answers">
             <div class="bd-answer ${a.isCorrect ? 'right-ans' : 'wrong-ans'}">Your answer: ${escHtml(a.chosenText)}</div>${!a.isCorrect ? `<div class="bd-answer correct-ans">Correct answer: ${escHtml(a.correctText)}</div>` : ''}
           </div>
+          ${record.notes && record.notes[i] ? `<div class="bd-note">${escHtml(record.notes[i])}</div>` : ''}
         </div>
       `).join('')}
     </div>
     
-    <div class="results-actions">
-      <button class="results-btn primary" id="btnRetake">Retry Practice</button>
+    <div class="results-actions stack">
+      <button class="results-btn primary" id="btnDownload">⬇ Download my report (HTML)</button>
+      <button class="results-btn secondary" id="btnRetake">Retry Practice</button>
     </div>
   `;
   requestAnimationFrame(() => {
     document.getElementById('ringFill').style.strokeDashoffset = offset;
   });
 
+  document.getElementById('btnDownload').addEventListener('click', () => downloadReport(test, record));
   document.getElementById('btnRetake').addEventListener('click', () => startPlayer(test));
 }
 
