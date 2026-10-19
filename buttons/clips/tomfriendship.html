@@ -1279,24 +1279,6 @@ function renderResults(test, record) {
       <span>⏳</span><span>Saving your score…</span>
     </div>
 
-    <div class="breakdown-title">Answer breakdown</div>
-    <div class="breakdown-list">
-      ${record.answers.map((a, i) => `
-        <div class="breakdown-item">
-          <div class="bd-top">
-            <div class="bd-icon ${a.isCorrect ? 'correct' : 'wrong'}">${a.isCorrect ? '✓' : '✕'}</div>
-            <div>
-              <div class="bd-q">${i + 1}.${escHtml(a.question)}</div>
-            </div>
-          </div>
-          <div class="bd-answers">
-            <div class="bd-answer ${a.isCorrect ? 'right-ans' : 'wrong-ans'}">Your answer: ${escHtml(a.chosenText)}</div>${!a.isCorrect ? `<div class="bd-answer correct-ans">Correct answer: ${escHtml(a.correctText)}</div>` : ''}
-          </div>
-          ${record.notes && record.notes[i] ? `<div class="bd-note">${escHtml(record.notes[i])}</div>` : ''}
-        </div>
-      `).join('')}
-    </div>
-    
     <div class="results-actions stack">
       <button class="results-btn primary" id="btnDownload">⬇ Download my report (HTML)</button>
       <button class="results-btn secondary" id="btnRetake">Retry Practice</button>
