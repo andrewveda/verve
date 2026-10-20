@@ -494,9 +494,40 @@ function isSignedIn() { return !!(playerName && playerDept); }
 const XP_PER_CORRECT = 40;
 
 const POEM_LINES = [
-  "Break the world's hardest military codes.",
-  "Ignore a clue's obvious literal meaning.",
-  "Recognize its hidden structural patterns."
+  "How do you find civilians with",
+  "the mental wiring to break the",
+  "world's hardest military codes? Standard military",
+  "ranks just didn't produce the unconventional",
+  "minds needed to defeat the enemy's",
+  "new cipher machines. So in 1941",
+  "the British government published a highly",
+  "specific cryptic crossword competition in the",
+  "Daily Telegraph. But this puzzle tested",
+  "a specific cognitive skill: the ability",
+  "to ignore a clue's obvious literal",
+  "meaning, and instead recognize its hidden",
+  "structural patterns. That specific mental leap",
+  "is called lateral thinking. The government",
+  "needed to test these exact skills",
+  "on the general public at a",
+  "massive scale without ever leaking the",
+  "existence of the top secret Enigma",
+  "project. So the puzzle functioned as",
+  "a covert recruitment trap. The military",
+  "tracked the fastest solvers and discreetly",
+  "funneled their names straight into classified",
+  "intelligence files. This mechanical filter completely",
+  "bypassed traditional military hiring, instantly identifying",
+  "an eclectic mix of chess champions",
+  "and linguists with the exact cognitive",
+  "traits for codebreaking. And those random",
+  "everyday citizens who managed to sit",
+  "at their kitchen tables and mail",
+  "in a perfectly solved newspaper grid,",
+  "they were discreetly pulled from their",
+  "ordinary lives to become the legendary",
+  "Bletchley Park codebreakers who successfully cracked",
+  "the enigma."
 ];
 
 const NOTE_PROMPTS = [
@@ -1170,12 +1201,11 @@ function renderNotes(test, record) {
   const saved = record.notes || [];
   scroll.innerHTML = `
     <div class="breakdown-title">What do I think?</div>
-    <div class="notes-intro">Great listening! Before you see your results, write what <i>you</i> think about each line. There are no right or wrong answers.</div>
-    ${record.answers.map((a, i) => `
+    <div class="notes-intro">Great listening! Before you see your results, answer these 3 quick reflection questions. There are no right or wrong answers.</div>
+    ${NOTE_PROMPTS.map((prompt, i) => `
       <div class="note-card">
-        <div class="note-line"><span class="nl-num">${i + 1}</span>${escHtml(a.fullLine)}</div>
-        <div class="note-label">What do I think?</div>
-        <div class="note-prompt">${escHtml(NOTE_PROMPTS[i] || 'What do you think about this line?')}</div>
+        <div class="note-label">Reflection ${i + 1}</div>
+        <div class="note-prompt">${escHtml(prompt)}</div>
         <textarea data-ni="${i}" placeholder="Type your thoughts here…">${escHtml(saved[i] || '')}</textarea>
       </div>`).join('')}
     <div class="results-actions"><button class="results-btn primary" id="btnNotesDone">See my results →</button></div>
@@ -1200,10 +1230,15 @@ function downloadReport(test, record) {
     <div class="item">
       <div class="line"><span class="n">${i + 1}</span>${e(a.fullLine)}</div>
       <div class="ans ${a.isCorrect ? 'ok' : 'no'}">${a.isCorrect ? '✓' : '✕'} Your answer: <b>${e(a.chosenText)}</b>${a.isCorrect ? '' : ` &nbsp;·&nbsp; Correct: <b>${e(a.correctText)}</b>`}</div>
-      <div class="lbl">What do I think?</div>
-      <div class="prompt">${e(NOTE_PROMPTS[i] || '')}</div>
+    </div>`).join('');
+    
+  const notesHtml = NOTE_PROMPTS.map((prompt, i) => `
+    <div class="item">
+      <div class="lbl">Reflection ${i + 1}</div>
+      <div class="prompt">${e(prompt)}</div>
       <div class="note">${(record.notes && record.notes[i]) ? e(record.notes[i]) : '<span class="empty">No note written.</span>'}</div>
     </div>`).join('');
+    
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${e(test.title)} – ${e(playerName)}</title>
@@ -1228,7 +1263,10 @@ a{color:#2f6f6b}
 <div class="meta"><b>${e(playerName)}</b> · ${e(playerDept)} · ${e(date)}</div>
 <div class="meta">🎧 Video: <a href="${link}" target="_blank" rel="noopener">${link}</a></div>
 <div class="stats"><div class="stat">Score: <b>${record.score} / ${record.total}</b> (${record.percentage}%)</div><div class="stat">Time taken: <b>${fmtTime(record.timeTaken)}</b></div></div>
+<h2>Listening Activity</h2>
 ${items}
+<h2>Reflections</h2>
+${notesHtml}
 </div></body></html>`;
   const blob = new Blob([html], { type: 'text/html' });
   const a = document.createElement('a');
