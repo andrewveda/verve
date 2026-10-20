@@ -142,6 +142,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--ink);o
 .btn-back:active{background:var(--ivory-deeper);transform:scale(0.97)}
 
 /* ══════════════════════════════
+   REFLECTION CARD
+══════════════════════════════ */
+.reflect-card{width:100%;background:var(--card);border:1.5px solid rgba(184,147,90,0.45);border-radius:16px;padding:0.95rem 0.85rem 0.85rem;margin-bottom:0.9rem;text-align:left;box-shadow:0 6px 20px rgba(140,106,52,0.12);animation:vwUp 0.35s 0.34s ease both}
+.reflect-title{font-family:'Cinzel',serif;font-size:1.05rem;font-weight:900;color:var(--gold-deep);text-align:center}
+.reflect-sub{font-size:0.7rem;color:var(--ink-soft);text-align:center;margin:2px 0 0.7rem}
+.reflect-btns{display:flex;flex-direction:column;gap:0.5rem}
+.reflect-btn{display:flex;align-items:center;gap:0.7rem;width:100%;padding:0.6rem 0.9rem;background:var(--ivory-deep);border:2px solid rgba(140,106,52,0.28);border-radius:14px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:800;text-align:left;cursor:pointer;transition:transform 0.15s,background 0.2s,border-color 0.2s,box-shadow 0.2s}
+.reflect-btn .re-emoji{font-size:1.8rem;line-height:1;flex-shrink:0;display:inline-block;width:2.4rem;text-align:center;transition:transform 0.25s}
+.reflect-btn:active{transform:scale(0.96)}
+.reflect-btn.on{background:linear-gradient(135deg,#F1DFB0,#D9BC80);border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(184,147,90,0.28),0 4px 14px rgba(140,106,52,0.25)}
+.reflect-btn.on .re-emoji{animation:reBounce 0.55s ease both;transform:scale(1.08)}
+.reflect-btn .re-check{margin-left:auto;font-size:0.9rem;opacity:0;transition:opacity 0.2s}
+.reflect-btn.on .re-check{opacity:1}
+@keyframes reBounce{0%{transform:scale(0.6) rotate(-14deg)}45%{transform:scale(1.5) rotate(10deg)}75%{transform:scale(1.05) rotate(-4deg)}100%{transform:scale(1.08) rotate(0)}}
+.reflect-msg{min-height:1.1rem;margin:0.6rem 0 0.35rem;font-size:0.74rem;font-weight:800;color:var(--gold-deep);text-align:center}
+#reflectText{display:block;width:100%;min-height:92px;resize:vertical;padding:0.65rem 0.75rem;background:var(--ivory);border:1.5px solid var(--line);border-radius:12px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.4;outline:none;user-select:text;-webkit-user-select:text}
+#reflectText:focus{border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(184,147,90,0.22)}
+.reflect-foot{display:flex;justify-content:space-between;margin:3px 2px 0.6rem;font-size:0.58rem;font-weight:700;color:var(--ink-faint)}
+.reflect-dl{width:100%;padding:0.75rem 0.8rem;background:rgba(184,147,90,0.14);border:1.5px solid rgba(140,106,52,0.5);border-radius:12px;color:var(--gold-deep);font-family:'DM Sans',sans-serif;font-size:0.76rem;font-weight:800;cursor:pointer;transition:transform 0.12s,background 0.12s}
+.reflect-dl:active{transform:scale(0.97);background:rgba(184,147,90,0.28)}
+
+/* ══════════════════════════════
    GRAND FINALE
 ══════════════════════════════ */
 #finaleScreen{
@@ -289,6 +311,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--ink);o
       <div class="vw-stat"><span class="vw-stat-val" id="vwTime">-</span><span class="vw-stat-lbl">Time</span><div class="best-badge" id="vwTimeBest" style="display:none">⚡ Best!</div></div>
       <div class="vw-stat"><span class="vw-stat-val" id="vwMoves">-</span><span class="vw-stat-lbl">Moves</span><div class="best-badge" id="vwMovesBest" style="display:none">⚡ Best!</div></div>
     </div>
+    <div class="reflect-card" id="reflectCard">
+      <div class="reflect-title">💭 Your reflection</div>
+      <div class="reflect-sub">How does this quote land with you?</div>
+      <div class="reflect-btns" id="reflectBtns"></div>
+      <div class="reflect-msg" id="reflectMsg" aria-live="polite"></div>
+      <textarea id="reflectText" maxlength="600" rows="4" aria-label="Your comments"></textarea>
+      <div class="reflect-foot"><span id="reflectCount">0 / 600</span><span id="reflectSaved"></span></div>
+      <button class="reflect-dl" onclick="downloadReflections()">⬇ Download my reflections (HTML)</button>
+    </div>
     <div class="vw-progress-row" id="vwProgressRow"></div>
     <div class="vw-actions" id="vwActions"></div>
   </div>
@@ -323,6 +354,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--ivory);color:var(--ink);o
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Share on WhatsApp
       </button>
+      <button class="reflect-dl" id="finReflectBtn" onclick="downloadReflections()">📝 Download my reflections</button>
       <div class="finale-share-row">
         <button class="btn-share-gen" onclick="shareGeneral()">⬆ Share</button>
         <button class="btn-dl-all" onclick="downloadAllVerseImages()">⬇ Save Images</button>
@@ -699,6 +731,147 @@ function updateNav(){
 function startTimer(){startTime=Date.now();}
 function elapsed(){return startTime?Math.floor((Date.now()-startTime)/1000):0;}
 
+/* ═══════════════════════════════
+   REFLECTIONS — reactions + comments, saved on the player's device
+═══════════════════════════════ */
+const REACTIONS = [
+  { key:"agree",     emoji:"🙌", label:"I agree!",                      msg:"🙌 Great minds think alike!" },
+  { key:"love",      emoji:"😍", label:"I love this quote!",            msg:"😍 This one's a keeper!" },
+  { key:"different", emoji:"🤔", label:"I have a different explanation!", msg:"🤔 We'd love to hear your take — write it below!" }
+];
+const COMMENT_MAX = 600;
+let reflectState = { reactions:[], comment:"" };
+
+function getReflections(){ try{ return JSON.parse(lsGet("pq_reflections")||"{}"); }catch(e){ return {}; } }
+function persistReflection(){
+  const v = currentVerse(); if(!v) return;
+  const all = getReflections();
+  if(!reflectState.reactions.length && !reflectState.comment.trim()) delete all[v.id];
+  else all[v.id] = { reactions:reflectState.reactions, comment:reflectState.comment, ts:Date.now() };
+  lsSet("pq_reflections", JSON.stringify(all));
+  const s = document.getElementById("reflectSaved");
+  s.textContent = "Saved ✓";
+  clearTimeout(persistReflection._t);
+  persistReflection._t = setTimeout(()=>{ s.textContent=""; }, 1600);
+}
+function emojiBurst(emoji, el){
+  if(typeof confetti !== "function") return;
+  try{
+    const r = el.getBoundingClientRect();
+    const opts = { particleCount:22, spread:80, startVelocity:30, scalar:2, ticks:110, zIndex:500,
+                   origin:{ x:(r.left+r.width*0.15)/innerWidth, y:(r.top+r.height/2)/innerHeight } };
+    if(confetti.shapeFromText) opts.shapes = [confetti.shapeFromText({ text:emoji, scalar:2 })];
+    confetti(opts);
+  }catch(e){}
+}
+function updateReflectUI(){
+  const ta = document.getElementById("reflectText");
+  const different = reflectState.reactions.includes("different");
+  ta.placeholder = different
+    ? "Share your explanation — what does this quote mean to you?"
+    : "Add a thought, a memory, a story… (optional)";
+  document.getElementById("reflectCount").textContent = `${ta.value.length} / ${COMMENT_MAX}`;
+  document.querySelectorAll(".reflect-btn").forEach(b=>{
+    const on = reflectState.reactions.includes(b.dataset.key);
+    b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
+  });
+}
+function toggleReaction(r, btn){
+  const i = reflectState.reactions.indexOf(r.key);
+  const msg = document.getElementById("reflectMsg");
+  if(i>=0){ reflectState.reactions.splice(i,1); msg.textContent=""; }
+  else {
+    reflectState.reactions.push(r.key);
+    msg.textContent = r.msg;
+    emojiBurst(r.emoji, btn);
+    if(r.key==="different") setTimeout(()=>document.getElementById("reflectText").focus({preventScroll:false}), 350);
+  }
+  updateReflectUI(); persistReflection();
+}
+function renderReflection(){
+  const v = currentVerse();
+  const saved = getReflections()[v.id] || { reactions:[], comment:"" };
+  reflectState = { reactions:[...saved.reactions], comment:saved.comment||"" };
+  const wrap = document.getElementById("reflectBtns"); wrap.innerHTML="";
+  REACTIONS.forEach(r=>{
+    const b = document.createElement("button");
+    b.type="button"; b.className="reflect-btn"; b.dataset.key=r.key;
+    b.innerHTML = `<span class="re-emoji">${r.emoji}</span><span class="re-label">${r.label}</span><span class="re-check">✔</span>`;
+    b.onclick = ()=>toggleReaction(r, b);
+    wrap.appendChild(b);
+  });
+  document.getElementById("reflectText").value = reflectState.comment;
+  document.getElementById("reflectMsg").textContent = "";
+  document.getElementById("reflectSaved").textContent = "";
+  updateReflectUI();
+}
+
+function escHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function reflectionCount(){ const all=getReflections(); return PUZZLES.filter(p=>all[p.id]).length; }
+
+function downloadReflections(){
+  const all = getReflections();
+  const items = PUZZLES.filter(p=>all[p.id]);
+  if(!items.length){ showToast("Tap a reaction or write a thought first 💭"); return; }
+  const date = new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});
+  const cards = items.map(p=>{
+    const r = all[p.id], q = p.quoteData;
+    const badges = (r.reactions||[]).map(k=>{ const d=REACTIONS.find(x=>x.key===k); return d?`<span class="badge">${d.emoji} ${escHtml(d.label)}</span>`:""; }).join("");
+    const comment = (r.comment||"").trim();
+    return `<article class="card">
+  <div class="num">Puzzle ${p.num}</div>
+  <blockquote>“${escHtml(q.quote)}”</blockquote>
+  <div class="by">— ${escHtml(q.author)} · shared by ${escHtml(q.contributor)}</div>
+  ${badges?`<div class="badges">${badges}</div>`:""}
+  ${comment?`<div class="mine"><div class="mine-h">My thoughts</div><p>${escHtml(comment)}</p></div>`:""}
+  <a class="btn small" href="${escHtml(puzzleLink(p))}">🧩 Open this puzzle</a>
+</article>`;
+  }).join("\n");
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My reflections — ${escHtml(QUEST_NAME)}</title>
+<style>
+:root{--ivory:#FAF6EA;--deep:#F0E7CE;--gold:#B8935A;--gold-deep:#8C6A34;--ink:#2A2115;--soft:#8A7A5C}
+*{box-sizing:border-box}body{margin:0;background:var(--ivory);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:2rem 1.1rem 3rem}
+header{text-align:center;margin-bottom:1.6rem}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:1.8rem;margin:.2rem 0;color:var(--gold-deep)}
+.meta{color:var(--soft);font-size:.9rem}
+.card{background:#fff;border:1.5px solid rgba(184,147,90,.45);border-radius:16px;padding:1.1rem 1.2rem;margin:1rem 0;box-shadow:0 4px 14px rgba(140,106,52,.1);break-inside:avoid}
+.num{font-size:.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--gold-deep)}
+blockquote{margin:.4rem 0;font-family:Georgia,serif;font-size:1.2rem;font-style:italic}
+.by{color:var(--soft);font-size:.85rem}
+.badges{margin:.7rem 0 .2rem;display:flex;flex-wrap:wrap;gap:.4rem}
+.badge{background:var(--deep);border:1px solid rgba(140,106,52,.35);border-radius:999px;padding:.25rem .7rem;font-size:.85rem;font-weight:700}
+.mine{margin:.7rem 0;padding:.7rem .9rem;background:var(--ivory);border-left:3px solid var(--gold-deep);border-radius:8px}
+.mine-h{font-size:.7rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-deep)}
+.mine p{margin:.25rem 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.btn{display:inline-block;text-decoration:none;font-weight:800;border-radius:12px;background:linear-gradient(135deg,#D9BC80,#B8935A 55%,#8C6A34);color:#2A2115;padding:.8rem 1.4rem}
+.btn.small{padding:.5rem 1rem;font-size:.85rem;margin-top:.4rem}
+footer{text-align:center;margin-top:2rem}
+@media print{.btn{display:none}body{background:#fff}}
+</style></head><body><main>
+<header>
+  <div style="font-size:2.4rem">💭</div>
+  <h1>My reflections</h1>
+  <div class="meta">${escHtml(playerName||"Puzzle Quest player")}${playerDept?" · "+escHtml(playerDept):""} · ${escHtml(date)} · ${items.length} reflection${items.length!==1?"s":""}</div>
+  <p><a class="btn" href="${escHtml(questLink())}">🧩 Back to the jigsaw</a></p>
+</header>
+${cards}
+<footer><a class="btn" href="${escHtml(questLink())}">🧩 Keep solving puzzles</a></footer>
+</main></body></html>`;
+
+  const blob = new Blob([html], { type:"text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const who = (playerName||"my").replace(/[^\w\-]+/g,"_");
+  a.href = url; a.download = `PuzzleQuest-reflections-${who}.html`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  showToast("Reflections downloaded 💭");
+}
+
 /* DOM READY */
 document.addEventListener("DOMContentLoaded",()=>{
   /* Load identity from pre-orientation local storage */
@@ -747,6 +920,10 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(!hitPiece(x,y)){selectedPiece=null;drawAll();}
   },{passive:false});
 
+  document.getElementById("reflectText").addEventListener("input",e=>{
+    reflectState.comment = e.target.value;
+    updateReflectUI(); persistReflection();
+  });
   document.querySelector(".vw-img-actions .share-btn").onclick=shareCurrentVerseWin;
   document.querySelector(".vw-img-actions .dl-btn").onclick=downloadCurrentVerseWin;
 });
@@ -982,6 +1159,7 @@ function showVerseWin(){
     });
   }
 
+  renderReflection();
   buildVerseWinActions();
 
   document.getElementById("verseWinScreen").style.display="flex";
@@ -1057,6 +1235,9 @@ async function showFinale(){
   document.getElementById("verseWinScreen").style.display="none";
   syncUrl(questLink());
   document.title = QUEST_NAME + " — complete";
+  const rc=reflectionCount(), fb=document.getElementById("finReflectBtn");
+  fb.style.display = rc ? "block" : "none";
+  fb.textContent = `📝 Download my reflections (${rc})`;
 
   const gallery=document.getElementById("finaleGallery");
   gallery.innerHTML="";
