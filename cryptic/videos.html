@@ -64,8 +64,23 @@ textarea { font-family: inherit; }
 .intro-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .intro-tags { display: flex; gap: 6px; margin-bottom: 14px; justify-content: center; }
 .intro-title { font-family: var(--fell); font-style: italic; font-size: 2rem; line-height: 1.15; margin-bottom: 10px; text-align: center; }
-.intro-desc { font-family: var(--serif); font-size: 15.5px; color: var(--ink-mid); line-height: 1.55; margin-bottom: 26px; text-align: center;}
+.intro-desc { font-family: var(--serif); font-size: 15.5px; color: var(--ink-mid); line-height: 1.55; margin-bottom: 18px; text-align: center;}
 .tag-exam { font-family: var(--mono); font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 10px; font-weight: 500; background: rgba(255,255,255,0.9); color: var(--ink); }
+
+/* How-to card on the front page */
+.howto {
+  background: var(--teal-pale); border: 1px solid var(--teal-border); border-radius: 14px;
+  padding: 16px 18px; margin-bottom: 20px;
+}
+.howto-title {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 10px;
+}
+.howto ol { padding-left: 20px; }
+.howto li { font-family: var(--serif); font-size: 15.5px; line-height: 1.5; color: var(--ink); margin-bottom: 6px; }
+.howto li:last-child { margin-bottom: 0; }
+.howto b { font-weight: 700; }
+
 .play-action-btn {
   display: flex; align-items: center; justify-content: center; gap: 10px;
   background: var(--ink); color: var(--paper); border: none;
@@ -118,6 +133,9 @@ textarea { font-family: inherit; }
 
 .player-container { flex: 1; display: flex; flex-direction: column; max-width: 800px; margin: 0 auto; width: 100%; height: 100%; position: relative; overflow: hidden; min-height: 0; }
 
+/* Left column: video + controls */
+.video-col { flex-shrink: 0; display: flex; flex-direction: column; min-width: 0; }
+
 /* ── Visible video frame ── */
 .video-frame {
   flex-shrink: 0; width: 100%; padding: calc(var(--topbar-h) + var(--safe-top) + 8px) 16px 0;
@@ -125,11 +143,12 @@ textarea { font-family: inherit; }
 .video-box {
   width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden;
   background: #000; position: relative; box-shadow: 0 10px 26px rgba(0,0,0,0.4);
+  margin: 0 auto;
 }
 .video-box iframe, .video-box > div { width: 100%; height: 100%; }
 
 .audio-status {
-  position: absolute; top: calc(var(--topbar-h) + var(--safe-top) + 8px); left: 50%; transform: translateX(-50%);
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 20px;
   font-family: var(--sans); font-size: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.2);
   z-index: 100; pointer-events: none;
@@ -142,7 +161,7 @@ textarea { font-family: inherit; }
 .scrub-time.remaining { text-align: right; }
 .scrub-track { flex: 1; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.15); position: relative; pointer-events: none; }
 .scrub-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--gold); border-radius: 3px; width: 0%; transition: width 0.25s linear; }
-.playback-controls { display: flex; align-items: center; justify-content: center; }
+.playback-controls { display: flex; align-items: center; justify-content: center; gap: 28px; }
 .ctrl-btn.play-pause {
   width: 56px; height: 56px; border-radius: 50%; background: var(--gold); color: #000;
   box-shadow: 0 6px 16px rgba(184,145,58,0.3); display: flex; align-items: center; justify-content: center;
@@ -150,6 +169,17 @@ textarea { font-family: inherit; }
 }
 .ctrl-btn.play-pause:active { transform: scale(0.92); }
 .ctrl-icon { width: 26px; height: 26px; fill: currentColor; }
+
+.ctrl-btn.side {
+  width: 46px; height: 46px; border-radius: 50%; color: #fff;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  transition: transform 0.15s, background 0.2s, color 0.2s;
+}
+.ctrl-btn.side:active { transform: scale(0.92); }
+.ctrl-btn.side.on { background: var(--gold); color: #000; border-color: var(--gold); }
+.rewind-svg { width: 30px; height: 30px; }
 
 /* ── Notes panel ── */
 .notes-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.08); }
@@ -195,12 +225,37 @@ textarea { font-family: inherit; }
 .note-item:last-child { border-bottom: none; }
 .note-ts {
   flex-shrink: 0; font-family: var(--mono); font-size: 11.5px; color: var(--gold-light);
-  padding-top: 2px; min-width: 42px;
+  padding-top: 2px; min-width: 42px; text-align: left;
 }
 .note-text { font-family: var(--serif); font-size: 15.5px; line-height: 1.45; color: rgba(255,255,255,0.85); white-space: pre-wrap; }
 .notes-empty {
   font-family: var(--serif); font-style: italic; font-size: 14px; color: rgba(255,255,255,0.35);
   text-align: center; padding: 30px 20px;
+}
+
+/* ═══ DESKTOP: 70 / 30 SPLIT ═══ */
+@media (min-width: 900px) {
+  .player-container { max-width: none; flex-direction: row; }
+
+  .video-col {
+    flex: 0 0 70%; width: 70%;
+    justify-content: center;
+    padding-bottom: 16px;
+  }
+  .video-frame { padding: calc(var(--topbar-h) + var(--safe-top) + 8px) 24px 0; }
+  /* keep the 16:9 video inside the viewport height */
+  .video-box { width: min(100%, calc((100dvh - 230px) * 16 / 9)); }
+  .controls-row { padding: 16px 24px 8px; }
+  .scrubber-row, .playback-controls { max-width: min(100%, calc((100dvh - 230px) * 16 / 9)); margin-left: auto; margin-right: auto; }
+  .scrubber-row { margin-bottom: 14px; }
+
+  .notes-panel {
+    flex: 0 0 30%; width: 30%;
+    border-top: none; border-left: 1px solid rgba(255,255,255,0.08);
+    padding-top: calc(var(--topbar-h) + var(--safe-top) - 10px);
+    background: rgba(255,255,255,0.02);
+  }
+  .composer-box textarea { min-height: 90px; max-height: 220px; }
 }
 </style>
 </head>
@@ -224,26 +279,40 @@ textarea { font-family: inherit; }
 <div class="screen" id="screenPlayer">
   <div class="player-container">
 
-    <div class="video-frame">
-      <div class="video-box">
-        <div class="audio-status" id="audioStatus" style="display:none;">Loading video...</div>
-        <div id="ytPlayer"></div>
-      </div>
-    </div>
-
-    <div class="controls-row">
-      <div class="scrubber-row">
-        <span class="scrub-time elapsed" id="vpElapsed">0:00</span>
-        <div class="scrub-track" id="scrubTrack">
-          <div class="scrub-fill" id="vpFill"></div>
+    <div class="video-col">
+      <div class="video-frame">
+        <div class="video-box">
+          <div class="audio-status" id="audioStatus" style="display:none;">Loading video...</div>
+          <div id="ytPlayer"></div>
         </div>
-        <span class="scrub-time remaining" id="vpRemaining">-0:00</span>
       </div>
-      <div class="playback-controls">
-        <button class="ctrl-btn play-pause" id="btnPlayPause" onclick="togglePlay()">
-          <svg id="iconPlay" class="ctrl-icon" viewBox="0 0 24 24" style="margin-left: 3px;"><path d="M8 5V19L19 12L8 5Z"/></svg>
-          <svg id="iconPause" class="ctrl-icon" viewBox="0 0 24 24" style="display: none;"><path d="M6 19H10V5H6V19ZM14 5V19H18V5H14Z"/></svg>
-        </button>
+
+      <div class="controls-row">
+        <div class="scrubber-row">
+          <span class="scrub-time elapsed" id="vpElapsed">0:00</span>
+          <div class="scrub-track" id="scrubTrack">
+            <div class="scrub-fill" id="vpFill"></div>
+          </div>
+          <span class="scrub-time remaining" id="vpRemaining">-0:00</span>
+        </div>
+        <div class="playback-controls">
+          <!-- Rewind 10s -->
+          <button class="ctrl-btn side" id="btnRewind" onclick="rewind10()" aria-label="Rewind 10 seconds" title="Rewind 10 seconds">
+            <svg class="rewind-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/>
+              <path d="M3.5 3.8v4.7h4.7"/>
+              <text x="12" y="15.2" text-anchor="middle" font-size="7.5" font-family="DM Mono, monospace" fill="currentColor" stroke="none" font-weight="500">10</text>
+            </svg>
+          </button>
+
+          <button class="ctrl-btn play-pause" id="btnPlayPause" onclick="togglePlay()" aria-label="Play or pause">
+            <svg id="iconPlay" class="ctrl-icon" viewBox="0 0 24 24" style="margin-left: 3px;"><path d="M8 5V19L19 12L8 5Z"/></svg>
+            <svg id="iconPause" class="ctrl-icon" viewBox="0 0 24 24" style="display: none;"><path d="M6 19H10V5H6V19ZM14 5V19H18V5H14Z"/></svg>
+          </button>
+
+          <!-- 2x speed toggle -->
+          <button class="ctrl-btn side" id="btnSpeed" onclick="toggleSpeed()" aria-label="Toggle 2x speed" title="Toggle 2x speed">1×</button>
+        </div>
       </div>
     </div>
 
@@ -344,6 +413,8 @@ let saveInterval = null;
 let isPlaying = false;
 let playStartTime = 0;
 let hasAutoDownloaded = false;
+let fastMode = false;
+let playSegmentRate = 1;
 
 function fmtTime(s) {
   s = Math.max(0, Math.floor(s || 0));
@@ -411,7 +482,8 @@ function backgroundSaveTick() {
 /* ── Tracking sessions to Supabase ── */
 function logCurrentSession() {
   if (playStartTime > 0) {
-    const watchedSeconds = Math.floor((Date.now() - playStartTime) / 1000);
+    // real elapsed seconds x playback rate = seconds of video actually covered
+    const watchedSeconds = Math.floor(((Date.now() - playStartTime) / 1000) * playSegmentRate);
     playStartTime = 0;
     if (watchedSeconds > 1) logQuestToSupabase(watchedSeconds);
   }
@@ -422,7 +494,7 @@ async function logQuestToSupabase(secondsWatched) {
   const payload = {
     student_name: playerName,
     department: playerDept,
-    quest_id: 'Quest TLP',
+    quest_id: 'Quest Cryptic Video',
     time_spent: secondsWatched,
     correct: secondsWatched,
     wrong: 0,
@@ -492,6 +564,16 @@ function openIntro() {
     </div>
     <div class="intro-title">${BOOK.title}</div>
     <div class="intro-desc">${BOOK.author}</div>
+
+    <div class="howto">
+      <div class="howto-title">Before you begin</div>
+      <ol>
+        <li><b>Try to solve it along with the video.</b> Pause, think, and attempt each puzzle yourself before the answer is revealed.</li>
+        <li>Add a note at each step &mdash; every note is stamped with the video time.</li>
+        <li>When you finish, tap <b>Download .html</b> to save your notes.</li>
+        <li><b>Upload the notes HTML to your GitHub Pages &ldquo;Progress&rdquo; repository</b> to count towards your <b>Daily Quest Streak</b>.</li>
+      </ol>
+    </div>
 
     <button class="play-action-btn" id="startBtn">
        <div>
@@ -619,7 +701,10 @@ async function startPlayer(startTimeSeconds) {
       start: Math.floor(startTimeSeconds)
     },
     events: {
-      onReady: (e) => { e.target.playVideo(); },
+      onReady: (e) => {
+        if (fastMode) e.target.setPlaybackRate(2);
+        e.target.playVideo();
+      },
       onStateChange: onPlayerStateChange
     }
   });
@@ -636,6 +721,7 @@ function onPlayerStateChange(e) {
     statusEl.style.display = 'none';
     updatePlayPauseUI();
     playStartTime = Date.now();
+    playSegmentRate = fastMode ? 2 : 1;
   }
   if (e.data === YT.PlayerState.PAUSED) {
     isPlaying = false;
@@ -664,6 +750,31 @@ function togglePlay() {
   const state = ytPlayer.getPlayerState();
   if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
   else ytPlayer.playVideo();
+}
+
+/* ── Rewind 10 seconds ── */
+function rewind10() {
+  if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+  const target = Math.max(0, (ytPlayer.getCurrentTime() || 0) - 10);
+  ytPlayer.seekTo(target, true);
+}
+
+/* ── 2x speed toggle ── */
+function toggleSpeed() {
+  // close out the segment watched at the old speed, then start a new one at the new speed
+  const wasPlaying = isPlaying;
+  if (playStartTime > 0) logCurrentSession();
+  fastMode = !fastMode;
+  if (wasPlaying) {
+    playStartTime = Date.now();
+    playSegmentRate = fastMode ? 2 : 1;
+  }
+  if (ytPlayer && typeof ytPlayer.setPlaybackRate === 'function') {
+    ytPlayer.setPlaybackRate(fastMode ? 2 : 1);
+  }
+  const btn = document.getElementById('btnSpeed');
+  btn.textContent = fastMode ? '2×' : '1×';
+  btn.classList.toggle('on', fastMode);
 }
 
 function updatePlayPauseUI() {
