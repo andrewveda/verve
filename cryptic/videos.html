@@ -25,25 +25,16 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; overflow: hidden; background: var(--paper); color: var(--ink); font-family: var(--sans); overscroll-behavior: none; }
+html, body {
+  height: 100%; width: 100%; position: fixed; inset: 0;
+  overflow: hidden; background: var(--paper); color: var(--ink);
+  font-family: var(--sans); overscroll-behavior: none;
+}
 button { touch-action: manipulation; font-family: inherit; border: none; background: none; cursor: pointer; }
 textarea { font-family: inherit; }
 
-.screen { display: none; height: 100dvh; width: 100vw; }
+.screen { display: none; height: 100%; width: 100%; position: absolute; inset: 0; }
 .screen.active { display: flex; flex-direction: column; }
-
-/* Keep the player anchored to the visible viewport when the mobile keyboard opens.
-   The video stays at the top; the notes area absorbs the reduced height. */
-#screenPlayer {
-  position: fixed;
-  inset-inline: 0;
-  top: var(--player-vvt, 0px);
-  height: var(--player-vvh, 100dvh);
-  width: 100%;
-  z-index: 50;
-  overflow: hidden;
-}
-#screenPlayer .player-container { min-height: 0; }
 
 /* ═══ TOP BAR ═══ */
 .topbar {
@@ -144,10 +135,10 @@ textarea { font-family: inherit; }
 #screenPlayer { background: #0a0908; position: relative; display: none; flex-direction: column; }
 #screenPlayer.active { display: flex; }
 
-.player-container { flex: 1; display: flex; flex-direction: column; max-width: 800px; margin: 0 auto; width: 100%; height: 100%; position: relative; overflow: hidden; min-height: 0; }
-
-/* Left column: video + controls */
-.video-col { flex-shrink: 0; display: flex; flex-direction: column; min-width: 0; }
+/* Mobile: the video and its controls occupy a fixed top section.
+   Only the notes panel below it scrolls/resizes when the keyboard opens. */
+.player-container { flex: 1; display: flex; flex-direction: column; width: 100%; height: 100%; position: relative; overflow: hidden; min-height: 0; }
+.video-col { flex: 0 0 auto; width: 100%; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 2; background: #0a0908; }
 
 /* ── Visible video frame ── */
 .video-frame {
@@ -195,7 +186,7 @@ textarea { font-family: inherit; }
 .rewind-svg { width: 30px; height: 30px; }
 
 /* ── Notes panel ── */
-.notes-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.08); }
+ .notes-panel { flex: 1 1 auto; min-height: 0; min-width: 0; display: flex; flex-direction: column; overflow: hidden; border-top: 1px solid rgba(255,255,255,0.08); }
 .notes-toolbar {
   flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
   padding: 14px 16px 10px; gap: 10px;
@@ -247,28 +238,25 @@ textarea { font-family: inherit; }
 }
 
 /* ═══ DESKTOP: 70 / 30 SPLIT ═══ */
-@media (min-width: 900px) {
-  .player-container { max-width: none; flex-direction: row; }
-
-  .video-col {
-    flex: 0 0 70%; width: 70%;
-    justify-content: center;
-    padding-bottom: 16px;
+@media (min-width: 850px) {
+  .player-container { display: block; position: relative; width: 100%; height: 100%; padding: 0; overflow: hidden; }
+  .video-col { width: 100%; height: 100%; position: absolute; inset: 0; z-index: 1; }
+  .video-frame { padding: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .video-box { width: 100%; height: 100%; border-radius: 0; aspect-ratio: auto; }
+  .controls-row {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+    padding: 60px 40px 30px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
   }
-  .video-frame { padding: calc(var(--topbar-h) + var(--safe-top) + 8px) 24px 0; }
-  /* keep the 16:9 video inside the viewport height */
-  .video-box { width: min(100%, calc((100dvh - 230px) * 16 / 9)); }
-  .controls-row { padding: 16px 24px 8px; }
-  .scrubber-row, .playback-controls { max-width: min(100%, calc((100dvh - 230px) * 16 / 9)); margin-left: auto; margin-right: auto; }
-  .scrubber-row { margin-bottom: 14px; }
-
   .notes-panel {
-    flex: 0 0 30%; width: 30%;
-    border-top: none; border-left: 1px solid rgba(255,255,255,0.08);
-    padding-top: calc(var(--topbar-h) + var(--safe-top) - 10px);
-    background: rgba(255,255,255,0.02);
+    position: absolute; top: 80px; right: 32px; bottom: 120px;
+    width: 380px; z-index: 20; flex: none;
+    background: rgba(18,16,14,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 20px;
+    box-shadow: 0 24px 54px rgba(0,0,0,0.6);
   }
-  .composer-box textarea { min-height: 90px; max-height: 220px; }
+  .video-frame .video-box { box-shadow: none; }
+  .scrub-track { height: 6px; }
 }
 </style>
 </head>
@@ -829,42 +817,20 @@ window.addEventListener("beforeunload", function () {
   logCurrentSession();
 });
 
-document.addEventListener('DOMContentLoaded', () => { init(); });
-
-/* Match the stable mobile keyboard behaviour used by Notes Directory.
-   Do not scroll the document when the note field receives focus; resize the
-   player to the visual viewport so the video frame remains anchored. */
-(function keepPlayerStableWithKeyboard() {
-  const root = document.documentElement;
-  const vv = window.visualViewport;
-  if (!vv) return;
-
-  const updateViewport = () => {
-    const keyboardOpen = window.innerHeight - vv.height > 120;
-    if (keyboardOpen) {
-      root.style.setProperty('--player-vvh', vv.height + 'px');
-      root.style.setProperty('--player-vvt', vv.offsetTop + 'px');
-    } else {
-      root.style.removeProperty('--player-vvh');
-      root.style.removeProperty('--player-vvt');
-    }
-  };
-
-  vv.addEventListener('resize', updateViewport);
-  vv.addEventListener('scroll', updateViewport);
-  window.addEventListener('resize', updateViewport);
-
+// Keep the document anchored while the mobile keyboard opens. The notes panel
+// takes the available space; focusing the composer must never scroll the video.
+(function keepPlayerAnchored() {
   const noteInput = document.getElementById('noteInput');
-  if (noteInput) {
-    noteInput.addEventListener('focus', () => {
-      requestAnimationFrame(updateViewport);
-    });
-    noteInput.addEventListener('blur', () => {
-      setTimeout(updateViewport, 80);
-    });
-  }
-  updateViewport();
+  if (!noteInput) return;
+  noteInput.addEventListener('focus', () => {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const playerScreen = document.getElementById('screenPlayer');
+    if (playerScreen) playerScreen.scrollTop = 0;
+  });
 })();
+
+document.addEventListener('DOMContentLoaded', () => { init(); });
 </script>
 </body>
 </html>
