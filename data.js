@@ -5,7 +5,7 @@ window.PUZZLE_DIRECTORY = {
     {
       "id": "quotes-quest",
       "tag": "Words to Carry",
-      "description": "Quotes contributed by the team, one puzzle piece at a time.",
+      "description": "Quotes contributed by our team, one puzzle piece at a time.",
       "finaleQuote": {
         "text": "Waste no more time arguing what a good man should be. Be one.",
         "ref": "Marcus Aurelius"
