@@ -769,7 +769,7 @@ function updateReflectUI(){
   const different = reflectState.reactions.includes("different");
   ta.placeholder = different
     ? "Share your explanation — what does this quote mean to you?"
-    : "Add a thought, a memory, a story… (optional)";
+    : "Add a thought, a memory, a story… (what it means to you)";
   document.getElementById("reflectCount").textContent = `${ta.value.length} / ${COMMENT_MAX}`;
   document.querySelectorAll(".reflect-btn").forEach(b=>{
     const on = reflectState.reactions.includes(b.dataset.key);
