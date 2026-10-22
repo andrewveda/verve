@@ -1,6 +1,6 @@
 window.PUZZLE_DIRECTORY = {
   "directoryTitle": "Words to Carry",
-  "directoryTagline": "Piece together reflections shared by the team.",
+  "directoryTagline": "Piece together reflections shared by our team.",
   "quests": [
     {
       "id": "quotes-quest",
