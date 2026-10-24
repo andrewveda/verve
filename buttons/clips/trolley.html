@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no, interactive-widget=resizes-content">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Video Notes — The Trolley Problem</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=IM+Fell+English:ital@0;1&family=DM+Mono:wght@300;400;500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://www.youtube.com/iframe_api"></script>
+<style>
+:root {
+  --paper: #f8f5ef; --ink: #1c1a16; --ink-mid: #4a4640; --ink-muted: #8a837a; --ink-ghost: #c5bdb5;
+  --gold: #b8913a; --gold-light: #d4aa58; --gold-pale: rgba(184,145,58,0.10); --gold-border: rgba(184,145,58,0.22);
+  --crimson: #6b0f1a; --crimson-pale: rgba(107,15,26,0.08); --crimson-border: rgba(107,15,26,0.25);
+  --surface: #ffffff; --green: #2f8f5b; --red: #b8393a;
+  --teal: #2f6f6b; --teal-light: #4f9691; --teal-pale: rgba(47,111,107,0.10); --teal-border: rgba(47,111,107,0.28);
+  --serif: 'Cormorant Garamond', Georgia, serif; --fell: 'IM Fell English', Georgia, serif;
+  --mono: 'DM Mono', monospace; --sans: 'Jost', system-ui, sans-serif;
+  --ease: cubic-bezier(0.4,0,0.2,1); --spring: cubic-bezier(0.34,1.56,0.64,1);
+  --topbar-h: 0px; /* Header removed to free up space */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --vv-height: 100vh;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: var(--vv-height); width: 100%; position: fixed; inset: 0;
+  overflow: hidden; background: var(--paper); color: var(--ink);
+  font-family: var(--sans); overscroll-behavior: none;
+}
+button { touch-action: manipulation; font-family: inherit; border: none; background: none; cursor: pointer; }
+textarea { font-family: inherit; }
+
+.screen { display: none; height: 100%; width: 100%; position: absolute; inset: 0; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ═══ SIGN-IN GATE ═══ */
+.signin-gate {
+  background: var(--surface); border: 1px solid var(--gold-border); border-radius: 16px;
+  padding: 26px 22px; margin: 4px 2px; text-align: center;
+}
+.signin-gate-title { font-family: var(--fell); font-style: italic; font-size: 1.35rem; color: var(--ink); margin-bottom: 6px; }
+.signin-gate-sub { font-family: var(--serif); font-size: 14.5px; color: var(--ink-muted); line-height: 1.5; margin-bottom: 18px; }
+.signin-gate .field-group { text-align: left; }
+
+.gate-wrap { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: calc(var(--safe-top) + 24px) 20px calc(24px + var(--safe-bottom)); display: flex; flex-direction: column; justify-content: center; max-width: 500px; margin: 0 auto; width: 100%;}
+.gate-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--crimson); margin-bottom: 4px; text-align: center; }
+.gate-headline { font-family: var(--fell); font-style: italic; font-size: 2rem; color: var(--ink); margin-bottom: 22px; text-align: center; line-height: 1.1; }
+
+/* ═══ INTRO SCREEN ═══ */
+#screenIntro { background: var(--paper); }
+.intro-scroll { flex: 1; overflow-y: auto; padding: calc(var(--safe-top) + 24px) 22px calc(24px + var(--safe-bottom)); -webkit-overflow-scrolling: touch; max-width: 600px; margin: 0 auto; width: 100%;}
+.intro-thumb { width: 100%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; margin-bottom: 18px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--gold-border); }
+.intro-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.intro-tags { display: flex; gap: 6px; margin-bottom: 14px; justify-content: center; flex-wrap: wrap; }
+.intro-title { font-family: var(--fell); font-style: italic; font-size: 2.2rem; line-height: 1.15; margin-bottom: 10px; text-align: center; }
+.intro-desc { font-family: var(--serif); font-size: 16px; color: var(--ink-mid); line-height: 1.6; margin-bottom: 22px; text-align: left;}
+.intro-desc strong { color: var(--ink); font-weight: 600; }
+.tag-exam { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 10px; font-weight: 500; background: rgba(255,255,255,0.9); color: var(--ink); }
+
+.howto {
+  background: var(--teal-pale); border: 1px solid var(--teal-border); border-radius: 14px;
+  padding: 16px 18px; margin-bottom: 20px;
+}
+.howto-title { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; }
+.howto ol { padding-left: 20px; }
+.howto li { font-family: var(--serif); font-size: 15.5px; line-height: 1.5; color: var(--ink); margin-bottom: 8px; }
+.howto li:last-child { margin-bottom: 0; }
+.howto b { font-weight: 700; }
+
+.play-action-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--ink); color: var(--paper); border: none;
+  border-radius: 14px; padding: 18px; font-family: var(--sans); font-weight: 500; font-size: 16px;
+  cursor: pointer; width: 100%; margin-bottom: 16px; box-shadow: 0 8px 20px rgba(28,26,22,0.15);
+  transition: transform 0.15s;
+}
+.play-action-btn:active { transform: scale(0.97); }
+.play-action-btn .subtext { font-family: var(--mono); font-size: 11px; opacity: 0.7; font-weight: 400; }
+
+/* ═══ SIGN-IN MODAL ═══ */
+.modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(28,26,22,0.55); z-index: 300; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(6px); }
+.modal-backdrop.show { display: flex; }
+.modal-card { background: var(--surface); border: 1px solid var(--gold-border); border-radius: 16px; padding: 26px 20px; width: 100%; max-width: 320px; position: relative; overflow: hidden; box-shadow: 0 14px 34px rgba(28,26,22,0.18); animation: modalIn 0.3s var(--spring); }
+@keyframes modalIn { from { transform: scale(0.9) translateY(12px); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--crimson), var(--gold), var(--crimson)); }
+.modal-title { font-family: var(--fell); font-style: italic; font-size: 1.25rem; color: var(--ink); text-align: center; margin-bottom: 2px; }
+.modal-sub { font-family: var(--mono); font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-muted); text-align: center; margin-bottom: 18px; }
+.field-group { margin-bottom: 12px; }
+.field-group label { display: block; font-family: var(--mono); font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 5px; }
+.field-group input, .field-group select { width: 100%; background: var(--paper); border: 1px solid var(--gold-border); border-radius: 8px; padding: 10px 12px; font-family: var(--sans); font-size: 13.5px; color: var(--ink); outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
+.field-group input::placeholder { color: var(--ink-ghost); }
+.field-group input:focus, .field-group select:focus { border-color: var(--gold); }
+.field-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b8913a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; cursor: pointer; }
+.btn-primary { background: linear-gradient(135deg, var(--gold), var(--crimson)); color: #fff; border: none; border-radius: 8px; padding: 12px; font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; width: 100%; margin-top: 4px; box-shadow: 0 4px 12px rgba(184,145,58,0.25); transition: transform 0.15s; }
+.btn-primary:active { transform: scale(0.98); }
+
+/* ═══ PLAYER SCREEN ═══ */
+#screenPlayer { background: #0a0908; position: relative; display: none; flex-direction: column; }
+#screenPlayer.active { display: flex; }
+
+.player-container { flex: 1; display: flex; flex-direction: column; width: 100%; height: 100%; position: relative; overflow: hidden; min-height: 0; }
+.video-col { flex: 0 0 auto; width: 100%; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 2; background: #0a0908; }
+
+.video-frame { flex-shrink: 0; width: 100%; padding: calc(var(--safe-top) + 12px) 16px 0; }
+.video-box { width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #000; position: relative; box-shadow: 0 10px 26px rgba(0,0,0,0.4); margin: 0 auto; }
+.video-box iframe, .video-box > div { width: 100%; height: 100%; }
+
+.audio-status { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 20px; font-family: var(--sans); font-size: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.2); z-index: 100; pointer-events: none; }
+
+.controls-row { flex-shrink: 0; padding: 12px 16px 8px; }
+.scrubber-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+.scrub-time { font-family: var(--mono); font-size: 10.5px; color: rgba(255,255,255,0.5); min-width: 36px; }
+.scrub-time.remaining { text-align: right; }
+.scrub-track { flex: 1; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.15); position: relative; pointer-events: none; }
+.scrub-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--gold); border-radius: 3px; width: 0%; transition: width 0.25s linear; }
+
+.notes-panel { flex: 1 1 auto; min-height: 0; min-width: 0; display: flex; flex-direction: column; overflow: hidden; border-top: 1px solid rgba(255,255,255,0.08); }
+.notes-toolbar { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; gap: 8px; }
+.notes-heading { font-family: var(--fell); font-style: italic; font-size: 1.2rem; color: rgba(255,255,255,0.9); flex: 1; }
+
+.playback-controls-mini { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+.ctrl-mini { display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: transform 0.15s, background 0.2s, color 0.2s; }
+.ctrl-mini:active { transform: scale(0.92); }
+
+.ctrl-mini.play-pause {
+  width: 32px; height: 32px; background: var(--gold); color: #000;
+  box-shadow: 0 3px 10px rgba(184,145,58,0.3);
+}
+.ctrl-mini.play-pause svg { width: 15px; height: 15px; fill: currentColor; }
+.ctrl-mini.side {
+  width: 28px; height: 28px; background: rgba(255,255,255,0.08); color: #fff;
+  border: 1px solid rgba(255,255,255,0.18); font-family: var(--mono); font-size: 10px; font-weight: 500;
+}
+.ctrl-mini.side.on { background: var(--gold); color: #000; border-color: var(--gold); }
+.ctrl-mini.side svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+.ctrl-mini.side text { font-family: 'DM Mono', monospace; font-size: 8px; font-weight: 600; fill: currentColor; stroke: none; }
+
+.btn-download { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--gold-light); border: 1px solid var(--gold-border); border-radius: 20px; padding: 6px 12px; white-space: nowrap; transition: background 0.2s; flex: 0 0 auto; }
+.btn-download:active { background: rgba(184,145,58,0.15); }
+
+.note-composer { flex-shrink: 0; padding: 0 16px 12px; }
+.composer-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 12px; }
+.composer-ts { font-family: var(--mono); font-size: 11px; color: var(--gold-light); margin-bottom: 6px; display: block; }
+.composer-box textarea { width: 100%; background: transparent; border: none; outline: none; resize: none; color: rgba(255,255,255,0.9); font-family: var(--serif); font-size: 15.5px; line-height: 1.4; min-height: 44px; max-height: 120px; }
+.composer-box textarea::placeholder { color: rgba(255,255,255,0.3); }
+.composer-actions { display: flex; justify-content: flex-end; margin-top: 4px; }
+.btn-add-note { font-family: var(--mono); font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; background: var(--gold); color: #000; border-radius: 16px; padding: 7px 16px; font-weight: 500; transition: transform 0.15s, opacity 0.2s; }
+.btn-add-note:active { transform: scale(0.96); }
+.btn-add-note:disabled { opacity: 0.35; }
+
+.notes-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 16px calc(20px + var(--safe-bottom)); }
+.note-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.note-item:last-child { border-bottom: none; }
+.note-ts { flex-shrink: 0; font-family: var(--mono); font-size: 11.5px; color: var(--gold-light); padding-top: 2px; min-width: 42px; text-align: left; }
+.note-text { font-family: var(--serif); font-size: 15.5px; line-height: 1.45; color: rgba(255,255,255,0.85); white-space: pre-wrap; }
+.notes-empty { font-family: var(--serif); font-style: italic; font-size: 14px; color: rgba(255,255,255,0.35); text-align: center; padding: 30px 20px; }
+
+@media (min-width: 850px) {
+  .player-container { display: block; position: relative; width: 100%; height: 100%; padding: 0; overflow: hidden; }
+  .video-col { width: 100%; height: 100%; position: absolute; inset: 0; z-index: 1; }
+  .video-frame { padding: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+  .video-box { width: 100%; height: 100%; border-radius: 0; aspect-ratio: auto; }
+  .controls-row {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+    padding: 60px 40px 30px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+  }
+  .notes-panel {
+    position: absolute; top: 32px; right: 32px; bottom: 120px;
+    width: 380px; z-index: 20; flex: none;
+    background: rgba(18,16,14,0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 20px;
+    box-shadow: 0 24px 54px rgba(0,0,0,0.6);
+  }
+  .video-frame .video-box { box-shadow: none; }
+  .scrub-track { height: 6px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HOME (Sign-in gate) -->
+<div class="screen active" id="screenHome">
+  <div class="gate-wrap" id="gateWrap"></div>
+</div>
+
+<!-- INTRO (Book details and Start/Resume) -->
+<div class="screen" id="screenIntro">
+  <div class="intro-scroll" id="introScroll"></div>
+</div>
+
+<!-- PLAYER + NOTES -->
+<div class="screen" id="screenPlayer">
+  <div class="player-container">
+
+    <div class="video-col">
+      <div class="video-frame">
+        <div class="video-box">
+          <div class="audio-status" id="audioStatus" style="display:none;">Loading video...</div>
+          <div id="ytPlayer"></div>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <div class="scrubber-row">
+          <span class="scrub-time elapsed" id="vpElapsed">0:00</span>
+          <div class="scrub-track" id="scrubTrack">
+            <div class="scrub-fill" id="vpFill"></div>
+          </div>
+          <span class="scrub-time remaining" id="vpRemaining">-0:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes-panel">
+      <div class="notes-toolbar">
+        <span class="notes-heading">Notes</span>
+        
+        <div class="playback-controls-mini">
+          <button class="ctrl-mini side" id="btnRewind" onclick="rewind10()" aria-label="Rewind 10 seconds" title="Rewind 10 seconds">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5"/>
+              <path d="M3.5 3.8v4.7h4.7"/>
+              <text x="12" y="15.5" text-anchor="middle">10</text>
+            </svg>
+          </button>
+          <button class="ctrl-mini play-pause" id="btnPlayPause" onclick="togglePlay()" aria-label="Play or pause">
+            <svg id="iconPlay" viewBox="0 0 24 24" style="margin-left: 2px;"><path d="M8 5V19L19 12L8 5Z"/></svg>
+            <svg id="iconPause" viewBox="0 0 24 24" style="display: none;"><path d="M6 19H10V5H6V19ZM14 5V19H18V5H14Z"/></svg>
+          </button>
+          <button class="ctrl-mini side" id="btnSpeed" onclick="toggleSpeed()" aria-label="Toggle 2x speed" title="Toggle 2x speed">1×</button>
+        </div>
+
+        <button class="btn-download" id="btnDownload" onclick="downloadNotes()">Download .html</button>
+      </div>
+
+      <div class="note-composer">
+        <div class="composer-box">
+          <span class="composer-ts" id="composerTs">0:00</span>
+          <textarea id="noteInput" placeholder="Record your moral intuition here..." rows="2"></textarea>
+          <div class="composer-actions">
+            <button class="btn-add-note" id="btnAddNote" onclick="addNote()">Add note</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes-list" id="notesList">
+        <div class="notes-empty">Notes you add will appear here, tagged with the video timestamp.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SIGN-IN MODAL -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal-card">
+    <div class="modal-title">Philosophy Seminar</div>
+    <div class="modal-sub">Ethics & Morality &bull; Sign In</div>
+    <div class="field-group"><label>Your Name</label><input id="nameInput" type="text" placeholder="Enter your name&hellip;" maxlength="60" autocomplete="off"/></div>
+    <div class="field-group">
+      <label>Department</label>
+      <select id="deptSelect">
+        <option value="">-- Select Department --</option>
+        <option>CSI Ewart</option>
+        <option>Cyber Security</option><option>EIE</option>
+        <option>CSE-1</option><option>CSE-2</option><option>CSE-3</option>
+        <option>Mechanical Engineering</option>
+        <option>ECE-1</option><option>ECE-2</option><option>ECE-3</option>
+        <option>AI DS-1</option><option>AI DS-2</option>
+        <option>Agri and Civil</option><option>EEE</option>
+        <option>Medical Electronics</option>
+        <option>IT-1</option><option>IT-2</option>
+      </select>
+    </div>
+    <button class="btn-primary" id="modalContinueBtn">Continue &#8594;</button>
+  </div>
+</div>
+
+<script>
+function syncViewportHeight() {
+  if (window.visualViewport) {
+    const vh = window.visualViewport.height;
+    document.documentElement.style.setProperty('--vv-height', `${vh}px`);
+    window.scrollTo(0, 0); 
+  } else {
+    document.documentElement.style.setProperty('--vv-height', `${window.innerHeight}px`);
+  }
+}
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', syncViewportHeight);
+  window.visualViewport.addEventListener('scroll', syncViewportHeight);
+}
+window.addEventListener('resize', syncViewportHeight);
+syncViewportHeight(); 
+
+const noteInput = document.getElementById('noteInput');
+if (noteInput) {
+  noteInput.addEventListener('focus', () => {
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+  });
+}
+
+const BOOK = {
+  id: 'yg16u_bzjPE',
+  title: 'The Trolley Problem',
+  author: 'Moral Philosophy & Ethics',
+  youtubeId: 'yg16u_bzjPE'
+};
+
+const EDGE_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+let playerName = '', playerDept = '';
+
+function loadFromStorage() {
+  playerName = localStorage.getItem('userName') || '';
+  playerDept = localStorage.getItem('userDept') || '';
+}
+function savePlayer(name, dept) {
+  playerName = name; playerDept = dept;
+  localStorage.setItem('userName', name);
+  localStorage.setItem('userDept', dept);
+}
+function isSignedIn() { return !!(playerName && playerDept); }
+function sanitizeName() { return playerName.replace(/\s+/g, ''); }
+
+function getProgressKey() { return `progress_${BOOK.id}_${sanitizeName()}`; }
+function getSavedProgress() { return parseFloat(localStorage.getItem(getProgressKey()) || 0); }
+function saveProgress(seconds) {
+  if (seconds > 0 || seconds === 0) localStorage.setItem(getProgressKey(), seconds);
+}
+
+function getNotesKey() { return `notes_${BOOK.id}_${sanitizeName()}`; }
+function loadNotes() {
+  try { return JSON.parse(localStorage.getItem(getNotesKey()) || '[]'); }
+  catch (e) { return []; }
+}
+function saveNotes(notes) { localStorage.setItem(getNotesKey(), JSON.stringify(notes)); }
+
+let notes = [];
+
+let ytPlayer = null;
+let progressInterval = null;
+let saveInterval = null;
+let isPlaying = false;
+let playStartTime = 0;
+let hasAutoDownloaded = false;
+let fastMode = false;
+let playSegmentRate = 1;
+
+function fmtTime(s) {
+  s = Math.max(0, Math.floor(s || 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+function ytThumb(id) { return `https://img.youtube.com/vi/${id}/maxresdefault.jpg`; }
+
+let youtubeReady = false;
+window.onYouTubeIframeAPIReady = () => { youtubeReady = true; };
+function waitForYT(timeoutMs = 10000) {
+  return new Promise((resolve, reject) => {
+    if (youtubeReady && window.YT && YT.Player) return resolve();
+    const check = setInterval(() => {
+      if (youtubeReady && window.YT && YT.Player) { clearInterval(check); clearTimeout(timer); resolve(); }
+    }, 100);
+    const timer = setTimeout(() => { clearInterval(check); reject(new Error('YouTube API failed to load')); }, timeoutMs);
+  });
+}
+
+async function init() {
+  loadFromStorage();
+  if (isSignedIn()) {
+    openIntro();
+  } else {
+    renderSignInGate();
+    showScreen('home');
+    openModal();
+  }
+}
+
+function showScreen(which) {
+  ['Home','Intro','Player'].forEach(s => {
+    document.getElementById('screen'+s).classList.toggle('active', s.toLowerCase() === which);
+  });
+}
+
+function updateVideoProgress() {
+  if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+  const duration = ytPlayer.getDuration() || 0;
+  const current = ytPlayer.getCurrentTime() || 0;
+
+  if (duration > 0) {
+    const pct = Math.min(100, (current / duration) * 100);
+    document.getElementById('vpFill').style.width = pct + '%';
+    document.getElementById('vpElapsed').textContent = fmtTime(current);
+    document.getElementById('vpRemaining').textContent = '-' + fmtTime(Math.max(0, duration - current));
+  }
+  document.getElementById('composerTs').textContent = fmtTime(current);
+}
+
+function backgroundSaveTick() {
+  if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+    const current = ytPlayer.getCurrentTime() || 0;
+    if (isPlaying && current > 0) saveProgress(current);
+  }
+}
+
+function logCurrentSession() {
+  if (playStartTime > 0) {
+    const watchedSeconds = Math.floor(((Date.now() - playStartTime) / 1000) * playSegmentRate);
+    playStartTime = 0;
+    if (watchedSeconds > 1) logQuestToSupabase(watchedSeconds);
+  }
+}
+
+async function logQuestToSupabase(secondsWatched) {
+  if (!isSignedIn()) return;
+  const payload = {
+    student_name: playerName,
+    department: playerDept,
+    quest_id: 'Quest Trolley Problem Video',
+    time_spent: secondsWatched,
+    correct: secondsWatched,
+    wrong: 0,
+    total: secondsWatched,
+    mode: "video-notes"
+  };
+  try {
+    const res = await fetch(EDGE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) console.error('Failed to log watch session chunk.');
+  } catch (e) {
+    console.error("Could not sync watch session", e);
+  }
+}
+
+function renderSignInGate() {
+  const wrap = document.getElementById('gateWrap');
+  wrap.innerHTML = `
+    <div class="gate-eyebrow">Philosophy Seminar</div>
+    <div class="gate-headline">The Trolley Problem</div>
+    <div class="signin-gate">
+      <div class="signin-gate-title">Enter the Dilemma</div>
+      <div class="signin-gate-sub">Dive into the clash between Utilitarianism and Deontology. Sign in to save your moral intuitions automatically.</div>
+      <div class="field-group"><label>Your Name</label><input id="gateNameInput" type="text" placeholder="Enter your name&hellip;" maxlength="60" autocomplete="off"/></div>
+      <div class="field-group">
+        <label>Department</label>
+        <select id="gateDeptSelect">
+          <option value="">-- Select Department --</option>
+          <option>CSI Ewart</option>
+          <option>Cyber Security</option><option>EIE</option>
+          <option>CSE-1</option><option>CSE-2</option><option>CSE-3</option>
+          <option>Mechanical Engineering</option>
+          <option>ECE-1</option><option>ECE-2</option><option>ECE-3</option>
+          <option>AI DS-1</option><option>AI DS-2</option>
+          <option>Agri and Civil</option><option>EEE</option>
+          <option>Medical Electronics</option>
+          <option>IT-1</option><option>IT-2</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="gateContinueBtn">Analyze Ethics &#8594;</button>
+    </div>`;
+  document.getElementById('gateContinueBtn').addEventListener('click', () => {
+    const rawName = document.getElementById('gateNameInput').value.trim();
+    const dept    = document.getElementById('gateDeptSelect').value;
+    attemptLogin(rawName, dept);
+  });
+}
+
+function openIntro() {
+  if (!isSignedIn()) { renderSignInGate(); showScreen('home'); openModal(); return; }
+
+  const savedSec = getSavedProgress();
+  const hasProgress = savedSec > 10;
+  const btnText = hasProgress ? `Resume from ${fmtTime(savedSec)}` : "Start the Experiment";
+  const btnSubText = hasProgress ? `Continue your ethical analysis` : `From the beginning`;
+
+  const scroll = document.getElementById('introScroll');
+  scroll.innerHTML = `
+    <div class="intro-thumb"><img src="${ytThumb(BOOK.id)}" alt=""></div>
+    <div class="intro-tags">
+      <span class="tag-exam" style="background:var(--crimson-pale);color:var(--crimson);border:1px solid var(--crimson-border);">Utilitarianism</span>
+      <span class="tag-exam" style="background:var(--gold-pale);color:var(--gold);border:1px solid var(--gold-border);">Deontology</span>
+      <span class="tag-exam" style="background:var(--teal-pale);color:var(--teal);border:1px solid var(--teal-border);">Ethics</span>
+    </div>
+    <div class="intro-title">${BOOK.title}</div>
+    <div class="intro-desc">
+      Formulated by philosopher Philippa Foot in 1967, this famous thought experiment forces us to confront the friction between <strong>Utilitarianism</strong> (maximizing overall well-being, championed by Jeremy Bentham and John Stuart Mill) and <strong>Deontology</strong> (Immanuel Kant's duty-based ethics, where certain actions are inherently wrong regardless of outcomes). 
+      <br><br>Are you willing to pull the lever to save five at the cost of one? What if you have to actively push a bystander? Where do you draw the line?
+    </div>
+
+    <div class="howto">
+      <div class="howto-title">How to engage</div>
+      <ol>
+        <li><b>Reflect on each variation.</b> Pause the video and genuinely consider what you would do before the analysis is revealed.</li>
+        <li>Note down your moral intuitions—whether you lean towards Bentham's calculus or Kant's categorical imperative.</li>
+        <li>When you finish, tap <b>Download .html</b> to export your documented philosophy notes.</li>
+      </ol>
+    </div>
+
+    <button class="play-action-btn" id="startBtn">
+       <div>
+         <div>▶ ${btnText}</div>
+         <div class="subtext">${btnSubText}</div>
+       </div>
+    </button>
+
+    ${hasProgress ? `<div style="text-align:center; margin-top: 10px;"><button style="font-family:var(--mono); font-size:10px; color:var(--ink-muted); text-decoration:underline; border:none; background:none; cursor:pointer;" onclick="saveProgress(0); openIntro();">Reset video progress to beginning</button></div>` : ''}
+  `;
+
+  document.getElementById('startBtn').addEventListener('click', () => startPlayer(savedSec));
+  showScreen('intro');
+}
+
+function renderNotes() {
+  const list = document.getElementById('notesList');
+  if (!notes.length) {
+    list.innerHTML = `<div class="notes-empty">Your documented thoughts and moral conclusions will appear here, tagged with the video timestamp.</div>`;
+    return;
+  }
+  list.innerHTML = notes.map(n => `
+    <div class="note-item">
+      <button class="note-ts" onclick="seekTo(${n.time})">${fmtTime(n.time)}</button>
+      <div class="note-text"></div>
+    </div>
+  `).join('');
+  const items = list.querySelectorAll('.note-text');
+  items.forEach((el, i) => { el.textContent = notes[i].text; });
+}
+
+function addNote() {
+  const input = document.getElementById('noteInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const time = (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') ? ytPlayer.getCurrentTime() : 0;
+  notes.push({ time: Math.floor(time), text, createdAt: new Date().toISOString() });
+  saveNotes(notes);
+  renderNotes();
+  input.value = '';
+  const list = document.getElementById('notesList');
+  list.scrollTop = list.scrollHeight;
+}
+
+function seekTo(seconds) {
+  if (ytPlayer && typeof ytPlayer.seekTo === 'function') {
+    ytPlayer.seekTo(seconds, true);
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  const input = document.getElementById('noteInput');
+  if (document.activeElement === input && e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    addNote();
+  }
+});
+
+function downloadNotes() {
+  if (!notes.length) { alert('No notes yet — add a reflection first.'); return; }
+
+  const rows = notes.map(n => `
+    <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid #e6ded0;">
+      <div style="flex-shrink:0;font-family:'DM Mono',monospace;font-size:13px;color:#b8913a;min-width:48px;">${fmtTime(n.time)}</div>
+      <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:17px;line-height:1.5;color:#1c1a16;white-space:pre-wrap;">${escapeHtml(n.text)}</div>
+    </div>`).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>Notes — ${escapeHtml(BOOK.title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=IM+Fell+English:ital@1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{background:#f8f5ef;color:#1c1a16;font-family:'Cormorant Garamond',Georgia,serif;max-width:640px;margin:0 auto;padding:40px 24px;}
+h1{font-family:'IM Fell English',Georgia,serif;font-style:italic;font-size:2rem;margin-bottom:4px;}
+.meta{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;color:#8a837a;text-transform:uppercase;margin-bottom:28px;}
+</style></head>
+<body>
+<h1>${escapeHtml(BOOK.title)}</h1>
+<div class="meta">${escapeHtml(playerName)} &bull; ${escapeHtml(playerDept)} &bull; ${new Date().toLocaleDateString()}</div>
+${rows}
+</body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeTitle = BOOK.title.replace(/[^a-z0-9]+/gi, '-');
+  const safeName = (playerName || 'student').replace(/[^a-z0-9]+/gi, '-');
+  a.href = url;
+  a.download = `notes-${safeTitle}-${safeName}-${Date.now()}.html`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function startPlayer(startTimeSeconds) {
+  showScreen('player');
+  notes = loadNotes();
+  renderNotes();
+
+  document.getElementById('audioStatus').style.display = 'block';
+  document.getElementById('audioStatus').textContent = 'Loading video...';
+
+  try {
+    await waitForYT();
+  } catch (e) {
+    document.getElementById('audioStatus').textContent = 'Failed to load player. Check connection.';
+    return;
+  }
+
+  ytPlayer = new YT.Player('ytPlayer', {
+    videoId: BOOK.youtubeId,
+    playerVars: {
+      rel: 0, playsinline: 1, autoplay: 1, controls: 0, disablekb: 1, fs: 0,
+      start: Math.floor(startTimeSeconds)
+    },
+    events: {
+      onReady: (e) => {
+        if (fastMode) e.target.setPlaybackRate(2);
+        e.target.playVideo();
+      },
+      onStateChange: onPlayerStateChange
+    }
+  });
+
+  progressInterval = setInterval(updateVideoProgress, 250);
+  saveInterval = setInterval(backgroundSaveTick, 5000);
+}
+
+function onPlayerStateChange(e) {
+  const statusEl = document.getElementById('audioStatus');
+
+  if (e.data === YT.PlayerState.PLAYING) {
+    isPlaying = true;
+    statusEl.style.display = 'none';
+    updatePlayPauseUI();
+    playStartTime = Date.now();
+    playSegmentRate = fastMode ? 2 : 1;
+  }
+  if (e.data === YT.PlayerState.PAUSED) {
+    isPlaying = false;
+    updatePlayPauseUI();
+    logCurrentSession();
+  }
+  if (e.data === YT.PlayerState.BUFFERING) {
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Buffering...';
+    logCurrentSession();
+  }
+  if (e.data === YT.PlayerState.ENDED) {
+    isPlaying = false;
+    saveProgress(0);
+    updatePlayPauseUI();
+    logCurrentSession();
+    if (!hasAutoDownloaded) {
+      hasAutoDownloaded = true;
+      downloadNotes();
+    }
+  }
+}
+
+function togglePlay() {
+  if (!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
+  const state = ytPlayer.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+  else ytPlayer.playVideo();
+}
+
+function rewind10() {
+  if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+  const target = Math.max(0, (ytPlayer.getCurrentTime() || 0) - 10);
+  ytPlayer.seekTo(target, true);
+}
+
+function toggleSpeed() {
+  const wasPlaying = isPlaying;
+  if (playStartTime > 0) logCurrentSession();
+  fastMode = !fastMode;
+  if (wasPlaying) {
+    playStartTime = Date.now();
+    playSegmentRate = fastMode ? 2 : 1;
+  }
+  if (ytPlayer && typeof ytPlayer.setPlaybackRate === 'function') {
+    ytPlayer.setPlaybackRate(fastMode ? 2 : 1);
+  }
+  const btn = document.getElementById('btnSpeed');
+  btn.textContent = fastMode ? '2×' : '1×';
+  btn.classList.toggle('on', fastMode);
+}
+
+function updatePlayPauseUI() {
+  const iconPlay = document.getElementById('iconPlay');
+  const iconPause = document.getElementById('iconPause');
+  if (isPlaying) { iconPlay.style.display = 'none'; iconPause.style.display = 'block'; }
+  else { iconPlay.style.display = 'block'; iconPause.style.display = 'none'; }
+}
+
+function openModal() {
+  document.getElementById('nameInput').value  = playerName;
+  document.getElementById('deptSelect').value = playerDept;
+  document.getElementById('modalBackdrop').classList.add('show');
+}
+function closeModal() { document.getElementById('modalBackdrop').classList.remove('show'); }
+
+function attemptLogin(rawName, dept) {
+  if (!rawName) { alert('Please enter your name!'); return; }
+  if (!dept) { alert('Please select your department!'); return; }
+  savePlayer(rawName, dept);
+  closeModal();
+  openIntro();
+}
+
+document.getElementById('modalBackdrop').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalBackdrop') && isSignedIn()) closeModal();
+});
+document.getElementById('modalContinueBtn').addEventListener('click', () => {
+  const rawName = document.getElementById('nameInput').value.trim();
+  const dept    = document.getElementById('deptSelect').value;
+  attemptLogin(rawName, dept);
+});
+document.getElementById('nameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('modalContinueBtn').click();
+});
+
+window.addEventListener("beforeunload", function () {
+  logCurrentSession();
+});
+
+document.addEventListener('DOMContentLoaded', () => { init(); });
+</script>
+</body>
+</html>
