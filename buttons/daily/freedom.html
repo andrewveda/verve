@@ -255,7 +255,7 @@ function finish(){
  toast('Quest complete! Score sent ✓ Downloading your work…')}
  else toast('Quest complete ✓ Downloading your work…');
  downloadReport();
-
+}
 function boot(){
  if(window.GH){playerName=window.GH.name||window.GH.username||'Student';playerDept=window.GH.dept||'Department Unspecified'}
  else{playerName=localStorage.getItem('questPlayerName')||'Test Student';playerDept=localStorage.getItem('questPlayerDept')||'CSE'}
