@@ -98,7 +98,7 @@ const EDGE_FUNCTION_URL="https://yellow-lab-4999.andrewveda.workers.dev/function
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const EM=['💯','🤗','🔥','👍','😕','🙁','🫩','👎'];
+const EM=['💯','🤗','🔥','👍','✨','🙁','😕','👎'];
 const STOP=new Set('about above after again against also because been before being below between both could does doing down during each even every from further have having here hers herself himself into itself just more most much must myself once only other ours over same should some such than that their theirs them then there these they this those through under until very were what when where which while whom will with would your yours anyone someone something everything anything'.split(' '));
 function sents(t){t=t.replace('Gol D. Roger','Gol D.\u00a0Roger');const o=[];let s='',q=0;
  for(let i=0;i<t.length;i++){const c=t[i];s+=c;if(c=='“')q=1;else if(c=='”')q=0;
