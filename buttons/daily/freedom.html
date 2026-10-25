@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Food for Thought</title>
+<!-- Auth Guard to protect and load user session -->
+<script src="../../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf8f4;--fg:#1f1d1a;--mut:#6b665e;--card:#fff;--bd:#e4dfd6;--ac:#4f46e5;--ok:#15803d;--bad:#dc2626;--fs:20px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17160f;--fg:#ece8df;--mut:#a39d90;--card:#23211a;--bd:#38352b;--ac:#a5b4fc;--ok:#4ade80;--bad:#f87171;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17160f;--fg:#ece8df;--mut:#a39d90;--card:#23211a;--bd:#38352b;--ac:#a5b4fc;--ok:#4ade80;--bad:#f87171;color-scheme:dark}
+html{overflow:hidden;overscroll-behavior:none}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,sans-serif;height:calc(var(--vh,100dvh) - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;overflow:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:8}
+.top{flex:none;border-bottom:1px solid var(--bd)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 10px}
+.t{font:700 22px Caveat,"Bradley Hand",cursive}
+.r{display:flex;align-items:center;gap:5px}
+.t small{display:block;font:11px/1.1 system-ui,sans-serif;color:var(--mut);max-width:42vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pn{font-size:13px;color:var(--mut);margin-right:2px}
+button{font:600 15px system-ui,sans-serif;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--fg)}
+.top button{min-height:36px;min-width:38px;padding:0 8px}
+button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+:root[data-theme="dark"] button.pri{color:#17160f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button.pri{color:#17160f}}
+button:disabled{opacity:.4}
+.prog{height:3px;background:var(--bd)}.prog i{display:block;height:100%;width:0;background:var(--ac);transition:width .25s}
+#ps{flex:1;min-height:0;overflow:hidden;width:100%;max-width:680px;margin:0 auto;box-sizing:border-box}
+#tx{padding:12px 16px}
+#tx h1{font:700 calc(var(--fs)*1.35)/1.2 Georgia,serif;margin:0 0 .15em}
+#tx .by{font:calc(var(--fs)*.7) system-ui,sans-serif;color:var(--mut);margin:0 0 .9em}
+#pt{font:var(--fs)/1.8 Georgia,"Times New Roman",serif;margin:0}
+#pt.q{font-style:italic;border-left:3px solid var(--ac);padding-left:12px}
+#pt.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@media (prefers-reduced-motion:reduce){#pt.shake{animation:none}}
+.bl{display:inline-block;min-width:3.4em;border-bottom:2px solid var(--ac);text-align:center;line-height:1.1;font-style:normal}
+.bl.cur{background:rgba(79,70,229,.16);border-radius:4px 4px 0 0}
+.bl.ok{color:var(--ok);border-bottom-color:var(--ok);font-weight:700}
+.low{flex:none;width:100%;max-width:680px;margin:0 auto;box-sizing:border-box;padding:0 10px}
+.box{background:var(--card);border:2px solid var(--bd);border-radius:14px;padding:6px 10px;margin-top:6px}
+.lb{display:flex;justify-content:space-between;align-items:center}
+.lb label{font:700 21px/1.1 Caveat,"Bradley Hand",cursive}
+.dn{display:none;min-height:32px;padding:0 12px;font-size:14px}
+textarea{display:block;width:100%;box-sizing:border-box;height:46px;font:600 21px/26px Caveat,"Bradley Hand",cursive;padding:0 10px;border:2px dashed var(--ac);border-radius:10px;color:var(--fg);resize:none;background-color:var(--bg);background-image:repeating-linear-gradient(transparent,transparent 25px,var(--bd) 25px,var(--bd) 26px);background-attachment:local}
+#op{display:flex;gap:8px;align-items:center;border-color:var(--ac)}
+#op .msg{flex:1;text-align:center;font:600 15px system-ui,sans-serif;color:var(--mut);padding:8px 0}
+#op .msg.good{color:var(--ok)}
+.opt{flex:1;min-height:48px;font:600 18px Georgia,serif;padding:0 6px}
+.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+#rs{min-height:26px;font-size:22px;line-height:26px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:4px}
+#rs:empty::before{content:"Tap how this page made you feel";font:14px system-ui,sans-serif;color:var(--mut)}
+.em{display:flex;gap:4px}.em button{flex:1;min-width:0;min-height:38px;padding:0;font-size:21px;line-height:1;background:var(--bg)}
+.em button:active{transform:scale(1.2)}.em .x{font-size:15px;color:var(--mut)}
+.dock{flex:none;display:flex;gap:8px;padding:8px 10px;margin-top:6px;background:var(--card);border-top:2px solid var(--bd)}
+.dock button{flex:1;min-height:48px;font-size:16px}
+.ty .dock,.ty #op,.ty #rx{display:none}.ty .dn{display:block}
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:99px;font:14px system-ui,sans-serif;display:none;z-index:20;max-width:90%}
+</style></head><body>
+<div class="top"><div class="row"><span class="t">✎ Food for Thought<small id="who"></small></span><span class="r"><b id="pn"></b><button id="fm" aria-label="Smaller text">A−</button><button id="fp" aria-label="Bigger text" style="font-size:19px">A+</button></span></div><div class="prog"><i id="pr"></i></div></div>
+<div id="ps"><div id="tx"></div></div>
+<div class="low">
+<div class="box" id="op"></div>
+<div class="box" id="b1"><div class="lb"><label for="cm">✏️ My comments on this page</label><button class="dn">Done ✓</button></div><textarea id="cm" placeholder="Tap here and type your thoughts…"></textarea></div>
+<div class="box" id="rx"><div id="rs"></div><div class="em"></div></div>
+</div>
+<div class="dock"><button id="pv">← Back</button><button id="nx" class="pri" disabled>Next →</button></div>
+<div id="toast"></div>
+<script>
+const QUEST_ID='Quest 56';          
+const TITLE='The Enemy Within: When Freedom Becomes a Prison';
+const BY='Written by Kavitha, Dream Chaser, CSE 2';
+const BLANKS=3;                              // blanks per page (minimum 3 recommended)
+const MAX_WORDS=46, MIN_WORDS=34;            // page length: a new page starts once it has MIN_WORDS words
+const P=[                                    // one string per paragraph
+`Are we truly free, or are we prisoners of the world that shaped us?`,
+`“If there is no path to find, I will make one.”`,
+`To me, these words represent courage, determination, and the willingness to create our own path when none exists. But they also raise a question: just because we can create our own path, does that mean we are choosing the right one?`,
+`Anime is often seen as entertainment filled with action, adventure, and fictional characters. However, sometimes these stories make us question things we rarely think about in real life. Attack on Titan and One Piece are two such stories. Beneath their battles and adventures lie deeper questions about freedom, morality, hatred, and human nature.`,
+`In Attack on Titan, Eren Yeager desires freedom more than anything else. He wants to escape the walls that restrict his world. His words, “Because I was born into this world,” express his belief in his right to live freely. However, as his journey continues, his pursuit of freedom leads him to take away the freedom of others. This makes us wonder: can we call ourselves free if our freedom comes at the cost of someone else’s?`,
+`In contrast, One Piece presents another perspective through Luffy, whose dream of freedom is reflected in his words: “I don’t want to conquer anything. I just think the guy with the most freedom in this whole ocean is the Pirate King!” Although both characters seek freedom, their journeys make us think about what freedom truly means. Perhaps freedom is not simply doing whatever we want. It is also recognising that other people have the right to choose their own paths.`,
+`This leads us to another interesting question: can someone be both a hero and a villain? We usually divide people into two categories. Heroes do good things, while villains do bad things. However, is human nature really that simple? Eren may be a hero to some and a villain to others. His experiences help us understand his choices, but understanding his reasons does not automatically justify his actions. Perhaps the difference between a hero and a villain depends not only on their intentions but also on the consequences of their decisions.`,
+`Itachi from Naruto expresses a similar philosophical idea: “People live their lives bound by what they accept as correct and true.” Think about that for a moment. What if something we believe is completely right is actually wrong from another person’s perspective? Our surroundings and experiences influence our thinking, but they do not remove our responsibility for our choices. Understanding someone is not the same as agreeing with them. Empathy does not erase accountability.`,
+`But society doesn’t just shape our identity; it can also shape our desires. The Pygmalion Effect shows how others’ expectations can influence our behaviour and shape who we become. We see this in Naruto, who grows up being judged by his village before people understand him. Their expectations influence how they treat him, but he refuses to let their judgments define his future. This makes me wonder: how much of our identity is truly ours, and how much is shaped by others?`,
+`The same question applies to our dreams. In One Piece, Luffy grows up admiring Shanks, whose life as a pirate inspires him. The legacy of Gol D. Roger also makes the title of Pirate King a symbol of adventure and freedom. These influences help shape Luffy’s dream, but he gives that dream his own meaning: becoming the Pirate King means becoming the freest person on the sea. Yet, if Luffy had never met Shanks or learned about the world of pirates, would he have dreamed of the same future? Perhaps not. Luffy chooses to pursue his dream, but the experiences that helped create it were not entirely his choice. This makes me wonder: if the world influences what we desire, are we truly free to choose our desires, or only free to pursue them? Perhaps freedom does not mean living without influence; perhaps it means understanding those influences and deciding for ourselves what kind of life we want to lead.`,
+`Another perspective comes from the sociologist Émile Durkheim, whose ideas encourage us to question how society shapes our lives. This reminds me of the world of Attack on Titan, where people grow up believing that the walls protect them and that the world beyond them is their enemy. Their understanding of the world is shaped by what they are taught, what they experience, and what they fear. But what happens when the truth is different from what we have always believed?`,
+`We may not live behind physical walls like Eren and the people of Paradis, but we can build invisible walls from society’s expectations, traditions, and beliefs. We may follow certain rules simply because everyone around us follows them. We may accept certain ideas because questioning them feels uncomfortable. If we never examine these beliefs for ourselves, are we really free, or are we simply living within boundaries created by others?`,
+`Perhaps true freedom begins when we become aware of these invisible walls. Like Eren, we may want to break free from everything that restricts us. Like Luffy, we may dream of living without being controlled by others. And like Naruto, we may struggle to separate our true identity from the way society treats us. But breaking every rule is not necessarily freedom, and rejecting every expectation does not automatically make us independent. The real challenge is to understand which beliefs help us grow and which ones hold us back. We can respect our families, learn from our teachers, and listen to our friends without blindly accepting everything they believe. Are we really free when we follow every expectation without question, or does freedom begin when we find the courage to think for ourselves?`,
+`However, questioning our beliefs is only one part of the struggle. We must also question what we do with the freedom we gain. One of the most disturbing things about human nature is how easily the desire for justice can turn into revenge. Someone hurts us, so we want to hurt them back. They respond, and the conflict continues. Eventually, both sides may believe they are fighting for what is right, even when their actions create more suffering.`,
+`In Attack on Titan, hatred and fear pass from one generation to another. People who believe they are protecting themselves may become the source of another person’s suffering. This reminds me of a powerful idea from Naruto: “Those who do not understand true pain can never understand true peace.” — Pain (Nagato).`,
+`Pain can help us understand others, but it can also make us want to inflict the same pain on them. The important question is whether we use our suffering to develop understanding or allow it to create more hatred. We see similar patterns in real life, too. Sometimes, people become so focused on fighting what they hate that they slowly begin to resemble it. In trying to escape one form of oppression, they may create another.`,
+`This brings me back to the quote: “If there is no path to find, I will make one.” Creating a path requires courage, but choosing a path that does not create more suffering requires wisdom. The courage to create a path matters, but the wisdom to choose the right path matters just as much. Freedom gives us the ability to make choices, but those choices reveal the kind of people we become.`,
+`Ultimately, fictional characters cannot make our decisions for us, but they can help us see the world from different perspectives. Luffy reminds us of the importance of freedom and standing against oppression. Eren challenges us to think about fear, revenge, and the consequences of our choices, while Itachi makes us question the difference between truth and belief. Naruto reminds us that other people’s judgments need not define us, even though their expectations may influence us. Together, these characters show us that our circumstances influence who we become, but they do not have to determine who we remain.`,
+`Maybe the most important battle is not against a powerful enemy outside us, but against the hatred, fear, and prejudice we carry within ourselves. So, before asking who the real villain is, perhaps we should ask ourselves: are we protecting our freedom while respecting the freedom of others? Are we trying to understand people, or simply finding reasons to hate them? Are our choices breaking the cycle of hatred, or continuing it?`,
+`Perhaps true freedom is not just the power to choose our own path. It is the courage to question the beliefs that shape us, the wisdom to take responsibility for our choices, and the understanding that our freedom should never become another person’s prison. After all, what is the value of finding our own freedom if, along the way, we become the reason someone else loses theirs?`];
+const EDGE_FUNCTION_URL="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+/* ===== END OF EDITABLE BLOCK ===== */
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const EM=['💯','🤗','🔥','👍','😕','🙁','🫩','👎'];
+const STOP=new Set('about above after again against also because been before being below between both could does doing down during each even every from further have having here hers herself himself into itself just more most much must myself once only other ours over same should some such than that their theirs them then there these they this those through under until very were what when where which while whom will with would your yours anyone someone something everything anything'.split(' '));
+function sents(t){t=t.replace('Gol D. Roger','Gol D.\u00a0Roger');const o=[];let s='',q=0;
+ for(let i=0;i<t.length;i++){const c=t[i];s+=c;if(c=='“')q=1;else if(c=='”')q=0;
+  if('.?!'.includes(c)){if(t[i+1]=='”'){s+='”';i++;q=0}
+   if(!q&&(i+1>=t.length||(t[i+1]==' '&&t[i+2]!='—'))){o.push(s.trim());s=''}}}
+ if(s.trim())o.push(s.trim());return o.map(x=>x.replace('\u00a0',' '))}
+const pages=[];
+P.forEach(par=>{let cur=[],w=0;const fl=()=>{if(cur.length){pages.push({t:cur.join(' '),first:!pages.length||!pages._f});pages._f=1;cur=[];w=0}};
+ sents(par).forEach(s=>{const n=s.split(/\s+/).length;if(cur.length&&w+n>MAX_WORDS)fl();cur.push(s);w+=n;if(w>=MIN_WORDS)fl()});fl();pages._f=0});
+const N=pages.length;
+
+/* ---- automatic cloze builder ---- */
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuf(a,r){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const uniq=a=>{const s=new Set();return a.filter(w=>{const k=w.toLowerCase();if(s.has(k))return false;s.add(k);return true})};
+const lc=w=>w[0]==w[0].toLowerCase(),noAp=w=>!/[’']/.test(w);
+const ALL=uniq((P.join(' ').match(/[A-Za-z]{4,}/g)||[]).filter(w=>!STOP.has(w.toLowerCase())));
+function build(i,att){
+ const text=pages[i].t,r=rng(i*977+att*131+7);
+ const W=[...text.matchAll(/[A-Za-z]+(?:[’'][A-Za-z]+)?/g)].map(m=>({w:m[0],i:m.index}));
+ let cur=0;const rg=sents(text).map(s=>{const a=text.indexOf(s,cur);cur=a+s.length;return[a,cur]});
+ W.forEach(x=>x.s=Math.max(0,rg.findIndex(([a,b])=>x.i>=a&&x.i<b)));
+ const ok=f=>W.filter(x=>noAp(x.w)&&!STOP.has(x.w.toLowerCase())&&f(x));
+ let c=ok(x=>x.w.length>=4&&lc(x.w));
+ if(c.length<BLANKS)c=ok(x=>x.w.length>=4);
+ if(c.length<BLANKS)c=ok(x=>x.w.length>=3);
+ const seen=new Set();c=c.filter(x=>{const k=x.w.toLowerCase();if(seen.has(k))return false;seen.add(k);return true});
+ const bs={};c.forEach(x=>(bs[x.s]=bs[x.s]||[]).push(x));
+ const keys=shuf(Object.keys(bs),r),pick=[];
+ for(let k=0;keys.length&&pick.length<Math.min(BLANKS,c.length)&&k<200;k++){
+  const arr=bs[keys[k%keys.length]].filter(x=>!pick.includes(x));
+  if(arr.length)pick.push(arr[Math.floor(r()*arr.length)])}
+ pick.sort((a,b)=>a.i-b.i);
+ return pick.map(x=>{
+  const lw=x.w.toLowerCase(),same=y=>noAp(y.w)&&y.w.length>=3&&y.w.toLowerCase()!=lw&&lc(y.w)==lc(x.w)&&!STOP.has(y.w.toLowerCase());
+  let pool=uniq(W.filter(y=>y.s==x.s&&same(y)).map(y=>y.w));
+  if(pool.length<2)pool=uniq([...pool,...W.filter(same).map(y=>y.w)]);
+  if(pool.length<2)pool=uniq([...pool,...ALL.filter(w=>w.toLowerCase()!=lw)]);
+  return{i:x.i,w:x.w,o:shuf([x.w,...shuf(pool,r).slice(0,2)],r)}})}
+
+/* ---- state ---- */
+let KEY='',S={pg:0,fs:20,C:{},R:{},D:{},cor:0,wr:0,T:0,sent:0},R={att:0,bl:[],k:0,lock:false},tt=0,playerName='Guest',playerDept='Unknown',elapsedSeconds=0;
+const save=()=>{if(!KEY)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(tt);tt=setTimeout(()=>e.style.display='none',2200)}
+function fit(){const ps=$('#ps'),tx=$('#tx');let f=S.fs;for(;;){tx.style.setProperty('--fs',f+'px');if(tx.offsetHeight<=ps.clientHeight||f<=11)break;f--}return f}
+function textHTML(){const t=pages[S.pg].t;if(S.D[S.pg])return esc(t);
+ let h='',pos=0;R.bl.forEach((b,n)=>{h+=esc(t.slice(pos,b.i))+(n<R.k?`<span class="bl ok">${esc(b.w)}</span>`:`<span class="bl${n==R.k?' cur':''}"></span>`);pos=b.i+b.w.length});
+ return h+esc(t.slice(pos))}
+function drawText(){const p=$('#pt');p.innerHTML=textHTML();fit()}
+function drawOpts(){const o=$('#op');
+ if(S.D[S.pg]){o.innerHTML=`<div class="msg good">✓ All correct! Tap ${S.pg==N-1?'Finish':'Next'} after adding your comments.</div>`;return}
+ o.innerHTML=R.bl[R.k].o.map(w=>`<button class="opt" data-w="${esc(w)}">${esc(w)}</button>`).join('')}
+function drawRx(){$('#rs').textContent=(S.R[S.pg]||[]).join('')}
+function drawNav(){$('#nx').disabled=!S.D[S.pg]}
+function render(){const i=S.pg,p=pages[i];
+ if(!S.D[i]){R.bl=build(i,R.att);R.k=0}
+ R.lock=false;
+ $('#pn').textContent=(i+1)+' / '+N;$('#pr').style.width=((i+1)/N*100)+'%';
+ $('#tx').innerHTML=(i==0?`<h1>${esc(TITLE)}</h1><div class="by">${esc(BY)}</div>`:'')+`<p id="pt"${/^“[^”]*”$/.test(p.t)?' class="q"':''}></p>`;
+ $('#cm').value=S.C[i]||'';
+ $('#pv').disabled=i==0;$('#nx').textContent=i==N-1?'Finish ✓':'Next →';
+ drawRx();drawOpts();drawNav();drawText()}
+function go(d){const j=S.pg+d;if(j<0||j>=N||R.lock)return;S.pg=j;R.att=0;save();render()}
+$('#pv').onclick=()=>go(-1);
+$('#nx').onclick=()=>{if(!S.D[S.pg])return;S.pg==N-1?finish():go(1)};
+function size(d){S.fs=Math.max(14,Math.min(34,S.fs+d));save();const f=fit();if(d>0&&f<S.fs)toast('Biggest that fits this page')}
+$('#fm').onclick=()=>size(-2);$('#fp').onclick=()=>size(2);
+
+/* ---- answering ---- */
+$('#op').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b||R.lock)return;
+ const bl=R.bl[R.k];
+ if(b.dataset.w===bl.w){S.cor++;R.k++;
+  if(R.k>=R.bl.length){S.D[S.pg]=1;save();drawText();drawOpts();drawNav();toast('Perfect run ✓');return}
+  save();drawText();drawOpts()}
+ else{S.wr++;R.lock=true;save();b.classList.add('bad');$('#pt').classList.add('shake');
+  setTimeout(()=>{R.att++;toast('Not quite. Read it again and restart this page.');render()},900)}});
+
+/* ---- comments + emoji string ---- */
+const ct=$('#cm');
+ct.addEventListener('input',e=>{S.C[S.pg]=e.target.value;save()});
+ct.addEventListener('focus',()=>{document.body.classList.add('ty');setTimeout(()=>{scrollTo(0,0);fit()},300)});
+ct.addEventListener('blur',()=>{document.body.classList.remove('ty');setTimeout(fit,100)});
+document.querySelector('.dn').addEventListener('pointerdown',e=>e.preventDefault());
+document.querySelector('.dn').onclick=()=>ct.blur();
+$('#rx .em').innerHTML=EM.map(e=>`<button data-e="${e}">${e}</button>`).join('')+'<button class="x" data-e="" aria-label="Remove last emoji">⌫</button>';
+$('#rx .em').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const a=S.R[S.pg]=S.R[S.pg]||[];
+ if(b.dataset.e){if(a.length<40)a.push(b.dataset.e)}else a.pop();save();drawRx()});
+
+/* ---- viewport ---- */
+const vv=window.visualViewport;
+function vh(){document.documentElement.style.setProperty('--vh',(vv?vv.height:innerHeight)+'px');scrollTo(0,0);fit()}
+(vv||window).addEventListener('resize',vh);vh();
+
+/* ---- send scores ---- */
+function finish(){
+ if(!S.sent){S.sent=1;save();
+  fetch(EDGE_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({
+   student_name:playerName,department:playerDept,correct:S.cor,wrong:S.wr,time_spent:elapsedSeconds,quest_id:QUEST_ID})}).catch(()=>{S.sent=0;save()});
+  toast('Quest complete! Score sent ✓')}
+ else toast('Quest complete ✓ (score already sent)')}
+
+function boot(){
+ if(window.GH){playerName=window.GH.name||window.GH.username||'Student';playerDept=window.GH.dept||'Department Unspecified'}
+ else{playerName=localStorage.getItem('questPlayerName')||'Test Student';playerDept=localStorage.getItem('questPlayerDept')||'CSE'}
+ $('#who').textContent=playerName+' · '+playerDept;
+ KEY='quest-'+QUEST_ID.replace(/\W/g,'')+'-'+playerName;
+ try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)S={...S,...s}}catch(e){}
+ if(S.pg>=N)S.pg=0;
+ elapsedSeconds=S.T||0;render();
+ setInterval(()=>{if(document.visibilityState=='visible'){S.T=(S.T||0)+1;elapsedSeconds=S.T;if(S.T%5==0)save()}},1000);
+}
+const go0=()=>window.GH?boot():setTimeout(boot,500);
+document.readyState=='loading'?addEventListener('DOMContentLoaded',go0):go0();
+if(document.fonts)document.fonts.ready.then(fit);
+</script></body></html>
