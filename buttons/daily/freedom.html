@@ -215,13 +215,46 @@ const vv=window.visualViewport;
 function vh(){document.documentElement.style.setProperty('--vh',(vv?vv.height:innerHeight)+'px');scrollTo(0,0);fit()}
 (vv||window).addEventListener('resize',vh);vh();
 
+ /* ---- downloadable report ---- */
+function report(){
+ const rows=pages.map((p,i)=>`<section>
+  <h3>Page ${i+1}</h3>
+  <p class="t">${esc(p.t)}</p>
+  <p class="c"><b>✏️ My comments:</b><br>${S.C[i]?esc(S.C[i]).replace(/\n/g,'<br>'):'<i>(none)</i>'}</p>
+  <p class="e"><b>Reaction:</b> <span>${esc((S.R[i]||[]).join('')||'—')}</span></p>
+ </section>`).join('');
+ return `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(TITLE)} – ${esc(playerName)}</title>
+<style>
+body{font:16px/1.6 Georgia,serif;max-width:720px;margin:0 auto;padding:20px;background:#faf8f4;color:#1f1d1a}
+h1{margin:0 0 4px}.meta{color:#6b665e;font:14px system-ui,sans-serif;margin-bottom:18px}
+section{background:#fff;border:1px solid #e4dfd6;border-radius:12px;padding:12px 16px;margin:12px 0}
+h3{margin:0 0 6px;font:700 13px system-ui,sans-serif;color:#4f46e5}
+.t{margin:0 0 8px}.c,.e{margin:6px 0;font-family:system-ui,sans-serif}.e span{font-size:22px}
+@media(prefers-color-scheme:dark){body{background:#17160f;color:#ece8df}section{background:#23211a;border-color:#38352b}}
+</style></head><body>
+<h1>${esc(TITLE)}</h1>
+<div class="meta">${esc(BY)}<br>${esc(playerName)} · ${esc(playerDept)} · ${esc(QUEST_ID)}<br>
+Correct: ${S.cor} · Wrong: ${S.wr} · Time: ${Math.floor(elapsedSeconds/60)}m ${elapsedSeconds%60}s</div>
+${rows}
+</body></html>`}
+
+function downloadReport(){
+ const blob=new Blob([report()],{type:'text/html'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=(QUEST_ID+'-'+playerName).replace(/[^\w\-]+/g,'_')+'.html';
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
 /* ---- send scores ---- */
 function finish(){
  if(!S.sent){S.sent=1;save();
   fetch(EDGE_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({
    student_name:playerName,department:playerDept,correct:S.cor,wrong:S.wr,time_spent:elapsedSeconds,quest_id:QUEST_ID})}).catch(()=>{S.sent=0;save()});
-  toast('Quest complete! Score sent ✓')}
- else toast('Quest complete ✓ (score already sent)')}
+ toast('Quest complete! Score sent ✓ Downloading your work…')}
+ else toast('Quest complete ✓ Downloading your work…');
+ downloadReport();
 
 function boot(){
  if(window.GH){playerName=window.GH.name||window.GH.username||'Student';playerDept=window.GH.dept||'Department Unspecified'}
