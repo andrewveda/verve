@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Food for Thought: Daily Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef0ec;--fg:#14181a;--mut:#5d655f;--card:#f8f9f6;--bd:#d3d8d0;--br:#8a6d2f;--brt:#fff;--sq:rgba(20,24,26,.07);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1214;--fg:#e9e6dc;--mut:#98a09a;--card:#171b1e;--bd:#2a3034;--br:#c9a96a;--brt:#14181a;--sq:rgba(233,230,220,.06);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1214;--fg:#e9e6dc;--mut:#98a09a;--card:#171b1e;--bd:#2a3034;--br:#c9a96a;--brt:#14181a;--sq:rgba(233,230,220,.06);color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 Georgia,"Times New Roman",serif;min-height:100%;
+ padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+.board{position:absolute;inset:0 0 auto;height:300px;pointer-events:none;
+ background:conic-gradient(var(--sq) 25%,transparent 0 50%,var(--sq) 0 75%,transparent 0) 0 0/44px 44px;
+ -webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent)}
+main{position:relative;max-width:540px;margin:0 auto;padding:44px 22px 56px}
+.knight{width:84px;height:84px;display:grid;place-items:center;font-size:56px;line-height:1;border:1px solid var(--br);border-radius:6px;color:var(--br);background:var(--card);margin:0 0 26px}
+h1{font:600 clamp(40px,12vw,56px)/1.02 "Cormorant Garamond",Georgia,serif;margin:0 0 14px;letter-spacing:-.01em}
+.lede{font-size:19px;line-height:1.55;color:var(--mut);margin:0 0 30px}
+.acts{display:grid;gap:12px;margin:32px 0 36px}
+.btn{display:flex;align-items:center;justify-content:center;min-height:56px;padding:0 20px;border-radius:10px;font:600 17px system-ui,-apple-system,sans-serif;text-decoration:none;text-align:center;border:1.5px solid var(--br);color:var(--fg);background:transparent;-webkit-tap-highlight-color:transparent}
+.btn.pri{background:var(--br);color:var(--brt)}
+.btn:active{transform:scale(.985)}
+.btn:focus-visible{outline:3px solid var(--br);outline-offset:3px}
+h2{font:700 30px/1.15 "Cormorant Garamond",Georgia,serif;margin:0 0 12px}
+section{margin:0 0 46px}
+p{margin:0 0 14px}
+ol{list-style:none;margin:0;padding:0}
+ol li{display:grid;grid-template-columns:2.2em 1fr;gap:2px 6px;padding:14px 0;border-top:1px solid var(--bd)}
+ol li:last-child{border-bottom:1px solid var(--bd)}
+ol li::before{counter-increment:mv;content:counter(mv) ".";font:700 24px/1.2 "Cormorant Garamond",Georgia,serif;color:var(--br)}
+ol{counter-reset:mv}
+ol b{display:block;font-weight:700}
+ol span{color:var(--mut);font-size:16px;line-height:1.55}
+.hl{color:var(--fg);font-weight:600;text-decoration:underline;text-decoration-color:var(--br);text-underline-offset:3px}
+.sub-inline-btn{margin:12px 0 4px}
+.foot{text-align:center;color:var(--mut);font-size:15px;font-style:italic;margin:0}
+.foot span{display:block;font-size:22px;font-style:normal;color:var(--br);margin-bottom:6px}
+@media (min-width:600px){main{padding-top:72px}}
+</style></head><body>
+<div class="board" aria-hidden="true"></div>
+<main>
+ <div class="knight" aria-hidden="true">♞</div>
+ <h1>Food for Thought</h1>
+ <p class="lede">Today’s position: <em>The Enemy Within: When Freedom Becomes a Prison.</em> Read it slowly, play it carefully.</p>
+
+ <section>
+  <h2>Instructions</h2>
+  <ol>
+   <li><div><b>Read the page.</b><span>Take in the passage before you touch anything.</span></div></li>
+   <li><div><b>Blanks fill from left to right.</b><span>Tap the word that fits the highlighted gap. <mark class="hl">Blanks fill from left to right.</mark></span></div></li>
+   <li><div><b>Touch-move rule.</b><span>One wrong tap and the page restarts with fresh blanks. Only a clean first-try run unlocks Next.</span></div></li>
+   <li><div><b>Leave a note.</b><span>Jot a comment and tap emojis for how the page made you feel. Tap as many as you like.</span></div></li>
+   <li><div><b>Submit.</b><span>When you have finished, download the quest HTML and upload it to your <b>Pages of Progress</b> repository on GitHub.</span><a class="btn sub-inline-btn" href="https://andrewveda.com/verve/buttons/daily/freedom" download="food-for-thought-freedom.html">Download the quest HTML</a></div></li>
+  </ol>
+ </section>
+
+ <div class="acts">
+  <a class="btn pri" href="https://andrewveda.com/verve/buttons/daily/freedom">Begin today’s quest</a>
+  <a class="btn" href="https://andrewveda.com/verve/buttons/daily/article">Read the original article</a>
+ </div>
+
+ <p class="foot"><span aria-hidden="true">♟</span>Live long and Prosper!</p>
+</main>
+</body></html>
