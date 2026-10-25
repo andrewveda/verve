@@ -174,7 +174,7 @@ $('#op').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b||R.
   if(R.k>=R.bl.length){S.D[S.pg]=1;save();drawText();drawOpts();drawNav();toast('Perfect run ✓');return}
   save();drawText();drawOpts()}
  else{S.wr++;R.lock=true;save();b.classList.add('bad');$('#pt').classList.add('shake');
-  setTimeout(()=>{R.att++;toast('Not quite. Read it again and restart this page.');render()},900)}});
+  setTimeout(()=>{R.att++;toast('Not quite.');render()},250)}});
 
 /* ---- comments + emoji string ---- */
 const ct=$('#cm');
