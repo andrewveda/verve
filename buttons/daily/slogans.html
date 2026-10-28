@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Slogan Studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="../../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+input,textarea{user-select:text;-webkit-user-select:text}
+:root{--paper:#f3ead4;--card:#fffbf2;--line:#e3d5b0;--ink:#2d2620;--muted:#8c7c62;--forest:#2f5233;--moss:#6f8f5a;--clay:#b5651d;--gold:#c9a227;--rust:#a4392c;--cheat:#dc2626;--success:#10b981;--sh:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);--shm:0 2px 6px rgba(45,38,32,.1),0 10px 26px rgba(45,38,32,.12)}
+html,body{height:100%;overscroll-behavior:none;touch-action:manipulation}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);display:flex;flex-direction:column;align-items:center;background-image:radial-gradient(ellipse 70% 50% at 12% 8%,rgba(111,143,90,.14),transparent 60%),radial-gradient(ellipse 60% 45% at 92% 88%,rgba(181,101,29,.1),transparent 60%)}
+.cheat-overlay{display:none;position:fixed;inset:0;background:rgba(220,38,38,.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff}
+.cheat-overlay.show{display:flex}
+.cheat-overlay h2{font-family:'Fraunces',serif;font-size:2rem;margin-bottom:12px}
+.cheat-overlay p{font-size:1.1rem;margin-bottom:24px;max-width:400px;line-height:1.5}
+.toast{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%) translateY(-140px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-size:.85rem;font-weight:600;z-index:400;transition:transform .3s;box-shadow:var(--shm);max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}.toast.cheat{background:var(--cheat)}.toast.gold{background:var(--gold)}
+.security-notice{background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px;font-size:.75rem;color:var(--cheat);text-align:left}
+.security-notice strong{display:block;margin-bottom:4px;font-size:.8rem}
+.screen{display:none;flex-direction:column;align-items:center;width:100%;height:100dvh}
+.screen.active{display:flex}
+#nameFormScreen,#endScreen{overflow-y:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 20px;border:none;border-radius:14px;font-size:.95rem;font-weight:700;font-family:inherit;cursor:pointer;text-transform:uppercase;letter-spacing:.03em}
+.btn-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;box-shadow:0 4px 16px rgba(47,82,51,.25)}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.5}
+.gate-wrap{width:100%;max-width:440px;margin:auto;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 18px)}
+.gate-card,.end-card{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:26px 20px 22px;box-shadow:0 20px 60px rgba(45,38,32,.14);display:flex;flex-direction:column;gap:12px;animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;text-align:center}
+.hero-text,.end-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.9rem;color:var(--forest);line-height:1.1}
+.hero-author{font-size:.85rem;margin-top:6px;color:var(--clay);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.tips{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:12px 14px;text-align:left;font-size:.8rem;line-height:1.7;color:var(--forest);font-weight:600}
+.tips b{display:block;font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.chip{background:#fffdf7;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;font-size:.85rem;display:flex;align-items:center;gap:12px}
+.chip img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--forest)}
+.col{display:flex;flex-direction:column;width:100%;max-width:520px;height:100dvh;padding:calc(env(safe-area-inset-top) + 8px) 12px calc(env(safe-area-inset-bottom) + 10px);gap:8px}
+.top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:var(--forest)}.brand span{color:var(--rust)}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-size:1.1rem;box-shadow:var(--sh)}
+.timer-pill{background:var(--card);border:1.5px solid var(--line);border-radius:99px;padding:8px 14px;font-family:'Space Mono',monospace;font-size:.9rem;font-weight:700;color:var(--forest)}
+.stat-strip{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;box-shadow:var(--sh);display:flex;justify-content:space-between;align-items:center}
+.stat-nums{font-family:'Space Mono',monospace;font-size:.78rem;color:var(--muted);font-weight:700}
+.stat-nums b{color:var(--clay);font-size:1.1em;margin:0 2px}
+.cheat-counter{display:flex;align-items:center;gap:4px;background:#fef2f2;color:var(--cheat);padding:3px 9px;border-radius:20px;font-size:.75rem;font-weight:700;border:1px solid #fecaca}
+.cheat-counter.active{background:var(--cheat);color:#fff;animation:shake .5s}
+.bar{height:7px;background:#e8dcc0;border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--moss),var(--gold));transition:width .4s}
+.card{flex:1;min-height:0;background:var(--card);border:1.5px solid var(--line);border-radius:18px;box-shadow:var(--shm);padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;position:relative}
+.card.in{animation:cardPop .35s cubic-bezier(.2,1.4,.4,1)}
+.snum{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ttl{font-family:'Fraunces',serif;font-weight:700;font-size:1.3rem;color:var(--forest);line-height:1.2}
+.sub{font-size:.8rem;color:var(--muted);line-height:1.45}
+label{font-size:.72rem;font-weight:700;color:var(--clay);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px}
+.inp{width:100%;border:2px solid var(--line);background:#fffdf7;border-radius:12px;padding:10px 12px;font-family:inherit;font-size:.95rem;color:var(--ink);outline:none;resize:none}
+.inp:focus{border-color:var(--forest)}
+.wc{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);text-align:right;margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.cp{border:2px solid var(--line);background:#fffdf7;border-radius:99px;padding:8px 14px;font-size:.82rem;font-weight:700;color:var(--ink);font-family:inherit}
+.cp.on{background:var(--forest);border-color:var(--forest);color:#fff}
+.dv{border:2px solid var(--line);background:#fffdf7;border-radius:14px;padding:10px 12px;text-align:left;font-family:inherit;color:var(--ink);width:100%;display:block}
+.dv b{font-size:.92rem;color:var(--forest)}.dv span{display:block;font-size:.75rem;color:var(--muted);margin-top:2px;line-height:1.35}
+.dv em{display:block;font-family:'Fraunces',serif;font-style:normal;font-weight:700;font-size:.85rem;color:var(--clay);margin-top:3px}
+.dv.on{border-color:var(--forest);background:#eaf3e4}
+.dr{display:flex;gap:8px;align-items:flex-start}
+.star{flex:none;width:42px;height:42px;border-radius:12px;border:2px solid var(--line);background:#fffdf7;font-size:1.15rem;margin-top:2px;opacity:.55}
+.star.on{opacity:1;border-color:var(--gold);background:#fdf5d6}
+.ck{display:flex;gap:10px;align-items:flex-start;border:2px solid var(--line);background:#fffdf7;border-radius:12px;padding:10px;font-size:.82rem;font-weight:600;text-align:left;width:100%;font-family:inherit;color:var(--ink);line-height:1.35}
+.ck i{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid var(--moss);display:flex;align-items:center;justify-content:center;font-style:normal;color:#fff;font-size:.8rem}
+.ck.on{background:#eaf3e4;border-color:var(--forest)}.ck.on i{background:var(--forest)}
+.prev{background:#faf5e6;border:1.5px dashed #d8c69a;border-radius:14px;padding:14px;text-align:center;font-family:'Fraunces',serif;font-weight:900;font-size:1.35rem;color:var(--forest);line-height:1.3}
+.nav{display:flex;gap:8px}.nav .btn{width:auto;flex:1}.nav #backBtn{flex:.45}
+.note{background:#fffdf7;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.78rem;line-height:1.5;text-align:left;color:var(--forest);font-weight:600}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes cardPop{from{transform:translateY(14px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+@keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes gemPop{50%{transform:scale(1.3) rotate(10deg);color:var(--gold)}}
+.gem-pop{animation:gemPop .5s}
+@keyframes flame{50%{transform:scale(1.25)}}
+.flame{display:inline-block;animation:flame .5s}
+.end-subtitle{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);text-transform:uppercase}
+.end-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat-box{background:var(--paper);border-radius:12px;padding:12px 4px;border:1.5px solid var(--line)}
+.stat-num{font-family:'Fraunces',serif;font-size:1.45rem;font-weight:700;color:var(--forest);line-height:1}
+.wrong-val{color:var(--rust)}.gem-val{color:var(--gold)}
+.stat-lbl{font-family:'Space Mono',monospace;font-size:.55rem;color:var(--muted);text-transform:uppercase;margin-top:4px}
+.cheat-report{background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px;text-align:left}
+.cheat-report h4{color:var(--cheat);font-size:.8rem;text-transform:uppercase;margin-bottom:8px}
+.cheat-report ul{list-style:none;font-size:.8rem;color:var(--muted)}.cheat-report li{padding:3px 0}
+.end-btn-row{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+</style>
+<base target="_blank">
+</head>
+<body oncontextmenu="return false;">
+<div class="cheat-overlay" id="cheatOverlay"><h2>⚠ Security Alert</h2><p id="cheatMessage"></p><button class="btn" style="background:#fff;color:var(--cheat);width:auto" onclick="resumeTest()">I Understand — Resume Test</button></div>
+<div class="toast" id="toast"></div>
+
+<div class="screen active" id="nameFormScreen"><div class="gate-wrap"><div class="gate-card">
+  <div><div class="hero-text">Write a slogan<br>people remember.</div><div class="hero-author">✍️ Slogan Studio</div></div>
+  <div class="tips"><b>Quick Tips</b>✔ Keep it short: 7 words or fewer<br>✔ Use rhyme, repetition or alliteration<br>✔ Speak to one audience<br>✔ Say it aloud before you finish</div>
+  <div class="tips" style="background:#f1f7ee"><b>5 steps</b>1️⃣ Product &nbsp; 2️⃣ Audience &nbsp; 3️⃣ Device<br>4️⃣ Draft three slogans &nbsp; 5️⃣ Polish and check<br>💾 At the end, download your slogan page and upload it to your <u>Pages of Progress</u> repository.</div>
+  <div class="chip"><img id="candidateAvatar" src="https://via.placeholder.com/150" alt="Avatar"><div><strong id="candidateName">Loading User...</strong><br><span id="candidateDept" style="color:var(--muted);font-size:.75rem">Verifying GitHub Auth...</span></div></div>
+  <div class="security-notice"><strong>🔒 Secure Test Environment</strong>This test is actively monitored. Switching tabs, minimizing the window, pasting text or attempting to copy content will be recorded in your final assessment.</div>
+  <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>✨Enter✨</button>
+</div></div></div>
+
+<div class="screen" id="quizContent"><div class="col">
+  <div class="top-bar"><div class="brand"><h1>Slogan <span>Studio</span></h1></div>
+    <div style="display:flex;gap:8px;align-items:center"><button id="muteBtn" class="icon-btn" onclick="toggleMute()">🔊</button><div class="timer-pill" id="timer">00:00</div></div></div>
+  <div class="stat-strip"><span class="stat-nums">📍 <b id="progressTracker">1 of 5</b></span><span class="stat-nums" id="streakEl">🔥 <b>0</b></span><div class="cheat-counter" id="cheatCounter"><span>🛡</span><span id="cheatCount">0</span></div><span class="stat-nums" id="gemsCounter">💎 <b>0</b></span></div>
+  <div class="bar"><i id="barFill"></i></div>
+  <div class="card" id="card"></div>
+  <div class="nav"><button class="btn btn-secondary" id="backBtn" onclick="go(-1)">← Back</button><button class="btn btn-primary" id="nextBtn" onclick="go(1)">Next →</button></div>
+</div></div>
+
+<div class="screen" id="endScreen"><div class="gate-wrap"><div class="end-card">
+  <div class="end-title">Slogan Ready!</div><div class="end-subtitle" id="endSubtitle"></div>
+  <div class="prev" id="endSlogan"></div>
+  <div class="end-stats">
+    <div class="stat-box"><div class="stat-num" id="endCorrect">0</div><div class="stat-lbl">Checks passed</div></div>
+    <div class="stat-box"><div class="stat-num wrong-val" id="endWrong">0</div><div class="stat-lbl">Not ticked</div></div>
+    <div class="stat-box"><div class="stat-num gem-val" id="endGems">0</div><div class="stat-lbl">Gems</div></div>
+    <div class="stat-box"><div class="stat-num" id="endTime">0s</div><div class="stat-lbl">Time</div></div>
+    <div class="stat-box"><div class="stat-num" id="endStreak">0</div><div class="stat-lbl">Best 🔥</div></div>
+    <div class="stat-box"><div class="stat-num" id="endWords">0</div><div class="stat-lbl">Words</div></div>
+  </div>
+  <div class="note">📤 Download your slogan page, then upload the HTML file to your <b>Pages of Progress</b> repository on GitHub.</div>
+  <div class="cheat-report"><h4>Security Report</h4><ul id="cheatList"></ul></div>
+  <div class="end-btn-row"><button class="btn btn-primary" onclick="downloadSloganPage()">💾 Download My Slogan Page</button><button class="btn btn-primary" onclick="downloadPDFReport()">📥 Download PDF Report</button><button class="btn btn-secondary" onclick="location.reload()">↻ Start Over</button></div>
+</div></div></div>
+
+<script>
+const QUEST_ID = "Quest 59";   // change to your quest number
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+/* ========== AUTH ========== */
+let playerName = "Guest", playerDept = "Unknown", playerAvatar = "";
+window.addEventListener('DOMContentLoaded', () => {
+  const ready = () => {
+    document.getElementById('candidateName').textContent = playerName;
+    document.getElementById('candidateDept').textContent = 'Department: ' + playerDept;
+    document.getElementById('startBtn').disabled = false;
+  };
+  if (window.GH) {
+    playerName = window.GH.name || window.GH.username || "Student";
+    playerDept = window.GH.dept || "Department Unspecified";
+    playerAvatar = window.GH.avatar || "";
+    if (playerAvatar) document.getElementById('candidateAvatar').src = playerAvatar;
+    ready();
+  } else {
+    setTimeout(() => {
+      playerName = localStorage.getItem("questPlayerName") || "Test Student";
+      playerDept = localStorage.getItem("questPlayerDept") || "CSE";
+      ready();
+    }, 500);
+  }
+});
+
+/* ========== AUDIO / HAPTICS / CONFETTI ========== */
+const applauseSound = new Audio('https://andrewveda.github.io/SRM-VEC-English-PWA/sounds/crowd.mp3');
+const wrongSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3');
+applauseSound.volume = .35; wrongSound.volume = .3;
+let isMuted = false;
+function toggleMute() { isMuted = !isMuted; document.getElementById('muteBtn').textContent = isMuted ? '🔇' : '🔊'; }
+function playSound(a) { if (isMuted) return; try { a.currentTime = 0; a.play().catch(() => {}); } catch (e) {} }
+function buzz(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const COLORS = ['#2f5233', '#6f8f5a', '#c9a227', '#b5651d'];
+function triggerConfetti() { confetti({ particleCount: 90, spread: 70, origin: { y: .6 }, colors: COLORS }); }
+function triggerMegaConfetti() {
+  const end = Date.now() + 3000, d = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0, colors: COLORS };
+  const r = (a, b) => Math.random() * (b - a) + a;
+  const iv = setInterval(() => {
+    const left = end - Date.now(); if (left <= 0) return clearInterval(iv);
+    const n = 50 * (left / 3000);
+    confetti({ ...d, particleCount: n, origin: { x: r(.1, .3), y: Math.random() - .2 } });
+    confetti({ ...d, particleCount: n, origin: { x: r(.7, .9), y: Math.random() - .2 } });
+  }, 250);
+}
+
+/* ========== ANTI-CHEAT ========== */
+let cheatEvents = [], cheatCount = 0, isPaused = false, testSubmitted = false;
+function initAntiCheat() {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const live = () => !testSubmitted && startTime;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && live()) { recordCheat('Tab switched / window minimized', 'tab'); showCheatOverlay('You switched tabs or minimized the window. This has been recorded.'); }
+  });
+  window.addEventListener('blur', () => { if (live() && !isPaused && !isMobile) recordCheat('Window lost focus', 'focus'); });
+  document.addEventListener('contextmenu', e => { e.preventDefault(); if (live()) { recordCheat('Right-click attempted', 'rightclick'); showToast('Right-click is disabled during the test', 'cheat'); } });
+  document.addEventListener('keydown', e => {
+    if (!live()) return;
+    if (e.key === 'F12') { e.preventDefault(); recordCheat('F12 (DevTools) pressed', 'devtools'); showToast('Developer tools are blocked', 'cheat'); }
+    if ((e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) || (e.ctrlKey && e.key === 'u')) { e.preventDefault(); recordCheat('DevTools shortcut blocked: ' + e.key, 'shortcut'); showToast('Keyboard shortcuts are restricted', 'cheat'); }
+    if (e.ctrlKey && ['s', 'p', 'a', 'c', 'v', 'x'].includes(e.key)) { e.preventDefault(); recordCheat('System shortcut: Ctrl+' + e.key, 'shortcut'); }
+  });
+  ['copy', 'paste', 'cut'].forEach(t => document.addEventListener(t, e => {
+    if (live()) { e.preventDefault(); recordCheat(t[0].toUpperCase() + t.slice(1) + ' attempted', t); showToast('Write your own words: copying is disabled', 'cheat'); }
+  }));
+  if (!isMobile) setInterval(() => {
+    if (!live() || isPaused) return;
+    const s = performance.now(); debugger; const e = performance.now();
+    if (e - s > 100) { recordCheat('Console/Debugger accessed', 'console'); showCheatOverlay('Console access detected. This incident has been logged.'); }
+  }, 3000);
+  document.addEventListener('keyup', e => { if (e.key === 'PrintScreen') { recordCheat('Screenshot/Print attempted', 'screenshot'); showToast('Screenshots are monitored', 'cheat'); } });
+}
+function recordCheat(description, type) {
+  cheatCount++;
+  cheatEvents.push({ type, description, timestamp: new Date().toISOString(), question: step + 1 });
+  document.getElementById('cheatCount').textContent = cheatCount;
+  const b = document.getElementById('cheatCounter'); b.classList.add('active'); setTimeout(() => b.classList.remove('active'), 500);
+}
+function showCheatOverlay(msg) { isPaused = true; document.getElementById('cheatMessage').textContent = msg; document.getElementById('cheatOverlay').classList.add('show'); }
+function resumeTest() { isPaused = false; document.getElementById('cheatOverlay').classList.remove('show'); showToast('Test resumed. Further violations will be flagged.'); }
+function showToast(msg, kind = '') {
+  const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast ' + kind; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ========== DATA ========== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const wc = s => (s.trim().match(/\S+/g) || []).length;
+const STEPS = ["Product", "Audience", "Device", "Draft", "Polish"];
+const AUD = ["Students", "Athletes", "Parents", "Travellers", "Professionals", "Kids", "Everyone"];
+const TONE = ["Fun", "Bold", "Calm", "Premium"];
+const DEV = [
+  { n: "Imperative", e: "👉", how: "Start with a command verb that tells people what to do.", ex: "Just do it. (Nike)", t: "Taste the ___." },
+  { n: "Alliteration", e: "🔤", how: "Start two or more nearby words with the same sound.", ex: "Forever Faster. (Puma)", t: "___ and ___, every day." },
+  { n: "Rhyme", e: "🎵", how: "End two words or phrases with matching sounds.", ex: "Utterly Butterly Delicious. (Amul)", t: "___ the way, ___ the day." },
+  { n: "Repetition", e: "🔁", how: "Repeat a key word so the idea sticks.", ex: "Have a break, have a KitKat.", t: "Have a ___, have a ___." },
+  { n: "Hyperbole", e: "🚀", how: "Make a bold, larger-than-life claim.", ex: "The Ultimate Driving Machine. (BMW)", t: "The ultimate ___." },
+  { n: "Wordplay", e: "🎭", how: "Use a pun or metaphor for a clever twist.", ex: "Red Bull gives you wings.", t: "___ gives you ___." }
+];
+const rightMessages = ["'name' is a natural copywriter!", "'name' writes words that stick!", "Brilliant thinking, 'name'!", "'name' is building a brand voice!", "Who writes great slogans? 'name'!"];
+const CHECKS = [
+  () => "It has 7 words or fewer.",
+  () => `It uses my chosen device: ${DEV[S.dev].n}.`,
+  () => "It sounds good when I say it aloud (rhythm, rhyme or repeated sounds).",
+  () => "It names my product or hints at its main benefit.",
+  () => `It speaks to ${S.aud.toLowerCase()} in a ${S.tone.toLowerCase()} tone.`,
+  () => "It is grammatically correct (imperative or simple present).",
+  () => "I would remember it after reading it once."
+];
+
+/* ========== GAME STATE ========== */
+let S = { prod: '', what: '', ben: '', aud: '', tone: '', dev: -1, d: ['', '', ''], fav: 0, final: '', ck: [] };
+let step = 0, done = [], correctCount = 0, totalWrongGuesses = 0, gemsCount = 0, streak = 0, bestStreak = 0;
+let startTime, timerInterval, elapsedSeconds = 0;
+
+function updateGems() { const g = $('gemsCounter'); g.innerHTML = `💎 <b>${gemsCount}</b>`; g.classList.add('gem-pop'); setTimeout(() => g.classList.remove('gem-pop'), 500); }
+function updateStreak() { $('streakEl').innerHTML = `<span class="${streak ? 'flame' : ''}">🔥</span> <b>${streak}</b>`; }
+
+function startQuiz() {
+  $('nameFormScreen').classList.remove('active'); $('quizContent').classList.add('active');
+  step = 0; done = []; correctCount = 0; totalWrongGuesses = 0; gemsCount = 0; streak = 0; bestStreak = 0; elapsedSeconds = 0;
+  cheatEvents = []; cheatCount = 0; testSubmitted = false;
+  S = { prod: '', what: '', ben: '', aud: '', tone: '', dev: -1, d: ['', '', ''], fav: 0, final: '', ck: [] };
+  startTime = Date.now();
+  updateGems(); updateStreak(); startTimer(); initAntiCheat(); render();
+}
+
+const inp = (id, lbl, ph, key, mx = 60) => `<div><label>${lbl}</label><input class="inp" id="${id}" maxlength="${mx}" placeholder="${ph}" value="${esc(S[key])}" oninput="S.${key}=this.value"></div>`;
+
+function render() {
+  $('progressTracker').textContent = `${step + 1} of 5`;
+  $('barFill').style.width = (step / 5 * 100) + '%';
+  $('backBtn').style.visibility = step ? 'visible' : 'hidden';
+  $('nextBtn').textContent = step === 4 ? 'Submit slogan ✓' : 'Next →';
+  let h = `<div class="snum">Step ${step + 1} · ${STEPS[step]}</div>`;
+  if (step === 0) h += `<div class="ttl">What are you selling?</div><div class="sub">Pick a real or imaginary product. Great slogans start with a clear product and one big benefit.</div>`
+    + inp('f1', 'Product name', 'e.g. Zippy Bottle', 'prod', 30) + inp('f2', 'What is it?', 'e.g. a self-cleaning water bottle', 'what', 60) + inp('f3', 'Its biggest benefit', 'e.g. fresh water, zero effort', 'ben', 60);
+  if (step === 1) h += `<div class="ttl">Who is it for?</div><div class="sub">A slogan talks to one group best.</div><label>Audience</label><div class="chips">${AUD.map(a => `<button class="cp ${S.aud === a ? 'on' : ''}" onclick="pick('aud','${a}')">${a}</button>`).join('')}</div><label style="margin-top:6px">Tone</label><div class="chips">${TONE.map(a => `<button class="cp ${S.tone === a ? 'on' : ''}" onclick="pick('tone','${a}')">${a}</button>`).join('')}</div>`;
+  if (step === 2) h += `<div class="ttl">Choose your persuasive device</div><div class="sub">Pick the trick that will make <b>${esc(S.prod)}</b> stick in memory.</div>` + DEV.map((d, i) => `<button class="dv ${S.dev === i ? 'on' : ''}" onclick="pickDev(${i})"><b>${d.e} ${d.n}</b><span>${d.how}</span><em>${d.ex}</em></button>`).join('');
+  if (step === 3) h += `<div class="ttl">Write three drafts</div><div class="sub">Use <b>${DEV[S.dev].n}</b> for <b>${esc(S.prod)}</b>. Pattern to try: <b>${DEV[S.dev].t}</b><br>Tap ⭐ to choose your favourite.</div>`
+    + S.d.map((v, i) => `<div class="dr"><div style="flex:1"><label>Draft ${'ABC'[i]}</label><textarea class="inp" rows="2" maxlength="80" id="d${i}" oninput="S.d[${i}]=this.value;$('w${i}').textContent=wc(this.value)+' words'">${esc(v)}</textarea><div class="wc" id="w${i}">${wc(v)} words</div></div><button class="star ${S.fav === i ? 'on' : ''}" onclick="S.fav=${i};render()">⭐</button></div>`).join('')
+    + `<div class="note">💡 Say each draft aloud. Cut every word you can.</div>`;
+  if (step === 4) {
+    if (!S.final) S.final = S.d[S.fav];
+    if (S.ck.length !== CHECKS.length) S.ck = CHECKS.map(() => false);
+    h += `<div class="ttl">Polish and check</div><div class="sub">Edit your favourite, then honestly tick what is true.</div><div><label>Final slogan</label><input class="inp" id="fin" maxlength="80" value="${esc(S.final)}" oninput="S.final=this.value;$('pv').textContent=this.value||'…'"></div><div class="prev" id="pv">${esc(S.final) || '…'}</div>`
+      + CHECKS.map((c, i) => `<button class="ck ${S.ck[i] ? 'on' : ''}" onclick="tick(${i})"><i>${S.ck[i] ? '✓' : ''}</i><span>${c()}</span></button>`).join('');
+  }
+  const c = $('card'); c.innerHTML = h; c.classList.remove('in'); void c.offsetWidth; c.classList.add('in'); c.scrollTop = 0;
+}
+
+function pick(k, v) { S[k] = v; buzz(10); render(); }
+function pickDev(i) { S.dev = i; if (!S.d[0].trim()) S.d[0] = DEV[i].t; buzz(10); render(); }
+function tick(i) {
+  S.ck[i] = !S.ck[i];
+  if (S.ck[i]) {
+    gemsCount++; streak++; bestStreak = Math.max(bestStreak, streak); buzz(15);
+    if (streak % 5 === 0) { gemsCount += 2; showToast(`🔥 ${streak} in a row! +2 bonus gems`, 'gold'); }
+  } else { gemsCount = Math.max(0, gemsCount - 1); streak = 0; }
+  updateGems(); updateStreak();
+  const y = $('card').scrollTop; render(); $('card').scrollTop = y;
+}
+
+function valid() {
+  if (step === 0) return wc(S.prod) >= 1 && wc(S.what) >= 2 && wc(S.ben) >= 2 ? '' : 'Fill in all three boxes first.';
+  if (step === 1) return S.aud && S.tone ? '' : 'Pick an audience and a tone.';
+  if (step === 2) return S.dev >= 0 ? '' : 'Choose a persuasive device.';
+  if (step === 3) return S.d.every(x => wc(x) >= 2) ? '' : 'Write all three drafts (2+ words each).';
+  return wc(S.final) >= 2 ? '' : 'Write your final slogan (2+ words).';
+}
+
+function go(dir) {
+  if (isPaused) return;
+  if (dir > 0) {
+    const err = valid();
+    if (err) { playSound(wrongSound); buzz([40, 30, 40]); showToast(err, 'cheat'); return; }
+    if (!done[step]) { done[step] = true; gemsCount += 2; updateGems(); showToast('✓ Step complete! +2 gems', 'gold'); }
+    if (step === 4) { showScore(); return; }
+    step++;
+  } else if (step > 0) step--;
+  render();
+}
+
+/* ========== TIMER & SCORE ========== */
+function startTimer() {
+  timerInterval = setInterval(() => {
+    if (isPaused) return;
+    elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(elapsedSeconds / 60), s = elapsedSeconds % 60;
+    $('timer').innerText = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+  }, 1000);
+}
+
+function showScore() {
+  clearInterval(timerInterval); testSubmitted = true;
+  correctCount = S.ck.filter(Boolean).length; totalWrongGuesses = CHECKS.length - correctCount;
+  playSound(applauseSound); triggerMegaConfetti();
+  $('quizContent').classList.remove('active'); $('endScreen').classList.add('active');
+  $('endSubtitle').innerText = `${playerName} · ${playerDept}`;
+  $('endSlogan').textContent = S.final;
+  $('endCorrect').innerText = correctCount; $('endWrong').innerText = totalWrongGuesses;
+  $('endGems').innerText = gemsCount; $('endTime').innerText = $('timer').innerText;
+  $('endStreak').innerText = bestStreak; $('endWords').innerText = wc(S.final);
+  $('cheatList').innerHTML = cheatEvents.length === 0
+    ? '<li style="color:var(--success)">✓ No suspicious activity detected</li>'
+    : cheatEvents.map(e => `<li>⚠ ${e.description} (Step ${e.question})</li>`).join('');
+  fetch(EDGE_FUNCTION_URL, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ student_name: playerName, department: playerDept, correct: correctCount, wrong: totalWrongGuesses, time_spent: elapsedSeconds, quest_id: QUEST_ID, cheat_count: cheatCount, cheat_events: cheatEvents })
+  }).catch(() => {});
+}
+
+/* ========== DOWNLOAD SLOGAN PAGE (for GitHub: Pages of Progress) ========== */
+function downloadSloganPage() {
+  const date = new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'long' });
+  const checks = CHECKS.map((c, i) => `<li class="${S.ck[i] ? 'y' : 'n'}">${S.ck[i] ? '✓' : '○'} ${esc(c())}</li>`).join('');
+  const drafts = S.d.map((d, i) => `<li>${i === S.fav ? '⭐ ' : ''}${esc(d)}</li>`).join('');
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(S.prod)} · Slogan by ${esc(playerName)}</title>
+<style>body{margin:0;padding:24px 16px;background:#f3ead4;font-family:Georgia,serif;color:#2d2620;display:flex;justify-content:center}main{max-width:560px;width:100%;background:#fffbf2;border:1.5px solid #e3d5b0;border-radius:20px;padding:28px 22px;box-shadow:0 12px 40px rgba(45,38,32,.14)}small{font:700 .7rem monospace;text-transform:uppercase;letter-spacing:.1em;color:#8c7c62}h1{font-size:2.1rem;line-height:1.15;color:#2f5233;margin:10px 0}h2{font-size:1rem;color:#b5651d;margin:22px 0 6px}.tag{display:inline-block;background:#2f5233;color:#fff;border-radius:99px;padding:4px 12px;font:700 .75rem sans-serif;margin:0 6px 6px 0}.tag.c{background:#b5651d}ul{padding-left:20px;line-height:1.7}li.y{color:#2f5233}li.n{color:#8c7c62}p{line-height:1.6}footer{margin-top:24px;font:italic .75rem sans-serif;color:#8c7c62}</style></head><body><main>
+<small>Slogan Studio · ${esc(QUEST_ID)}</small><h1>“${esc(S.final)}”</h1>
+<span class="tag">${esc(S.prod)}</span><span class="tag c">${DEV[S.dev].e} ${DEV[S.dev].n}</span><span class="tag">${esc(S.aud)}</span><span class="tag c">${esc(S.tone)} tone</span>
+<h2>The product</h2><p>${esc(S.prod)} is ${esc(S.what)}. Its biggest benefit: ${esc(S.ben)}.</p>
+<h2>My three drafts</h2><ul>${drafts}</ul><h2>My self-check</h2><ul>${checks}</ul>
+<footer>Written by ${esc(playerName)} (${esc(playerDept)}) on ${esc(date)} · SRM Valliammai Engineering College, Department of English</footer></main></body></html>`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+  a.download = `${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_slogan.html`;
+  document.body.appendChild(a); a.click(); a.remove();
+  showToast('Saved! Now upload it to your Pages of Progress repo.', 'gold');
+}
+
+/* ========== PDF ========== */
+function downloadPDFReport() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const reportDate = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+  doc.setFillColor(47, 82, 51); doc.rect(0, 0, 210, 45, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFont('times', 'bold'); doc.setFontSize(18);
+  doc.text('SRM VALLIAMMAI ENGINEERING COLLEGE', 105, 16, { align: 'center' });
+  doc.setFontSize(12); doc.setFont('times', 'italic'); doc.text('(Autonomous)', 105, 23, { align: 'center' });
+  doc.setFontSize(15); doc.setFont('times', 'normal'); doc.text('Department of English', 105, 31, { align: 'center' });
+  doc.setFontSize(14); doc.setFont('times', 'bold'); doc.setTextColor(201, 162, 39);
+  doc.text('Slogan Writing Assessment Report', 105, 39, { align: 'center' });
+  doc.setTextColor(0, 0, 0); doc.setFontSize(11);
+  doc.text('CANDIDATE INFORMATION', 20, 55);
+  doc.autoTable({ startY: 58, body: [['Student Name', playerName], ['Department', playerDept], ['Quest ID', QUEST_ID], ['Completed On', reportDate]],
+    theme: 'plain', styles: { fontSize: 10, font: 'times', cellPadding: 3 }, columnStyles: { 0: { fontStyle: 'bold', cellWidth: 60, textColor: [70, 70, 70] }, 1: { cellWidth: 120 } }, margin: { left: 20, right: 20 } });
+  let y = doc.lastAutoTable.finalY + 10;
+  doc.setFont('times', 'bold'); doc.text('PERFORMANCE SUMMARY', 20, y);
+  const sec = cheatCount === 0 ? 'Verified (Clean)' : `Flagged (${cheatCount} Incidents)`;
+  doc.autoTable({ startY: y + 3,
+    body: [['Checklist Items Ticked', `${correctCount} of ${CHECKS.length}`], ['Not Ticked', String(totalWrongGuesses)], ['Final Gems Earned', String(gemsCount)], ['Best Streak', String(bestStreak)],
+           ['Total Time', `${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s`], ['Security Audit', sec]],
+    theme: 'grid', styles: { fontSize: 10, font: 'times', cellPadding: 3 }, margin: { left: 20, right: 20 } });
+  y = doc.lastAutoTable.finalY + 10;
+  if (cheatCount > 0) {
+    if (y > 250) { doc.addPage(); y = 20; }
+    doc.setFont('times', 'bold'); doc.setTextColor(220, 38, 38); doc.text('SECURITY INCIDENTS LOG', 20, y); doc.setTextColor(0, 0, 0);
+    doc.autoTable({ startY: y + 3, head: [['Time', 'Step #', 'Violation Type']],
+      body: cheatEvents.map(e => [e.timestamp.split('T')[1].split('.')[0], `#${e.question}`, e.description]),
+      theme: 'grid', styles: { fontSize: 9, font: 'times', cellPadding: 2 }, headStyles: { fillColor: [220, 38, 38] }, margin: { left: 20, right: 20 } });
+  }
+  doc.addPage();
+  doc.setFont('times', 'bold'); doc.setFontSize(13); doc.setTextColor(47, 82, 51); doc.text('STUDENT SLOGAN', 20, 20);
+  doc.setFontSize(18); doc.setTextColor(181, 101, 29);
+  doc.text(doc.splitTextToSize(`"${S.final}"`, 170), 20, 30);
+  doc.autoTable({ startY: 50,
+    body: [['Product', `${S.prod}: ${S.what}`], ['Main Benefit', S.ben], ['Audience / Tone', `${S.aud} / ${S.tone}`], ['Persuasive Device', DEV[S.dev].n],
+           ['Draft A', S.d[0]], ['Draft B', S.d[1]], ['Draft C', S.d[2]], ['Favourite Draft', 'Draft ' + 'ABC'[S.fav]]],
+    theme: 'grid', styles: { fontSize: 10, font: 'times', cellPadding: 3 }, columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45 } }, margin: { left: 20, right: 20 } });
+  doc.autoTable({ startY: doc.lastAutoTable.finalY + 8, head: [['Self-check', 'Result']],
+    body: CHECKS.map((c, i) => [c(), S.ck[i] ? 'Ticked' : 'Not ticked']),
+    theme: 'grid', styles: { fontSize: 9, font: 'times', cellPadding: 2 }, headStyles: { fillColor: [47, 82, 51] }, margin: { left: 20, right: 20 } });
+  const pages = doc.getNumberOfPages();
+  for (let p = 1; p <= pages; p++) {
+    doc.setPage(p); doc.setDrawColor(201, 162, 39); doc.setLineWidth(.5); doc.line(20, 283, 190, 283);
+    doc.setFontSize(8); doc.setTextColor(128, 128, 128); doc.setFont('times', 'italic');
+    doc.text('This is a system-generated report', 105, 289, { align: 'center' });
+  }
+  doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g, '_')}_SloganStudio_Report.pdf`);
+}
+</script>
+</body>
+</html>
