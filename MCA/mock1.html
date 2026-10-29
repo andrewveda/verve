@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Placement Lab: MCA Mock Interview</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f6f3ec;--card:#fffdfa;--line:#e4dac5;--ink:#1f1b16;--mid:#4a443c;--mute:#82796e;--gold:#b38628;--forest:#234d31;--fp:rgba(35,77,49,.09);--red:#b8393a;--rp:rgba(184,57,58,.09);--fell:'IM Fell English',Georgia,serif;--sans:'Inter',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100dvh}
+button{font-family:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
+.scr{display:none;min-height:100dvh;flex-direction:column}.scr.on{display:flex}
+.col{width:100%;max-width:600px;margin:0 auto;padding:16px 16px calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+.bar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:calc(10px + env(safe-area-inset-top)) 18px 10px;background:rgba(246,243,236,.95);border-bottom:1px solid var(--line)}
+.bar b{font-family:var(--fell);font-style:italic;font-weight:400;font-size:1.1rem;color:var(--forest)}.bar small{font-size:12px;color:var(--mute)}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:20px 18px}
+h1,h3{font-family:var(--fell);font-style:italic;font-weight:400}
+h1{font-size:1.8rem;color:var(--forest);text-align:center;margin-bottom:6px}
+h3{font-size:1.3rem;line-height:1.35;margin:8px 0 14px}
+.sub{font-size:14px;color:var(--mid);text-align:center;line-height:1.5;margin-bottom:20px}
+.f{margin-bottom:14px}.f label{display:block;font-size:12px;font-weight:600;color:var(--forest);margin-bottom:5px}
+.f input,.f select,textarea{width:100%;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font:14px var(--sans);color:var(--ink);outline:none}
+.f input:focus,.f select:focus,textarea:focus{border-color:var(--forest)}
+textarea{min-height:170px;resize:vertical;line-height:1.5;font-size:15px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 18px}
+.mo{border:1.5px solid var(--line);border-radius:12px;padding:12px;text-align:left;background:var(--paper)}
+.mo.sel{border-color:var(--forest);background:var(--fp)}.mo b{display:block;font-size:14px;margin-bottom:3px}.mo span{font-size:12px;color:var(--mute);line-height:1.4}
+.btn{width:100%;padding:14px;border-radius:12px;font-size:15px;font-weight:600;background:var(--forest);color:#fff}
+.btn.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}.btn:active{transform:scale(.98)}
+.dock{background:#14110e;color:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+#dst{font-size:14px;line-height:1.45}#dst p{margin-bottom:6px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin-right:8px}.dot.p{animation:pl 1s infinite}
+@keyframes pl{50%{opacity:.25}}
+.pill{flex-shrink:0;background:var(--gold);color:#1a1610;font-weight:600;font-size:13px;padding:9px 15px;border-radius:20px}
+.hud{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mid);padding:0 2px}
+.rl{font-size:13px;font-weight:600;color:var(--forest)}.chip{display:inline-block;font-size:12px;padding:2px 9px;border-radius:10px;background:var(--fp);color:var(--forest);margin-left:6px}
+.hint{font-size:13px;color:var(--mute);margin-bottom:12px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:13px;background:#fff;border:1.5px solid var(--line);border-radius:12px;font-size:14px;line-height:1.45;color:var(--ink)}
+.opt i{font-style:normal;flex-shrink:0;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--mute)}
+.opt.sel{border-color:var(--forest);background:var(--fp)}.opt.sel i{background:var(--forest);border-color:var(--forest);color:#fff}
+.opt.ok{border-color:var(--forest);background:var(--fp)}.opt.no{border-color:var(--red);background:var(--rp)}
+.opt:disabled{opacity:.45;cursor:not-allowed}
+.why{margin-top:12px;font-size:13.5px;line-height:1.5;padding:12px 14px;border-radius:10px;background:var(--fp);color:var(--forest)}.why.bad{background:var(--rp);color:#8a2a2b}
+.slot{border:1.5px dashed #c9b98d;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:14px;line-height:1.45;cursor:pointer}
+.slot b{display:block;margin:4px 0 6px;font-weight:600}.slot div{font-size:13.5px;color:var(--mute)}
+.slot.fill{border-style:solid;border-color:var(--forest);background:var(--fp);cursor:default}.slot.fill div{color:var(--forest)}
+.tiles{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.tile{padding:12px 14px;border-radius:12px;background:#fff;border:1.5px solid var(--line);font-size:13.5px;line-height:1.45;text-align:left;color:var(--ink)}
+.tile.sel{background:var(--forest);border-color:var(--forest);color:#fff}
+.big{font-family:var(--fell);font-style:italic;font-size:3.2rem;color:var(--forest);text-align:center;line-height:1}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.gb{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}.gb b{font-family:var(--fell);font-size:1.4rem;color:var(--forest);display:block}.gb span{font-size:12px;color:var(--mute)}
+.sync{padding:11px 14px;border-radius:10px;font-size:13px;margin:12px 0}.sync.pending{background:rgba(179,134,40,.1);color:var(--gold)}.sync.ok{background:var(--fp);color:var(--forest)}.sync.fail{background:var(--rp);color:var(--red)}
+.sync button{text-decoration:underline;color:inherit;margin-left:8px;font-size:13px}
+.rv{border-top:1px solid var(--line);padding:11px 0;font-size:13.5px;line-height:1.45}.rv b{display:block}.g{color:var(--forest)}.r{color:var(--red)}
+.ov{display:none;position:fixed;inset:0;z-index:99;background:rgba(170,30,30,.95);color:#fff;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:14px}.ov.on{display:flex}.ov .btn{width:auto;background:#fff;color:#a32020;padding:12px 24px}
+.toast{position:fixed;top:12px;left:50%;transform:translate(-50%,-90px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:98;transition:transform .3s;max-width:90vw;text-align:center}.toast.on{transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){.dot.p{animation:none}}
+</style>
+</head>
+<body>
+<div class="ov" id="ov"><h1 style="color:#fff">Security alert</h1><p id="ovMsg"></p><button class="btn" onclick="resume()">Resume test</button></div>
+<div class="toast" id="toast"></div>
+
+<section class="scr on" id="gate"><div class="col" style="justify-content:center;min-height:100dvh">
+ <div class="card">
+  <h1>MCA Placement Lab</h1>
+  <p class="sub">Listen to a mock campus interview, judge the answers, then write your own pitch.</p>
+  <div class="f"><label>Your name</label><input id="nm" maxlength="60" autocomplete="off" placeholder="Enter your name"></div>
+  <div class="f"><label>Department</label><select id="dp"></select></div>
+  <div class="modes">
+   <button class="mo sel" id="mG" onclick="setMode('graded')"><b>Graded</b><span>Anti-cheat on. Score is saved to the dashboard.</span></button>
+   <button class="mo" id="mP" onclick="setMode('practice')"><b>Practice</b><span>Instant feedback after every answer. Score is not saved.</span></button>
+  </div>
+  <button class="btn" onclick="login()">Start the interview</button>
+  <p class="hint" style="margin:12px 0 0;text-align:center">Use headphones or turn your volume up. The interview is read aloud.</p>
+ </div></div></section>
+
+<section class="scr" id="quiz">
+ <div class="bar"><b>Mock interview</b><small id="sub"></small></div>
+ <div class="col">
+  <div class="dock" id="dock"><div id="dst">Ready</div><button class="pill" onclick="replay()">▶ Listen again</button></div>
+  <div class="hud"><span id="who"></span><span id="tm">00:00</span></div>
+  <div class="card" id="body"></div>
+  <button class="btn" id="nx" onclick="next()">Next question</button>
+ </div></section>
+
+<section class="scr" id="refl">
+ <div class="bar"><b>Your turn</b><small>Written pitch</small></div>
+ <div class="col"><div class="card">
+  <div class="rl">Final task</div>
+  <h3>Tell me about yourself.</h3>
+  <p class="hint">Write the answer you would give in a campus interview (60 to 90 seconds spoken, about 120 to 180 words). Name your specialism, one project with a result, and the role you want.</p>
+  <textarea id="rt" placeholder="Good morning, sir. I am…"></textarea>
+  <p class="hint" style="margin:8px 0 0" id="wc">0 words (minimum 40)</p>
+ </div><button class="btn" onclick="finish()">Finish and see my report</button></div></section>
+
+<section class="scr" id="res">
+ <div class="bar"><b>Your report</b><small id="rsub"></small></div>
+ <div class="col"><div class="card" id="rbody"></div></div></section>
+
+<script>
+/* ===== CONFIG: confirm these against your dashboard ===== */
+const sb=supabase.createClient("https://yellow-lab-4999.andrewveda.workers.dev","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE");
+const EDGE_URL="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+const QUEST_ID="Quest 60";   // TODO: set the real quest ID
+const LOG_MODE="boss";       // TODO: Listening Lab sent 'boss'; Phrasal Verbs sent none
+const SCORE_MULT=1;          // TODO: Listening Lab multiplied correct by 2
+const DEPTS=["CSI Ewart","Cyber Security","EIE","CSE-1","CSE-2","CSE-3","Mechanical Engineering","ECE-1","ECE-2","ECE-3","AI DS-1","AI DS-2","Agri and Civil","EEE","Medical Electronics","IT-1","IT-2","MCA"];
+
+/* ===== CONTENT ===== */
+const SEGS=[
+[["I","Good morning. Please tell me about yourself."],["C","Good morning, sir. I am Arjun, a final-year MCA student. For my mini project, I built an inventory tracking system in Java and MySQL for a local textile shop. It reduced their stock counting time from two hours to twenty minutes. I am looking for a backend developer role."]],
+[["I","Tell me about a challenge you faced in that project."],["C","Two staff members sometimes updated the same item at the same time, so the stock count went wrong. I fixed it using database transactions and a version column. If the version had changed, the second update was rejected and retried."]],
+[["I","What is your biggest weakness?"],["C","I take on too much work because I find it hard to say no. Last semester, I agreed to three deadlines in one week and missed one. Now I list my tasks every Monday, and I tell my guide early if something will not fit."]],
+[["I","Why should we hire you?"],["C","Because I am hardworking, a team player, and a quick learner. I will give my best to your company."]],
+[["I","Can you explain what a primary key is?"],["C","Primary key is a key in the table. It is very important in the database, and we use it always."]],
+[["I","Tell me about a time you worked in a team."],["C","We had a team project and everyone worked well. I did my part, and the project was completed on time."]]
+];
+/* opts[0] is always the correct answer in this source; the order is shuffled at runtime */
+const R1="Round 1 · Listen and answer",R2="Round 2 · Spot the weak answer";
+const QS=[
+{seg:0,rn:1,round:R1,cat:"HR",q:"Which measurable result did Arjun mention in his introduction?",opts:["Stock counting time fell from two hours to twenty minutes","The system handled ten thousand users a day","Page load time improved by forty percent","His project won a state-level hackathon"],why:"Arjun backed his claim with a number from a real client. That is what makes an introduction memorable."},
+{seg:1,rn:1,round:R1,cat:"Technical",q:"How did Arjun fix the wrong stock counts?",opts:["He used database transactions with a version column","He added an index on the item table","He asked staff to update items one at a time","He moved the database to a larger server"],why:"He named the real problem (concurrent updates) and a specific fix. An index speeds up reads; it does not stop conflicting writes."},
+{seg:2,rn:1,round:R1,cat:"HR",q:"What concrete step has Arjun taken to improve his weakness?",opts:["He lists his tasks every Monday and warns his guide early","He stopped accepting any extra work","He works late at night to finish everything","He asks friends to take over his deadlines"],why:"A strong weakness answer gives an example and an ongoing habit. Arjun gave both."},
+{seg:3,rn:2,round:R2,cat:"Communication",q:"Arjun’s answer to “Why should we hire you?” was generic. Which version is the strongest upgrade?",opts:["“I am strong in Java and MySQL, and I have delivered a working system for a real client. I can contribute to your backend team with very little training.”","“I am hardworking, punctual, honest, a team player, and a quick learner, so I will be a perfect fit.”","“I am the best candidate in my class, so you do not need to look at anyone else.”","“I need this job urgently because my family depends on my income.”"],why:"Adjectives are only claims. The best answer links a skill and a result to what the employer needs."},
+{seg:4,rn:2,round:R2,cat:"Technical",q:"Arjun’s definition of a primary key was vague. Which answer is the most accurate and complete?",opts:["“A primary key uniquely identifies each row in a table. It cannot be null or duplicated, for example a student ID in a students table.”","“A primary key is the first column of a table, and it is always a number.”","“A primary key is any column we index so that searching becomes faster.”","“A primary key is the column that links one table to another table.”"],why:"Position and data type do not make a primary key, and linking tables is the job of a foreign key. Uniqueness and not-null are the core."},
+{seg:5,rn:2,round:R2,cat:"HR",q:"Which version of Arjun’s teamwork answer is the strongest?",opts:["“In our final-year project, our team of four was close to missing a deadline. I split the tasks on GitHub and resolved merge conflicts, and we submitted two days early.”","“Our team was excellent, and I contributed a lot to its success.”","“I led the team, and the others followed my instructions without any questions.”","“I prefer working alone, but I can manage in a team when needed.”"],why:"It follows Situation, Action, Result: a specific problem, your own action, and a measurable outcome."}
+];
+const MATCH={decoy:"“No, sir. Thank you.”",pairs:[
+{cat:"HR",q:"Are you willing to relocate or work in shifts?",a:"“Yes, I am flexible. I am happy to move wherever the project needs me.”",hint:"This question checks your flexibility for client projects."},
+{cat:"Technical",q:"What is the difference between an array and a linked list?",a:"“An array stores items in continuous memory with fast index access. A linked list uses nodes and pointers, so insertion is easier but access is slower.”",hint:"A technical question needs a precise comparison, not an opinion."},
+{cat:"Communication",q:"Do you have any questions for us?",a:"“Yes, which technologies will a new joiner on this team work with in the first six months?”",hint:"Asking about the work shows real interest in the role."}]};
+
+/* ===== STATE & HELPERS ===== */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fmt=s=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+const TTS="speechSynthesis" in window;
+let S={mode:"graded",name:"",dept:"",i:0,qs:[],tiles:[],ans:{},heard:{},mm:{},first:{},wt:0,sel:null,t0:0,cheat:[],paused:false,active:false,refl:"",rec:null};
+let timer=null,spk=0,voices=[];
+function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id===id));scrollTo(0,0)}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),2800)}
+function setMode(m){S.mode=m;$("mG").classList.toggle("sel",m==="graded");$("mP").classList.toggle("sel",m==="practice")}
+
+/* ===== SIGN-IN ===== */
+$("dp").innerHTML='<option value="">Select department</option>'+DEPTS.map(d=>`<option>${d}</option>`).join("");
+$("nm").value=localStorage.getItem("userName")||localStorage.getItem("questPlayerName")||"";
+$("dp").value=localStorage.getItem("userDept")||localStorage.getItem("questPlayerDept")||"";
+async function login(){
+  let n=$("nm").value.trim(),d=$("dp").value;
+  if(!n)return toast("Enter your name to continue.");
+  if(!d)return toast("Select your department to continue.");
+  try{ // reuse the canonical name from the dashboard when it exists
+    const {data}=await sb.from("report_card_view").select("name,department");
+    const m=(data||[]).filter(u=>u.name&&u.name.trim().toLowerCase()===n.toLowerCase());
+    if(m.length)n=(m.find(u=>u.department===d)||m[0]).name;
+  }catch(e){}
+  ["userName","questPlayerName"].forEach(k=>localStorage.setItem(k,n));
+  ["userDept","questPlayerDept"].forEach(k=>localStorage.setItem(k,d));
+  S.name=n;S.dept=d;begin();
+}
+
+/* ===== SPEECH ===== */
+if(TTS){const lv=()=>voices=speechSynthesis.getVoices();lv();speechSynthesis.onvoiceschanged=lv}
+function voiceFor(k){const en=voices.filter(v=>/^en/i.test(v.lang)),ind=en.filter(v=>/en-IN/i.test(v.lang)),p=ind.length>1?ind:en;return p.length?p[k%p.length]:null}
+function stopSpeech(){spk++;if(TTS)speechSynthesis.cancel()}
+function setStatus(w){$("dst").innerHTML=w==="I"?'<span class="dot p"></span>Interviewer is speaking…':w==="C"?'<span class="dot p"></span>Arjun is answering…':'<span class="dot"></span>Finished. Replay if you need to.'}
+function play(si){
+  stopSpeech();const seg=SEGS[si],tok=++spk;
+  if(!TTS){$("dst").innerHTML=seg.map(([w,t])=>`<p><b>${w==="I"?"Interviewer":"Arjun"}:</b> ${t}</p>`).join("");return done(si)}
+  const q=seg.flatMap(([w,t])=>t.split(/(?<=[.?!])\s+/).map(s=>[w,s]));let n=0;
+  const go=()=>{
+    if(tok!==spk)return;
+    if(n>=q.length){setStatus();return done(si)}
+    const [w,t]=q[n++];setStatus(w);
+    const u=new SpeechSynthesisUtterance(t),v=voiceFor(w==="I"?0:1);
+    if(v){u.voice=v;u.lang=v.lang}else u.lang="en-IN";
+    u.rate=.95;u.pitch=w==="I"?.8:1.15;
+    u.onend=()=>setTimeout(go,200);
+    u.onerror=()=>{if(tok===spk){setStatus();done(si)}};
+    speechSynthesis.speak(u);
+  };go();
+}
+function done(si){S.heard[si]=true;if(S.i<S.qs.length&&S.qs[S.i].seg===si)renderMCQ()}
+function replay(){if(S.i<S.qs.length)play(S.qs[S.i].seg)}
+
+/* ===== FLOW ===== */
+function begin(){
+  S.qs=QS.map(q=>({...q,o:shuffle(q.opts.map((t,k)=>({t,ok:k===0})))}));
+  S.tiles=shuffle([...MATCH.pairs.map(p=>p.a),MATCH.decoy]);
+  Object.assign(S,{i:0,ans:{},heard:{},mm:{},first:{},wt:0,sel:null,cheat:[],t0:Date.now(),active:true,paused:false});
+  $("who").textContent=`${S.name} · ${S.mode==="graded"?"Graded":"Practice"}`;
+  clearInterval(timer);timer=setInterval(()=>{if(S.active&&!S.paused)$("tm").textContent=fmt(Math.floor((Date.now()-S.t0)/1000))},1000);
+  if(S.mode==="graded")guard();
+  show("quiz");render();play(S.qs[0].seg);
+}
+function render(){
+  const m=S.i>=S.qs.length;
+  $("dock").style.display=m?"none":"flex";
+  $("sub").textContent=`Step ${S.i+1} of ${S.qs.length+1}`;
+  $("nx").textContent=m?"Continue to your pitch":"Next question";
+  m?renderMatch():renderMCQ();scrollTo(0,0);
+}
+function renderMCQ(){
+  const q=S.qs[S.i],a=S.ans[S.i],prac=S.mode==="practice",locked=!(S.heard[q.seg]||!TTS),shown=prac&&a!==undefined;
+  $("body").innerHTML=`<div class="rl">${q.round}<span class="chip">${q.cat}</span></div><h3>${q.q}</h3>`+
+  (locked?'<p class="hint">Listen to the whole exchange to unlock the answers.</p>':'')+
+  `<div class="opts">`+q.o.map((o,k)=>`<button class="opt${a===k?" sel":""}${shown?(o.ok?" ok":a===k?" no":""):""}" ${locked?"disabled":""} onclick="pick(${k})"><i>${"ABCD"[k]}</i><span>${o.t}</span></button>`).join("")+`</div>`+
+  (shown?`<div class="why ${q.o[a].ok?"":"bad"}">${q.o[a].ok?"Correct. ":"Not quite. "}${q.why}</div>`:"");
+}
+function pick(k){if(S.mode==="practice"&&S.ans[S.i]!==undefined)return;S.ans[S.i]=k;renderMCQ()}
+function renderMatch(){
+  const ps=MATCH.pairs,used=Object.values(S.mm);
+  $("body").innerHTML=`<div class="rl">Round 3 · Match the question to the best answer</div><p class="hint" style="margin-top:8px">Tap an answer, then tap the interview question it belongs to.</p>`+
+  ps.map((p,k)=>`<div class="slot${S.mm[k]?" fill":""}" onclick="place(${k})"><span class="chip" style="margin:0">${p.cat}</span><b>“${p.q}”</b><div>${S.mm[k]||"Tap here to place the selected answer"}</div></div>`).join("")+
+  `<div class="tiles">`+S.tiles.map((t,k)=>used.includes(t)?"":`<button class="tile${S.sel===t?" sel":""}" onclick="selT(${k})">${t}</button>`).join("")+`</div>`;
+}
+function selT(k){S.sel=S.tiles[k];renderMatch()}
+function place(k){
+  if(!S.sel||S.mm[k])return;const p=MATCH.pairs[k];
+  if(S.sel===p.a){S.mm[k]=p.a;if(S.first[k]===undefined)S.first[k]=true}
+  else{if(S.first[k]===undefined)S.first[k]=false;S.wt++;toast(S.mode==="practice"?"Not the best fit. "+p.hint:"Not the best match. Try another answer.")}
+  S.sel=null;renderMatch();
+}
+function next(){
+  const n=S.qs.length;
+  if(S.i<n&&S.ans[S.i]===undefined)return toast("Choose an answer to continue.");
+  if(S.i>=n&&Object.keys(S.mm).length<MATCH.pairs.length)return toast("Match all three questions to continue.");
+  stopSpeech();
+  if(S.i<n){S.i++;render();if(S.i<n)play(S.qs[S.i].seg)}else{show("refl")}
+}
+$("rt").addEventListener("input",e=>{const w=e.target.value.trim().split(/\s+/).filter(Boolean).length;$("wc").textContent=`${w} words (minimum 40)`});
+
+/* ===== ANTI-CHEAT (graded only) ===== */
+let guarded=false;
+function flag(d){S.cheat.push({incident:d,time:new Date().toLocaleTimeString(),step:S.i+1})}
+function pause(m){S.paused=true;stopSpeech();$("ovMsg").textContent=m;$("ov").classList.add("on")}
+function resume(){S.paused=false;$("ov").classList.remove("on");toast("Test resumed.");if(S.i<S.qs.length)replay()}
+function guard(){
+  if(guarded)return;guarded=true;const on=()=>S.active&&S.mode==="graded";
+  document.addEventListener("visibilitychange",()=>{if(document.hidden&&on()){flag("Tab switched or window hidden");pause("You left the test window. This has been recorded.")}});
+  document.addEventListener("contextmenu",e=>{if(on()){e.preventDefault();flag("Right-click attempted")}});
+  ["copy","cut","paste"].forEach(k=>document.addEventListener(k,e=>{if(on()){e.preventDefault();flag(k+" attempted");toast("Copy and paste are disabled in graded mode.")}}));
+  document.addEventListener("keydown",e=>{if(on()&&(e.key==="F12"||(e.ctrlKey&&e.shiftKey&&/[ijc]/i.test(e.key))||(e.ctrlKey&&/u/i.test(e.key)))){e.preventDefault();flag("Developer tools shortcut")}});
+}
+
+/* ===== RESULTS ===== */
+function finish(){
+  const t=$("rt").value.trim();
+  if(t.split(/\s+/).filter(Boolean).length<40)return toast("Write at least 40 words to finish.");
+  S.refl=t;S.active=false;clearInterval(timer);stopSpeech();
+  let mc=0;const by={1:0,2:0};
+  S.qs.forEach((q,i)=>{if(S.ans[i]!==undefined&&q.o[S.ans[i]].ok){mc++;by[q.rn]++}});
+  const m3=Object.values(S.first).filter(Boolean).length,total=S.qs.length+MATCH.pairs.length,score=mc+m3,pct=Math.round(score/total*100),secs=Math.round((Date.now()-S.t0)/1000);
+  S.rec={score,total,pct,secs,by,m3};
+  const verdict=pct>=85?"Interview ready":pct>=60?"Good base, polish your examples":"Practise the STAR method and try again";
+  const review=S.qs.map((q,i)=>{const ok=S.ans[i]!==undefined&&q.o[S.ans[i]].ok;return `<div class="rv"><b class="${ok?"g":"r"}">${ok?"✓":"✕"} ${q.q}</b>${ok?"":`Best answer: ${q.o.find(o=>o.ok).t}<br>`}${q.why}</div>`}).join("")+
+    MATCH.pairs.map((p,k)=>`<div class="rv"><b class="${S.first[k]?"g":"r"}">${S.first[k]?"✓":"✕"} Match: ${p.q}</b>${p.hint}</div>`).join("");
+  $("rsub").textContent=S.mode==="graded"?"Graded":"Practice";
+  $("rbody").innerHTML=`<div class="big">${pct}%</div><h3 style="text-align:center;margin-bottom:4px">${verdict}</h3>
+  <p class="hint" style="text-align:center">${esc(S.name)} · ${esc(S.dept)} · ${score} of ${total} correct · ${fmt(secs)}</p>
+  <div class="grid3"><div class="gb"><b>${by[1]}/3</b><span>Listening</span></div><div class="gb"><b>${by[2]}/3</b><span>Weak answers</span></div><div class="gb"><b>${m3}/3</b><span>Matching</span></div></div>
+  ${S.mode==="graded"?`<div class="sync pending" id="sync">Saving your score…</div>`:`<div class="sync ok">Practice mode: this score was not saved.</div>`}
+  ${S.cheat.length?`<div class="sync fail"><b>Security log (${S.cheat.length})</b><br>${S.cheat.map(c=>`${c.time} · step ${c.step}: ${c.incident}`).join("<br>")}</div>`:""}
+  <button class="btn" onclick="download()">Download my report</button><button class="btn alt" style="margin-top:10px" onclick="location.reload()">Start again</button>
+  <h3 style="margin-top:22px">Review</h3>${review}`;
+  show("res");if(S.mode==="graded")save();
+}
+function setSync(k,m,retry){const el=$("sync");if(!el)return;el.className="sync "+k;el.innerHTML=esc(m)+(retry?'<button onclick="save()">Retry</button>':"")}
+async function save(){
+  const r=S.rec;setSync("pending","Saving your score…");
+  try{
+    const res=await fetch(EDGE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({student_name:S.name,department:S.dept,quest_id:QUEST_ID,time_spent:r.secs,correct:r.score*SCORE_MULT,wrong:r.total-r.score,total:r.total,mode:LOG_MODE,cheat_count:S.cheat.length,cheat_events:S.cheat})});
+    if(!res.ok)throw new Error(await res.text());setSync("ok","Score saved.");
+  }catch(e){setSync("fail","Save failed. Check your connection.",true)}
+}
+function download(){
+  const r=S.rec,rows=S.qs.map((q,i)=>{const ok=S.ans[i]!==undefined&&q.o[S.ans[i]].ok;return `<p><b>${ok?"✓":"✕"} ${esc(q.q)}</b><br>Your answer: ${esc(S.ans[i]!==undefined?q.o[S.ans[i]].t:"none")}<br>Best answer: ${esc(q.o.find(o=>o.ok).t)}</p>`}).join("");
+  const h=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(S.name)} – MCA Placement Lab</title><style>body{font-family:Georgia,serif;max-width:720px;margin:24px auto;padding:0 16px;line-height:1.5;color:#1f1b16}p{border-top:1px solid #e4dac5;padding-top:8px}.b{background:#f6f3ec;padding:12px 14px;border-left:3px solid #234d31;white-space:pre-wrap}</style></head><body><h1>MCA Placement Lab</h1><p><b>${esc(S.name)}</b> · ${esc(S.dept)} · ${S.mode}<br>Score: ${r.score}/${r.total} (${r.pct}%) · Time: ${fmt(r.secs)} · ${new Date().toLocaleString()}</p><h3>My “Tell me about yourself” pitch</h3><div class="b">${esc(S.refl)}</div><h3>Answers</h3>${rows}</body></html>`;
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([h],{type:"text/html"}));a.download=S.name.replace(/[^\w-]+/g,"_")+"_placement_report.html";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+</script>
+</body>
+</html>
