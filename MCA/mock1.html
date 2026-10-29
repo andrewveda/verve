@@ -29,10 +29,11 @@ textarea{min-height:170px;resize:vertical;line-height:1.5;font-size:15px}
 .mo.sel{border-color:var(--forest);background:var(--fp)}.mo b{display:block;font-size:14px;margin-bottom:3px}.mo span{font-size:12px;color:var(--mute);line-height:1.4}
 .btn{width:100%;padding:14px;border-radius:12px;font-size:15px;font-weight:600;background:var(--forest);color:#fff}
 .btn.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}.btn:active{transform:scale(.98)}
-.dock{background:#14110e;color:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-#dst{font-size:14px;line-height:1.45}#dst p{margin-bottom:6px}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gold);margin-right:8px}.dot.p{animation:pl 1s infinite}
-@keyframes pl{50%{opacity:.25}}
-.pill{flex-shrink:0;background:var(--gold);color:#1a1610;font-weight:600;font-size:13px;padding:9px 15px;border-radius:20px}
+.script{background:var(--card);border:1.5px solid var(--line);border-left:4px solid var(--gold);border-radius:14px;padding:14px 16px}
+.script .rl{color:var(--gold);margin-bottom:8px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.ln{font-size:14.5px;line-height:1.55;margin-bottom:10px}.ln:last-child{margin-bottom:0}
+.ln b{display:block;font-size:12px;font-weight:600;color:var(--forest);margin-bottom:2px}
+.ln.i b{color:var(--mute)}.ln.c{background:var(--fp);border-radius:10px;padding:9px 12px}
 .hud{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--mid);padding:0 2px}
 .rl{font-size:13px;font-weight:600;color:var(--forest)}.chip{display:inline-block;font-size:12px;padding:2px 9px;border-radius:10px;background:var(--fp);color:var(--forest);margin-left:6px}
 .hint{font-size:13px;color:var(--mute);margin-bottom:12px}
@@ -57,7 +58,6 @@ textarea{min-height:170px;resize:vertical;line-height:1.5;font-size:15px}
 .rv{border-top:1px solid var(--line);padding:11px 0;font-size:13.5px;line-height:1.45}.rv b{display:block}.g{color:var(--forest)}.r{color:var(--red)}
 .ov{display:none;position:fixed;inset:0;z-index:99;background:rgba(170,30,30,.95);color:#fff;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:14px}.ov.on{display:flex}.ov .btn{width:auto;background:#fff;color:#a32020;padding:12px 24px}
 .toast{position:fixed;top:12px;left:50%;transform:translate(-50%,-90px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;z-index:98;transition:transform .3s;max-width:90vw;text-align:center}.toast.on{transform:translate(-50%,0)}
-@media(prefers-reduced-motion:reduce){.dot.p{animation:none}}
 </style>
 </head>
 <body>
@@ -67,7 +67,7 @@ textarea{min-height:170px;resize:vertical;line-height:1.5;font-size:15px}
 <section class="scr on" id="gate"><div class="col" style="justify-content:center;min-height:100dvh">
  <div class="card">
   <h1>MCA Placement Lab</h1>
-  <p class="sub">Listen to a mock campus interview, judge the answers, then write your own pitch.</p>
+  <p class="sub">Study a mock interview, practise real interview questions, then build your own self-introduction.</p>
   <div class="f"><label>Your name</label><input id="nm" maxlength="60" autocomplete="off" placeholder="Enter your name"></div>
   <div class="f"><label>Department</label><select id="dp"></select></div>
   <div class="modes">
@@ -75,27 +75,23 @@ textarea{min-height:170px;resize:vertical;line-height:1.5;font-size:15px}
    <button class="mo" id="mP" onclick="setMode('practice')"><b>Practice</b><span>Instant feedback after every answer. Score is not saved.</span></button>
   </div>
   <button class="btn" onclick="login()">Start the interview</button>
-  <p class="hint" style="margin:12px 0 0;text-align:center">Use headphones or turn your volume up. The interview is read aloud.</p>
  </div></div></section>
 
 <section class="scr" id="quiz">
  <div class="bar"><b>Mock interview</b><small id="sub"></small></div>
  <div class="col">
-  <div class="dock" id="dock"><div id="dst">Ready</div><button class="pill" onclick="replay()">▶ Listen again</button></div>
+  <div class="script" id="script"></div>
   <div class="hud"><span id="who"></span><span id="tm">00:00</span></div>
   <div class="card" id="body"></div>
   <button class="btn" id="nx" onclick="next()">Next question</button>
  </div></section>
 
 <section class="scr" id="refl">
- <div class="bar"><b>Your turn</b><small>Written pitch</small></div>
- <div class="col"><div class="card">
-  <div class="rl">Final task</div>
-  <h3>Tell me about yourself.</h3>
-  <p class="hint">Write the answer you would give in a campus interview (60 to 90 seconds spoken, about 120 to 180 words). Name your specialism, one project with a result, and the role you want.</p>
-  <textarea id="rt" placeholder="Good morning, sir. I am…"></textarea>
-  <p class="hint" style="margin:8px 0 0" id="wc">0 words (minimum 40)</p>
- </div><button class="btn" onclick="finish()">Finish and see my report</button></div></section>
+ <div class="bar"><b>Your turn</b><small>Self-introduction</small></div>
+ <div class="col"><div class="card"><div class="rl">Final task</div><h3>Tell me about yourself.</h3><p class="hint" style="margin:0">Build your answer in five short parts. Together they should run 120 to 180 words (60 to 90 seconds spoken). Use what you learned in the practice questions: be specific and give evidence.</p></div>
+ <div id="boxes" style="display:flex;flex-direction:column;gap:14px"></div>
+ <div class="card"><div class="rl">Your full introduction</div><p class="ln" id="pv"></p><p class="hint" style="margin:8px 0 0" id="wc"></p></div>
+ <button class="btn" onclick="finish()">Finish and see my report</button></div></section>
 
 <section class="scr" id="res">
  <div class="bar"><b>Your report</b><small id="rsub"></small></div>
@@ -120,28 +116,48 @@ const SEGS=[
 [["I","Tell me about a time you worked in a team."],["C","We had a team project and everyone worked well. I did my part, and the project was completed on time."]]
 ];
 /* opts[0] is always the correct answer in this source; the order is shuffled at runtime */
-const R1="Round 1 · Listen and answer",R2="Round 2 · Spot the weak answer";
+const R1="Round 1 · Read and answer",R2="Round 2 · Spot the weak answer",R3="Round 3 · Interview speak",R4="Round 4 · HR and tricky questions";
 const QS=[
-{seg:0,rn:1,round:R1,cat:"HR",q:"Which measurable result did Arjun mention in his introduction?",opts:["Stock counting time fell from two hours to twenty minutes","The system handled ten thousand users a day","Page load time improved by forty percent","His project won a state-level hackathon"],why:"Arjun backed his claim with a number from a real client. That is what makes an introduction memorable."},
-{seg:1,rn:1,round:R1,cat:"Technical",q:"How did Arjun fix the wrong stock counts?",opts:["He used database transactions with a version column","He added an index on the item table","He asked staff to update items one at a time","He moved the database to a larger server"],why:"He named the real problem (concurrent updates) and a specific fix. An index speeds up reads; it does not stop conflicting writes."},
-{seg:2,rn:1,round:R1,cat:"HR",q:"What concrete step has Arjun taken to improve his weakness?",opts:["He lists his tasks every Monday and warns his guide early","He stopped accepting any extra work","He works late at night to finish everything","He asks friends to take over his deadlines"],why:"A strong weakness answer gives an example and an ongoing habit. Arjun gave both."},
-{seg:3,rn:2,round:R2,cat:"Communication",q:"Arjun’s answer to “Why should we hire you?” was generic. Which version is the strongest upgrade?",opts:["“I am strong in Java and MySQL, and I have delivered a working system for a real client. I can contribute to your backend team with very little training.”","“I am hardworking, punctual, honest, a team player, and a quick learner, so I will be a perfect fit.”","“I am the best candidate in my class, so you do not need to look at anyone else.”","“I need this job urgently because my family depends on my income.”"],why:"Adjectives are only claims. The best answer links a skill and a result to what the employer needs."},
-{seg:4,rn:2,round:R2,cat:"Technical",q:"Arjun’s definition of a primary key was vague. Which answer is the most accurate and complete?",opts:["“A primary key uniquely identifies each row in a table. It cannot be null or duplicated, for example a student ID in a students table.”","“A primary key is the first column of a table, and it is always a number.”","“A primary key is any column we index so that searching becomes faster.”","“A primary key is the column that links one table to another table.”"],why:"Position and data type do not make a primary key, and linking tables is the job of a foreign key. Uniqueness and not-null are the core."},
-{seg:5,rn:2,round:R2,cat:"HR",q:"Which version of Arjun’s teamwork answer is the strongest?",opts:["“In our final-year project, our team of four was close to missing a deadline. I split the tasks on GitHub and resolved merge conflicts, and we submitted two days early.”","“Our team was excellent, and I contributed a lot to its success.”","“I led the team, and the others followed my instructions without any questions.”","“I prefer working alone, but I can manage in a team when needed.”"],why:"It follows Situation, Action, Result: a specific problem, your own action, and a measurable outcome."}
+{seg:0,round:R1,cat:"HR",q:"Which measurable result did Arjun mention in his introduction?",opts:["Stock counting at the textile shop dropped from about two hours to just twenty minutes once the system went live","The system was able to handle around ten thousand customer users every single day without slowing down at all","Page loading time across the whole application improved by nearly forty percent after he optimised the queries","His project won a state-level hackathon, which gave him the confidence to apply for backend developer roles"],why:"Arjun backed his claim with a number from a real client. That is what makes an introduction memorable."},
+{seg:1,round:R1,cat:"Communication",q:"How did Arjun fix the wrong stock counts?",opts:["He used database transactions with a version column, so a second update was rejected and retried if the item had changed","He added an index on the item table so that every search and update ran much faster for both staff members","He asked the shop staff to update items strictly one at a time and to inform each other before saving","He moved the entire database to a larger and more powerful server so that simultaneous updates could be handled without any delay"],why:"He named the real problem (concurrent updates) and a specific fix. An index speeds up reads; it does not stop conflicting writes."},
+{seg:2,round:R1,cat:"HR",q:"What concrete step has Arjun taken to improve his weakness?",opts:["He writes down all his tasks every Monday and tells his guide early whenever something will not fit in the week","He has stopped accepting any extra work at all, so that he can never miss a deadline again in the future","He works late at night and over the weekends so that he can finish everything he has agreed to do","He asks his friends and classmates to take over some of his deadlines whenever the workload becomes too heavy for him to handle alone"],why:"A strong weakness answer gives an example and an ongoing habit. Arjun gave both."},
+{seg:3,round:R2,cat:"Communication",q:"Arjun’s answer to “Why should we hire you?” was generic. Which version is the strongest upgrade?",opts:["“I am strong in Java and MySQL, and I have delivered a working system for a real client. I can contribute to your backend team quickly.”","“I am hardworking, punctual, honest, a team player and a quick learner, so I believe I will be a perfect fit for your company.”","“I am honestly the best candidate in my entire class, so I do not think you need to look at any other student.”","“I need this job urgently because my family depends completely on my income, so I will accept any role you offer me.”"],why:"Adjectives are only claims. The best answer links a skill and a result to what the employer needs."},
+{seg:4,round:R2,cat:"Communication",q:"Arjun’s definition of a primary key was vague. Which answer is the most accurate and complete?",opts:["“A primary key uniquely identifies each row in a table. It cannot be null or duplicated, for example a student ID in a students table.”","“A primary key is the first column of a table, and it is always a number that increases by one for each new row.”","“A primary key is any column that we index so that searching and sorting the table becomes much faster for the users and for the database server.”","“A primary key is the column that links one table to another table so that data from both can be joined together.”"],why:"Position and data type do not make a primary key, and linking tables is the job of a foreign key. Uniqueness and not-null are the core."},
+{seg:5,round:R2,cat:"HR",q:"Which version of Arjun’s teamwork answer is the strongest?",opts:["“In our final-year project, our team of four was close to missing a deadline. I split the tasks on GitHub and resolved merge conflicts, and we submitted two days early.”","“Our team was excellent, everyone was very cooperative and friendly, and I contributed a lot to the success of the whole project, and our guide also praised me in front of everybody.”","“I led the team and gave clear instructions to everyone, and the others followed my plan without asking me any questions at all.”","“I honestly prefer working alone because it is faster, but I can manage in a team whenever the situation really needs it.”"],why:"It follows Situation, Action, Result: a specific problem, your own action, and a measurable outcome."}
 ];
-const MATCH={decoy:"“No, sir. Thank you.”",pairs:[
-{cat:"HR",q:"Are you willing to relocate or work in shifts?",a:"“Yes, I am flexible. I am happy to move wherever the project needs me.”",hint:"This question checks your flexibility for client projects."},
-{cat:"Technical",q:"What is the difference between an array and a linked list?",a:"“An array stores items in continuous memory with fast index access. A linked list uses nodes and pointers, so insertion is easier but access is slower.”",hint:"A technical question needs a precise comparison, not an opinion."},
-{cat:"Communication",q:"Do you have any questions for us?",a:"“Yes, which technologies will a new joiner on this team work with in the first six months?”",hint:"Asking about the work shows real interest in the role."}]};
+const T=(round,cat,iq,o,why,q)=>({round,cat,iq,q:q||"Which answer would impress the interviewer most?",opts:o,why});
+QS.push(
+T(R3,"Communication","Can you tell me about your strengths?",["“I am good at debugging. In my project I traced a slow query to a missing index and cut report time from nine seconds to two.”","“I am a very hardworking and sincere person, and my teachers and classmates have always appreciated my positive attitude.”","“I have many strengths, so it is difficult to choose one, but I am confident that I can do any work you give me.”","“I am quick at learning anything new, and I never need much help or guidance from seniors or from my team.”"],"Name one strength and prove it with a real example."),
+T(R3,"Communication","Where do you see yourself in five years?",["“I want to grow into a solid backend engineer, then take on design decisions and mentor juniors. This role is where I would build that foundation.”","“I would like to move into a management position within two years, since I feel I am naturally a leader of people and I enjoy taking responsibility for a whole department.”","“I have not planned that far ahead, so I will just wait and see what opportunities come my way after joining.”","“I hope to gain a few years of experience here and then move abroad to join a much bigger and better company.”"],"Show ambition that is tied to this role, not to leaving it."),
+T(R3,"Communication","Why do you want to join our company?",["“Your team builds logistics software, and my inventory project taught me how stock data flows. I would like to apply that at a larger scale.”","“Your company is very famous and has a great reputation in the market, and everybody in my college wants to work here.”","“I have heard that the salary and the working environment here are excellent, and that employees enjoy many benefits, holidays and extra bonuses every year.”","“I attended your campus drive because many of my friends registered for it, and I thought it would be a good opportunity.”"],"Link your own experience to what the company actually does."),
+T(R3,"Communication","(The interviewer asks a long question and you did not catch it.)",["“I am sorry, sir, I did not fully catch that. Could you please repeat the question or rephrase it for me?”","“I did not understand anything you said, sir, because you were speaking too fast and the room is also very noisy.”","“Yes, sir, I understand.” Then give a confident answer on the topic you think the interviewer was probably asking about.","Stay silent for a while and look at the interviewer, hoping that the question will be explained again without asking."],"Asking politely is a strength. Guessing wildly or blaming the speaker is not.","What is the best way to respond?"),
+T(R3,"Communication","What will you do if you do not know the answer to a technical question?",["“I am not sure about this part, sir, but I know the core idea is …, and I would confirm the rest from the documentation.”","“I will answer very confidently with whatever I know, so that the interviewer does not realise that I am actually unsure about it.”","“I do not know the answer to this, sir, and I would prefer to move to the next question instead.”","“That topic was not taught in our syllabus, sir, so I request you to ask something from the subjects we studied.”"],"Be honest, show what you do know, and explain how you would find out."),
+T(R3,"Communication","(You need a few seconds to think before answering.)",["“That is a good question. Let me think for a moment.” Then pause calmly and begin with your main point.","“Umm… aaa… how to say this… it is like… you know… basically…” and continue until the answer slowly comes out.","“Actually, sir, to be honest, I think, maybe, I am not fully sure, but let me try to say something about it.”","“Sir, this is a very difficult question, and I was not expecting it, so please give me some more time.”"],"A calm, deliberate pause sounds confident. Filler sounds nervous.","Which opening sounds the most confident?"),
+T(R3,"Communication","Tell me about your final-year project.",["“My project is an inventory tracker built with Java and MySQL. It cut a shop’s stock counting from two hours to twenty minutes.”","“My project is a very big and useful software system, and my friends and I worked on it day and night to finish it before the final submission date.”","“We did the project as a team, our guide supported us a lot, and we got very good marks in the final review.”","“Sir, the project has many modules, so shall I explain the full code and every screen in detail from the beginning?”"],"Open with what it is, the tools, and one result.","Which opening line is best?"),
+T(R3,"Communication","Do you have any questions for us?",["“Yes, which technologies will a new joiner on this team work with during the first six months of the job?”","“No, sir. You have already explained everything very clearly, so I do not have any further questions at this time.”","“Yes, sir. How many holidays and paid leaves will I get in a year, and what are the working hours?”","“Yes, sir. How soon can I expect a promotion, and what is the usual salary hike for a fresher?”"],"Always ask one thoughtful question about the work or the team."),
+T(R3,"Communication","Are you willing to relocate or work in shifts?",["“Yes, I am flexible. I am happy to move wherever the project needs me, and I can adjust my schedule to the team.”","“No, sir. I have family responsibilities, so I would like to work only in my hometown and only in the daytime.”","“I will think about it and decide after I receive the offer letter and understand the salary and the location properly.”","“I can relocate only if the company gives me a much higher salary and also provides free accommodation and transport.”"],"For freshers, flexibility is a strong positive signal."),
+T(R3,"Communication","What are your salary expectations?",["“I would like to understand the standard range for this role. I am open to your structure for freshers and focused on learning.”","“I am expecting not less than twelve lakhs per annum, because I know that students from other colleges are getting that much.”","“Anything is fine with me, sir. Salary is not important at all, and I will accept whatever amount you decide to give.”","“My friend joined another company last month with a higher package, so I think I should also be paid the same amount.”"],"Stay flexible and let them name the range first."),
+T(R3,"Communication","Your resume says you know Python. How well do you know it?",["“I am comfortable with Python for scripting and small APIs. I have not used it for machine learning yet, but I am learning it.”","“I am an expert in Python, sir, and there is nothing in the language that I would not be able to do for you.”","“I have only seen Python in one lab class, but I am sure I will learn all of it quickly after joining.”","“I know Python very well, sir, because I have written everything on my resume myself and I have studied it completely over the last three years.”"],"Claim only what you can defend, and be specific about your level."),
+T(R3,"Communication","(You are nervous at the start, and your voice is shaking.)",["Take a slow breath, smile slightly, and slow down your speech. A steady pace will calm your voice and show the panel you are in control.","Apologise to the panel a few times for being nervous, and explain that you have never attended an interview in your life and that you will do better later.","Speak as quickly as possible so that the nervous part finishes soon, and the panel does not get time to notice it.","Look down at the floor and keep speaking quietly until you feel comfortable enough to look at the panel again."],"Slow your pace and breathe. Do not draw attention to nerves or apologise for them.","What is the best way to recover?"),
+T(R3,"Communication","(Three interviewers are on the panel, and one of them asks you a question.)",["Start by looking at the person who asked, then move your eye contact naturally between all panel members as you finish your answer.","Look only at the person who asked the question and ignore the others, because they are probably only observing and taking notes.","Look mostly at the senior-most member of the panel, because that person alone will decide whether you are selected or not.","Look at the table or your resume while answering, so that you can concentrate better and avoid losing your train of thought."],"Eye contact with the whole panel shows confidence and respect.","Where should you look while answering?"),
+T(R3,"Communication","(The interviewer interrupts you in the middle of your answer.)",["Stop politely, listen to the whole interruption, answer what was asked, and then offer to return to your earlier point if it is still needed.","Keep speaking until you finish your point, because stopping in the middle will make you look unprepared and a little weak.","Tell the interviewer that you were not finished yet and request them to wait until you have completed your full answer.","Stop speaking and stay quiet for the remainder of the interview, because the interruption means that your answer was wrong and there is nothing more to say."],"Interruptions test your listening and flexibility. Adapt calmly.","How should you respond?"),
+T(R3,"Communication","Describe yourself in three words.",["“Reliable, curious and organised. For example, I submitted every lab record on time, and I taught myself Spring Boot during the holidays.”","“Hardworking, sincere and honest. These are the three qualities that my parents and teachers have always praised in me.”","“Intelligent, creative and perfect. I do not think I have any quality that still needs improvement at this stage of my career or even in the near future.”","“Friendly, funny and relaxed. I believe a cheerful and casual nature is the most important thing for working well in a team.”"],"Each word needs a quick piece of evidence."),
+T(R4,"HR","Tell me about a time you failed.",["“I missed a lab report deadline because I overcommitted. I told my guide early, delivered a day late, and now I plan my week every Monday.”","“I honestly cannot recall any real failure in my life, because I always prepare well and I try to complete every task perfectly and on schedule every single time.”","“I once failed to complete a group assignment on time, but the reason was that my teammates did not cooperate or help me.”","“Failure is a natural part of life, sir, and I believe that every failure is only a lesson that prepares us for success.”"],"Own the mistake, show the fix, keep it short."),
+T(R4,"HR","How do you handle a disagreement in a team?",["“I listen to the other view first, then compare both options using facts. In our project we tested two designs and chose the faster one.”","“I keep explaining my idea patiently until everyone in the team finally agrees with me, because I am usually right.”","“I avoid arguments completely and simply do whatever the other members suggest, so that there is no tension in the team.”","“I immediately report the problem to our guide or manager and ask them to decide, because I do not like conflicts.”"],"Use evidence and collaboration, not ego or avoidance."),
+T(R4,"HR","Are you comfortable working under pressure?",["“Yes. During our project demo week I fixed the critical bugs first, and we delivered on time without lowering quality.”","“I never feel any pressure at all, sir. I stay completely relaxed in every situation, and deadlines have never bothered me.”","“Not really, sir. I prefer a relaxed workplace where I get plenty of time, because pressure reduces the quality of my work.”","“Pressure is bad for health, sir, so I try to avoid stressful situations and do my work only at my own pace.”"],"Say yes, then prove it with a specific moment."),
+T(R4,"HR","How do you keep your skills up to date?",["“I build small projects. Recently I learned Spring Boot by creating a REST API, and I now use it in my own projects.”","“I watch tutorial videos on the internet whenever I get some free time, and I also read a few articles every now and then.”","“Our college syllabus teaches us everything that we need for a job, so I mainly concentrate on completing my coursework properly.”","“I am sure that the company will train me in whatever is required, so I plan to learn new things only after joining.”"],"Name a habit and a recent example."),
+T(R4,"HR","Why did you choose MCA?",["“I enjoyed programming in my degree and wanted deeper software development skills, so MCA was the natural next step for me.”","“My parents and relatives felt that MCA would give me a secure future, so I followed their advice and joined the course.”","“I did not get admission to any of the other courses that I applied for, so I finally took MCA as my choice.”","“Everyone around me said that MCA has a very good scope and high salaries, so I decided to join it as well.”"],"Show a personal reason that points toward this career."),
+T(R4,"HR","Do you have any other offers or interviews?",["“I am attending a few interviews, but this role is a priority because it matches my interest in backend development.”","“No one has called me for an interview yet, sir, and this is the first company that has given me a chance.”","“Yes, sir, I already have three better offers, but I wanted to see what your company would offer before I decide.”","“I will join whichever company gives me the highest salary, so I am attending as many interviews as I can manage this season.”"],"Be honest, and show this role is a genuine first choice."),
+T(R4,"HR","That is all from our side. Is there anything you would like to add?",["“Thank you for your time. I am keen on this role and ready to contribute from my very first day on the team.”","“No, sir. I do not have anything more to add, and I think I have already answered all your questions during the interview.”","“Sir, please select me. I really need this job badly, and I promise that I will do whatever you ask me to do.”","“Sir, how was my interview? Do you think I will get selected, and when can I expect to hear the result from you?”"],"Close with thanks and one confident line.")
+);
 
 /* ===== STATE & HELPERS ===== */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const fmt=s=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
-const TTS="speechSynthesis" in window;
-let S={mode:"graded",name:"",dept:"",i:0,qs:[],tiles:[],ans:{},heard:{},mm:{},first:{},wt:0,sel:null,t0:0,cheat:[],paused:false,active:false,refl:"",rec:null};
-let timer=null,spk=0,voices=[];
+let S={mode:"graded",name:"",dept:"",i:0,qs:[],tiles:[],ans:{},mm:{},first:{},wt:0,sel:null,t0:0,cheat:[],paused:false,active:false,refl:"",rec:null};
+let timer=null;
 function show(id){document.querySelectorAll(".scr").forEach(s=>s.classList.toggle("on",s.id===id));scrollTo(0,0)}
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),2800)}
 function setMode(m){S.mode=m;$("mG").classList.toggle("sel",m==="graded");$("mP").classList.toggle("sel",m==="practice")}
@@ -164,82 +180,61 @@ async function login(){
   S.name=n;S.dept=d;begin();
 }
 
-/* ===== SPEECH ===== */
-if(TTS){const lv=()=>voices=speechSynthesis.getVoices();lv();speechSynthesis.onvoiceschanged=lv}
-function voiceFor(k){const en=voices.filter(v=>/^en/i.test(v.lang)),ind=en.filter(v=>/en-IN/i.test(v.lang)),p=ind.length>1?ind:en;return p.length?p[k%p.length]:null}
-function stopSpeech(){spk++;if(TTS)speechSynthesis.cancel()}
-function setStatus(w){$("dst").innerHTML=w==="I"?'<span class="dot p"></span>Interviewer is speaking…':w==="C"?'<span class="dot p"></span>Arjun is answering…':'<span class="dot"></span>Finished. Replay if you need to.'}
-function play(si){
-  stopSpeech();const seg=SEGS[si],tok=++spk;
-  if(!TTS){$("dst").innerHTML=seg.map(([w,t])=>`<p><b>${w==="I"?"Interviewer":"Arjun"}:</b> ${t}</p>`).join("");return done(si)}
-  const q=seg.flatMap(([w,t])=>t.split(/(?<=[.?!])\s+/).map(s=>[w,s]));let n=0;
-  const go=()=>{
-    if(tok!==spk)return;
-    if(n>=q.length){setStatus();return done(si)}
-    const [w,t]=q[n++];setStatus(w);
-    const u=new SpeechSynthesisUtterance(t),v=voiceFor(w==="I"?0:1);
-    if(v){u.voice=v;u.lang=v.lang}else u.lang="en-IN";
-    u.rate=.95;u.pitch=w==="I"?.8:1.15;
-    u.onend=()=>setTimeout(go,200);
-    u.onerror=()=>{if(tok===spk){setStatus();done(si)}};
-    speechSynthesis.speak(u);
-  };go();
+/* ===== SCRIPT ===== */
+function renderScript(si){
+  $("script").innerHTML='<div class="rl">Interview script</div>'+SEGS[si].map(([w,t])=>`<div class="ln ${w==="I"?"i":"c"}"><b>${w==="I"?"Interviewer":"Arjun"}</b>${esc(t)}</div>`).join("");
 }
-function done(si){S.heard[si]=true;if(S.i<S.qs.length&&S.qs[S.i].seg===si)renderMCQ()}
-function replay(){if(S.i<S.qs.length)play(S.qs[S.i].seg)}
 
 /* ===== FLOW ===== */
 function begin(){
   S.qs=QS.map(q=>({...q,o:shuffle(q.opts.map((t,k)=>({t,ok:k===0})))}));
-  S.tiles=shuffle([...MATCH.pairs.map(p=>p.a),MATCH.decoy]);
-  Object.assign(S,{i:0,ans:{},heard:{},mm:{},first:{},wt:0,sel:null,cheat:[],t0:Date.now(),active:true,paused:false});
+  Object.assign(S,{i:0,ans:{},mm:{},first:{},wt:0,sel:null,cheat:[],t0:Date.now(),active:true,paused:false});
   $("who").textContent=`${S.name} · ${S.mode==="graded"?"Graded":"Practice"}`;
   clearInterval(timer);timer=setInterval(()=>{if(S.active&&!S.paused)$("tm").textContent=fmt(Math.floor((Date.now()-S.t0)/1000))},1000);
   if(S.mode==="graded")guard();
-  show("quiz");render();play(S.qs[0].seg);
+  show("quiz");render();
 }
 function render(){
-  const m=S.i>=S.qs.length;
-  $("dock").style.display=m?"none":"flex";
-  $("sub").textContent=`Step ${S.i+1} of ${S.qs.length+1}`;
-  $("nx").textContent=m?"Continue to your pitch":"Next question";
-  m?renderMatch():renderMCQ();scrollTo(0,0);
+  const q=S.qs[S.i],last=S.i===S.qs.length-1;
+  $("sub").textContent=`Question ${S.i+1} of ${S.qs.length}`;
+  $("nx").textContent=last?"Continue to your introduction":"Next question";
+  renderScript(q);renderMCQ();scrollTo(0,0);
+}
+function renderScript(q){
+  const seg=q.seg!==undefined?SEGS[q.seg]:[["I",q.iq]];
+  $("script").innerHTML=`<div class="rl">${q.seg!==undefined?"Interview script":"The interviewer asks"}</div>`+seg.map(([w,t])=>`<div class="ln ${w==="I"?"i":"c"}"><b>${w==="I"?"Interviewer":"Arjun"}</b>${esc(t)}</div>`).join("");
 }
 function renderMCQ(){
-  const q=S.qs[S.i],a=S.ans[S.i],prac=S.mode==="practice",locked=!(S.heard[q.seg]||!TTS),shown=prac&&a!==undefined;
-  $("body").innerHTML=`<div class="rl">${q.round}<span class="chip">${q.cat}</span></div><h3>${q.q}</h3>`+
-  (locked?'<p class="hint">Listen to the whole exchange to unlock the answers.</p>':'')+
-  `<div class="opts">`+q.o.map((o,k)=>`<button class="opt${a===k?" sel":""}${shown?(o.ok?" ok":a===k?" no":""):""}" ${locked?"disabled":""} onclick="pick(${k})"><i>${"ABCD"[k]}</i><span>${o.t}</span></button>`).join("")+`</div>`+
+  const q=S.qs[S.i],a=S.ans[S.i],shown=S.mode==="practice"&&a!==undefined;
+  $("body").innerHTML=`<div class="rl">${q.round}<span class="chip">${q.cat}</span></div><h3>${q.q}</h3><div class="opts">`+
+  q.o.map((o,k)=>`<button class="opt${a===k?" sel":""}${shown?(o.ok?" ok":a===k?" no":""):""}" onclick="pick(${k})"><i>${"ABCD"[k]}</i><span>${o.t}</span></button>`).join("")+`</div>`+
   (shown?`<div class="why ${q.o[a].ok?"":"bad"}">${q.o[a].ok?"Correct. ":"Not quite. "}${q.why}</div>`:"");
 }
 function pick(k){if(S.mode==="practice"&&S.ans[S.i]!==undefined)return;S.ans[S.i]=k;renderMCQ()}
-function renderMatch(){
-  const ps=MATCH.pairs,used=Object.values(S.mm);
-  $("body").innerHTML=`<div class="rl">Round 3 · Match the question to the best answer</div><p class="hint" style="margin-top:8px">Tap an answer, then tap the interview question it belongs to.</p>`+
-  ps.map((p,k)=>`<div class="slot${S.mm[k]?" fill":""}" onclick="place(${k})"><span class="chip" style="margin:0">${p.cat}</span><b>“${p.q}”</b><div>${S.mm[k]||"Tap here to place the selected answer"}</div></div>`).join("")+
-  `<div class="tiles">`+S.tiles.map((t,k)=>used.includes(t)?"":`<button class="tile${S.sel===t?" sel":""}" onclick="selT(${k})">${t}</button>`).join("")+`</div>`;
-}
-function selT(k){S.sel=S.tiles[k];renderMatch()}
-function place(k){
-  if(!S.sel||S.mm[k])return;const p=MATCH.pairs[k];
-  if(S.sel===p.a){S.mm[k]=p.a;if(S.first[k]===undefined)S.first[k]=true}
-  else{if(S.first[k]===undefined)S.first[k]=false;S.wt++;toast(S.mode==="practice"?"Not the best fit. "+p.hint:"Not the best match. Try another answer.")}
-  S.sel=null;renderMatch();
-}
 function next(){
-  const n=S.qs.length;
-  if(S.i<n&&S.ans[S.i]===undefined)return toast("Choose an answer to continue.");
-  if(S.i>=n&&Object.keys(S.mm).length<MATCH.pairs.length)return toast("Match all three questions to continue.");
-  stopSpeech();
-  if(S.i<n){S.i++;render();if(S.i<n)play(S.qs[S.i].seg)}else{show("refl")}
+  if(S.ans[S.i]===undefined)return toast("Choose an answer to continue.");
+  if(S.i<S.qs.length-1){S.i++;render()}else show("refl")
 }
-$("rt").addEventListener("input",e=>{const w=e.target.value.trim().split(/\s+/).filter(Boolean).length;$("wc").textContent=`${w} words (minimum 40)`});
+/* ===== SELF-INTRODUCTION BUILDER ===== */
+const MINW=10;
+const PARTS=[
+["1 · Greeting and name","Greet politely. Say your name, course and year.","Good morning, sir. I am …, a final-year MCA student at …"],
+["2 · Education and specialism","Say what you studied and name your strongest area (backend, data, cloud…).","I have studied …, and my strongest area is …"],
+["3 · One project with a result","Name the project, your role, the tools, and one number that shows the result.","For my mini project, I built … using … It reduced … from … to …"],
+["4 · Strengths and skills","Give two strengths. Back each with a short example.","I am good at … For example, … I also …"],
+["5 · Your goal and closing","Name the role you want, and end with a confident line.","I am looking for a … role, and I would be glad to contribute. Thank you."]];
+$("boxes").innerHTML=PARTS.map(([t,h,p],k)=>`<div class="card"><div class="rl">${t}</div><p class="hint" style="margin:4px 0 10px">${h}</p><textarea id="p${k}" style="min-height:90px" placeholder="${esc(p)}" oninput="upd()"></textarea><p class="hint" style="margin:6px 0 0" id="pw${k}"></p></div>`).join("");
+const wc=v=>v.trim()?v.trim().split(/\s+/).length:0;
+function upd(){let tot=0,t=[];PARTS.forEach((_,k)=>{const v=$("p"+k).value,w=wc(v);tot+=w;$("pw"+k).textContent=`${w} words (at least ${MINW})`;if(v.trim())t.push(v.trim())});
+  $("pv").textContent=t.join(" ")||"Your introduction will appear here as you write.";
+  $("wc").textContent=`${tot} words · about ${Math.round(tot/2.2)} seconds spoken (aim for 60 to 90)`}
+upd();
 
 /* ===== ANTI-CHEAT (graded only) ===== */
 let guarded=false;
 function flag(d){S.cheat.push({incident:d,time:new Date().toLocaleTimeString(),step:S.i+1})}
-function pause(m){S.paused=true;stopSpeech();$("ovMsg").textContent=m;$("ov").classList.add("on")}
-function resume(){S.paused=false;$("ov").classList.remove("on");toast("Test resumed.");if(S.i<S.qs.length)replay()}
+function pause(m){S.paused=true;$("ovMsg").textContent=m;$("ov").classList.add("on")}
+function resume(){S.paused=false;$("ov").classList.remove("on");toast("Test resumed.")}
 function guard(){
   if(guarded)return;guarded=true;const on=()=>S.active&&S.mode==="graded";
   document.addEventListener("visibilitychange",()=>{if(document.hidden&&on()){flag("Tab switched or window hidden");pause("You left the test window. This has been recorded.")}});
@@ -250,22 +245,21 @@ function guard(){
 
 /* ===== RESULTS ===== */
 function finish(){
-  const t=$("rt").value.trim();
-  if(t.split(/\s+/).filter(Boolean).length<40)return toast("Write at least 40 words to finish.");
-  S.refl=t;S.active=false;clearInterval(timer);stopSpeech();
-  let mc=0;const by={1:0,2:0};
-  S.qs.forEach((q,i)=>{if(S.ans[i]!==undefined&&q.o[S.ans[i]].ok){mc++;by[q.rn]++}});
-  const m3=Object.values(S.first).filter(Boolean).length,total=S.qs.length+MATCH.pairs.length,score=mc+m3,pct=Math.round(score/total*100),secs=Math.round((Date.now()-S.t0)/1000);
-  S.rec={score,total,pct,secs,by,m3};
+  for(let k=0;k<PARTS.length;k++)if(wc($("p"+k).value)<MINW)return toast(`Add a little more to box ${k+1}.`);
+  S.refl=PARTS.map((_,k)=>$("p"+k).value.trim()).join("\n\n");S.active=false;clearInterval(timer);
+  const CATS=["HR","Communication"],by={},cn={};CATS.forEach(c=>by[c]=cn[c]=0);let mc=0;
+  S.qs.forEach((q,i)=>{cn[q.cat]++;if(S.ans[i]!==undefined&&q.o[S.ans[i]].ok){mc++;by[q.cat]++}});
+  const total=S.qs.length,score=mc,pct=Math.round(score/total*100),secs=Math.round((Date.now()-S.t0)/1000);
+  S.rec={score,total,pct,secs,by};
   const verdict=pct>=85?"Interview ready":pct>=60?"Good base, polish your examples":"Practise the STAR method and try again";
-  const review=S.qs.map((q,i)=>{const ok=S.ans[i]!==undefined&&q.o[S.ans[i]].ok;return `<div class="rv"><b class="${ok?"g":"r"}">${ok?"✓":"✕"} ${q.q}</b>${ok?"":`Best answer: ${q.o.find(o=>o.ok).t}<br>`}${q.why}</div>`}).join("")+
-    MATCH.pairs.map((p,k)=>`<div class="rv"><b class="${S.first[k]?"g":"r"}">${S.first[k]?"✓":"✕"} Match: ${p.q}</b>${p.hint}</div>`).join("");
+  const review=S.qs.map((q,i)=>{const ok=S.ans[i]!==undefined&&q.o[S.ans[i]].ok;return `<div class="rv"><b class="${ok?"g":"r"}">${ok?"✓":"✕"} ${q.q}${q.seg===undefined?" · "+esc(q.iq):""}</b>${ok?"":`Best answer: ${q.o.find(o=>o.ok).t}<br>`}${q.why}</div>`}).join("");
   $("rsub").textContent=S.mode==="graded"?"Graded":"Practice";
   $("rbody").innerHTML=`<div class="big">${pct}%</div><h3 style="text-align:center;margin-bottom:4px">${verdict}</h3>
   <p class="hint" style="text-align:center">${esc(S.name)} · ${esc(S.dept)} · ${score} of ${total} correct · ${fmt(secs)}</p>
-  <div class="grid3"><div class="gb"><b>${by[1]}/3</b><span>Listening</span></div><div class="gb"><b>${by[2]}/3</b><span>Weak answers</span></div><div class="gb"><b>${m3}/3</b><span>Matching</span></div></div>
+  <div class="grid3" style="grid-template-columns:repeat(2,1fr)">${CATS.map(c=>`<div class="gb"><b>${by[c]}/${cn[c]}</b><span>${c}</span></div>`).join("")}</div>
   ${S.mode==="graded"?`<div class="sync pending" id="sync">Saving your score…</div>`:`<div class="sync ok">Practice mode: this score was not saved.</div>`}
   ${S.cheat.length?`<div class="sync fail"><b>Security log (${S.cheat.length})</b><br>${S.cheat.map(c=>`${c.time} · step ${c.step}: ${c.incident}`).join("<br>")}</div>`:""}
+  <h3>Your introduction</h3><p class="ln" style="white-space:pre-wrap">${esc(S.refl)}</p>
   <button class="btn" onclick="download()">Download my report</button><button class="btn alt" style="margin-top:10px" onclick="location.reload()">Start again</button>
   <h3 style="margin-top:22px">Review</h3>${review}`;
   show("res");if(S.mode==="graded")save();
