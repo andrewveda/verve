@@ -20,6 +20,19 @@ input:focus{outline:2px solid var(--g);border-color:var(--g)}
 .chip{display:flex;gap:12px;align-items:center}
 .chip img{width:46px;height:46px;border-radius:50%;border:2px solid var(--g);object-fit:cover}
 .note{border-left:3px solid var(--g);background:#f8ecc4;padding:12px;font-size:.85rem;line-height:1.5;margin-top:14px;border-radius:0 8px 8px 0}
+.rule{border:2px solid var(--gd);background:#fff7d6;border-radius:10px;padding:16px;margin-top:14px}
+.rule h2{font:400 1.6rem/1.1 'Bebas Neue',sans-serif;letter-spacing:.06em;color:var(--gd)}
+.rule h3{font:600 .8rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--gd);margin-top:16px}
+.rule p,.rule li{font-size:.86rem;line-height:1.6;margin-top:8px}
+.rule ol{padding-left:20px}
+.rule li::marker{color:var(--gd);font-weight:600}
+.ack{display:flex;gap:12px;align-items:flex-start;margin:16px 0 0;font-size:.88rem;line-height:1.5;color:var(--t)}
+.ack input{width:24px;height:24px;min-height:0;padding:0;flex:none;margin-top:1px;accent-color:var(--gd)}
+.btn:disabled{opacity:.45}
+.pt{display:flex;gap:10px;align-items:flex-start;cursor:pointer;margin:0;font-size:inherit;color:var(--t)}
+.pt input.pc{width:22px;height:22px;min-height:0;padding:0;flex:none;margin-top:1px;accent-color:var(--gd)}
+.pt:has(input:checked) span{color:var(--m)}
+.cnt{font-weight:600;color:var(--gd);margin-top:14px}
 .btn{width:100%;min-height:50px;border:0;border-radius:10px;background:linear-gradient(135deg,#dcb445,#b8891f);color:#2b2008;font:600 1rem Inter,sans-serif;margin-top:16px}
 .btn:active{transform:scale(.98)}.btn.alt{background:transparent;color:var(--t);border:1px solid var(--l)}.btn.ink{background:var(--t);color:var(--bg)}
 .add{min-height:68px;font-size:1.15rem;margin-top:14px;box-shadow:0 6px 18px #b8891f55}
@@ -50,14 +63,44 @@ input:focus{outline:2px solid var(--g);border-color:var(--g)}
 
 <div class="scr on" id="intro"><div class="w">
   <h1>My Favourites</h1>
-  <p style="color:var(--m);margin-top:6px;line-height:1.5">Sixteen categories, one page each. Search a title, write one crisp line, and give it a star rating. You finish with a prestigious page that carries your name.</p>
+  <p style="color:var(--m);margin-top:6px;line-height:1.5">Sixteen categories, one page each, English-language films only. Search a title, write one crisp line, and give it a star rating. You finish with a prestigious page that carries your name.</p>
   <div class="card chip"><img id="av" alt=""><div><b id="gn">Loading…</b><br><span id="gd" style="font-size:.8rem;color:var(--m)"></span></div></div>
   <div class="card" style="margin-top:10px">
     <label for="full" style="margin-top:0">Full name as on your college ID card</label>
     <input id="full" placeholder=" " autocomplete="name">
   </div>
+
+  <div class="rule">
+    <h2>English-language films only</h2>
+    <p><b>Every title you add must be an original English-language film or series</b> (Hollywood, British, Australian, Indian-English, and so on). Films made in other languages, including those dubbed or subtitled in English, are not accepted for this assignment.</p>
+
+    <h3>Why this rule applies to Professional English – I</h3>
+    <p>Read each point and tick it to show you have understood it. All 16 must be ticked.</p>
+    <p class="cnt" id="cnt">0 of 16 points acknowledged</p>
+    <ol>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>It is a course in English.</b> This paper develops your professional command of English. An assignment in this paper should exercise that language, not bypass it.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Authentic listening input.</b> Original English dialogue exposes you to natural pace, stress, intonation, and connected speech, which a classroom recording cannot match.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Vocabulary in context.</b> You meet idioms, phrasal verbs, collocations, and workplace expressions where they are actually used, which makes them far easier to remember.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Subtitles and dubbing are a translator's English, not the filmmaker's.</b> A subtitle compresses and paraphrases the speech. You would be reviewing someone else's wording, not the original performance.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Pronunciation and accent awareness.</b> English films present American, British, and other varieties, so you train your ear for the accents you will meet in interviews, meetings, and calls.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Register and tone.</b> Boardroom dramas, courtroom films, and political thrillers model formal, persuasive, and diplomatic English, while comedies and dramas model informal speech. Professional English needs both.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>A better one-line review.</b> A strong review needs evaluative vocabulary such as gripping, understated, poignant, or formulaic. You learn these words by hearing and reading criticism in English.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>The critical vocabulary of cinema.</b> Screenplay, cinematography, plot twist, ensemble cast, and pacing are terms you will use when you discuss any film at work or in an interview.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Interview and group-discussion readiness.</b> "What is your favourite film, and why?" is a common question. Answering it fluently in English is a transferable professional skill.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Exam and test preparation.</b> Listening sections in IELTS, TOEFL, and Cambridge exams use varied native accents and natural speech, which is exactly what English films provide.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Global workplace relevance.</b> English is the shared language of international business, technology, and research. Fluency in it widens your career options.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Cultural literacy.</b> English-language cinema supplies many of the references colleagues and clients use in conversation and presentations.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Turning leisure into practice.</b> You already watch films. Choosing English ones converts hours of entertainment into deliberate language exposure.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Consistency and fairness.</b> One shared standard means every student is assessed on the same footing, and your work can be read and evaluated by anyone marking the paper.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Reliable search and referencing.</b> This page searches English Wikipedia. English titles give accurate matches, posters, and links, while transliterated titles often fail or return the wrong film.</span></label></li>
+      <li><label class="pt"><input type="checkbox" class="pc"><span><b>Every category has a rich choice.</b> English-language cinema has strong examples in all sixteen categories, so the rule limits your language, not your taste.</span></label></li>
+    </ol>
+  </div>
+
+  <label class="ack" for="okE"><input type="checkbox" id="okE"><span>I understand that every title I add will be an <b>original English-language film or series</b>, and that non-English films will not be accepted.</span></label>
+
   <div class="note"><b>Before you begin:</b> at the end you will download an HTML file. Upload that file to your <b>Pages of Progress</b> repository. Your work is not submitted until it is there.</div>
-  <button class="btn" id="go">Begin</button>
+  <button class="btn" id="go" disabled>Begin</button>
 </div></div>
 
 <div class="scr" id="app"><div class="w">
@@ -111,7 +154,15 @@ addEventListener('DOMContentLoaded',()=>{
   $('#gn').textContent=USER;$('#gd').textContent='GitHub login · '+DEPT;
   $('#av').src=(g&&g.avatar)||'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E';
 });
+function gate(){
+  const pc=document.querySelectorAll('.pc'),n=document.querySelectorAll('.pc:checked').length;
+  $('#cnt').textContent=n+' of '+pc.length+' points acknowledged';
+  const ok=n===pc.length&&$('#okE').checked;$('#go').disabled=!ok;return ok;
+}
+document.querySelectorAll('.pc').forEach(c=>c.onchange=gate);
+$('#okE').onchange=gate;gate();
 $('#go').onclick=()=>{
+  if(!gate())return toast('Please tick all 16 points and confirm the English-only rule');
   FULL=$('#full').value.trim();
   if(FULL.length<4)return toast('Enter your full name exactly as on your ID card');
   start=Date.now();pg=0;show('app');render();
@@ -123,7 +174,7 @@ function render(){
   $('#pn').textContent=`Category ${pg+1} of ${G.length}`;
   $('#pf').style.width=((pg+1)/G.length*100)+'%';
   $('#pt').textContent=`${ic} ${t}`;
-  $('#pb').innerHTML=`<p class="ds">${D[id]}</p><p class="nt">Genres overlap. Add a film here if it genuinely belongs in this category, even if you chose it elsewhere too.</p><div id="l-${id}"></div><div id="sbx"><input id="q-${id}" placeholder="Search a title…" autocomplete="off"><div class="rs" id="r-${id}"></div></div><button class="btn add" id="addb">＋ Add one more title</button>`;
+  $('#pb').innerHTML=`<p class="ds">${D[id]}</p><p class="nt">Genres overlap. Add a film here if it genuinely belongs in this category, even if you chose it elsewhere too.</p><div id="l-${id}"></div><div id="sbx"><input id="q-${id}" placeholder="Search an English-language title…" autocomplete="off"><div class="rs" id="r-${id}"></div></div><button class="btn add" id="addb">＋ Add one more title</button>`;
   let tm;$('#q-'+id).oninput=e=>{clearTimeout(tm);const v=e.target.value.trim();$('#r-'+id).innerHTML='';if(v.length>1)tm=setTimeout(()=>search(id,v),450)};
   $('#addb').onclick=()=>{sb=true;vis();$('#q-'+id).focus()};
   sb=!S[id].length;list(id);vis();upd();
