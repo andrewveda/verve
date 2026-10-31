@@ -11,7 +11,52 @@ window.PUZZLE_DIRECTORY = {
         "ref": "Marcus Aurelius"
       },
       "puzzles": [
-  {
+{
+  "id": "quote-213",
+  "num": 213,
+  "title": "Puzzle 213",
+  "sub": "A ship in harbour is safe, but…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "A ship in harbour is safe, but that is not what ships are built for.",
+    "author": "John A. Shedd",
+    "contributor": "Lohendra V S",
+    "dept": "EIE",
+    "meaning": "This quote reminds me that staying within familiar boundaries may make us feel safe, but it can also prevent us from discovering our true potential. Just as a ship is built to explore the vast ocean rather than remain in a harbour, we must be willing to step beyond our comfort zones, face uncertainties, and embrace new experiences. Growth begins when we stop allowing the fear of the unknown to limit our possibilities."
+  }
+},
+{
+  "id": "quote-212",
+  "num": 212,
+  "title": "Puzzle 212",
+  "sub": "Fall seven times, stand up eight.",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "Fall seven times, stand up eight.",
+    "author": "Japanese Proverb",
+    "contributor": "Ragavi",
+    "dept": "CSE 2",
+    "meaning": "This quote reminds me that failure is a part of learning. Even if I fail many times, I should keep trying and never give up on my goals."
+  }
+},
+{
+  "id": "quote-211",
+  "num": 211,
+  "title": "Puzzle 211",
+  "sub": "You don't need to see the whole staircase…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "You don't need to see the whole staircase to take the next step.",
+    "author": "Anonymous",
+    "contributor": "Kavitha",
+    "dept": "CSE-2",
+    "meaning": "This quote reminds me that I don't need to know everything about my future. I just need to take the next step with courage, keep learning, and trust the process."
+  }
+},
+        {
     "id": "quote-210",
     "num": 210,
     "title": "Puzzle 210",
