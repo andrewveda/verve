@@ -12,6 +12,21 @@ window.PUZZLE_DIRECTORY = {
       },
       "puzzles": [
 {
+  "id": "quote-214",
+  "num": 214,
+  "title": "Puzzle 214",
+  "sub": "To thine own self be true.",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "To thine own self be true.",
+    "author": "William Shakespeare",
+    "contributor": "Nethra S",
+    "dept": "CSE 2",
+    "meaning": "Always be true to yourself. Never change who you are just to impress others. Believe in your values, respect yourself, and follow your own path."
+  }
+},
+{
   "id": "quote-213",
   "num": 213,
   "title": "Puzzle 213",
