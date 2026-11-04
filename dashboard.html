@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>All Students – GitHub Activity</title>
+<!-- Added Google Fonts for elevated typography -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<!-- Added GSAP for fluid animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+:root {
+  /* Luxury Academic Theme */
+  --bg: #FFF8F0; /* Cream paper */
+  --c: #FAF7F2;  /* Card background */
+  --t: #4A1515;  /* Deep crimson / bronze text */
+  --m: #8C6A5D;  /* Muted tertiary text */
+  --a: #C9A227;  /* Antique gold accent */
+  --g: #2D6A4F;  /* Elegant green */
+  --b: #EADDD7;  /* Warm border */
+  --font-heading: 'Lora', serif;
+  --font-body: 'Inter', sans-serif;
+}
+@media(prefers-color-scheme:dark){
+  :root {
+    --bg: #221513; 
+    --c: #2D1D1A; 
+    --t: #F4EBE8; 
+    --m: #BFA8A2; 
+    --b: #4A332E; 
+    --a: #D4AF37;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  font: 15px var(--font-body);
+  background: var(--bg);
+  color: var(--t);
+  padding: 16px;
+  max-width: 900px;
+  margin: auto;
+  line-height: 1.5;
+}
+h1, h2 { font-family: var(--font-heading); font-weight: 600; }
+h1 { font-size: 26px; margin: 4px 0 16px; color: #6B1D1D; }
+@media(prefers-color-scheme:dark){ h1 { color: #E8C3C3; } }
+h2 { font-size: 20px; margin: 0 0 12px; }
+.m { color: var(--m); font-size: 13px; }
+
+.card {
+  background: var(--c);
+  border: 1px solid var(--b);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(74, 21, 21, 0.04);
+}
+input, button, select {
+  font: inherit;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--b);
+  background: var(--c);
+  color: var(--t);
+  transition: all 0.2s ease;
+}
+input:focus, select:focus { outline: none; border-color: var(--a); box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15); }
+button {
+  background: var(--a);
+  color: #fff;
+  border: 0;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(201, 162, 39, 0.2);
+}
+button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+
+.bar { display: flex; gap: 12px; margin-bottom: 12px; }
+.bar input { flex: 1; min-width: 0; }
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 10px;
+  border-bottom: 1px solid var(--b);
+  cursor: pointer;
+  transition: background 0.25s ease, padding-left 0.25s ease;
+  border-radius: 8px;
+}
+.row:hover {
+  background: rgba(201, 162, 39, 0.06);
+  padding-left: 16px;
+  border-bottom-color: transparent;
+}
+.row:last-child { border-bottom: 0; }
+
+.av {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--b);
+  flex: none;
+  border: 2px solid var(--a);
+  object-fit: cover;
+}
+.grow { flex: 1; min-width: 0; }
+.grow b { 
+  display: block; 
+  line-height: 1.2; 
+  overflow-wrap: anywhere; 
+  font-family: var(--font-heading); 
+  font-size: 17px; 
+}
+.grow .dots { margin-top: 6px; display: flex; gap: 3px; }
+.dots s { text-decoration: none; font-size: 10px; line-height: 1; color: var(--b); }
+.dots s::before { content: "\25CF"; } /* Sleek circles instead of stars */
+.dots s.on { color: var(--a); }
+
+.no { width: 26px; flex: none; text-align: right; font-size: 13px; font-weight: 600; color: var(--m); font-family: monospace; }
+.num { font-size: 12px; min-width: 40px; text-align: right; color: var(--m); }
+.num b { display: block; font-size: 17px; color: var(--t); font-family: var(--font-heading); }
+
+.tag {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--a);
+  color: #fff;
+  min-width: 48px;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(201, 162, 39, 0.3);
+}
+
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 110px; margin: 16px 0; }
+.bars div { flex: 1; text-align: center; font-size: 11px; color: var(--m); display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+.bars i { display: block; background: var(--a); border-radius: 4px 4px 0 0; min-height: 2px; margin-bottom: 4px; opacity: 0.85; transition: height 0.5s ease-out; }
+.bars em { font-style: normal; color: var(--t); font-weight: 500; font-family: var(--font-heading); }
+
+#d {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 28, 25, 0.5);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: flex-end;
+  z-index: 100;
+}
+#d.s { display: flex; animation: fadeIn 0.3s ease-out forwards; }
+#d > div {
+  background: var(--bg);
+  width: 100%;
+  max-height: 85vh;
+  overflow: auto;
+  border-radius: 24px 24px 0 0;
+  padding: 32px 24px;
+  max-width: 900px;
+  margin: auto;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+progress { width: 100%; accent-color: var(--a); height: 6px; border-radius: 3px; margin: 8px 0; }
+progress::-webkit-progress-bar { background-color: var(--b); border-radius: 3px; }
+progress::-webkit-progress-value { background-color: var(--a); border-radius: 3px; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<h1>All students</h1>
+<div class="m" id="st" style="margin-bottom: 12px;">Loading…</div>
+
+<div class="card">
+ <div class="bar">
+  <input id="q" placeholder="Search name or username…">
+  <select id="so">
+   <option value="r">Sort: Recent</option>
+   <option value="s">Sort: Streak</option>
+   <option value="n">Sort: Name</option>
+  </select>
+ </div>
+ <div class="bar">
+  <button id="go" style="flex:1">Refresh Repository Data</button>
+ </div>
+ <progress id="pg" value="0" max="1"></progress>
+ <div class="m" id="cnt" style="margin-top:6px; margin-bottom: 16px;"></div>
+ <div id="al"></div>
+</div>
+
+<div id="d"><div id="dc"></div></div>
+
+<script>
+const USERS=["kameshh013","kanishka1910","karthikeyanskarthik694-hub","karthi18sekar-sketch","KasiViswanathan3112-dot","kathiksha711","kavinilakavi444-jpg","kavitha403","kavithashree-eng","kaviyasri89474-collab","Keerthimano3","khajafahim","keerthisri45123-sudo","krithibas11-alt","kishorevijayakanth126","kohulan754-stack","vxrshh14-era","tlakshithadevi31-pixel","lavanyaganesan166-ui","lavanyaabinaya40-crypto","lohendra12logu-sketch","Lokeshwervk","Maddyyyy-08","madhukrishna0708","madhumathis912-ctrl","manishmari96","achu1234nn","mohammedmagthum8-web","smohanakrishnamurthy-star","Mugunthan1810","mdnawfalriyaz2009-collab","mukilansrinivas","Nandita017","Narendran-developer","naveeenaa","ambikasrini2007-source","nithyapriya0008-rgb","nivetha21102008-cmd","niwin","oviyaparthiban36-web","pavithrasuresh5626-glitch","philipjoshua221015-cpu","beingpoornashri","prabakar20","prasanna29jk","prasanthrajini-cpu","praveenn19","prawinkumark","preethisri20","princyj1015-pixel","ragavkrishna950-gif","Ragavi1904","RagulNexus"];
+const ROSTER=[["KALEELUR RAHMAN S",[]],["KAMESHH V",["kameshh013"]],["KANISHKA M",["kanishka1910"]],["KARTHIKEYAN S (14-03-2008)",["karthikeyanskarthik694-hub"]],["KARTHIKEYAN S (04-03-2009)",["karthi18sekar-sketch"]],["KASI VISWANATHAN",["KasiViswanathan3112-dot"]],["KATHIKSHA V",["kathiksha711"]],["KAVINILA M",["kavinilakavi444-jpg"]],["KAVITHA S",["kavitha403"]],["KAVITHASHREE B",["kavithashree-eng"]],["K KAVIYA SRI",["kaviyasri89474-collab"]],["KEERTHIKA M",["Keerthimano3"]],["KHAJA MOHIDEEN P",["khajafahim"]],["B KIRTHIKA SRI",["keerthisri45123-sudo"]],["B KIRUTHIKA",["krithibas11-alt"]],["KISHOR S S",[]],["KISHORE KUMAR D E",[]],["KISHORE V",["kishorevijayakanth126"]],["A KOHULAN",["kohulan754-stack"]],["KOWSHIK KAMAL L",[]],["KRISHNAVARSHINI S V",["vxrshh14-era"]],["T LAKSHITHA DEVI",["tlakshithadevi31-pixel"]],["LAVANYA G",["lavanyaganesan166-ui"]],["LAVANYA R",["lavanyaabinaya40-crypto"]],["LOHENDRA TG",["lohendra12logu-sketch"]],["LOKESHWER V K",["Lokeshwervk"]],["MADHAAVAN D",["Maddyyyy-08"]],["P MADHUKRISHNA",["madhukrishna0708"]],["MADHUMATHI S",["madhumathis912-ctrl"]],["MANISH M",["manishmari96"]],["MEGARSHITH PACHA",["achu1234nn"]],["MOHAMMED MAGTHUM P",["mohammedmagthum8-web"]],["MOHANA KRISHNA MURTHY S",["smohanakrishnamurthy-star"]],["MUGUNTHA PRIYAN S",["Mugunthan1810"]],["A MUHAMMAD NAWFAL RIYAZ",["mdnawfalriyaz2009-collab"]],["MUKILAN S",["mukilansrinivas"]],["NANDHINI M",[]],["R NANDITA",["Nandita017"]],["NARENDRAN K",["Narendran-developer"]],["NAVEENA M S",["naveeenaa"]],["NETHRA S",["Nethra-cmd"]],["NITHYAPRIYA S",["nithyapriya0008-rgb"]],["NIVETHA T",["nivetha21102008-cmd"]],["NIVETHA V",["nivetha21102008-cmd"]],["NIWIN KUMAR S",["niwin"]],["OVIYA P",["oviyaparthiban36-web"]],["PAVITHRA S",["pavithrasuresh5626-glitch"]],["PHILIP P",["philipjoshua221015-cpu"]],["POORNASHRI S",["beingpoornashri"]],["PRABAKAR A",["prabakar20"]],["PRASANNA KUMAR P",["prasanna29jk"]],["PRASANTH R",["prasanthrajini-cpu"]],["PRAVEEN KUMAR M",["praveenn19"]],["PRAWIN KUMAR K",["prawinkumark"]],["PREETHI SRI.A",["preethisri20"]],["PRINCY J",["princyj1015-pixel"]],["RAGAV KRISHNA V",["ragavkrishna950-gif"]],["RAGAVI E",["Ragavi1904"]],["RAGUL R",["RagulNexus"]]];
+const $=i=>document.getElementById(i),DAY=864e5,
+ dk=d=>{d=new Date(d);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()},
+ mid=d=>{const x=new Date(d);x.setHours(0,0,0,0);return +x};
+let S={};try{S=JSON.parse(localStorage.ghd||"{}")}catch(e){}
+const days=n=>[...Array(n)].map((_,i)=>dk(Date.now()-(n-1-i)*DAY));
+let P=[];
+
+async function load(){
+ const tk="";
+ let blocked=0;try{blocked=+(localStorage.ghb||0)}catch(e){}
+ if(Date.now()<blocked){$("st").textContent="Rate limit active until "+new Date(blocked).toLocaleTimeString()+" · showing cached data";render();return}
+ const todo=USERS.filter(u=>!S[u]||Date.now()-S[u].t>36e5);let i=0;
+ for(const u of todo){
+  $("pg").value=++i/todo.length;$("st").textContent=`Fetching ${i}/${todo.length}…`;
+  try{const hd={};if(tk)hd.Authorization="Bearer "+tk;if(S[u]?.etag)hd["If-None-Match"]=S[u].etag;
+   const r=await fetch(`https://api.github.com/users/${u}/events/public?per_page=100`,{headers:hd});
+   if(r.status==304)S[u].t=Date.now();
+   else if(r.status==404)S[u]={t:Date.now(),s:"missing",e:[]};
+   else if(r.status==403||r.status==429){const rs=+r.headers.get("x-ratelimit-reset")*1000||Date.now()+36e5;try{localStorage.ghb=rs}catch(e){}$("st").textContent="Rate limit hit. Resumes after "+new Date(rs).toLocaleTimeString()+" · showing cached data";render();return}
+   else{const j=await r.json();S[u]={t:Date.now(),etag:r.headers.get("etag"),s:"ok",e:j.filter(e=>["PushEvent","PullRequestEvent","IssuesEvent"].includes(e.type)).map(e=>[e.created_at,e.repo.name,e.type=="PushEvent"?(e.payload.size||1):1])}}
+  }catch(e){}
+  try{localStorage.ghd=JSON.stringify(S)}catch(e){}
+  if(i%10==0)render();
+ }
+ $("pg").value=1;render();
+}
+
+function render(){
+ const L=days(7),T=dk(Date.now());
+ P=ROSTER.map(([n,ac])=>{const by={},repos={};let ok2=0,miss=0,last=0;
+  ac.forEach(u=>{const s=S[u];if(s?.s=="ok")ok2=1;if(s?.s=="missing")miss++;
+   (s?.e||[]).forEach(e=>{const k=dk(e[0]);by[k]=(by[k]||0)+e[2];repos[e[1]]=(repos[e[1]]||0)+e[2];last=Math.max(last,+new Date(e[0]))})});
+  let st=0,c=Date.now();if(!by[T])c-=DAY;while(by[dk(c)]){st++;c-=DAY}
+  const w=L.map(d=>by[d]||0);
+  return{u:n,ac,s:!ac.length?"nouser":ok2?"ok":miss==ac.length?"missing":"none",by,repos,st,last,w,wk:w.reduce((a,b)=>a+b,0),
+   ago:last?Math.round((mid(Date.now())-mid(last))/DAY):999}});
+ const q=$("q").value.toLowerCase(),so=$("so").value;
+ const cmp={r:(a,b)=>b.last-a.last,s:(a,b)=>b.st-a.st||b.last-a.last,n:(a,b)=>a.u.localeCompare(b.u)}[so];
+ const info=p=>p.s=="nouser"?"No username registered":p.s=="missing"?"Not found on GitHub":p.s=="none"?"Data pending":p.last?(p.ago?p.ago+"d ago":"Active today"):"No recent feed activity";
+ const F=P.filter(p=>(p.u+" "+p.ac.join(" ")).toLowerCase().includes(q));
+ $("cnt").textContent=`Showing ${F.length} of ${P.length} students`;
+ 
+ $("al").innerHTML=F.sort(cmp).map((p,i)=>
+  `<div class="row" onclick="det(${P.indexOf(p)})">
+    <span class="no">${i+1}</span>
+    <img class="av" src="${p.ac[0]?`https://github.com/${p.ac[0]}.png?size=88`:'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}" alt="">
+    <div class="grow">
+      <b>${p.u}</b>
+      <span class="dots">${p.w.map(v=>`<s class="${v?"on":""}"></s>`).join("")}</span>
+      ${p.s=="ok"?"":`<span class="m" style="margin-top: 4px; display: block;">${info(p)}</span>`}
+    </div>
+    <span class="num"><b>${p.wk}</b>7d</span>
+    <span class="tag" style="${p.st>1?"":"visibility:hidden"}">🔥 ${p.st}</span>
+   </div>`).join("")||'<span class="m" style="padding: 12px; display: block;">No matches found.</span>';
+ 
+ const s=$("st").textContent;
+ if(!/^(Fetch|Rate)/.test(s))$("st").textContent=`${P.filter(p=>p.s=="ok").length} of ${ROSTER.length} students loaded · ${P.filter(p=>p.s=="nouser").length} missing mapping`;
+
+ // Trigger GSAP Stagger Animation for the list items
+ if(window.gsap && F.length > 0) {
+   gsap.fromTo("#al .row", 
+     { y: 15, opacity: 0 }, 
+     { y: 0, opacity: 1, duration: 0.4, stagger: 0.03, ease: "power2.out", clearProps: "all" }
+   );
+ }
+}
+
+window.det=i=>{
+ const p=P[i],L=days(14);
+ $("dc").innerHTML=`
+  <h2>${p.u}</h2>
+  <div class="m" style="margin-bottom: 12px;">${p.ac.join(", ")||"No username mapped"}</div>
+  ${p.ac[0]?`<a href="https://github.com/${p.ac[0]}" target="_blank" style="color: var(--a); font-weight: 500; text-decoration: none;">View full GitHub Profile &rarr;</a>`:""}
+  <div style="margin: 20px 0; padding: 16px; background: rgba(201, 162, 39, 0.08); border-radius: 12px; border: 1px solid rgba(201, 162, 39, 0.2);">
+    <p style="margin:0; font-size: 16px;">Current Streak: <b style="color: var(--t); font-family: var(--font-heading); font-size: 20px;">${p.st}</b> days</p>
+    <p style="margin: 4px 0 0; font-size: 14px; color: var(--m);">Last 7 days: <b>${p.wk}</b> commits/events</p>
+  </div>
+  <div class="bars">${L.map(d=>`<div><em>${p.by[d]||0}</em><i style="height:${Math.min(80,(p.by[d]||0)*8)}px"></i></div>`).join("")}</div>
+  <h3 style="font-family: var(--font-heading); font-size: 16px; margin: 24px 0 8px; border-bottom: 1px solid var(--b); padding-bottom: 8px;">Active Repositories (Last 14 Days)</h3>
+  <div style="max-height: 150px; overflow-y: auto; padding-right: 8px;">
+    ${Object.entries(p.repos).sort((a,b)=>b[1]-a[1]).map(([r,n])=>`<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--b);"><span style="color: var(--t); font-family: monospace; font-size: 13px; word-break: break-all;">${r}</span><b style="color: var(--m);">${n}</b></div>`).join("")||"<p class='m'>No repository activity detected in this timeframe.</p>"}
+  </div>
+  <button onclick="$('d').classList.remove('s')" style="width:100%; margin-top: 24px; padding: 12px;">Close Details</button>`;
+ $("d").classList.add("s");
+};
+
+$("d").onclick=e=>{if(e.target.id=="d")$("d").classList.remove("s")};
+$("q").oninput=render;
+$("so").onchange=render;
+$("go").onclick=load;
+setInterval(load,36e5);
+
+render();
+load();
+</script>
+</body>
+</html>
