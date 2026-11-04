@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The V Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f8f5ef;--ink:#1c1a16;--mid:#4a4640;--muted:#8a837a;--crimson:#6b0f1a;--line:#d9d1c2;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#15110d;--ink:#efe8da;--mid:#c9c0af;--muted:#8f8676;--crimson:#d4505f;--line:#3a3328}}
+:root[data-theme="dark"]{--paper:#15110d;--ink:#efe8da;--mid:#c9c0af;--muted:#8f8676;--crimson:#d4505f;--line:#3a3328}
+*,*::before,*::after{box-sizing:inherit}
+html{background:var(--paper)}
+body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;line-height:1.45;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+main{max-width:460px;margin:0 auto;padding:64px 28px 56px}
+h1{font-family:'IM Fell English',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(38px,11vw,50px);line-height:1;margin:0 0 48px;text-align:center;animation:rise 1s both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+.ch{position:relative;display:block;text-decoration:none;color:inherit;padding:30px 0;border-top:1px solid var(--line);overflow:hidden;touch-action:manipulation;transition:padding-left .3s}
+.ch:last-of-type{border-bottom:1px solid var(--line)}
+.ch:hover,.ch:active{padding-left:10px}
+.ch:focus-visible{outline:2px solid var(--crimson);outline-offset:-2px}
+.title{display:block;font-family:'IM Fell English',serif;font-size:clamp(28px,8.5vw,34px);line-height:1.05;color:var(--crimson)}
+.q{display:block;margin-top:12px;font-style:italic;font-size:21px;color:var(--mid)}
+.by{display:block;margin-top:4px;font-size:16px;color:var(--muted)}
+.ink{position:absolute;border-radius:50%;background:var(--crimson);opacity:.25;pointer-events:none;transform:scale(0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>The V Quests</h1>
+  <nav aria-label="Chapters">
+    <a class="ch" href="https://andrewveda.com/verve/buttons/clips/v-broadcast" target="_blank" rel="noopener">
+      <span class="title">Quest 1</span>
+      <span class="q">“Eternal vigilance is the price of liberty.”</span>
+      <span class="by">Wendell Phillips</span>
+    </a>
+    <a class="ch" href="https://andrewveda.com/verve/buttons/clips/V-overture" target="_blank" rel="noopener">
+      <span class="title">Quest 2</span>
+      <span class="q">“Man is least himself when he talks in his own person. Give him a mask, and he will tell you the truth.”</span>
+      <span class="by">Oscar Wilde</span>
+    </a>
+    <a class="ch" href="https://andrewveda.com/verve/buttons/clips/v-monologue" target="_blank" rel="noopener">
+      <span class="title">Quest 3</span>
+      <span class="q">“Give me the liberty to know, to utter, and to argue freely according to conscience, above all liberties”</span>
+      <span class="by">John Milton</span>
+    </a>
+  </nav>
+</main>
+<script>
+document.querySelectorAll('.ch').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var r=a.getBoundingClientRect(),s=Math.max(r.width,r.height)*2.2,d=document.createElement('span');
+    d.className='ink';d.style.width=d.style.height=s+'px';
+    d.style.left=((e.clientX||r.left+r.width/2)-r.left-s/2)+'px';d.style.top=((e.clientY||r.top+r.height/2)-r.top-s/2)+'px';
+    a.appendChild(d);
+    d.animate([{transform:'scale(0)',opacity:.3},{transform:'scale(1)',opacity:0}],{duration:700,easing:'ease-out'}).onfinish=function(){d.remove()};
+  });
+});
+</script>
+</body>
+</html>
