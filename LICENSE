@@ -1,21 +1,623 @@
-MIT License
+# VERVE INSTITUTIONAL SOFTWARE LICENCE AGREEMENT
 
-Copyright (c) 2026 Andrew Veda
+**Copyright © 2026 Andrew Veda. All rights reserved.**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+## 1. INTRODUCTION AND OWNERSHIP
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Verve, including its source code, object code, architecture, interface, design, documentation, learning materials, assessment systems, question banks, games, features and associated intellectual property (collectively, the "Software"), is proprietary software owned by Andrew Veda ("Licensor").
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+This Agreement governs the licensing of the Software to educational institutions and other authorised organisations ("Institution").
+
+No licence or right to use the Software is granted merely by viewing, accessing, downloading, copying or possessing any part of the Software or its source code.
+
+The Institution may use the Software only under a written Institutional Order Form accepted by the Licensor and subject to this Agreement.
+
+## 2. DEFINITIONS
+
+For the purposes of this Agreement:
+
+**2.1 Authorised Users:** Students, faculty members, instructors, administrators and employees of the Institution who are permitted to access the Software under the applicable Order Form.
+
+**2.2 Institution Data:** All information, records, assignments, submissions, grades, educational materials, personal information and other content entered into or generated through the Software by the Institution or its Authorised Users.
+
+**2.3 Documentation:** User guides, technical specifications, instructions and other documentation supplied by the Licensor.
+
+**2.4 Order Form:** A written commercial agreement accepted by both parties specifying the Institution, licensed modules, authorised user limits, fees, duration, deployment model and applicable support arrangements.
+
+**2.5 Hosted Deployment:** A deployment in which the Licensor hosts and operates the Software for the Institution.
+
+**2.6 Self-Hosted Deployment:** A deployment in which the Institution installs and operates the Software on infrastructure under its control.
+
+**2.7 Updates:** Bug fixes, security patches, improvements and new versions of the Software made available by the Licensor during the Term.
+
+**2.8 Term:** The duration of the licence as specified in the applicable Order Form.
+
+## 3. LICENCE GRANT
+
+**3.1 Grant of Licence**
+
+Subject to the Institution's compliance with this Agreement and payment of applicable fees, the Licensor grants the Institution a limited, non-exclusive, non-transferable and non-sublicensable licence to access and use the Software during the Term.
+
+The licence is granted solely for the Institution's internal educational, academic and administrative purposes and for the benefit of its Authorised Users.
+
+**3.2 Deployment**
+
+The licence may be granted under either of the following deployment models:
+
+a. Hosted Deployment, where the Licensor provides access to the Software through infrastructure operated by the Licensor or its hosting providers.
+
+b. Self-Hosted Deployment, where the Institution installs and operates the Software on infrastructure under its control.
+
+The applicable deployment model shall be specified in the Order Form.
+
+**3.3 Self-Hosted Copies**
+
+For Self-Hosted Deployments, the Institution may maintain a reasonable number of copies of the Software for production, staging, testing, disaster recovery and backup purposes. All such copies remain subject to this Agreement.
+
+**3.4 Configuration and Branding**
+
+The Institution may configure the Software and apply its own name, logo and colour scheme through supported settings and configuration options, provided such changes do not violate this Agreement or infringe the Licensor's intellectual property rights.
+
+**3.5 Reservation of Rights**
+
+All rights not expressly granted under this Agreement are reserved by the Licensor.
+
+No rights are granted by implication, estoppel or otherwise.
+
+## 4. RESTRICTIONS ON USE
+
+The Institution shall not, and shall not permit its Authorised Users or any third party to:
+
+a. Copy, reproduce, modify, translate, adapt or create derivative works of the Software except where expressly permitted by this Agreement or applicable law.
+
+b. Reverse engineer, decompile, disassemble or attempt to derive the source code of any non-source-code component of the Software, except where applicable law expressly permits such activity.
+
+c. Sell, resell, rent, lease, lend, sublicense, redistribute or commercially exploit the Software without the Licensor's prior written consent.
+
+d. Make the Software available to individuals or organisations outside the Institution's Authorised Users.
+
+e. Use the Software as a service bureau, managed service or third-party hosting service for other organisations.
+
+f. Use the Software, its source code or its documentation to develop, train or improve a competing product or service.
+
+g. Remove, modify, conceal or obscure copyright notices, trademarks, proprietary notices or other ownership information.
+
+h. Circumvent, disable or interfere with authentication mechanisms, licensing restrictions, usage limits, security controls or access restrictions.
+
+i. Share login credentials or permit multiple individuals to use a single-user account.
+
+j. Publish benchmark results, performance evaluations or comparative assessments of the Software without the Licensor's prior written consent.
+
+k. Use the Software in violation of applicable laws or to store, distribute or transmit unlawful, infringing or malicious material.
+
+l. Interfere with the integrity, availability, security or performance of the Software or its hosting infrastructure.
+
+## 5. INTELLECTUAL PROPERTY AND OWNERSHIP
+
+**5.1 Ownership of Software**
+
+The Licensor retains all right, title and interest in and to the Software, Documentation, Updates, designs, architecture, source code, object code, learning materials, assessment systems, question banks, games, interfaces, branding and all associated intellectual property rights, except for third-party components governed by their respective licence terms.
+
+**5.2 Institution Data**
+
+The Institution retains ownership of Institution Data.
+
+Nothing in this Agreement transfers ownership of Institution Data to the Licensor.
+
+**5.3 Limited Data Processing Rights**
+
+The Institution grants the Licensor a limited, non-exclusive right to host, store, process, transmit and display Institution Data solely to provide, maintain, secure and support the Software and to fulfil obligations under this Agreement.
+
+**5.4 Aggregated and De-identified Information**
+
+The Licensor may generate and use aggregated, de-identified statistical information relating to the use and performance of the Software, provided such information does not identify the Institution, any Authorised User or any individual.
+
+Such information may be used to operate, analyse and improve the Software.
+
+**5.5 Feedback**
+
+The Licensor may use suggestions, recommendations and feedback provided by the Institution concerning the Software without restriction or obligation, provided such feedback does not disclose or incorporate Institution Data or confidential information belonging to the Institution.
+
+**5.6 Institution Content**
+
+The Institution represents that it has obtained all necessary rights, permissions and consents required to upload, store and use Institution Data through the Software.
+
+## 6. FEES AND PAYMENT
+
+**6.1 Licence Fees**
+
+The Institution shall pay the fees specified in the applicable Order Form.
+
+Fees may include:
+
+a. Annual or periodic software licence fees.
+
+b. Per-user subscription or usage fees.
+
+c. Implementation and onboarding charges.
+
+d. Optional training, support, customisation and integration charges.
+
+e. Other mutually agreed commercial charges.
+
+**6.2 Payment Terms**
+
+Unless otherwise specified in the Order Form, invoices shall be payable within thirty (30) days of the invoice date.
+
+**6.3 Taxes**
+
+All fees are exclusive of applicable taxes, duties and statutory levies, including GST. The Institution shall be responsible for applicable taxes, except taxes imposed on the Licensor's net income.
+
+**6.4 Late Payments**
+
+Overdue undisputed amounts may accrue interest at one per cent (1%) per month or the maximum rate permitted by applicable law, whichever is lower.
+
+The Licensor may suspend access upon fifteen (15) days' written notice if undisputed amounts remain unpaid.
+
+**6.5 Non-Refundability**
+
+Fees are non-cancellable and non-refundable except where this Agreement expressly provides otherwise or applicable law requires a refund.
+
+**6.6 User Limits**
+
+The Institution shall not exceed the authorised user limits specified in the Order Form.
+
+Additional users may be charged at the applicable additional-user rates agreed between the parties.
+
+**6.7 Renewal Fees**
+
+The Licensor may revise fees for a Renewal Term by providing at least sixty (60) days' written notice before the commencement of that Renewal Term.
+
+## 7. SUPPORT, HOSTING AND UPDATES
+
+**7.1 Support**
+
+The Licensor shall provide technical support in accordance with the support arrangements specified in the Order Form.
+
+Where no additional support level is specified, reasonable support shall be provided through electronic communication during normal business hours.
+
+**7.2 Updates**
+
+The Licensor shall make generally available Updates accessible to the Institution during the Term.
+
+For Self-Hosted Deployments, the Institution shall be responsible for installing and maintaining Updates.
+
+The Licensor shall not be responsible for defects or security issues arising from the Institution's continued use of versions more than two major releases behind the current generally available version.
+
+**7.3 Hosting and Availability**
+
+For Hosted Deployments, the Licensor shall use commercially reasonable efforts to maintain the availability of the Software and implement appropriate administrative, technical and physical safeguards to protect Institution Data.
+
+**7.4 Software Improvements**
+
+The Licensor may modify, enhance, replace or discontinue individual features of the Software, provided that such changes do not materially reduce the core functionality of the Software during the then-current Term.
+
+## 8. TERM AND TERMINATION
+
+**8.1 Commencement**
+
+This Agreement shall take effect on the Effective Date specified in the applicable Order Form.
+
+**8.2 Initial Term and Renewal**
+
+The licence shall remain in effect for the Initial Term specified in the Order Form.
+
+Unless either party provides written notice of non-renewal at least sixty (60) days before the end of the then-current Term, the Agreement shall automatically renew for successive periods of the same duration.
+
+**8.3 Termination for Breach**
+
+Either party may terminate this Agreement by written notice if the other party commits a material breach and fails to remedy that breach within thirty (30) days of receiving written notice describing the breach.
+
+The Licensor may terminate the licence immediately by written notice if the Institution commits a material violation of the licence grant or use restrictions that cannot reasonably be remedied.
+
+**8.4 Refunds**
+
+If the Institution terminates this Agreement due to an uncured material breach by the Licensor, the Licensor shall refund prepaid fees attributable to the unused period following termination.
+
+**8.5 Consequences of Termination**
+
+Upon expiry or termination:
+
+a. All rights granted to the Institution under this Agreement shall immediately cease.
+
+b. The Institution shall discontinue all use of the Software.
+
+c. For Self-Hosted Deployments, the Institution shall delete all copies of the Software and certify such deletion in writing upon reasonable request.
+
+d. All outstanding fees accrued up to the date of termination shall become immediately payable.
+
+e. For Hosted Deployments, the Licensor shall make Institution Data available for export in a standard, machine-readable format for thirty (30) days following termination.
+
+f. The Licensor shall delete Institution Data from its systems within ninety (90) days following termination, except where retention is required by law or where data remains in routine backups pending their scheduled deletion.
+
+**8.6 Academic Continuity**
+
+Where termination or expiry would occur during an ongoing academic term, the Institution may request an extension until the end of that academic term by paying the applicable pro-rated fees.
+
+Such extension shall be subject to reasonable written agreement between the parties.
+
+**8.7 Survival**
+
+Provisions concerning intellectual property, restrictions on use, confidentiality, payment obligations, data protection, liability, indemnification and any other provisions intended by their nature to survive shall remain effective after termination or expiry.
+
+## 9. DATA PROTECTION AND PRIVACY
+
+**9.1 Responsibilities**
+
+The Institution is responsible for determining the purposes and means of processing Institution Data and for ensuring that its collection and use comply with applicable data protection and privacy laws.
+
+The Licensor shall process Institution Data on behalf of the Institution solely for the purposes described in this Agreement and in accordance with documented instructions.
+
+**9.2 Legal Compliance**
+
+Each party shall comply with the data protection and privacy laws applicable to it, including, where applicable, India's Digital Personal Data Protection Act, 2023, and the rules and regulations made under it, as well as other applicable national and international data protection requirements.
+
+The Institution shall provide all legally required notices and obtain necessary permissions, consents or other lawful authorisations from its Authorised Users.
+
+**9.3 Restrictions on Data Use**
+
+The Licensor shall not:
+
+a. Sell Institution Data.
+
+b. Use Institution Data to advertise or market products directly to Authorised Users.
+
+c. Use Institution Data for purposes unrelated to providing, maintaining, securing or supporting the Software, except as expressly permitted by this Agreement or required by law.
+
+**9.4 Security Measures**
+
+The Licensor shall maintain reasonable administrative, technical and organisational safeguards designed to protect Institution Data against unauthorised access, disclosure, alteration, destruction or loss.
+
+Such safeguards shall include encryption in transit and appropriate access controls.
+
+For Self-Hosted Deployments, the Institution shall be responsible for securing its own infrastructure and deployment environment.
+
+**9.5 Security Incidents**
+
+If the Licensor becomes aware of unauthorised access to or disclosure of Institution Data under its control, the Licensor shall notify the Institution without undue delay and, where practicable, within seventy-two (72) hours of becoming aware of the incident.
+
+The Licensor shall provide reasonably available information necessary to assist the Institution in meeting its legal obligations and shall take reasonable steps to contain and remediate the incident.
+
+**9.6 Subprocessors**
+
+The Licensor may engage third-party service providers, including cloud hosting, authentication, storage and infrastructure providers, to deliver the Software.
+
+The Licensor shall remain responsible for ensuring that such providers are subject to appropriate contractual obligations concerning the protection of Institution Data.
+
+**9.7 Minors**
+
+The Institution shall ensure that the use of the Software by individuals under the age of majority complies with applicable laws and any required parental or guardian consent requirements.
+
+**9.8 Additional Data Processing Agreements**
+
+Where required by applicable law or reasonably requested by the Institution, the parties shall enter into an appropriate Data Processing Agreement governing their respective responsibilities.
+
+In the event of a conflict, the Data Processing Agreement shall prevail with respect to the specific data processing obligations addressed therein.
+
+## 10. WARRANTIES AND DISCLAIMERS
+
+**10.1 Mutual Authority**
+
+Each party represents that it has the legal capacity and authority to enter into this Agreement.
+
+**10.2 Software Warranty**
+
+The Licensor warrants that, during the Term:
+
+a. The Software shall perform substantially in accordance with its Documentation when used in accordance with this Agreement.
+
+b. The Licensor shall use commercially reasonable efforts to ensure that the Software is free from viruses and malicious code.
+
+**10.3 Remedy for Non-Conformity**
+
+If the Institution identifies a material failure of the Software to conform to the warranties in Section 10.2, it shall notify the Licensor in writing.
+
+The Licensor shall use commercially reasonable efforts to correct the non-conformity within thirty (30) days of receiving such notice.
+
+If the Licensor is unable to correct the non-conformity within that period, the Institution may terminate the affected licence and receive a refund of prepaid fees attributable to the remaining Term.
+
+This shall be the Institution's exclusive contractual remedy for breach of the warranties in Section 10.2, subject to rights that cannot lawfully be excluded.
+
+**10.4 Disclaimer**
+
+Except for the express warranties stated in this Agreement, the Software and related services are provided on an "AS IS" and "AS AVAILABLE" basis.
+
+To the maximum extent permitted by applicable law, the Licensor disclaims all other express or implied warranties, including implied warranties of merchantability, fitness for a particular purpose, title and non-infringement.
+
+The Licensor does not warrant that:
+
+a. The Software will operate without interruption or errors.
+
+b. All defects will be corrected.
+
+c. The Software will be compatible with every device, browser, operating system or third-party service.
+
+d. The Software will achieve any particular educational, assessment, accreditation or institutional outcome.
+
+The Institution remains responsible for academic decisions, assessment policies, grading and credentialing decisions made using the Software.
+
+## 11. INDEMNIFICATION
+
+**11.1 Intellectual Property Indemnification**
+
+The Licensor shall defend the Institution against third-party claims alleging that the Software, as supplied by the Licensor and used in accordance with this Agreement, infringes that third party's copyright, trademark or trade secret rights.
+
+The Licensor shall pay damages and reasonable legal costs finally awarded against the Institution or agreed in a settlement authorised by the Licensor.
+
+This obligation shall not apply to claims arising from:
+
+a. Modifications made by parties other than the Licensor.
+
+b. Combination of the Software with products or services not supplied by the Licensor.
+
+c. Institution Data or content supplied by the Institution.
+
+d. Use of the Software in violation of this Agreement.
+
+e. Continued use of an allegedly infringing version after the Licensor has provided a reasonable non-infringing alternative.
+
+If the Software becomes subject to an infringement claim, the Licensor may obtain the necessary rights, modify the Software to avoid infringement or terminate the affected licence and refund prepaid fees attributable to the unused portion of the Term.
+
+**11.2 Institution Indemnification**
+
+To the extent permitted by applicable law, the Institution shall defend and indemnify the Licensor against third-party claims arising from:
+
+a. Institution Data or content supplied by the Institution.
+
+b. The Institution's unlawful use of the Software.
+
+c. The Institution's material breach of the restrictions in Section 4.
+
+d. The Institution's failure to obtain necessary rights, permissions or consents for Institution Data.
+
+Where the Institution is a public body or other entity legally restricted from providing indemnification, this provision shall apply only to the extent permitted by applicable law.
+
+**11.3 Indemnification Procedure**
+
+The party seeking indemnification shall:
+
+a. Promptly notify the other party of the relevant claim.
+
+b. Permit the indemnifying party to control the defence and settlement of the claim.
+
+c. Provide reasonable cooperation and assistance at the indemnifying party's expense.
+
+No settlement shall impose an admission of liability or additional obligation on the indemnified party without its prior written consent.
+
+## 12. LIMITATION OF LIABILITY
+
+**12.1 Exclusion of Certain Damages**
+
+To the maximum extent permitted by applicable law, neither party shall be liable to the other for indirect, incidental, special, exemplary, punitive or consequential damages, including loss of profits, revenue, business opportunities or goodwill, arising out of this Agreement.
+
+**12.2 Liability Cap**
+
+To the maximum extent permitted by applicable law, the total aggregate liability of either party arising out of or relating to this Agreement shall not exceed the total fees paid or payable by the Institution to the Licensor during the twelve (12) months immediately preceding the event giving rise to the claim.
+
+**12.3 Exceptions**
+
+Nothing in this Section shall limit or exclude:
+
+a. The Institution's obligation to pay fees properly due under this Agreement.
+
+b. Liability arising from fraud or fraudulent misrepresentation.
+
+c. Liability arising from gross negligence or wilful misconduct.
+
+d. Either party's indemnification obligations under Section 11.
+
+e. Liability for infringement or misappropriation of intellectual property rights.
+
+f. Liability that cannot lawfully be excluded or limited under applicable law.
+
+## 13. CONFIDENTIALITY
+
+**13.1 Confidential Information**
+
+"Confidential Information" means all non-public information disclosed by one party to the other that is identified as confidential or that ought reasonably to be understood as confidential.
+
+This includes:
+
+a. The Software's source code, architecture, technical specifications and security arrangements.
+
+b. Commercial terms, pricing and licensing arrangements.
+
+c. Institution Data and educational records.
+
+d. Business strategies, operational information and technical documentation.
+
+**13.2 Obligations**
+
+The receiving party shall:
+
+a. Use Confidential Information solely for the purposes of this Agreement.
+
+b. Protect Confidential Information using at least reasonable care.
+
+c. Disclose Confidential Information only to employees, contractors and professional advisers who require access for legitimate purposes and are subject to appropriate confidentiality obligations.
+
+d. Not disclose Confidential Information to unauthorised third parties.
+
+**13.3 Exclusions**
+
+Confidential Information shall not include information that:
+
+a. Becomes publicly available without breach of this Agreement.
+
+b. Was lawfully known to the receiving party before disclosure.
+
+c. Is independently developed without using the disclosing party's Confidential Information.
+
+d. Is lawfully obtained from a third party without confidentiality restrictions.
+
+**13.4 Legally Required Disclosure**
+
+A party may disclose Confidential Information where required by law, regulation or a competent court, provided that it gives prior notice to the other party where legally permitted.
+
+**13.5 Duration**
+
+Confidentiality obligations shall continue throughout the Term and for five (5) years after termination or expiry.
+
+Obligations relating to source code and trade secrets shall continue for as long as such information remains protected as confidential information or a trade secret under applicable law.
+
+## 14. VERIFICATION AND COMPLIANCE
+
+**14.1 Records**
+
+The Institution shall maintain reasonably accurate records of its Authorised Users and, for Self-Hosted Deployments, the installations and copies of the Software maintained by it.
+
+**14.2 Verification Rights**
+
+The Licensor may, no more than once in any twelve-month period, request written certification from the Institution confirming compliance with the user limits and licensing restrictions.
+
+If reasonably necessary, the Licensor may request a limited review of relevant compliance records during normal business hours by providing at least fifteen (15) days' written notice.
+
+Any such review shall:
+
+a. Be conducted in a manner that does not unreasonably interfere with the Institution's operations.
+
+b. Be limited to information reasonably necessary to verify compliance.
+
+c. Not involve access to Institution Data or confidential educational records.
+
+**14.3 Underpayment**
+
+Where verification establishes an underpayment, the Institution shall promptly pay the outstanding amount.
+
+If the underpayment exceeds five per cent (5%) of the amount properly payable for the period reviewed, the Institution shall also reimburse the reasonable cost of the verification exercise.
+
+## 15. THIRD-PARTY AND OPEN-SOURCE COMPONENTS
+
+**15.1 Third-Party Components**
+
+The Software may incorporate third-party libraries, frameworks, tools, services and open-source components.
+
+Such components remain subject to their respective copyright notices and licence terms.
+
+**15.2 Independent Licence Rights**
+
+Nothing in this Agreement shall restrict or override rights independently granted to the Institution under the applicable licences governing third-party or open-source components.
+
+**15.3 Third-Party Services**
+
+External services connected to or used alongside the Software, including authentication providers, cloud infrastructure, databases and video services, may be governed by separate terms and conditions.
+
+The Institution's use of such services shall be subject to the applicable third-party agreements.
+
+## 16. GOVERNING LAW AND DISPUTE RESOLUTION
+
+**16.1 Governing Law**
+
+This Agreement shall be governed by and construed in accordance with the laws of India.
+
+**16.2 Good-Faith Negotiation**
+
+The parties shall first attempt to resolve any dispute arising out of or relating to this Agreement through good-faith negotiations between their authorised representatives.
+
+The parties shall allow thirty (30) days from the commencement of such negotiations to attempt an amicable resolution.
+
+**16.3 Jurisdiction**
+
+If the dispute cannot be resolved through negotiation, the courts of competent jurisdiction in Chennai, Tamil Nadu, India, shall have exclusive jurisdiction, subject to applicable law.
+
+**16.4 Intellectual Property Protection**
+
+Nothing in this Section shall prevent either party from seeking appropriate interim or injunctive relief from a competent court to protect its intellectual property rights or Confidential Information.
+
+## 17. GENERAL PROVISIONS
+
+**17.1 Entire Agreement**
+
+This Agreement, together with the applicable Order Form and any mutually executed supplementary agreements, constitutes the entire agreement between the parties concerning the licensing of the Software.
+
+It supersedes all prior discussions, representations and understandings relating to its subject matter.
+
+**17.2 Order of Precedence**
+
+In the event of a conflict between this Agreement and an Order Form, the Order Form shall prevail only with respect to the specific commercial and deployment terms it expressly modifies.
+
+All other provisions of this Agreement shall remain effective.
+
+Terms contained in the Institution's purchase orders or procurement documents shall not amend this Agreement unless expressly accepted in writing by the Licensor.
+
+**17.3 Amendments**
+
+Any amendment to this Agreement must be made in writing and accepted by both parties.
+
+**17.4 Assignment**
+
+Neither party may assign or transfer its rights or obligations under this Agreement without the prior written consent of the other party, except in connection with a merger, acquisition or transfer of substantially all of its relevant business assets to a successor entity.
+
+**17.5 Force Majeure**
+
+Neither party shall be liable for delay or failure to perform obligations caused by circumstances beyond its reasonable control, including natural disasters, war, civil unrest, labour disputes, government action, power failures, internet disruptions or third-party infrastructure failures.
+
+This provision shall not excuse payment obligations that became due before the force majeure event.
+
+**17.6 Notices**
+
+All formal notices under this Agreement shall be provided in writing through the contact details mutually agreed and recorded in the applicable Order Form.
+
+Electronic mail may be used for routine notices and notices of non-renewal.
+
+**17.7 Independent Parties**
+
+The parties are independent contracting parties.
+
+Nothing in this Agreement creates a partnership, joint venture, employment relationship, agency or franchise between them.
+
+**17.8 Severability**
+
+If any provision of this Agreement is held invalid or unenforceable, the remaining provisions shall continue in full force and effect.
+
+The invalid or unenforceable provision shall be interpreted or modified to the minimum extent necessary to make it enforceable, where legally permissible.
+
+**17.9 Waiver**
+
+Failure or delay by either party in exercising a right under this Agreement shall not constitute a waiver of that right.
+
+**17.10 Export and Sanctions Compliance**
+
+The Institution shall comply with applicable export-control, trade and sanctions laws when accessing or using the Software.
+
+**17.11 Publicity**
+
+The Licensor may identify the Institution as a customer in customer lists and marketing materials only after obtaining the Institution's prior written consent.
+
+The Institution may withdraw such consent by written notice.
+
+**17.12 Electronic Execution**
+
+This Agreement and any Order Form may be executed in counterparts and through legally recognised electronic signatures.
+
+**17.13 Interpretation**
+
+Headings are included for convenience and shall not affect the interpretation of this Agreement.
+
+The words "including" and "includes" shall be interpreted as meaning "including without limitation".
+
+---
+
+## 18. EFFECTIVE LICENSING AND ACCEPTANCE
+
+This Agreement does not, by itself, grant an Institution permission to use the Software.
+
+A valid licence shall arise only when:
+
+a. The Institution and the Licensor have accepted a written Order Form incorporating this Agreement.
+
+b. The applicable licence fees have been paid, where payment is required.
+
+c. The Institution has been authorised by the Licensor to access or deploy the Software.
+
+The Order Form shall specify the applicable licensing period, fees, authorised user limits, licensed modules, deployment model and support arrangements.
+
+The Institution's use of the Software shall constitute acceptance of the applicable operational and technical requirements of this Agreement once the licence has been validly executed.
+
+---
+
+**END OF VERVE INSTITUTIONAL SOFTWARE LICENCE AGREEMENT**
+
+**Copyright © 2026 Andrew Veda. All rights reserved.**
+
+Verve is proprietary software. All rights not expressly granted under an executed institutional licence are reserved.
