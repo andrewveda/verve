@@ -12,6 +12,21 @@ window.PUZZLE_DIRECTORY = {
       },
       "puzzles": [
 {
+  "id": "quote-216",
+  "num": 216,
+  "title": "Puzzle 216",
+  "sub": "Enjoy the little things, for one day…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "Enjoy the little things, for one day you may look back and realize they were the big things.",
+    "author": "Robert Brault",
+    "contributor": "Kohulan",
+    "dept": "CSE 2",
+    "meaning": "I believe we often overlook the little moments in life, thinking they are ordinary. But someday, we may realize that these simple moments were the ones that made life truly special."
+  }
+},
+        {
   "id": "quote-215",
   "num": 215,
   "title": "Puzzle 215",
