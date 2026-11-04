@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Verve | Identity Recovery</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --obsidian: #f7f1e3;
+      --deep: #efe6d0;
+      --surface: #fbf7ee;
+      --surface2: #efe6d0;
+      --gold: #a9812f;
+      --gold-light: #c9a24f;
+      --gold-dim: rgba(169,129,47,0.10);
+      --crimson: #7a0019;
+      --text: #24201c;
+      --text-muted: #6b5f52;
+      --text-dim: #a99d8c;
+      --border: rgba(36,32,28,0.20);
+      --border-dim: rgba(36,32,28,0.09);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--obsidian);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      position: relative;
+    }
+
+    /* Subtle background noise texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.5;
+      mix-blend-mode: multiply;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border-dim);
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.6), 0 10px 25px rgba(36,32,28,0.05);
+      position: relative;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .brand-verve {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 2.2rem;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .header-divider {
+      width: 40px;
+      height: 1.5px;
+      background: var(--gold);
+      margin: 1.5rem auto;
+    }
+
+    .intro-text {
+      text-align: center;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .intro-text strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .identity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .identity-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .identity-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 4px 12px rgba(169,129,47,0.1);
+      transform: translateY(-2px);
+    }
+
+    .identity-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .identity-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .identity-name {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .identity-type {
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .identity-type.github { color: #3f8f66; }
+    .identity-type.chess { color: var(--gold); }
+    .identity-type.guest { color: var(--text-muted); }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: rgba(122,0,25,0.03);
+      border: 1px dashed rgba(122,0,25,0.2);
+      border-radius: 12px;
+      color: var(--crimson);
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .btn {
+      padding: 0.7rem 1.2rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--gold-light);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .btn-outline:hover {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* Small dev helper controls */
+    .dev-controls {
+      margin-top: 2rem;
+      font-size: 0.65rem;
+      display: flex;
+      gap: 10px;
+      opacity: 0.5;
+      transition: opacity 0.3s;
+    }
+    .dev-controls:hover { opacity: 1; }
+    .dev-controls button {
+      background: none;
+      border: 1px solid var(--border-dim);
+      color: var(--text-dim);
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .dev-controls button:hover { background: var(--surface); color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="brand">
+      <div class="brand-verve">VERVE</div>
+      <div class="brand-subtitle">Account Recovery</div>
+    </div>
+
+    <div class="intro-text">
+      Forgot which account you used to log in?<br><br>
+      We checked this device's local memory and found the following identities previously used to access your Verve missions. <strong>Select one to remember how you signed in.</strong>
+    </div>
+
+    <div class="identity-list" id="identityList">
+      <!-- Identities injected via JS -->
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      We couldn't find any previously saved identities on this device. You may have cleared your browser cache, or this might be your first time logging in from this browser.
+    </div>
+
+    <div class="actions">
+      <a href="index.html" class="btn btn-primary">← Back to Login</a>
+    </div>
+  </div>
+
+  <!-- Developer testing tools (optional, remove in production) -->
+  <div class="dev-controls">
+    <button onclick="injectTestData()">Inject Test Accounts</button>
+    <button onclick="clearCache()">Clear Cache</button>
+  </div>
+
+  <script>
+    function renderIdentities() {
+      const list = document.getElementById('identityList');
+      const emptyState = document.getElementById('emptyState');
+      list.innerHTML = '';
+      
+      const identities = extractAllIdentities();
+
+      if (identities.length === 0) {
+        list.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      list.style.display = 'flex';
+      emptyState.style.display = 'none';
+
+      identities.forEach(id => {
+        const card = document.createElement('div');
+        card.className = 'identity-card';
+        
+        let icon = '👤';
+        let typeClass = 'guest';
+        
+        if (id.type === 'GitHub') { icon = '🐙'; typeClass = 'github'; }
+        if (id.type === 'Chess.com') { icon = '♟️'; typeClass = 'chess'; }
+
+        card.innerHTML = `
+          <div class="identity-icon">${icon}</div>
+          <div class="identity-info">
+            <div class="identity-name">${id.name}</div>
+            <div class="identity-type ${typeClass}">Used via ${id.type}</div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function extractAllIdentities() {
+      const found = [];
+      const seenNames = new Set(); // Prevent duplicates
+
+      const addIdentity = (name, type) => {
+        if (!name || name.trim() === '') return;
+        const cleanName = name.trim();
+        const lowerName = cleanName.toLowerCase();
+        
+        if (!seenNames.has(lowerName)) {
+          seenNames.add(lowerName);
+          found.push({ name: cleanName, type: type });
+        }
+      };
+
+      // 1. Check explicit auth records first
+      addIdentity(localStorage.getItem('github_username'), 'GitHub');
+      addIdentity(localStorage.getItem('chess_username'), 'Chess.com');
+      
+      // 2. Check explicit guest names
+      if (localStorage.getItem('guest_mode') === 'true' || localStorage.getItem('userName')) {
+         addIdentity(localStorage.getItem('userName'), 'Guest Session');
+      }
+
+      // 3. Fallback: Aggressively check other keys for cached aliases
+      for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        
+        // Skip known structural keys that aren't names
+        const ignoreKeys = [
+          'cachedUserData', 'userIdentityMode', 'userIdentityIndex', 'userDept', 
+          'vfv_dept', 'logged_in', 'auth_provider', 'github_id', 'github_profile',
+          'chess_id', 'chess_profile', 'avatar', 'guest_mode'
+        ];
+        
+        if (ignoreKeys.includes(key)) continue;
+
+        let value = localStorage.getItem(key);
+        if (!value) continue;
+
+        // Try to parse array structures if they exist
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) {
+            parsed.forEach(n => addIdentity(String(n), 'Previous Session'));
+          } else if (typeof parsed === 'string') {
+             parsed.split(",").forEach(n => addIdentity(n, 'Previous Session'));
+          }
+        } catch (e) {
+          // If it's just a comma-separated string
+          value.split(",").forEach(n => {
+            if(n.length > 2 && n.length < 30 && !n.includes('{')) {
+               addIdentity(n, 'Previous Session');
+            }
+          });
+        }
+      }
+
+      return found;
+    }
+
+    // --- Dev Tools ---
+    function injectTestData() {
+      localStorage.setItem('github_username', 'octocat_student');
+      localStorage.setItem('chess_username', 'grandmaster_2026');
+      localStorage.setItem('userName', 'Andrew Veda');
+      renderIdentities();
+    }
+
+    function clearCache() {
+      localStorage.clear();
+      renderIdentities();
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', renderIdentities);
+  </script>
+</body>
+</html>
