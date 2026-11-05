@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ten Frameworks — Communication Quest</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="../../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--paper:#f3ead4;--card:#fffbf2;--line:#e3d5b0;--ink:#2d2620;--muted:#8c7c62;--forest:#2f5233;--moss:#6f8f5a;--clay:#b5651d;--gold:#c9a227;--rust:#a4392c;--green:#2f6b3f;--red:#b42318;--shadow:0 10px 26px rgba(45,38,32,.12);--shadow-sm:0 4px 12px rgba(45,38,32,.08);--ease:cubic-bezier(.16,1,.3,1)}
+html,body{min-height:100%;overscroll-behavior-x:none}
+body{font-family:Inter,sans-serif;background:var(--paper);color:var(--ink);min-height:100dvh;background-image:radial-gradient(ellipse 70% 50% at 12% 8%,rgba(111,143,90,.14),transparent 60%),radial-gradient(ellipse 60% 45% at 92% 88%,rgba(181,101,29,.10),transparent 60%)}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.screen{display:none;min-height:100dvh;width:100%;align-items:center;justify-content:center;padding:20px}
+.screen.active{display:flex}
+.shell{width:100%;max-width:760px;margin:auto;display:flex;flex-direction:column;gap:14px;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 18px)}
+.gate,.panel,.end-card{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:clamp(20px,5vw,32px);box-shadow:var(--shadow)}
+.gate{width:100%;max-width:440px;text-align:center;display:flex;flex-direction:column;gap:16px}
+.hero{font:900 clamp(2.2rem,8vw,3.4rem)/1 Fraunces,serif;color:var(--forest);letter-spacing:-1px}
+.kicker,.eyebrow{font:700 .68rem Space Mono,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.subhero{color:var(--clay);font-weight:700}
+.candidate{display:flex;align-items:center;gap:12px;text-align:left;padding:12px;background:#fffdf7;border:1px solid var(--line);border-radius:13px}
+.candidate img{width:46px;height:46px;border-radius:50%;object-fit:cover}
+.notice{padding:12px;background:#fef7e7;border:1px solid #ead7a8;border-radius:12px;text-align:left;font-size:.78rem;line-height:1.5;color:#76521b}
+.btn{border:0;border-radius:13px;padding:14px 18px;font-weight:800;letter-spacing:.02em;transition:transform .15s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:white;box-shadow:0 4px 16px rgba(47,82,51,.2)}
+.secondary{background:#fffdf7;color:var(--ink);border:1.5px solid var(--line)}
+.gold{background:linear-gradient(135deg,#c9a227,#e8cf7a);color:#2d2620}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{text-align:center;flex:1}
+.brand h1{font:700 clamp(1.2rem,4vw,1.6rem) Fraunces,serif;color:var(--forest)}
+.brand h1 span{color:var(--rust)}
+.brand small{display:block;font: .6rem Space Mono,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-size:1.1rem}
+.status{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font:700 .75rem Space Mono,monospace;color:var(--muted)}
+.status b{color:var(--clay)}
+.timer{white-space:nowrap}
+.progress{height:7px;background:#e8ddc4;border-radius:99px;overflow:hidden}
+.progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--forest),var(--gold));transition:width .3s}
+.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.page-number{font:700 .68rem Space Mono,monospace;color:var(--clay);white-space:nowrap}
+.framework-title{font:900 clamp(2rem,7vw,3rem)/1 Fraunces,serif;color:var(--forest);margin:4px 0}
+.expansion{font-size:1rem;line-height:1.55;color:var(--muted);font-weight:600}
+.tabs{display:flex;gap:7px;flex-wrap:wrap}
+.tab{padding:9px 12px;border-radius:99px;border:1px solid var(--line);background:#fffdf7;color:var(--muted);font-size:.75rem;font-weight:800}
+.tab.active{background:var(--forest);color:white;border-color:var(--forest)}
+.content{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:clamp(17px,4vw,24px);box-shadow:var(--shadow-sm)}
+.content h2{font:700 1.35rem Fraunces,serif;color:var(--forest);margin-bottom:10px}
+.content p{line-height:1.65;margin:8px 0}
+.steps{display:grid;gap:9px;margin:14px 0}
+.step{display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:start;padding:11px;border:1px solid var(--line);background:#fffdf7;border-radius:12px}
+.step-letter{width:34px;height:34px;border-radius:10px;background:#eaf0e5;color:var(--forest);display:grid;place-items:center;font:700 .9rem Space Mono,monospace}
+.step strong{display:block;color:var(--forest);margin-bottom:3px}
+.step small{display:block;color:var(--muted);font-size:.82rem;line-height:1.45}
+.example{background:#f5f0e3;border-left:4px solid var(--gold);padding:14px 16px;border-radius:0 12px 12px 0;line-height:1.65;margin:12px 0}
+.example-label{font:700 .65rem Space Mono,monospace;letter-spacing:.12em;color:var(--clay);text-transform:uppercase;margin-bottom:6px}
+.tip{font-size:.84rem;color:var(--muted);line-height:1.55}
+.question-card{border:1.5px solid var(--line);border-radius:14px;padding:17px;background:#fffdf7;margin:12px 0}
+.q-count{font:700 .65rem Space Mono,monospace;color:var(--clay);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+.question{font-weight:700;line-height:1.55;margin-bottom:12px}
+.statement{font:500 1rem/1.65 Fraunces,serif;background:#f5f0e3;padding:12px;border-radius:10px;margin:9px 0}
+.options{display:grid;gap:8px}
+.option{display:flex;gap:10px;align-items:flex-start;text-align:left;padding:12px;border:1.5px solid var(--line);border-radius:11px;background:white;color:var(--ink);line-height:1.45;font-size:.88rem}
+.option .letter{font:700 .72rem Space Mono,monospace;color:var(--clay);padding-top:2px}
+.option.selected{border-color:var(--forest);background:#edf3e9}
+.option.correct{border-color:#36804a;background:#edf7ee}
+.option.incorrect{border-color:#c64b3f;background:#fff0ee}
+.feedback{font-size:.82rem;line-height:1.5;margin-top:10px;font-weight:600}
+.feedback.good{color:var(--green)}.feedback.bad{color:var(--rust)}
+.quiz-actions{display:flex;justify-content:space-between;gap:10px;margin-top:12px}
+.quiz-actions button{flex:1}
+textarea{width:100%;min-height:130px;resize:vertical;border:1.5px solid var(--line);border-radius:12px;padding:13px;background:#fffdf7;color:var(--ink);font:500 16px/1.6 Inter,sans-serif;outline:none;user-select:text}
+textarea:focus{border-color:var(--forest)}
+.word-count{display:flex;justify-content:space-between;color:var(--muted);font: .65rem Space Mono,monospace;margin:7px 0 12px}
+.reflection-card{background:linear-gradient(145deg,#1d2b22,#2f5233);border:1.5px solid var(--gold);border-radius:16px;padding:20px;color:white}
+.reflection-card .eyebrow{color:#e8cf7a}
+.reflection-card h2{font:700 1.3rem Fraunces,serif;margin:8px 0}
+.reflection-card p{line-height:1.55;margin-bottom:12px}
+.reflection-card textarea{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.25);color:white}
+.reflection-card textarea::placeholder{color:rgba(255,255,255,.55)}
+.reflection-card .word-count{color:#d7e4d4}
+.navrow{display:flex;gap:10px}
+.navrow .btn{flex:1}
+.toast{position:fixed;z-index:50;top:14px;left:50%;transform:translate(-50%,-150%);background:var(--ink);color:white;padding:12px 18px;border-radius:12px;font-size:.82rem;transition:transform .25s;max-width:90vw;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(164,57,44,.96);z-index:100;align-items:center;justify-content:center;padding:24px;color:white;text-align:center}
+.overlay.show{display:flex}
+.overlay-inner{max-width:420px}.overlay h2{font:900 2rem Fraunces,serif;margin-bottom:10px}.overlay p{line-height:1.6;margin-bottom:20px}
+.end-card{max-width:680px;width:100%}
+.end-title{text-align:center;font:900 clamp(2rem,7vw,2.7rem) Fraunces,serif;color:var(--forest)}
+.end-sub{text-align:center;color:var(--muted);font:.7rem Space Mono,monospace;margin:8px 0 20px}
+.end-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:18px 0}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:13px;text-align:center}
+.stat b{display:block;font:700 1.8rem Fraunces,serif;color:var(--forest)}
+.stat small{font: .62rem Space Mono,monospace;color:var(--muted);text-transform:uppercase}
+.report-reflections{display:grid;gap:9px;margin:16px 0}
+.report-item{padding:12px;border-left:4px solid var(--moss);background:#f5f0e3;border-radius:0 9px 9px 0}
+.report-item strong{color:var(--forest)}.report-item p{font-size:.85rem;line-height:1.5;margin-top:5px;white-space:pre-wrap}
+@media(min-width:650px){.end-stats{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="securityOverlay"><div class="overlay-inner"><h2>Security Alert</h2><p id="securityMessage">Suspicious activity detected.</p><button class="btn gold" onclick="resumeTest()">I Understand — Resume</button></div></div>
+
+<section class="screen active" id="gateScreen">
+  <div class="gate">
+    <div class="kicker">The Communication Quest</div>
+    <div class="hero">TEN<br>FRAMEWORKS</div>
+    <div class="subhero">Think clearly. Speak confidently. Write effectively.</div>
+    <div class="candidate"><img id="avatar" alt="Student avatar"><div><strong id="candidateName">Loading student…</strong><div id="candidateDept" class="tip">Verifying student profile</div></div></div>
+    <div class="notice"><strong>🧭 Your mission</strong><br>Master ten practical communication frameworks. Each stage includes a lesson, a model response, four-option questions, an application task and a reflection.</div>
+    <button class="btn primary" id="startBtn" onclick="startQuest()" disabled>Begin the quest →</button>
+  </div>
+</section>
+
+<section class="screen" id="questScreen">
+ <main class="shell">
+  <header class="topbar">
+    <button class="icon-btn" onclick="confirmExit()" aria-label="Exit">←</button>
+    <div class="brand"><h1>Communication <span>Quest</span></h1><small>Ten frameworks · One stronger voice</small></div>
+    <button class="icon-btn" id="muteBtn" onclick="toggleMute()" aria-label="Toggle sound">🔊</button>
+  </header>
+  <div class="status"><span>PAGE <b id="pageTracker">1 / 10</b></span><span>💎 <b id="scoreTracker">0</b></span><span class="timer">◷ <b id="timer">0:00</b></span></div>
+  <div class="progress"><span id="progressBar"></span></div>
+  <div class="page-head"><div><div class="eyebrow">Framework <span id="frameworkIndex">01</span></div><div class="framework-title" id="frameworkTitle">STAR</div><div class="expansion" id="frameworkExpansion"></div></div><div class="page-number" id="pageStage">STAGE 1 OF 10</div></div>
+  <nav class="tabs" id="tabs">
+   <button class="tab active" data-tab="learn">1 · Learn</button><button class="tab" data-tab="understand">2 · Understand</button><button class="tab" data-tab="practise">3 · Practise</button><button class="tab" data-tab="apply">4 · Apply</button><button class="tab" data-tab="reflect">5 · Reflect</button>
+  </nav>
+  <section class="content" id="stageContent"></section>
+  <div class="navrow" id="stageNav"><button class="btn secondary" id="backBtn" onclick="previousTab()">← Back</button><button class="btn primary" id="nextBtn" onclick="nextTab()">Continue →</button></div>
+ </main>
+</section>
+
+<section class="screen" id="endScreen">
+ <main class="shell">
+  <div class="end-card">
+   <div class="end-title">Quest Complete. 🎓</div>
+   <div class="end-sub" id="endSubtitle"></div>
+   <div class="end-stats">
+    <div class="stat"><b id="endCorrect">0</b><small>Correct answers</small></div>
+    <div class="stat"><b id="endWrong">0</b><small>Incorrect attempts</small></div>
+    <div class="stat"><b id="endGems">0</b><small>Gems earned</small></div>
+    <div class="stat"><b id="endTime">0:00</b><small>Time taken</small></div>
+   </div>
+   <h2 style="font:700 1.3rem Fraunces,serif;color:var(--forest)">Your application responses</h2>
+   <div class="report-reflections" id="reportResponses"></div>
+   <h2 style="font:700 1.3rem Fraunces,serif;color:var(--forest)">Your reflections</h2>
+   <div class="report-reflections" id="reportReflections"></div>
+   <div class="navrow"><button class="btn primary" onclick="downloadReport()">Download my report (HTML)</button><button class="btn secondary" onclick="location.reload()">Play again</button></div>
+  </div>
+ </main>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+const AVATAR_FALLBACK="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150"><rect width="150" height="150" fill="#e3d5b0"/><circle cx="75" cy="58" r="26" fill="#8c7c62"/><path d="M25 130a50 50 0 0 1 100 0z" fill="#8c7c62"/></svg>');
+/* ---------------- STUDENT PROFILE ---------------- */
+let playerName="Guest", playerDept="Unknown", playerAvatar="";
+window.addEventListener("DOMContentLoaded",()=>{
+  let tries=0;
+  (function waitForProfile(){
+    if(window.GH){
+      playerName=window.GH.name||window.GH.username||"Student";
+      playerDept=window.GH.dept||"Department unspecified";
+      playerAvatar=window.GH.avatar||AVATAR_FALLBACK;
+      enableGate();
+    }else if(tries++<15){setTimeout(waitForProfile,100);}
+    else{
+      try{playerName=localStorage.getItem("questPlayerName")||"Test Student";playerDept=localStorage.getItem("questPlayerDept")||"CSE";}catch(e){playerName="Test Student";playerDept="CSE";}
+      playerAvatar=AVATAR_FALLBACK;enableGate();
+    }
+  })();
+});
+function enableGate(){
+  $("candidateName").textContent=playerName;$("candidateDept").textContent="Department: "+playerDept;
+  const av=$("avatar");av.onerror=()=>{av.onerror=null;av.src=AVATAR_FALLBACK};av.src=playerAvatar;$("startBtn").disabled=false;
+}
+
+/* ---------------- FRAMEWORK CONTENT ---------------- */
+const frameworks=[
+{
+ code:"STAR", expansion:"Situation – Task – Action – Result",
+ parts:[["S","Situation","Set the scene. Explain the context or circumstances."],["T","Task","Describe the responsibility, challenge or goal you were given."],["A","Action","Explain the specific steps you personally took."],["R","Result","State the outcome, preferably with evidence or a measurable result."]],
+ example:"During our final-year project, our prototype repeatedly failed during testing. I was responsible for improving its reliability. I reorganised the testing schedule, identified the faulty sensor and worked with my teammate to replace it. The prototype then completed all ten test runs successfully.",
+ purpose:"Use STAR to answer behavioural interview questions and explain what you contributed to a project or team.",
+ questions:[
+ {statement:"Our project was delayed. I reorganised the tasks, coordinated with my teammates, and we submitted the project two days before the revised deadline.",q:"Which part of the STAR method is demonstrated by “I reorganised the tasks and coordinated with my teammates”?",opts:["Situation — it describes the circumstances surrounding the problem.","Task — it explains the responsibility assigned to the student.","Action — it describes the specific steps taken to address the problem.","Result — it explains the outcome of the student's efforts."],a:2,why:"Reorganising tasks and coordinating with teammates are actions taken to solve the problem."},
+ {statement:"I was responsible for developing the login page for our college project. I implemented input validation and fixed a security flaw that allowed invalid login attempts. As a result, the login process became more reliable.",q:"Which part of STAR is demonstrated by “As a result, the login process became more reliable”?",opts:["Situation — it describes the circumstances in which the project was developed.","Task — it explains the responsibility assigned to the candidate.","Action — it describes the steps taken to improve the login page.","Result — it explains the outcome of the candidate’s actions."],a:3,why:"The phrase reports the outcome of the work: a more reliable login process."},
+ {statement:"During our department symposium, the registration desk became crowded because several students arrived at once.",q:"Which STAR component is represented by this statement?",opts:["Situation — it establishes the context.","Task — it identifies the responsibility.","Action — it explains what was done.","Result — it reports the outcome."],a:0,why:"It establishes the circumstances before describing a responsibility or response."},
+ {statement:"I was assigned to prepare the presentation slides and explain the prototype's working to the review panel.",q:"Which STAR component is represented by this statement?",opts:["Situation — it gives background information.","Task — it states the responsibility.","Action — it describes completed steps.","Result — it gives the final outcome."],a:1,why:"The statement identifies what the speaker was responsible for completing."}
+ ],
+ apply:"Describe a time when you contributed to a team project, solved a problem or completed a difficult responsibility. Organise your response using all four STAR stages.",
+ reflect:"Which part of telling a personal experience is easiest for you? Which part do you tend to leave out, and how will STAR help you give a clearer answer?"
+},
+{
+ code:"SHER",expansion:"Situation – Hindrance – Effort – Result",
+ parts:[["S","Situation","Describe the setting or circumstances."],["H","Hindrance","Identify the obstacle, difficulty or barrier."],["E","Effort","Explain the effort you made to overcome it."],["R","Result","Describe what happened because of your effort."]],
+ example:"Our team had to demonstrate a working model at the project exhibition. Two days before the event, the power supply failed. I checked the connections, consulted the lab technician and arranged a replacement unit. We restored the model and completed the demonstration on time.",
+ purpose:"Use SHER to explain how you respond to obstacles and demonstrate persistence.",
+ questions:[
+ {statement:"Our team had to demonstrate its prototype at the college exhibition.",q:"Which SHER component is demonstrated by this statement?",opts:["Situation — it establishes the setting.","Hindrance — it identifies an obstacle.","Effort — it describes the response.","Result — it states the outcome."],a:0,why:"The sentence establishes the context in which the event takes place."},
+ {statement:"Two days before the exhibition, the prototype's power supply stopped working.",q:"Which SHER component is demonstrated?",opts:["Situation — it describes the general setting.","Hindrance — it identifies the obstacle.","Effort — it explains the work undertaken.","Result — it reports the final outcome."],a:1,why:"The failed power supply is the difficulty that stands in the team's way."},
+ {statement:"I checked the wiring, consulted the lab technician and arranged a replacement unit.",q:"Which SHER component is demonstrated?",opts:["Situation — it introduces the event.","Hindrance — it identifies the difficulty.","Effort — it describes the steps taken to overcome the difficulty.","Result — it states what happened afterwards."],a:2,why:"These are the specific efforts made to overcome the obstacle."},
+ {statement:"The model worked again, and our team completed the demonstration on time.",q:"Which SHER component is demonstrated?",opts:["Situation — the event's context.","Hindrance — the problem encountered.","Effort — the work invested.","Result — the outcome of the effort."],a:3,why:"The sentence tells us what was achieved after the effort."}
+ ],
+ apply:"Describe a genuine obstacle you faced while studying, working with others or learning a new skill. Explain the situation, the hindrance, your effort and the result.",
+ reflect:"When something goes wrong, do you focus more on the obstacle or on the effort you can make? What would help you respond more constructively?"
+},
+{
+ code:"PREP",expansion:"Point – Reason – Example – Point",
+ parts:[["P","Point","State your opinion or central argument clearly."],["R","Reason","Explain why you hold that opinion."],["E","Example","Support the reason with a relevant example."],["P","Point","Restate the central argument in a convincing way."]],
+ example:"Every engineering student should develop strong communication skills. Clear communication helps engineers explain complex ideas and collaborate across teams. For example, a well-structured project presentation can help a team convince reviewers that its design is practical. Therefore, communication is an essential part of an engineer's professional development.",
+ purpose:"Use PREP to express opinions clearly in discussions, interviews, presentations and short written responses.",
+ questions:[
+ {statement:"Every engineering student should learn to communicate effectively.",q:"Which PREP component is demonstrated?",opts:["Point — it states the central opinion.","Reason — it explains why the opinion is valid.","Example — it provides supporting evidence.","Point — it concludes the argument."],a:0,why:"This is the opening claim or position."},
+ {statement:"Communication helps engineers explain technical ideas and work effectively with people from different teams.",q:"Which PREP component is demonstrated?",opts:["Point — it states the main position.","Reason — it explains why the position matters.","Example — it gives a specific illustration.","Final Point — it restates the position."],a:1,why:"It gives the reason supporting the opening opinion."},
+ {statement:"For instance, an engineer who explains a design clearly can help colleagues identify problems before production begins.",q:"Which PREP component is demonstrated?",opts:["Point — it introduces the opinion.","Reason — it explains the general benefit.","Example — it illustrates the reason with a situation.","Final Point — it concludes the argument."],a:2,why:"The specific engineering situation illustrates the reason."},
+ {statement:"For these reasons, effective communication should be treated as an essential engineering skill.",q:"Which PREP component is demonstrated?",opts:["Opening Point — it introduces the opinion.","Reason — it justifies the opinion.","Example — it illustrates the opinion.","Final Point — it reinforces the central argument."],a:3,why:"It returns to the main position and reinforces it."}
+ ],
+ apply:"Answer this question using PREP: “Should college students be encouraged to work on projects beyond their prescribed syllabus?” State your point, give a reason, provide an example and conclude with your point.",
+ reflect:"Do you usually state your opinion directly, or do you take a long time to reach it? How can PREP make your communication more organised?"
+},
+{
+ code:"PEEL",expansion:"Point – Evidence – Explanation – Link",
+ parts:[["P","Point","Introduce the main idea of your paragraph."],["E","Evidence","Provide facts, examples, quotations or other support."],["E","Explanation","Show how the evidence supports your point."],["L","Link","Connect the discussion to the question or next idea."]],
+ example:"Reading widely improves a student's vocabulary. Regular exposure to unfamiliar words helps learners understand how words function in different contexts. For example, students who read articles, stories and technical texts encounter a wider range of expressions. This broader vocabulary helps them communicate more precisely in academic and professional settings.",
+ purpose:"Use PEEL to build coherent academic paragraphs and support arguments with relevant evidence.",
+ questions:[
+ {statement:"Reading regularly can improve a student's vocabulary.",q:"Which PEEL component is demonstrated?",opts:["Point — it introduces the paragraph's main idea.","Evidence — it supplies supporting material.","Explanation — it interprets the evidence.","Link — it connects to the wider argument."],a:0,why:"The sentence introduces the central claim of the paragraph."},
+ {statement:"A vocabulary study conducted among the class found that frequent readers recognised more unfamiliar words in the assessment.",q:"Which PEEL component is demonstrated?",opts:["Point — it states the main claim.","Evidence — it provides supporting information.","Explanation — it interprets the information.","Link — it connects the paragraph to the next idea."],a:1,why:"The study finding is evidence offered in support of the claim."},
+ {statement:"This suggests that repeated exposure to words helps students recognise and understand them more easily.",q:"Which PEEL component is demonstrated?",opts:["Point — it introduces the topic.","Evidence — it gives a fact or example.","Explanation — it interprets how the evidence supports the point.","Link — it connects the paragraph to the larger discussion."],a:2,why:"It explains the significance of the evidence rather than merely presenting it."},
+ {statement:"Therefore, developing a regular reading habit can strengthen students' academic communication.",q:"Which PEEL component is demonstrated?",opts:["Point — it introduces a new claim.","Evidence — it provides a research finding.","Explanation — it interprets the finding.","Link — it connects the paragraph's argument to the wider topic."],a:3,why:"It links the paragraph's discussion back to the broader argument."}
+ ],
+ apply:"Write one PEEL paragraph answering: “Why should engineering students learn to work in teams?” Include a clear point, supporting evidence or an example, an explanation and a link.",
+ reflect:"When you make a claim, do you support it with evidence? How can PEEL help you avoid writing paragraphs that contain opinions without explanation?"
+},
+{
+ code:"AIDA",expansion:"Attention – Interest – Desire – Action",
+ parts:[["A","Attention","Capture the audience's attention with a striking opening."],["I","Interest","Make the audience curious by sharing relevant information."],["D","Desire","Show the benefits and help the audience want the offer or idea."],["A","Action","Tell the audience exactly what to do next."]],
+ example:"Still spending hours organising your study notes? Discover StudySmart, a simple tool that brings your notes and deadlines together. Imagine having more time to revise and less time searching for materials. Download StudySmart today and organise your next study session.",
+ purpose:"Use AIDA in persuasive speaking, advertisements, campaign messages, proposals and calls to action.",
+ questions:[
+ {statement:"Still losing valuable study time searching through scattered notes?",q:"Which AIDA stage is demonstrated?",opts:["Attention — it uses a question to capture notice.","Interest — it develops curiosity about the product.","Desire — it highlights the benefits.","Action — it tells the audience what to do."],a:0,why:"The opening question is designed to catch the audience's attention."},
+ {statement:"StudySmart brings your notes, deadlines and revision tasks together in one simple dashboard.",q:"Which AIDA stage is demonstrated?",opts:["Attention — it creates an initial hook.","Interest — it introduces relevant information about the product.","Desire — it focuses on the audience's emotional want.","Action — it gives a direct instruction."],a:1,why:"The sentence gives information that encourages the audience to learn more."},
+ {statement:"Imagine feeling prepared for every test because all your revision tasks are organised in one place.",q:"Which AIDA stage is demonstrated?",opts:["Attention — it interrupts the audience's routine.","Interest — it introduces a new feature.","Desire — it helps the audience imagine a desirable benefit.","Action — it tells the audience how to respond."],a:2,why:"It presents an appealing outcome the audience may want."},
+ {statement:"Sign up for your free account today and organise your next study session.",q:"Which AIDA stage is demonstrated?",opts:["Attention — it captures notice.","Interest — it provides information.","Desire — it creates a wish for the benefit.","Action — it gives a clear next step."],a:3,why:"The audience is directly instructed to sign up."}
+ ],
+ apply:"Create a short promotional message encouraging first-year students to join an English communication club. Use all four AIDA stages and finish with a clear call to action.",
+ reflect:"When you try to persuade someone, do you explain what they will gain and tell them what to do next? Which AIDA stage needs the most attention in your messages?"
+},
+{
+ code:"SCQA",expansion:"Situation – Complication – Question – Answer",
+ parts:[["S","Situation","Present the shared context or current state of affairs."],["C","Complication","Introduce a change, difficulty or tension."],["Q","Question","Frame the key question that needs to be answered."],["A","Answer","Provide the proposed answer, solution or recommendation."]],
+ example:"Our department has many talented students who participate in technical events. However, some students find it difficult to present their ideas confidently. How can we help them communicate their work more effectively? We can introduce regular presentation workshops with peer feedback and short practice sessions.",
+ purpose:"Use SCQA to organise explanations, proposals, reports and problem-solving presentations.",
+ questions:[
+ {statement:"Our department has many students who participate in technical events.",q:"Which SCQA component is demonstrated?",opts:["Situation — it presents the existing context.","Complication — it introduces a difficulty.","Question — it frames the issue to solve.","Answer — it proposes a solution."],a:0,why:"It describes the current state before introducing a problem."},
+ {statement:"However, several students struggle to explain their project ideas confidently.",q:"Which SCQA component is demonstrated?",opts:["Situation — it describes the background.","Complication — it introduces the difficulty.","Question — it asks what should be done.","Answer — it provides a recommendation."],a:1,why:"The difficulty creates the tension that makes a solution necessary."},
+ {statement:"How can the department help students communicate their technical ideas more confidently?",q:"Which SCQA component is demonstrated?",opts:["Situation — it establishes the context.","Complication — it describes the obstacle.","Question — it frames the central issue.","Answer — it offers the solution."],a:2,why:"It explicitly asks the central question that the response must address."},
+ {statement:"The department can organise short presentation workshops and peer-feedback sessions every month.",q:"Which SCQA component is demonstrated?",opts:["Situation — it describes the current state.","Complication — it explains the difficulty.","Question — it frames the problem.","Answer — it proposes a practical solution."],a:3,why:"It responds to the central question with a recommendation."}
+ ],
+ apply:"Prepare a short proposal using SCQA for this situation: students often submit assignments late. Explain the existing situation, the complication, the question and your proposed answer.",
+ reflect:"Do you sometimes offer a solution before explaining the problem? How can SCQA help your audience understand why your recommendation is necessary?"
+},
+{
+ code:"CAR",expansion:"Challenge – Action – Result",
+ parts:[["C","Challenge","Identify the problem, obstacle or demanding situation."],["A","Action","Describe what you did to address the challenge."],["R","Result","Explain the outcome or impact of your actions."]],
+ example:"Our coding team was unable to complete the interface before the review. I divided the remaining work into smaller tasks, assigned responsibilities and tested each section as it was completed. We finished the interface before the review and received positive feedback from the panel.",
+ purpose:"Use CAR for concise interview answers, achievement statements and descriptions of professional contributions.",
+ questions:[
+ {statement:"Our team could not complete the user interface before the scheduled review.",q:"Which CAR component is demonstrated?",opts:["Challenge — it identifies the problem.","Action — it describes the response.","Result — it reports the outcome.","None — it is only a general opinion."],a:0,why:"The unfinished interface is the challenge the team must address."},
+ {statement:"I divided the remaining work into smaller tasks and assigned each task to a teammate.",q:"Which CAR component is demonstrated?",opts:["Challenge — it describes the difficulty.","Action — it explains the steps taken.","Result — it reports the final outcome.","None — it gives background only."],a:1,why:"Dividing and assigning tasks are actions taken to address the challenge."},
+ {statement:"We completed the interface before the review and received positive feedback from the panel.",q:"Which CAR component is demonstrated?",opts:["Challenge — it identifies the obstacle.","Action — it explains the work undertaken.","Result — it states the outcome.","None — it introduces a new problem."],a:2,why:"The sentence reports what happened after the actions."}
+ ],
+ apply:"Describe one challenge you faced during a class activity, examination, project or team task. Explain the challenge, the action you took and the result.",
+ reflect:"Can you explain your achievements without exaggerating your contribution? How does CAR help you focus on what you actually did and achieved?"
+},
+{
+ code:"PAR",expansion:"Problem – Action – Result",
+ parts:[["P","Problem","State the issue that needed attention."],["A","Action","Explain the response or solution you implemented."],["R","Result","Describe the improvement or outcome."]],
+ example:"Students were missing important assignment announcements because information was shared across several messaging groups. I created a single class announcement channel and organised messages by subject and deadline. Students could then find instructions more easily, and fewer submission reminders were needed.",
+ purpose:"Use PAR to explain solutions, demonstrate initiative and describe improvements in a workplace or academic setting.",
+ questions:[
+ {statement:"Important assignment announcements were being missed because information was scattered across several groups.",q:"Which PAR component is demonstrated?",opts:["Problem — it identifies the issue.","Action — it explains the solution.","Result — it reports the improvement.","None — it gives a personal opinion."],a:0,why:"It describes the issue that required a solution."},
+ {statement:"I created one announcement channel and organised messages by subject and deadline.",q:"Which PAR component is demonstrated?",opts:["Problem — it explains the difficulty.","Action — it describes the solution implemented.","Result — it states the impact.","None — it introduces unrelated context."],a:1,why:"Creating and organising the channel are the steps taken to solve the problem."},
+ {statement:"Students could find instructions more easily, and fewer submission reminders were needed.",q:"Which PAR component is demonstrated?",opts:["Problem — it identifies what went wrong.","Action — it describes the work undertaken.","Result — it explains the improvement produced.","None — it states an unrelated objective."],a:2,why:"It describes the positive change resulting from the action."}
+ ],
+ apply:"Think of a problem in your classroom, department or college. Explain the problem, the action you would take and the result you hope to achieve using PAR.",
+ reflect:"When you notice a problem, do you wait for someone else to solve it? What small action could you take to improve your surroundings?"
+},
+{
+ code:"SOAR",expansion:"Situation – Objective – Action – Result",
+ parts:[["S","Situation","Describe the context in which you were working."],["O","Objective","State the goal you wanted to achieve."],["A","Action","Explain the steps you took towards the goal."],["R","Result","Describe the outcome and its significance."]],
+ example:"Our class wanted to improve participation in the English speaking activities. Our objective was to ensure that every student spoke at least once during each session. I introduced rotating discussion roles and small-group speaking tasks. Participation increased, and more students began contributing confidently.",
+ purpose:"Use SOAR to describe goal-oriented work, achievements, initiatives and positive contributions.",
+ questions:[
+ {statement:"Our class wanted to improve participation in English speaking activities.",q:"Which SOAR component is demonstrated?",opts:["Situation — it describes the context.","Objective — it identifies the goal.","Action — it explains the steps taken.","Result — it reports the outcome."],a:0,why:"It establishes the context in which the initiative takes place."},
+ {statement:"Our goal was to ensure that every student spoke at least once during each session.",q:"Which SOAR component is demonstrated?",opts:["Situation — it describes the setting.","Objective — it states the intended goal.","Action — it describes the method.","Result — it explains what happened."],a:1,why:"The sentence explicitly states what the class wanted to achieve."},
+ {statement:"I introduced rotating discussion roles and small-group speaking tasks.",q:"Which SOAR component is demonstrated?",opts:["Situation — it gives the background.","Objective — it states the target.","Action — it explains what was done.","Result — it reports the impact."],a:2,why:"These are the activities implemented to achieve the objective."},
+ {statement:"Participation increased, and more students began contributing confidently.",q:"Which SOAR component is demonstrated?",opts:["Situation — it establishes the context.","Objective — it states the intended outcome.","Action — it describes the intervention.","Result — it reports the achievement."],a:3,why:"It describes the change achieved after the actions."}
+ ],
+ apply:"Describe an initiative you would like to introduce in your class or college. Explain the situation, your objective, the actions you would take and the result you hope to achieve.",
+ reflect:"Do you set clear goals before beginning a task? How can SOAR help you connect your daily actions to a meaningful objective?"
+},
+{
+ code:"5W1H",expansion:"Who – What – When – Where – Why – How",
+ parts:[["W","Who","Identify the people involved or affected."],["W","What","State what happened, what is needed or what is being discussed."],["W","When","Specify the time, date or sequence."],["W","Where","Identify the location or setting."],["W","Why","Explain the reason, purpose or cause."],["H","How","Describe the method, process or manner."]],
+ example:"The robotics club (Who) is organising a line-following robot workshop (What) on Friday afternoon (When) in the electronics laboratory (Where) to introduce first-year students to practical automation (Why). Participants will work in small teams and programme a robot to follow a track (How).",
+ purpose:"Use 5W1H to gather information, understand events, investigate problems, plan activities and write clear reports.",
+ questions:[
+ {statement:"The Robotics Club is organising a workshop for first-year students.",q:"Which 5W1H question is answered by “The Robotics Club”?",opts:["Who — it identifies the people or group involved.","What — it identifies the event.","When — it identifies the time.","Where — it identifies the location."],a:0,why:"The Robotics Club is the group responsible for organising the event."},
+ {statement:"The club is organising a line-following robot workshop.",q:"Which 5W1H question is answered by “a line-following robot workshop”?",opts:["Who — it identifies the organisers.","What — it identifies the event.","Why — it explains the purpose.","How — it describes the method."],a:1,why:"It tells us what event is being organised."},
+ {statement:"The workshop will take place on Friday afternoon.",q:"Which 5W1H question is answered?",opts:["Who — who is involved?","What — what is happening?","When — at what time will it happen?","Where — at what place will it happen?"],a:2,why:"Friday afternoon specifies when the workshop will take place."},
+ {statement:"The workshop will be conducted in the electronics laboratory.",q:"Which 5W1H question is answered?",opts:["What — what is the activity?","When — when will it happen?","Why — why is it being conducted?","Where — where will it happen?"],a:3,why:"The electronics laboratory is the location."},
+ {statement:"The workshop is being organised to introduce first-year students to practical automation.",q:"Which 5W1H question is answered by this statement?",opts:["Who — who is organising it?","When — when will it happen?","Why — what is its purpose?","Where — where will it happen?"],a:2,why:"The sentence explains the purpose of the workshop."},
+ {statement:"Participants will work in small teams and programme a robot to follow a track.",q:"Which 5W1H question is answered?",opts:["Who — who is organising it?","What — what is the event called?","When — when will it happen?","How — how will participants carry it out?"],a:3,why:"It explains the method and the way participants will take part."}
+ ],
+ apply:"Imagine your department is organising a student communication workshop. Write a short announcement that answers all six questions: Who, What, When, Where, Why and How.",
+ reflect:"When you receive an instruction or hear about an event, which details do you usually forget to ask for? How can 5W1H help you become a more attentive communicator?"
+}
+];
+
+/* ---------------- QUEST STATE ---------------- */
+const tabs=["learn","understand","practise","apply","reflect"];
+const tabLabels=["Learn","Understand","Practise","Apply","Reflect"];
+let pausedAt=0,pausedTotal=0,securityReady=false,leaving=false,lastView="",toastTimer=null;
+let page=0,tab=0,qIndex=0,correct=0,wrong=0,gems=0,startTime=0,elapsed=0,timerHandle=null,muted=false,paused=false,submitted=false;
+let answers={},applications={},reflections={},cheatEvents=[];
+const applause=new Audio("https://andrewveda.github.io/SRM-VEC-English-PWA/sounds/crowd.mp3");
+applause.volume=.35;
+function sound(){if(!muted){applause.currentTime=0;applause.play().catch(()=>{});}}
+function toggleMute(){muted=!muted;$("muteBtn").textContent=muted?"🔇":"🔊";}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2500);}
+function startQuest(){
+ if(timerHandle)return;
+ $("gateScreen").classList.remove("active");$("questScreen").classList.add("active");
+ page=0;tab=0;qIndex=0;correct=0;wrong=0;gems=0;answers={};applications={};reflections={};cheatEvents=[];submitted=false;paused=false;pausedAt=0;pausedTotal=0;
+ startTime=Date.now();elapsed=0;timerHandle=setInterval(updateTimer,1000);
+ if(!securityReady){initSecurity();securityReady=true;}
+ render();
+}
+function currentElapsed(){const now=paused&&pausedAt?pausedAt:Date.now();return Math.max(0,Math.floor((now-startTime-pausedTotal)/1000));}
+function updateTimer(){if(paused||submitted)return;elapsed=currentElapsed();$("timer").textContent=fmt(elapsed);}
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function render(){
+ const f=frameworks[page];
+ $("pageTracker").textContent=(page+1)+" / 10";$("scoreTracker").textContent=gems;
+ $("progressBar").style.width=((page+(tab+1)/5)/10*100)+"%";
+ $("frameworkIndex").textContent=String(page+1).padStart(2,"0");
+ $("frameworkTitle").textContent=f.code;$("frameworkExpansion").textContent=f.expansion;
+ $("pageStage").textContent="STAGE "+(page+1)+" OF 10";
+ document.querySelectorAll(".tab").forEach((b,i)=>b.classList.toggle("active",i===tab));
+ $("stageContent").innerHTML=tab===0?learnHTML(f):tab===1?understandHTML(f):tab===2?practiseHTML(f):tab===3?applyHTML(f):reflectHTML(f);
+ const view=page+"-"+tab;if(view!==lastView){lastView=view;window.scrollTo(0,0);}
+ $("backBtn").disabled=page===0&&tab===0;
+ $("nextBtn").textContent=tab===4?(page===9?"Complete quest ✓":"Next framework →"):"Continue →";
+ $("nextBtn").disabled=(tab===2&&!answers[page]?.[qIndex]?.answered)||(tab===3&&!validText(applications[page],35))||(tab===4&&!validText(reflections[page],20));
+ const ta=$("stageContent").querySelector("textarea");
+ if(ta){const kind=tab===3?"application":"reflection";ta.addEventListener("input",()=>updateTextArea(kind));updateTextArea(kind);}
+ document.querySelectorAll(".tab").forEach((b,i)=>b.onclick=()=>{if(i<=furthestTab()) {tab=i;render();}});
+}
+function furthestTab(){
+ if(!answers[page]||frameworks[page].questions.some((_,i)=>!answers[page][i]?.answered))return 2;
+ if(!validText(applications[page],35))return 3;
+ return 4;
+}
+function learnHTML(f){
+ return `<div class="eyebrow">Step 1 · Learn the framework</div><h2>What does ${f.code} mean?</h2><p>${f.purpose}</p><div class="steps">${f.parts.map((p)=>`<div class="step"><div class="step-letter">${p[0]}</div><div><strong>${p[1]}</strong><small>${p[2]}</small></div></div>`).join("")}</div><p class="tip"><strong>Remember:</strong> ${f.code} is a structure to guide your thinking, not a script that you must recite word for word.</p>`;
+}
+function understandHTML(f){
+ return `<div class="eyebrow">Step 2 · Understand through an example</div><h2>See the framework in action</h2><p>Read the model response carefully. Notice how each part contributes to the complete message.</p><div class="example"><div class="example-label">Model response</div>${f.example}</div><p class="tip"><strong>Think about it:</strong> Could the response be understood if one of its components were removed? What would be missing?</p><div class="notice" style="margin-top:14px">Your next task is to identify the function of individual statements in responses that use this framework.</div>`;
+}
+function practiseHTML(f){
+ const q=f.questions[qIndex],key=page+"-"+qIndex,record=answers[page]?.[qIndex];
+ const opts=q.opts.map((o,i)=>`<button class="option ${record?.answered?(i===q.a?"correct":(record.choice===i?"incorrect":"")):(record?.choice===i?"selected":"")}" ${record?.answered?"disabled":""} onclick="chooseOption(${i})"><span class="letter">${String.fromCharCode(65+i)}.</span><span>${o}</span></button>`).join("");
+ return `<div class="eyebrow">Step 3 · Practise · Question ${qIndex+1} of ${f.questions.length}</div><div class="question-card"><div class="q-count">Read the statement</div><div class="statement">${q.statement}</div><div class="question">${q.q}</div><div class="options">${opts}</div>${record?.answered?`<div class="feedback ${record.choice===q.a?"good":"bad"}">${record.choice===q.a?"✓ Correct. ":"Not quite. "}${q.why}</div>`:""}</div><div class="quiz-actions"><button class="btn secondary" onclick="prevQuestion()" ${qIndex===0?"disabled":""}>← Previous</button><button class="btn primary" onclick="nextQuestion()" ${!record?.answered?"disabled":""}>${qIndex===f.questions.length-1?"Finish questions":"Next question →"}</button></div><p class="tip" style="margin-top:10px">You need to answer each question to unlock the next stage. Your first response is recorded for scoring.</p>`;
+}
+function chooseOption(i){
+ if(answers[page]?.[qIndex]?.answered)return;
+ if(!answers[page])answers[page]={};
+ const q=frameworks[page].questions[qIndex],ok=i===q.a;
+ answers[page][qIndex]={choice:i,answered:true,correct:ok};
+ if(ok){correct++;gems+=1;sound();try{confetti({particleCount:35,spread:55,origin:{y:.7}})}catch(e){}}
+ else wrong++;
+ $("scoreTracker").textContent=gems;render();
+}
+function nextQuestion(){if(qIndex<frameworks[page].questions.length-1){qIndex++;render();}else{tab=3;render();}}
+function prevQuestion(){if(qIndex>0){qIndex--;render();}}
+function applyHTML(f){
+ return `<div class="eyebrow">Step 4 · Apply the framework</div><h2>Your turn to construct a response</h2><p>${f.apply}</p><textarea id="applicationInput" maxlength="1200" placeholder="Write your response here…">${esc(applications[page]||"")}</textarea><div class="word-count"><span>Write at least 35 words</span><span id="applicationCount">0 words</span></div><p class="tip">Use the framework's components in the correct order. Aim for a clear, specific and complete response.</p>`;
+}
+function reflectHTML(f){
+ return `<div class="reflection-card"><div class="eyebrow">Step 5 · Reflect</div><h2>Look beyond the framework.</h2><p>${f.reflect}</p><textarea id="reflectionInput" maxlength="900" placeholder="Write an honest reflection…">${esc(reflections[page]||"")}</textarea><div class="word-count"><span>Write at least 20 words</span><span id="reflectionCount">0 words</span></div></div><p class="tip" style="margin-top:12px">Your reflection is included in your personal completion report.</p>`;
+}
+function validText(s,min){return typeof s==="string"&&s.trim().split(/\s+/).filter(Boolean).length>=min;}
+function updateTextArea(kind){
+ const el=$(kind==="application"?"applicationInput":"reflectionInput");if(!el)return;
+ const words=el.value.trim().split(/\s+/).filter(Boolean).length;
+ $(kind==="application"?"applicationCount":"reflectionCount").textContent=words+" words";
+ if(kind==="application")applications[page]=el.value;else reflections[page]=el.value;
+ $("nextBtn").disabled=!validText(el.value,kind==="application"?35:20);
+}
+function nextTab(){
+ if(tab===2){
+   if(frameworks[page].questions.some((_,i)=>!answers[page]?.[i]?.answered)){toast("Answer all the questions before continuing.");return;}
+   tab=3;
+ }else if(tab===3){
+   if(!validText(applications[page],35)){toast("Please write at least 35 words.");return;}tab=4;
+ }else if(tab===4){
+   if(!validText(reflections[page],20)){toast("Please write at least 20 words.");return;}
+   if(page===9){finishQuest();return;}
+   page++;tab=0;qIndex=0;
+ }else tab++;
+ render();
+}
+function previousTab(){
+ if(tab>0){tab--;if(tab===2)qIndex=0;render();}
+ else if(page>0){page--;tab=4;qIndex=frameworks[page].questions.length-1;render();}
+}
+function confirmExit(){if(confirm("Leave this quest? Your progress will be lost.")){leaving=true;location.reload();}}
+function finishQuest(){
+ if(submitted)return;elapsed=currentElapsed();submitted=true;clearInterval(timerHandle);
+ $("questScreen").classList.remove("active");$("endScreen").classList.add("active");
+ $("endSubtitle").textContent=playerName+" · "+playerDept+" · Ten Frameworks Communication Quest";
+ $("endCorrect").textContent=correct;$("endWrong").textContent=wrong;$("endGems").textContent=gems;$("endTime").textContent=fmt(elapsed);
+ $("reportResponses").innerHTML=frameworks.map((f,i)=>`<div class="report-item"><strong>${f.code} · Application</strong><p>${esc(applications[i]||"")}</p></div>`).join("");
+ $("reportReflections").innerHTML=frameworks.map((f,i)=>`<div class="report-item"><strong>${f.code} · Reflection</strong><p>${esc(reflections[i]||"")}</p></div>`).join("");
+ try{confetti({particleCount:180,spread:100,origin:{y:.6}})}catch(e){}
+ logResult();
+}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+/* ---------------- SECURITY MONITORING ----------------
+   Browser events are imperfect signals; they cannot reliably detect screenshots,
+   developer tools or every form of external assistance. */
+function initSecurity(){
+ document.addEventListener("visibilitychange",visibilityHandler);
+ document.addEventListener("keydown",keyHandler);
+ window.addEventListener("beforeunload",e=>{if(!submitted&&startTime&&!leaving){e.preventDefault();e.returnValue="";}});
+}
+function visibilityHandler(){if(document.hidden&&!submitted&&startTime&&!paused){pausedAt=Date.now();cheatEvents.push({event:"Tab hidden or page backgrounded",at:new Date().toISOString()});paused=true;$("securityMessage").textContent="The page became hidden or inactive. This event has been recorded."; $("securityOverlay").classList.add("show");}}
+function keyHandler(e){if(submitted||!startTime)return;if(e.key==="F12"||(e.ctrlKey&&e.shiftKey&&["I","J","C"].includes(e.key))||(e.ctrlKey&&["u","s"].includes(e.key.toLowerCase()))){e.preventDefault();cheatEvents.push({event:"Restricted keyboard shortcut: "+e.key,at:new Date().toISOString()});toast("This keyboard shortcut is restricted during the quest.");}}
+function resumeTest(){if(pausedAt){pausedTotal+=Date.now()-pausedAt;pausedAt=0;}paused=false;$("securityOverlay").classList.remove("show");toast("Quest resumed.");}
+function logResult(){
+ const endpoint="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+ const payload={student_name:playerName,department:playerDept,correct,wrong,time_spent:elapsed,quest_id:"Ten Frameworks Communication Quest",cheat_count:cheatEvents.length,cheat_events:cheatEvents,frameworks:frameworks.map((f,i)=>({framework:f.code,application:applications[i],reflection:reflections[i]}))};
+ fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).catch(()=>{});
+}
+
+/* ---------------- DOWNLOADABLE REPORT ---------------- */
+function buildReport(){
+ const date=new Date().toLocaleString("en-IN",{timeZone:"Asia/Kolkata"});
+ const sections=frameworks.map((f,i)=>`<section><h2>${f.code} — ${f.expansion}</h2><h3>Application</h3><p>${esc(applications[i])}</p><h3>Reflection</h3><p>${esc(reflections[i])}</p></section>`).join("");
+ return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(playerName)} — Communication Quest</title><style>body{font:16px/1.6 Arial,sans-serif;background:#f3ead4;color:#2d2620;padding:22px}.sheet{max-width:800px;margin:auto;background:#fffbf2;border:2px solid #c9a227;border-radius:18px;padding:28px}header{text-align:center;background:#2f5233;color:white;padding:22px;border-radius:12px}h1{margin:0}h2{color:#2f5233;border-bottom:1px solid #e3d5b0;padding-bottom:7px}h3{font-size:.9rem;color:#b5651d;margin-bottom:4px}section{padding:12px 0;border-bottom:1px solid #e3d5b0}section p{white-space:pre-wrap}.stats{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.stats span{background:#f3ead4;padding:10px;border-radius:9px}@media print{body{background:white;padding:0}.sheet{border:0}}</style></head><body><main class="sheet"><header><h1>Ten Frameworks</h1><div>Communication Quest · Completion Report</div></header><h2>${esc(playerName)}</h2><p>${esc(playerDept)} · Completed ${esc(date)}</p><div class="stats"><span>Correct answers: ${correct}</span><span>Incorrect attempts: ${wrong}</span><span>Gems: ${gems}</span><span>Time: ${fmt(elapsed)}</span></div>${sections}<p>System-generated learning report.</p></main></body></html>`;
+}
+function downloadReport(){
+ const blob=new Blob([buildReport()],{type:"text/html;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=(playerName.replace(/[^a-z0-9_-]/gi,"_")||"Student")+"_Ten_Frameworks_Report.html";
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+</script>
+</body>
+</html>
