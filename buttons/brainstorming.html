@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Essay Brainstorm Map</title>
+<script src="../../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f7;--c:#fff;--l:#d3dbe8;--t:#14213d;--m:#5d6b85;--ac:#2f4bff;--tm:#c97700;--ps:#16866a;--ng:#c8372d}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--t);min-height:100dvh}
+.scr{display:none}.scr.on{display:block}
+.w{max-width:560px;margin:auto;padding:calc(env(safe-area-inset-top) + 18px) 14px 150px}
+h1{font:800 2.2rem/1.05 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.01em}
+.card{background:var(--c);border:1px solid var(--l);border-radius:12px;padding:14px;margin-top:14px}
+label{display:block;font-size:.82rem;color:var(--m);margin:0 0 5px}
+input,textarea{width:100%;font:inherit;font-size:16px;padding:12px;border-radius:8px;border:1px solid var(--l);background:#fff;color:var(--t)}
+input{min-height:48px}
+textarea{min-height:72px;resize:none;line-height:1.5}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.chip{display:flex;gap:12px;align-items:center}
+.chip img{width:46px;height:46px;border-radius:50%;border:2px solid var(--ac);object-fit:cover;background:var(--l)}
+.note{border-left:4px solid var(--ac);background:#e3e8ff;padding:12px;font-size:.86rem;line-height:1.5;margin-top:14px;border-radius:0 8px 8px 0}
+.btn{width:100%;min-height:52px;border:0;border-radius:12px;background:var(--ac);color:#fff;font:600 1rem Inter,sans-serif;margin-top:16px}
+.btn:active{transform:scale(.98)}
+.btn.alt{background:transparent;color:var(--t);border:1px solid var(--l)}
+.btn:disabled{background:#c5cde0;color:#6c7893;transform:none}
+.pbar{height:8px;background:var(--l);border-radius:4px;margin:12px 0 4px;overflow:hidden}
+.pbar div{height:100%;background:var(--ac);transition:width .3s}
+.meta{display:flex;justify-content:space-between;font-size:.8rem;color:var(--m)}
+.sec-t{font:800 1.45rem/1.2 'Bricolage Grotesque',system-ui,sans-serif;margin:16px 0 10px}
+.lens{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0 14px}
+.lens button{min-height:50px;border:2px solid var(--k);border-radius:12px;background:var(--c);color:var(--k);font:600 .95rem Inter,sans-serif;padding:0 6px}
+.lens button.q{--k:var(--ac)}.lens button.t{--k:var(--tm)}.lens button.p{--k:var(--ps)}.lens button.n{--k:var(--ng)}
+.lens button.ok{background:var(--k);color:#fff}
+.lens button.ok::after{content:"✓";font-size:.75rem;margin-left:5px}
+.lens button.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--k)}
+.lh{font:800 1.2rem 'Bricolage Grotesque',system-ui,sans-serif;margin-bottom:8px}
+.box{margin-bottom:10px}
+.box label{display:flex;justify-content:space-between;align-items:center;min-height:24px}
+.box .rm{border:0;background:none;color:var(--ng);font:600 .8rem Inter,sans-serif;min-height:36px;padding:0 6px}
+.add{width:100%;min-height:48px;border:2px dashed var(--ac);border-radius:12px;background:transparent;color:var(--ac);font:600 .95rem Inter,sans-serif}
+.row{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--m);margin-top:6px}
+.row button{border:0;background:none;color:var(--ac);font:600 .9rem Inter,sans-serif;min-height:44px;padding:0 4px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#eef2f7ee;backdrop-filter:blur(8px);border-top:1px solid var(--l);padding:8px 14px calc(env(safe-area-inset-bottom) + 10px);z-index:5;max-width:560px;margin:auto}
+.bar .go{display:flex;gap:10px}
+.bar .btn{margin:0}
+#bk{flex:1}#nx{flex:2.4}
+#bh{text-align:center;font-size:.78rem;color:var(--m);min-height:1.1em;margin-bottom:6px}
+.toast{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:50%;transform:translate(-50%,-90px);background:var(--ng);color:#fff;padding:12px 18px;border-radius:10px;z-index:9;font-size:.85rem;transition:.3s;width:max-content;max-width:90vw;text-align:center}
+.toast.s{transform:translate(-50%,0)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.stats div{background:var(--c);border:1px solid var(--l);border-radius:12px;padding:14px;text-align:center;font-size:.85rem;color:var(--m)}
+.stats b{display:block;font:800 2rem 'Bricolage Grotesque',sans-serif;color:var(--ac)}
+#map{margin-top:14px;border-radius:28px;overflow:hidden}
+#map svg{width:100%;height:auto;display:block}
+.gc{border-left:4px solid var(--tm);background:#fff1d9;padding:12px;font-size:.9rem;line-height:1.5;margin-top:14px;border-radius:0 8px 8px 0}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="scr on" id="intro"><div class="w">
+  <h1>Essay Brainstorm Map</h1>
+  <p style="color:var(--m);margin-top:8px;line-height:1.5"></p>
+  <div class="card chip"><img id="av" alt=""><div><b id="gn">Loading…</b><br><span id="gd" style="font-size:.8rem;color:var(--m)"></span></div></div>
+  <div class="card">
+    <label for="full">Full name as on your college ID card</label>
+    <input id="full" autocomplete="name">
+    <label for="topic" style="margin-top:12px">Your essay heading (make it original)</label>
+    <input id="topic" maxlength="70" placeholder="The first step in thinking is to write down your first thought.">
+  </div>
+  <div class="note"><b>Before you begin:</b> at the end you will download an HTML file. Upload it to your 'Pages of Progress' repository. Your work is not submitted until it is there.</div>
+  <button class="btn" id="go">Begin</button>
+</div></div>
+
+<div class="scr" id="app"><div class="w">
+  <div class="meta"><span id="pn"></span><span id="st"></span></div>
+  <div class="pbar"><div id="pf"></div></div>
+  <p class="sec-t" id="stt"></p>
+  <label for="sh" id="shl"></label>
+  <input id="sh" maxlength="70" autocomplete="off">
+  <div class="lens" id="lens"></div>
+  <p class="lh" id="lh"></p>
+  <div id="nb"></div>
+  <button class="add" id="ab">+ Add another box</button>
+  <div class="row"><span id="wc"></span><button id="nl">Next lens</button></div>
+</div>
+<div class="bar"><div id="bh"></div><div class="go"><button class="btn alt" id="bk">Back</button><button class="btn" id="nx" disabled>Next subheading</button></div></div></div>
+
+<div class="scr" id="end"><div class="w">
+  <h1>Your mind map is ready.</h1>
+  <p id="es" style="color:var(--m);margin-top:6px"></p>
+  <div class="stats"><div><b id="ew">0</b>words</div><div><b id="el">0</b>notes</div></div>
+  <div id="map"></div>
+  <div class="gc"><b>Do a grammar check first.</b> Read your notes aloud and run them through a grammar checker before you download. Fix any mistakes, then download.</div>
+  <div class="note">Download your mind map, then upload the file to your GitHub repository.</div>
+  <button class="btn" id="dl">Download my mind map</button>
+  <button class="btn alt" id="cp">Copy outline text</button>
+</div></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const EDGE="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+const QUEST="ELLL 5"; // change to this assignment's quest id
+const MINW=3;          // minimum words in the required box
+const MINBOX=3;        // boxes shown for every lens
+const MAXBOX=8;        // most boxes a lens can have
+const SUBS=5;          // subheadings before the conclusion
+const NS=SUBS+1;       // total sections (conclusion is the last)
+const LENS=[['Who','q'],['What','q'],['When','q'],['Where','q'],['Why','q'],['How','q'],['Past','t'],['Present','t'],['Future','t'],['Positive','p'],['Negative','n']];
+const NL=LENS.length;
+const COL={q:'#2f4bff',t:'#c97700',p:'#16866a',n:'#c8372d'};   // app colours
+const LC={q:'#4da3ff',t:'#ffb142',p:'#2ed1a7',n:'#ff6b81'};    // mind map lens colours
+const BR=['#ff6b81','#ff9f43','#2ed1a7','#4da3ff','#b583ff','#f9d65c']; // mind map branch colours
+
+function norm(n){
+  const o={};
+  LENS.forEach(l=>{
+    let v=n&&n[l[0]];
+    if(typeof v==='string')v=[v];
+    if(!Array.isArray(v))v=[];
+    v=v.map(x=>String(x||''));
+    while(v.length<MINBOX)v.push('');
+    o[l[0]]=v;
+  });
+  return o;
+}
+let S=Array.from({length:NS},()=>({h:'',n:norm({})}));
+let FULL='',TOPIC='',DEPT='',USER='',start=0,pg=0,cur=0;
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('s');setTimeout(()=>t.classList.remove('s'),2800)}
+function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));scrollTo(0,0)}
+const wc=s=>(s||'').trim().split(/\s+/).filter(Boolean).length;
+const isDone=(i,k)=>wc(S[i].n[k][0])>=MINW;
+const doneCount=i=>LENS.filter(l=>isDone(i,l[0])).length;
+const ready=i=>S[i].h.trim().length>=3&&doneCount(i)===NL;
+const total=()=>S.reduce((a,s)=>a+wc(s.h)+LENS.reduce((b,l)=>b+s.n[l[0]].reduce((c,t)=>c+wc(t),0),0),0);
+const noteCount=()=>S.reduce((a,s)=>a+LENS.reduce((b,l)=>b+s.n[l[0]].filter(t=>t.trim()).length,0),0);
+
+/* draft saving so a refresh does not lose work */
+const dkey=()=>'essayMapDraft2:'+USER;
+function save(){try{localStorage.setItem(dkey(),JSON.stringify({FULL,TOPIC,S,pg,cur,start}))}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem(dkey())||'null')}catch(e){return null}}
+
+addEventListener('DOMContentLoaded',()=>{
+  const g=window.GH;
+  USER=g?(g.name||g.username||'Student'):(localStorage.getItem('questPlayerName')||'Test Student');
+  DEPT=g?(g.dept||'Department Unspecified'):(localStorage.getItem('questPlayerDept')||'CSE');
+  $('#gn').textContent=USER;$('#gd').textContent='GitHub login: '+DEPT;
+  $('#av').src=(g&&g.avatar)||'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22/%3E';
+  const d=load();
+  if(d&&d.S&&d.S.length===NS){$('#full').value=d.FULL||'';$('#topic').value=d.TOPIC||'';$('#go').textContent='Resume my draft'}
+});
+
+$('#go').onclick=()=>{
+  FULL=$('#full').value.trim();TOPIC=$('#topic').value.trim();
+  if(FULL.length<4)return toast('Enter your full name exactly as on your ID card');
+  if(TOPIC.length<3)return toast('Give your essay an original heading');
+  const d=load();
+  if(d&&d.S&&d.S.length===NS){S=d.S.map(s=>({h:s.h||'',n:norm(s.n)}));pg=d.pg||0;cur=d.cur||0;start=d.start||Date.now()}
+  else{start=Date.now();pg=0;cur=0}
+  show('app');render();
+};
+
+function render(){
+  const last=pg===NS-1;
+  $('#pn').textContent=last?'Conclusion':`Subheading ${pg+1} of ${SUBS}`;
+  $('#stt').textContent=last?'Wrap it up':`Subheading ${pg+1}`;
+  $('#shl').textContent=last?'Your conclusion heading (the closing idea)':'Your subheading (a point that supports your heading)';
+  $('#sh').placeholder=last?'Where does all of this leave us?':'Name this point in your own words';
+  $('#sh').value=S[pg].h;
+  const lb=$('#lens');lb.innerHTML='';
+  LENS.forEach((l,i)=>{
+    const b=document.createElement('button');b.textContent=l[0];b.className=l[1];
+    b.onclick=()=>{cur=i;paintLens();boxes(true)};
+    lb.appendChild(b);
+  });
+  $('#bk').style.visibility=pg?'visible':'hidden';
+  boxes(false);paint();
+}
+
+function boxes(focus){
+  const l=LENS[cur],arr=S[pg].n[l[0]],wrap=$('#nb');
+  wrap.innerHTML='';
+  $('#lh').textContent=l[0];$('#lh').style.color=COL[l[1]];
+  arr.forEach((v,j)=>{
+    const d=document.createElement('div');d.className='box';
+    const lab=document.createElement('label');lab.htmlFor='b'+j;
+    const sp=document.createElement('span');sp.textContent=`Box ${j+1} ${j===0?'(required)':'(optional)'}`;
+    lab.appendChild(sp);
+    if(j>=MINBOX){
+      const r=document.createElement('button');r.type='button';r.className='rm';r.textContent='Remove';
+      r.onclick=()=>{arr.splice(j,1);boxes(false);paint()};
+      lab.appendChild(r);
+    }
+    const t=document.createElement('textarea');
+    t.id='b'+j;t.maxLength=180;t.rows=2;t.value=v;
+    t.placeholder=j===0?`At least ${MINW} words`:'Optional';
+    t.onkeydown=e=>{if(e.key==='Enter')e.preventDefault()};
+    t.oninput=e=>{arr[j]=e.target.value.replace(/\s*\n\s*/g,' ');paint()};
+    d.append(lab,t);wrap.appendChild(d);
+  });
+  $('#ab').style.display=arr.length>=MAXBOX?'none':'';
+  if(focus){const e=[...wrap.querySelectorAll('textarea')].find(x=>!x.value)||wrap.querySelector('textarea');if(e)e.focus({preventScroll:true})}
+}
+function paintLens(){
+  [...$('#lens').children].forEach((b,i)=>{
+    b.classList.toggle('ok',isDone(pg,LENS[i][0]));
+    b.classList.toggle('on',i===cur);
+  });
+}
+function paint(){
+  paintLens();
+  const dc=doneCount(pg),rdy=ready(pg),last=pg===NS-1;
+  const all=S.reduce((a,_,i)=>a+doneCount(i),0);
+  $('#pf').style.width=(all/(NS*NL)*100)+'%';
+  $('#st').textContent=total()+' words';
+  const w=S[pg].n[LENS[cur][0]].reduce((a,t)=>a+wc(t),0);
+  $('#wc').textContent=w+' word'+(w===1?'':'s')+' in this lens';
+  $('#nx').textContent=last?'Build my mind map':'Next subheading';
+  $('#nx').disabled=!rdy;
+  $('#bh').textContent=rdy?'':(S[pg].h.trim().length<3?'Add a subheading to continue':`${NL-dc} of ${NL} lenses to go`);
+  save();
+}
+$('#sh').oninput=e=>{S[pg].h=e.target.value;paint()};
+$('#ab').onclick=()=>{
+  const arr=S[pg].n[LENS[cur][0]];
+  if(arr.length>=MAXBOX)return;
+  arr.push('');boxes(false);paint();
+  const t=$('#nb').lastElementChild.querySelector('textarea');t.focus();
+};
+$('#nl').onclick=()=>{
+  let nx=-1;
+  for(let s=1;s<=NL;s++){const i=(cur+s)%NL;if(!isDone(pg,LENS[i][0])){nx=i;break}}
+  cur=nx<0?(cur+1)%NL:nx;paintLens();boxes(true);
+};
+$('#bk').onclick=()=>{if(pg){pg--;cur=0;render();scrollTo(0,0)}};
+$('#nx').onclick=()=>{
+  if(!ready(pg))return toast('Finish all '+NL+' lenses first');
+  S[pg].h=S[pg].h.trim();
+  if(pg<NS-1){pg++;cur=0;render();scrollTo(0,0)}else finish();
+};
+
+/* ---------- mind map ---------- */
+function wrap(s,max,lines){
+  const out=[];let line='';
+  for(let w of String(s).trim().split(/\s+/)){
+    if(w.length>max)w=w.slice(0,max-1)+'…';
+    if((line+' '+w).trim().length>max){out.push(line);line=w}else line=(line+' '+w).trim();
+  }
+  if(line)out.push(line);
+  if(out.length>lines){out.length=lines;const t=out[lines-1];out[lines-1]=(t.length>max-1?t.slice(0,max-1):t)+'…'}
+  return out;
+}
+function txt(x,y,lines,fs,fill,wt,fam){
+  const lh=fs*1.2,y0=y-(lines.length-1)*lh/2+fs*.35;
+  return `<text x="${x}" y="${y0.toFixed(1)}" text-anchor="middle" font-family="${fam||'Inter,Arial,sans-serif'}" font-size="${fs}" font-weight="${wt||600}" fill="${fill}">`+
+    lines.map((l,i)=>`<tspan x="${x}" dy="${i?lh.toFixed(1):0}">${esc(l)}</tspan>`).join('')+'</text>';
+}
+function svgMap(topic,S,links){
+  const W=420,H=560,cx=210,cy=280,rx=150,ry=205,BW=132,BH=72;
+  let defs='<defs><radialGradient id="cg" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#8b9bff"/><stop offset="1" stop-color="#5a2fe0"/></radialGradient>'+
+    '<radialGradient id="bgg" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#232d6b"/><stop offset="1" stop-color="#0f1533"/></radialGradient>'+
+    '<filter id="gl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>';
+  let stars='',glow='',paths='',nodes='';
+  for(let k=0;k<28;k++){stars+=`<circle cx="${(k*97+31)%W}" cy="${(k*173+17)%H}" r="${(.7+(k%3)*.4).toFixed(1)}" fill="#fff" opacity="${(.18+(k%4)*.08).toFixed(2)}"/>`}
+  S.forEach((s,i)=>{
+    const a=(-90+60*i)*Math.PI/180,x=cx+rx*Math.cos(a),y=cy+ry*Math.sin(a),c=BR[i];
+    const dx=x-cx,dy=y-cy,nx=-dy*.24,ny=dx*.24;
+    const d=`M${cx} ${cy} C${(cx+dx*.35+nx).toFixed(1)} ${(cy+dy*.35+ny).toFixed(1)} ${(cx+dx*.7-nx*.7).toFixed(1)} ${(cy+dy*.7-ny*.7).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    defs+=`<linearGradient id="g${i}" gradientUnits="userSpaceOnUse" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"><stop offset="0" stop-color="#8b9bff"/><stop offset="1" stop-color="${c}"/></linearGradient>`;
+    glow+=`<path d="${d}" fill="none" stroke="${c}" stroke-width="16" stroke-linecap="round" opacity=".35" filter="url(#gl)"/>`;
+    paths+=`<path d="${d}" fill="none" stroke="url(#g${i})" stroke-width="7" stroke-linecap="round"/>`;
+    const last=i===NS-1,n=last?'C':String(i+1);
+    let dots='';
+    LENS.forEach((l,j)=>{dots+=`<circle cx="${(x-45+j*9).toFixed(1)}" cy="${(y+27).toFixed(1)}" r="2.8" fill="${LC[l[1]]}"/>`});
+    let g=`<rect x="${(x-BW/2).toFixed(1)}" y="${(y-BH/2).toFixed(1)}" width="${BW}" height="${BH}" rx="22" fill="#1b2559" stroke="${c}" stroke-width="2.5"/>`+
+      txt(x.toFixed(1),(y-7).toFixed(1),wrap(s.h,15,3),11.5,'#ffffff',600)+dots+
+      `<circle cx="${(x-BW/2+6).toFixed(1)}" cy="${(y-BH/2+6).toFixed(1)}" r="11" fill="${c}"/>`+
+      txt((x-BW/2+6).toFixed(1),(y-BH/2+6).toFixed(1),[n],11,'#10163a',800);
+    nodes+=links?`<a href="#s${i+1}" style="cursor:pointer">${g}</a>`:`<g>${g}</g>`;
+  });
+  defs+='</defs>';
+  const center=`<circle cx="${cx}" cy="${cy}" r="72" fill="#8b9bff" opacity=".45" filter="url(#gl)"/>`+
+    `<circle cx="${cx}" cy="${cy}" r="62" fill="url(#cg)" stroke="#ffffff" stroke-opacity=".4" stroke-width="2"/>`+
+    txt(cx,cy,wrap(topic,11,4),14,'#ffffff',800,"'Bricolage Grotesque',Inter,Arial,sans-serif");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mind map for ${esc(topic)}" xmlns="http://www.w3.org/2000/svg">${defs}`+
+    `<rect width="${W}" height="${H}" fill="url(#bgg)"/>${stars}${glow}${paths}${center}${nodes}</svg>`;
+}
+
+function finish(){
+  for(let i=0;i<NS;i++)if(!ready(i)){pg=i;render();return toast((i===NS-1?'Conclusion':'Subheading '+(i+1))+' is not finished')}
+  const words=total(),secs=Math.round((Date.now()-start)/1000);
+  $('#es').textContent=FULL+' ('+DEPT+')';
+  $('#ew').textContent=words;$('#el').textContent=noteCount();
+  $('#map').innerHTML=svgMap(TOPIC,S,false);
+  show('end');
+  try{localStorage.removeItem(dkey())}catch(e){}
+  fetch(EDGE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_name:USER,github_user:USER,department:DEPT,correct:words,wrong:0,time_spent:secs,quest_id:QUEST,cheat_count:0,cheat_events:[]})}).catch(()=>{});
+}
+
+$('#cp').onclick=async()=>{
+  const t=TOPIC+'\n\n'+S.map((s,i)=>(i===NS-1?'Conclusion: ':(i+1)+'. ')+s.h+'\n'+LENS.map(l=>l[0]+':\n'+s.n[l[0]].filter(x=>x.trim()).map(x=>'- '+x).join('\n')).join('\n')).join('\n\n')+'\n\n— '+FULL;
+  try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){toast('Copy failed. Select the text instead.')}
+};
+
+$('#dl').onclick=()=>{
+  const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+  const nav=S.map((s,i)=>`<a href="#s${i+1}" style="--b:${BR[i]}" aria-label="${i===NS-1?'Conclusion':'Subheading '+(i+1)}">${i===NS-1?'C':i+1}</a>`).join('');
+  const branches=S.map((s,i)=>{
+    const last=i===NS-1;
+    const lenses=LENS.map(l=>{
+      const notes=s.n[l[0]].filter(x=>x.trim()).map(x=>`<li>${esc(x)}</li>`).join('');
+      return `<li class="ln ${l[1]}"><div class="lp"><em></em>${l[0]}</div><ul class="lf">${notes}</ul></li>`;
+    }).join('');
+    return `<details class="br" id="s${i+1}" open style="--b:${BR[i]}"><summary><i>${last?'C':i+1}</i><h2>${esc(s.h)}</h2></summary><ul class="tree">${lenses}</ul></details>`;
+  }).join('\n');
+  const h=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>${esc(TOPIC)} - ${esc(FULL)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+html{background:#0f1533;scroll-behavior:smooth;scroll-padding-top:70px}
+body{color:#f4f6ff;font-family:Inter,system-ui,sans-serif;padding:0 14px calc(env(safe-area-inset-bottom) + 8vh);-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 15% 0,#2f3a9a66,transparent 55%),radial-gradient(circle at 95% 45%,#8a2f7a44,transparent 50%),#0f1533}
+main{max-width:560px;margin:auto}
+.nav{position:sticky;top:0;z-index:5;display:flex;justify-content:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 0 10px;background:#0f1533d9;backdrop-filter:blur(10px)}
+.nav a{width:42px;height:42px;border-radius:50%;border:2px solid var(--b);color:var(--b);font:800 .95rem/38px 'Bricolage Grotesque',sans-serif;text-align:center;text-decoration:none}
+.nav a:active{background:var(--b);color:#10163a}
+h1{font:800 clamp(2.1rem,10.5vw,3.4rem)/1.05 'Bricolage Grotesque',system-ui,sans-serif;margin-top:26px;overflow-wrap:anywhere;background:linear-gradient(100deg,#ff9fb0,#ffd27a 40%,#7ee8c9 75%,#8fc2ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.by{margin:10px 0 20px;color:#a9b4de;font-size:.85rem;line-height:1.6}
+.map{border-radius:28px;overflow:hidden;box-shadow:0 18px 50px -20px #000}
+.map svg{width:100%;height:auto;display:block}
+.hintt{margin:10px 0 0;text-align:center;font-size:.78rem;color:#8f9bc8}
+.br{margin-top:26px}
+.br>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px;border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.4),rgba(255,255,255,0)),var(--b);color:#10163a;cursor:pointer;box-shadow:0 14px 34px -14px var(--b);min-height:64px}
+.br>summary::-webkit-details-marker{display:none}
+.br>summary::after{content:"▾";font-size:1.2rem;margin-left:auto;transition:transform .2s}
+.br:not([open])>summary::after{transform:rotate(-90deg)}
+.br>summary i{flex:none;width:34px;height:34px;border-radius:50%;background:#10163a;color:var(--b);font:800 1rem/34px 'Bricolage Grotesque',sans-serif;text-align:center;font-style:normal}
+.br>summary h2{font:800 1.2rem/1.25 'Bricolage Grotesque',system-ui,sans-serif;overflow-wrap:anywhere}
+.tree{list-style:none;margin:0 0 0 24px;padding:10px 0 0}
+.ln{position:relative;padding:0 0 18px 30px;--k:#4da3ff}
+.ln.t{--k:#ffb142}.ln.p{--k:#2ed1a7}.ln.n{--k:#ff6b81}
+.ln::before{content:"";position:absolute;left:0;top:-10px;width:30px;height:27px;border-left:3px solid var(--b);border-bottom:3px solid var(--b);border-bottom-left-radius:18px}
+.ln:not(:last-child)::after{content:"";position:absolute;left:0;top:17px;bottom:0;border-left:3px solid var(--b)}
+.lp{display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:0 15px 0 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1.5px solid var(--k);font:600 .95rem Inter,sans-serif;box-shadow:0 0 18px -6px var(--k)}
+.lp em{width:10px;height:10px;border-radius:50%;background:var(--k)}
+.lf{list-style:none;margin:8px 0 0 16px;padding:0 0 0 16px;border-left:2px dashed var(--k)}
+.lf:empty{display:none}
+.lf li{position:relative;margin:0 0 8px;padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);font-size:.93rem;line-height:1.5;overflow-wrap:anywhere}
+.lf li:last-child{margin-bottom:0}
+.lf li::before{content:"";position:absolute;left:-18px;top:17px;width:16px;border-top:2px dashed var(--k)}
+.ft{margin-top:34px;color:#8f9bc8;font-size:.8rem;text-align:center}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style></head><body><main>
+<nav class="nav">${nav}</nav>
+<h1>${esc(TOPIC)}</h1><p class="by">Essay mind map by ${esc(FULL)}<br>${esc(DEPT)}, ${date}</p>
+<div class="map">${svgMap(TOPIC,S,true)}</div>
+<p class="hintt">Tap a branch to jump to it. Tap a heading to fold it.</p>
+${branches}
+<p class="ft">${esc(FULL)}, ${total()} words in ${noteCount()} notes</p></main>
+<script>function o(){try{var e=location.hash&&document.querySelector(location.hash);if(e&&e.tagName==='DETAILS')e.open=true}catch(x){}}addEventListener('hashchange',o);o()<\/script>
+</body></html>`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([h],{type:'text/html'}));
+  a.download=(FULL+'-essay-mindmap').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.html';
+  a.click();
+};
+</script>
+</body>
+</html>
