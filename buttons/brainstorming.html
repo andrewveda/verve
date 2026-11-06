@@ -57,11 +57,36 @@ input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--ac);outl
 #map{margin-top:14px;border-radius:28px;overflow:hidden}
 #map svg{width:100%;height:auto;display:block}
 .gc{border-left:4px solid var(--tm);background:#fff1d9;padding:12px;font-size:.9rem;line-height:1.5;margin-top:14px;border-radius:0 8px 8px 0}
+/* anti-copy: no text selection except inside inputs */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+#end,#end *{-webkit-user-select:text;user-select:text}
+/* anti-cheat overlay + badge */
+.cheat-overlay{display:none;position:fixed;inset:0;background:rgba(179,38,30,.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff;backdrop-filter:blur(5px)}
+.cheat-overlay.show{display:flex}
+.cheat-overlay h2{font:800 1.8rem 'Bricolage Grotesque',system-ui,sans-serif;margin-bottom:12px}
+.cheat-overlay p{font-size:1.05rem;opacity:.92;margin-bottom:22px;max-width:380px;line-height:1.5}
+.cheat-overlay .btn{background:#fff;color:#a3432e;max-width:320px;margin:0}
+.wb{margin-left:8px;color:var(--ng);font-weight:600}
+.cheat-report{background:#fdf1e6;border:1px solid #eccfa0;border-radius:10px;padding:14px;margin-top:14px}
+.cheat-report h4{color:#a3432e;margin-bottom:8px;font-size:.8rem;text-transform:uppercase;letter-spacing:.03em}
+.cheat-report ul{list-style:none;font-size:.85rem;color:#6b5636}
+.cheat-report li{margin-bottom:4px}
+/* 5-second "type the first thing" nudge */
+.nudge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:50%;transform:translate(-50%,-140px);background:var(--tm);color:#fff;padding:12px 16px;border-radius:10px;z-index:8;font-size:.88rem;line-height:1.4;font-weight:600;transition:.3s;width:max-content;max-width:92vw;text-align:center;box-shadow:0 6px 20px -8px #000a}
+.nudge.s{transform:translate(-50%,0)}
+.slow{border-color:var(--tm)!important;box-shadow:0 0 0 3px #ffd79a}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
+<div class="nudge" id="nudge" role="status" aria-live="polite"></div>
+<div class="cheat-overlay" id="cheatOverlay">
+  <h2>⚠ Security Alert</h2>
+  <p id="cheatMessage">Suspicious activity detected. Please return to the activity immediately.</p>
+  <button class="btn" id="resume">I understand, resume</button>
+</div>
 
 <div class="scr on" id="intro"><div class="w">
   <h1>Essay Brainstorm Map</h1>
@@ -78,11 +103,11 @@ input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--ac);outl
 </div></div>
 
 <div class="scr" id="app"><div class="w">
-  <div class="meta"><span id="pn"></span><span id="st"></span></div>
+  <div class="meta"><span id="pn"></span><span><span id="st"></span><span class="wb" id="wb" title="Security flags">🚫 0</span></span></div>
   <div class="pbar"><div id="pf"></div></div>
   <p class="sec-t" id="stt"></p>
   <label for="sh" id="shl"></label>
-  <input id="sh" maxlength="70" autocomplete="off">
+  <input id="sh" maxlength="70" autocomplete="off" enterkeyhint="next">
   <div class="lens" id="lens"></div>
   <p class="lh" id="lh"></p>
   <div id="nb"></div>
@@ -96,6 +121,7 @@ input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--ac);outl
   <p id="es" style="color:var(--m);margin-top:6px"></p>
   <div class="stats"><div><b id="ew">0</b>words</div><div><b id="el">0</b>notes</div></div>
   <div id="map"></div>
+  <div class="cheat-report"><h4>Security audit</h4><ul id="cheatList"></ul></div>
   <div class="gc">Download your mind map</div>
   <div class="note"> Upload the downloaded file to your GitHub repository.</div>
   <button class="btn" id="dl">Download my mind map</button>
@@ -132,8 +158,9 @@ function norm(n){
 }
 let S=Array.from({length:NS},()=>({h:'',n:norm({})}));
 let FULL='',TOPIC='',DEPT='',USER='',start=0,pg=0,cur=0;
+let cheatEvents=[],cheatCount=0,isPaused=false,testSubmitted=false,live=false,pausedMs=0,pauseAt=0,lastFocus=null,nudgeT=null;
 
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('s');setTimeout(()=>t.classList.remove('s'),2800)}
+function toast(m,c){const t=$('#toast');t.textContent=m;t.style.background=c||'';t.classList.add('s');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('s'),2800)}
 function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));scrollTo(0,0)}
 const wc=s=>(s||'').trim().split(/\s+/).filter(Boolean).length;
 const isDone=(i,k)=>wc(S[i].n[k][0])>=MINW;
@@ -144,7 +171,7 @@ const noteCount=()=>S.reduce((a,s)=>a+LENS.reduce((b,l)=>b+s.n[l[0]].filter(t=>t
 
 /* draft saving so a refresh does not lose work */
 const dkey=()=>'essayMapDraft2:'+USER;
-function save(){try{localStorage.setItem(dkey(),JSON.stringify({FULL,TOPIC,S,pg,cur,start}))}catch(e){}}
+function save(){try{localStorage.setItem(dkey(),JSON.stringify({FULL,TOPIC,S,pg,cur,start,cheatEvents,cheatCount}))}catch(e){}}
 function load(){try{return JSON.parse(localStorage.getItem(dkey())||'null')}catch(e){return null}}
 
 addEventListener('DOMContentLoaded',()=>{
@@ -162,9 +189,12 @@ $('#go').onclick=()=>{
   if(FULL.length<4)return toast('Enter your full name exactly as on your ID card');
   if(TOPIC.length<3)return toast('Give your essay an original heading');
   const d=load();
-  if(d&&d.S&&d.S.length===NS){S=d.S.map(s=>({h:s.h||'',n:norm(s.n)}));pg=d.pg||0;cur=d.cur||0;start=d.start||Date.now()}
-  else{start=Date.now();pg=0;cur=0}
+  if(d&&d.S&&d.S.length===NS){S=d.S.map(s=>({h:s.h||'',n:norm(s.n)}));pg=d.pg||0;cur=d.cur||0;start=d.start||Date.now();cheatEvents=d.cheatEvents||[];cheatCount=d.cheatCount||0}
+  else{start=Date.now();pg=0;cur=0;cheatEvents=[];cheatCount=0}
+  live=true;testSubmitted=false;isPaused=false;
+  initAntiCheat();updBadge();
   show('app');render();
+  focusStart(); // same tap as Begin, so the mobile keyboard opens
 };
 
 function render(){
@@ -173,7 +203,7 @@ function render(){
   $('#stt').textContent=last?'Wrap it up':`Subheading ${pg+1}`;
   $('#shl').textContent=last?'Your conclusion heading (the closing idea)':'Your subheading (a point that supports your heading)';
   $('#sh').placeholder=last?'Where does all of this leave us?':'Name this point in your own words';
-  $('#sh').value=S[pg].h;
+  $('#sh').value=S[pg].h;$('#sh')._lv=S[pg].h;
   const lb=$('#lens');lb.innerHTML='';
   LENS.forEach((l,i)=>{
     const b=document.createElement('button');b.textContent=l[0];b.className=l[1];
@@ -199,10 +229,11 @@ function boxes(focus){
       lab.appendChild(r);
     }
     const t=document.createElement('textarea');
-    t.id='b'+j;t.maxLength=180;t.rows=2;t.value=v;
+    t.id='b'+j;t.maxLength=180;t.rows=2;t.value=v;t._lv=v;t.enterKeyHint='next';t.autocomplete='off';
     t.placeholder=j===0?`At least ${MINW} words`:'Optional';
-    t.onkeydown=e=>{if(e.key==='Enter')e.preventDefault()};
-    t.oninput=e=>{arr[j]=e.target.value.replace(/\s*\n\s*/g,' ');paint()};
+    t.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();boxEnter(j)}};
+    t.onbeforeinput=e=>{if(e.inputType==='insertLineBreak'||e.inputType==='insertParagraph'){e.preventDefault();boxEnter(j)}};
+    t.oninput=e=>{pasteGuard(t);arr[j]=t.value.replace(/\s*\n\s*/g,' ');paint()};
     d.append(lab,t);wrap.appendChild(d);
   });
   $('#ab').style.display=arr.length>=MAXBOX?'none':'';
@@ -227,24 +258,160 @@ function paint(){
   $('#bh').textContent=rdy?'':(S[pg].h.trim().length<3?'Add a subheading to continue':`${NL-dc} of ${NL} lenses to go`);
   save();
 }
-$('#sh').oninput=e=>{S[pg].h=e.target.value;paint()};
+$('#sh').oninput=e=>{pasteGuard(e.target);S[pg].h=e.target.value;paint()};
+/* Enter / keyboard "Next" on the subheading jumps straight to the first unfinished lens (Who on a fresh page) */
+$('#sh').onkeydown=e=>{
+  if(e.key!=='Enter')return;
+  e.preventDefault();
+  if(S[pg].h.trim().length<3)return toast('Add a subheading first');
+  cur=Math.max(0,LENS.findIndex(l=>!isDone(pg,l[0])));
+  paintLens();boxes(true);
+};
 $('#ab').onclick=()=>{
   const arr=S[pg].n[LENS[cur][0]];
   if(arr.length>=MAXBOX)return;
   arr.push('');boxes(false);paint();
   const t=$('#nb').lastElementChild.querySelector('textarea');t.focus();
 };
-$('#nl').onclick=()=>{
+function nextLens(fromEnter){
   let nx=-1;
   for(let s=1;s<=NL;s++){const i=(cur+s)%NL;if(!isDone(pg,LENS[i][0])){nx=i;break}}
+  if(nx<0&&fromEnter){ // every lens finished: close the keyboard so the Next button is visible
+    if(document.activeElement)document.activeElement.blur();
+    return toast('All lenses done. Tap “Next subheading”.','var(--ps)');
+  }
   cur=nx<0?(cur+1)%NL:nx;paintLens();boxes(true);
-};
+}
+$('#nl').onclick=()=>nextLens(false);
+/* Enter inside a box: once the box is good enough, go straight to the next unfinished lens */
+function boxEnter(j){
+  const l=LENS[cur],arr=S[pg].n[l[0]];
+  if(!(arr[j]||'').trim())return toast('Type something first');
+  if(j===0&&!isDone(pg,l[0]))return toast('Write at least '+MINW+' words');
+  nextLens(true);
+}
+/* put the cursor where the student should type next (opens the keyboard on mobile when called from a tap) */
+function focusStart(){
+  if(S[pg].h.trim().length>=3){
+    const i=LENS.findIndex(l=>!isDone(pg,l[0]));
+    if(i>=0)cur=i;
+    paintLens();boxes(true);
+  }else{const e=$('#sh');e.focus();try{e.setSelectionRange(e.value.length,e.value.length)}catch(x){}}
+}
 $('#bk').onclick=()=>{if(pg){pg--;cur=0;render();scrollTo(0,0)}};
 $('#nx').onclick=()=>{
   if(!ready(pg))return toast('Finish all '+NL+' lenses first');
   S[pg].h=S[pg].h.trim();
-  if(pg<NS-1){pg++;cur=0;render();scrollTo(0,0)}else finish();
+  if(pg<NS-1){pg++;cur=0;render();scrollTo(0,0);focusStart()}else finish();
 };
+
+/* ---------- anti-cheat ---------- */
+const MOBILE=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
+const armed=()=>live&&!testSubmitted;
+let AC=false;
+function updBadge(){$('#wb').textContent='🚫 '+cheatCount}
+function recordCheat(description,type){
+  cheatCount++;
+  cheatEvents.push({type,description,timestamp:new Date().toISOString()});
+  updBadge();save();
+}
+function showCheatOverlay(msg){
+  if(!isPaused)pauseAt=Date.now();
+  isPaused=true;clearTimeout(nudgeT);
+  $('#cheatMessage').textContent=msg;
+  $('#cheatOverlay').classList.add('show');
+}
+$('#resume').onclick=()=>{
+  if(isPaused)pausedMs+=Date.now()-pauseAt;
+  isPaused=false;
+  $('#cheatOverlay').classList.remove('show');
+  toast('Resumed.','#14213d');
+  if(lastFocus&&lastFocus.isConnected){lastFocus.focus();armNudge(lastFocus)}else focusStart();
+};
+function initAntiCheat(){
+  if(AC)return;AC=true;
+
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden&&armed()&&!isPaused){
+      recordCheat('Tab switched or minimized','tab');
+      showCheatOverlay('You switched tabs or minimized the window. This has been recorded.');
+    }
+  });
+  addEventListener('blur',()=>{
+    // short delay so a tab switch is not counted twice (blur + visibilitychange)
+    setTimeout(()=>{if(armed()&&!isPaused&&!MOBILE&&!document.hidden)recordCheat('Window lost focus','focus')},200);
+  });
+  document.addEventListener('contextmenu',e=>{
+    if(!armed())return;
+    e.preventDefault();recordCheat('Right-click attempted','rightclick');toast('Right-click disabled');
+  });
+  document.addEventListener('keydown',e=>{
+    if(!armed())return;
+    const k=(e.key||'').toLowerCase(),mod=e.ctrlKey||e.metaKey;
+    if(e.key==='F12'){e.preventDefault();recordCheat('DevTools accessed','devtools');toast('DevTools blocked');return}
+    if((mod&&e.shiftKey&&(k==='i'||k==='j'||k==='c'))||(mod&&k==='u')){
+      e.preventDefault();recordCheat('DevTools shortcut blocked','shortcut');toast('Shortcuts restricted');return;
+    }
+    if(mod&&'spacvx'.includes(k)&&k.length===1){
+      e.preventDefault();recordCheat('System shortcut blocked: Ctrl+'+k,'shortcut');
+      if(k==='v'||k==='c')toast('Copy/Paste disabled');
+    }
+  });
+  ['copy','paste','cut','drop'].forEach(evt=>{
+    document.addEventListener(evt,e=>{
+      if(!armed())return;
+      e.preventDefault();recordCheat(evt.toUpperCase()+' attempted',evt);toast(evt+' is disabled');
+    });
+  });
+  // catches mobile long-press paste / drag-drop / keyboard clipboard suggestions that skip the events above
+  document.addEventListener('beforeinput',e=>{
+    if(!armed()||!/^insertFrom(Paste|Drop|Yank|PasteAsQuotation)$/.test(e.inputType||''))return;
+    e.preventDefault();
+    const d=/Drop/.test(e.inputType);
+    recordCheat((d?'DROP':'PASTE')+' attempted',d?'drop':'paste');toast((d?'Dropping':'Pasting')+' is disabled');
+  });
+  if(!MOBILE){
+    setInterval(()=>{
+      if(!armed()||isPaused)return;
+      const t0=performance.now();debugger;const t1=performance.now();
+      if(t1-t0>100){recordCheat('Debugger accessed','console');showCheatOverlay('Console access detected. Logged.')}
+    },3000);
+  }
+
+  // 5-second "type the first thing" nudge on every empty box
+  document.addEventListener('focusin',e=>{if(isBox(e.target)){lastFocus=e.target;armNudge(e.target)}});
+  document.addEventListener('focusout',e=>{clearTimeout(nudgeT);if(e.target.classList)e.target.classList.remove('slow')});
+  document.addEventListener('input',e=>{
+    if(!isBox(e.target))return;
+    e.target.classList.remove('slow');$('#nudge').classList.remove('s');armNudge(e.target);
+  });
+}
+/* Fallback paste detector: normal typing adds 1-2 characters per input event. */
+function pasteGuard(el){
+  const v=el.value,last=el._lv!==undefined?el._lv:'';
+  if(armed()&&v.length-last.length>20){
+    recordCheat('Rapid text insertion (paste fallback)','paste');
+    el.value=last;toast('Pasting is disabled');
+    return true;
+  }
+  el._lv=v;return false;
+}
+function isBox(t){return !!t&&(t.id==='sh'||(t.tagName==='TEXTAREA'&&$('#nb').contains(t)))}
+function nudge(){
+  const n=$('#nudge');
+  n.textContent='⏱ Don’t overthink it. Type the first thing that comes to mind, but be very specific.';
+  n.classList.add('s');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('s'),4500);
+}
+function armNudge(el){
+  clearTimeout(nudgeT);
+  if(!armed()||!el||el.value.trim())return;
+  nudgeT=setTimeout(()=>fireNudge(el),5000);
+}
+function fireNudge(el){
+  if(!armed()||document.activeElement!==el||el.value.trim()||isPaused||document.hidden)return;
+  el.classList.add('slow');nudge();
+  nudgeT=setTimeout(()=>fireNudge(el),5000); // keeps nudging every 5s while the box stays empty
+}
 
 /* ---------- mind map ---------- */
 function wrap(s,max,lines){
@@ -295,13 +462,15 @@ function svgMap(topic,S,links){
 
 function finish(){
   for(let i=0;i<NS;i++)if(!ready(i)){pg=i;render();return toast((i===NS-1?'Conclusion':'Subheading '+(i+1))+' is not finished')}
-  const words=total(),secs=Math.round((Date.now()-start)/1000);
+  testSubmitted=true;live=false;clearTimeout(nudgeT);$('#nudge').classList.remove('s');
+  const words=total(),secs=Math.max(0,Math.round((Date.now()-start-pausedMs)/1000));
+  $('#cheatList').innerHTML=cheatEvents.length?cheatEvents.map(e=>'<li>⚠ '+esc(e.description)+'</li>').join(''):'<li style="color:#16866a">✓ No suspicious activity detected</li>';
   $('#es').textContent=FULL+' ('+DEPT+')';
   $('#ew').textContent=words;$('#el').textContent=noteCount();
   $('#map').innerHTML=svgMap(TOPIC,S,false);
   show('end');
   try{localStorage.removeItem(dkey())}catch(e){}
-  fetch(EDGE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_name:USER,github_user:USER,department:DEPT,correct:words,wrong:0,time_spent:secs,quest_id:QUEST,cheat_count:0,cheat_events:[]})}).catch(()=>{});
+  fetch(EDGE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({student_name:USER,github_user:USER,department:DEPT,correct:words,wrong:0,time_spent:secs,quest_id:QUEST,cheat_count:cheatCount,cheat_events:cheatEvents})}).catch(()=>{});
 }
 
 $('#cp').onclick=async()=>{
