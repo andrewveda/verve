@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"/>
+<title>Right Ad for the Right Product — Match Quest</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="../../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+:root{--paper:#f3ead4;--card:#fffbf2;--line:#e3d5b0;--ink:#2d2620;--muted:#8c7c62;--forest:#2f5233;--moss:#6f8f5a;--clay:#b5651d;--gold:#c9a227;--rust:#a4392c;--cheat:#dc2626;--ok:#10b981;--sh:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);--shm:0 2px 6px rgba(45,38,32,.1),0 10px 26px rgba(45,38,32,.12)}
+html,body{min-height:100%;overscroll-behavior-x:none}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);min-height:100dvh;display:flex;flex-direction:column;align-items:center;background-image:radial-gradient(ellipse 70% 50% at 12% 8%,rgba(111,143,90,.14),transparent 60%),radial-gradient(ellipse 60% 45% at 92% 88%,rgba(181,101,29,.1),transparent 60%)}
+.cheat-overlay{display:none;position:fixed;inset:0;background:rgba(220,38,38,.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff}
+.cheat-overlay.show{display:flex}.cheat-overlay h2{font-family:'Fraunces',serif;font-size:2rem;margin-bottom:12px}.cheat-overlay p{margin-bottom:24px;max-width:400px;line-height:1.5}
+.toast{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%) translateY(-140px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-size:.85rem;font-weight:600;z-index:400;transition:transform .3s;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}.toast.cheat{background:var(--cheat)}
+.screen{display:none;flex-direction:column;align-items:center;width:100%;min-height:100dvh}.screen.active{display:flex}
+.btn{display:inline-flex;align-items:center;justify-content:center;width:100%;padding:15px 24px;border:none;border-radius:14px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;text-transform:uppercase;letter-spacing:.03em}
+.btn-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;box-shadow:0 4px 16px rgba(47,82,51,.25)}.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}.btn:disabled{opacity:.6}
+.gate-wrap{width:100%;max-width:440px;margin:auto;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 18px)}
+.gate-card{background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:30px 22px 24px;box-shadow:0 20px 60px rgba(45,38,32,.14);display:flex;flex-direction:column;gap:12px;text-align:center}
+.hero-text,.end-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.95rem;color:var(--forest);line-height:1.1}
+.hero-author{font-size:.8rem;margin-top:6px;color:var(--clay);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.tips{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:12px 14px;text-align:left;font-size:.78rem;line-height:1.7;color:var(--forest);font-weight:600}
+.chip{background:#fffdf7;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;font-size:.85rem;display:flex;align-items:center;gap:12px}
+.chip img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--forest)}
+.security-notice{background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px;font-size:.75rem;color:var(--cheat);text-align:left}
+.col{display:flex;flex-direction:column;width:100%;min-height:100dvh;max-width:520px;padding:calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 14px);gap:10px}
+.top-bar{display:flex;align-items:center;justify-content:space-between}
+.brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;color:var(--forest)}
+.brand .sub{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);font-size:1.2rem;box-shadow:var(--sh)}
+.stat-strip{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:9px 14px;box-shadow:var(--sh);display:flex;justify-content:space-between;align-items:center}
+.stat-nums{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted);font-weight:700}.stat-nums b{color:var(--clay);font-size:1.1em}
+.cheat-counter{display:flex;gap:4px;background:#fef2f2;color:var(--cheat);padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:700;border:1px solid #fecaca}
+.cheat-counter.active{background:var(--cheat);color:#fff;animation:shake .5s}
+.learn{background:#f1f7ee;border:1.5px solid #cfe2c4;border-radius:14px;padding:12px 14px}
+.learn h3{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--moss);margin-bottom:6px}
+.learn p{font-size:.8rem;line-height:1.45;margin:5px 0}.learn strong{color:var(--forest)}
+.mount{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:18px 14px 12px;box-shadow:var(--shm);display:flex;flex-direction:column;gap:12px}
+.rtitle{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.item{font-family:'Fraunces',serif;font-size:1rem;line-height:1.55;text-align:center;padding-bottom:10px;border-bottom:1px dashed var(--line);cursor:pointer}
+.item:last-child{border-bottom:none;padding-bottom:0}
+.item b{display:inline-block;min-width:80px;padding:1px 8px;border-bottom:2.5px dashed #c9b98d;color:var(--muted)}
+.item.filled b{border-bottom:2.5px solid var(--forest);color:var(--forest)}.item.error{animation:shake .35s}
+.caption{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);text-transform:uppercase}
+.tray{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;min-height:50px}
+.tile{padding:9px 16px;border-radius:12px;background:#fffdf7;border:1.5px solid #bfe0c8;cursor:pointer;box-shadow:var(--sh);font:600 .95rem 'Fraunces',serif;color:var(--forest);text-align:center}
+.tile.selected{background:var(--forest);border-color:var(--forest);color:#fff}.tile.solved{display:none}
+#msg{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:12px 14px;font-size:.85rem;font-weight:600;color:var(--forest);text-align:center;opacity:0;transition:opacity .3s;line-height:1.45;min-height:64px}
+#msg.show{opacity:1}#msg.bad{color:var(--rust);background:#fcf0ee;border-color:#f1d3d0}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.end-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;border:1.5px solid var(--line)}
+.stat-num{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:var(--forest);line-height:1}.stat-lbl{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-top:4px}
+.cheat-report{background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px;text-align:left}.cheat-report h4{color:var(--cheat);font-size:.8rem;text-transform:uppercase;margin-bottom:6px}.cheat-report ul{list-style:none;font-size:.8rem;color:var(--muted)}
+input,textarea{user-select:text;-webkit-user-select:text}
+label{font-size:.72rem;font-weight:700;color:var(--clay);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px;text-align:left}
+.inp{width:100%;border:2px solid var(--line);background:#fffdf7;border-radius:12px;padding:10px 12px;font:500 16px 'Inter',sans-serif;color:var(--ink);outline:none;resize:none}.inp:focus{border-color:var(--forest)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}.cp{border:2px solid var(--line);background:#fffdf7;border-radius:99px;padding:7px 13px;font:700 .78rem 'Inter',sans-serif;color:var(--ink);cursor:pointer}.cp.on{background:var(--forest);border-color:var(--forest);color:#fff}
+.wc{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);text-align:right;margin-top:-6px}
+.prev{background:#faf5e6;border:1.5px dashed #d8c69a;border-radius:14px;padding:14px;text-align:center;font-family:'Fraunces',serif;font-weight:900;font-size:1.3rem;color:var(--forest);line-height:1.3}
+</style><base target="_blank"></head>
+<body oncontextmenu="return false;">
+<div class="cheat-overlay" id="cheatOverlay"><h2>⚠ Security Alert</h2><p id="cheatMessage"></p><button class="btn" style="background:#fff;color:var(--cheat);width:auto" onclick="resumeTest()">I Understand — Resume Test</button></div>
+<div class="toast" id="toast"></div>
+<div class="screen active" id="nameFormScreen"><div class="gate-wrap"><div class="gate-card">
+ <div><div class="hero-text">Right Ad,<br>Right Product</div><div class="hero-author">🎯 Slogan Studio Series</div></div>
+ <div class="tips" id="roundList"></div>
+ <div class="chip"><img id="candidateAvatar" src="https://via.placeholder.com/150" alt=""><div><strong id="candidateName">Loading User...</strong><br><span id="candidateDept" style="color:var(--muted);font-size:.75rem">Verifying GitHub Auth...</span></div></div>
+ <div class="security-notice"><strong>🔒 Secure Test Environment</strong><br>Switching tabs, minimizing the window, pasting or copying will be recorded in your final assessment.</div>
+ <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>🎯 Start Learning</button>
+</div></div></div>
+<div class="screen" id="quizContent"><div class="col">
+ <div class="top-bar"><div class="brand"><h1>Right Ad for the Right Product</h1><div class="sub" id="roundName"></div></div><button id="muteBtn" class="icon-btn" onclick="toggleMute()">🔊</button></div>
+ <div class="stat-strip"><span class="stat-nums">📍 <b id="progressTracker">1</b></span><div class="cheat-counter" id="cheatCounter">🛡 <span id="cheatCount">0</span></div><span class="stat-nums" id="gemsCounter">💎 <b>0</b></span></div>
+ <div class="learn" id="learn"></div>
+ <div class="mount" id="drop"></div>
+ <div class="caption">Tap the concept, then tap its blank</div>
+ <div class="tray" id="tray"></div>
+ <div id="msg"></div>
+</div></div>
+<div class="screen" id="createScreen"><div class="col">
+ <div class="top-bar"><div class="brand"><h1>Right Ad for the Right Product</h1><div class="sub">Final challenge · create</div></div></div>
+ <div class="learn"><h3>✍️ Your turn to create</h3><p id="cBrief"></p></div>
+ <div class="mount" id="cForm"></div>
+ <button class="btn btn-primary" onclick="submitCreate()">Submit &amp; finish ✓</button>
+</div></div>
+<div class="screen" id="endScreen"><div class="gate-wrap"><div class="gate-card">
+ <div class="end-title">Round Complete! 🎯</div><div class="stat-lbl" id="endSubtitle"></div>
+ <div class="end-stats">
+  <div class="stat-box"><div class="stat-num" id="endCorrect">0</div><div class="stat-lbl">Correct</div></div>
+  <div class="stat-box"><div class="stat-num" style="color:var(--rust)" id="endWrong">0</div><div class="stat-lbl">Wrong</div></div>
+  <div class="stat-box"><div class="stat-num" style="color:var(--gold)" id="endGems">0</div><div class="stat-lbl">Gems</div></div>
+  <div class="stat-box"><div class="stat-num" id="endTime">0s</div><div class="stat-lbl">Time</div></div></div>
+ <div class="cheat-report"><h4>Security Report</h4><ul id="cheatList"></ul></div>
+ <div class="stat-lbl">My creation</div><div class="prev" id="endSlogan"></div>
+ <button class="btn btn-primary" onclick="downloadReport()">💾 Download My Report (HTML)</button>
+ <button class="btn btn-secondary" onclick="location.reload()">↻ Play Again</button>
+</div></div></div>
+<script>
+const QUEST_ID="Quest 73"; 
+const EDGE_FUNCTION_URL="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+/* each round: [title, [[concept, definition, example], x4]] */
+const RAW=[["Product → Strategy", [["Mass reach and repetition", "Frequent, low-thought buys are won by familiarity", "Procter & Gamble’s Tide on prime-time TV"], ["Proof and comparison", "Costly, risky buys need evidence", "Volvo’s safety ratings and crash-test claims"], ["Aspiration and heritage", "Luxury sells status and story, not price", "Patek Philippe: “You never actually own a Patek Philippe”"], ["Impulse placement", "Cheap emotional buys are sold by visibility", "Wrigley’s gum at supermarket checkouts"]]], ["Premium Pricing Rules", [["Never discount deeply", "A big sale signals lower quality", "Rolex rarely, if ever, runs sales"], ["Waiting lists", "A wait makes the product feel precious", "Hermès Birkin bags"], ["Gift with purchase", "Adds value without cutting the price", "Estée Lauder’s gift-with-purchase events"], ["Limited drops", "Short supply creates demand", "Supreme’s weekly product drops"]]], ["Premium Communication", [["Heritage storytelling", "Age and tradition prove quality", "Burberry’s trench coat, since 1856"], ["Craftsmanship proof", "Show the human skill behind the product", "Hermès showing artisans hand-stitching bags"], ["Ambassadors", "A respected face lends status", "Rolex and Roger Federer"], ["Minimal, product-only ads", "Letting the product speak with few words", "Chanel No. 5 ads showing little more than the bottle"]]], ["Value Pricing Tactics", [["Charm pricing", "A 9 ending signals a deal", "Amazon prices ending in .99"], ["Everyday low price", "Constant low prices instead of occasional sales", "Walmart"], ["Bundling", "Several items for one lower price", "McDonald’s Extra Value Meals"], ["Penetration pricing", "Thin margins to win market share fast", "Xiaomi’s low-margin smartphones"]]], ["Promotions for Value Brands", [["Loss leader", "Selling one item very cheap to draw crowds", "Costco’s $1.50 hot dog and soda combo"], ["Seasonal sale", "A well-known yearly discount event", "Black Friday"], ["Flash sale", "A short, urgent discount window", "Amazon Prime Day"], ["Coupons", "Targeted savings that reward loyalty", "Kroger’s digital coupons"]]], ["Product → Media", [["Mass TV event", "Huge live audiences for big brands", "Super Bowl ads"], ["Influencer seeding", "Trusted individuals recommend the product", "Glossier’s customer and creator-led growth"], ["Outdoor", "Billboards that reach people near the point of sale", "McDonald’s “Follow the arrows” billboards"], ["Data personalisation", "Messages built from the customer’s own data", "Spotify Wrapped"]]], ["B2B Marketing", [["Case studies", "Real customer proof for risk-averse buyers", "Salesforce customer success stories"], ["Content marketing", "Useful free content that earns trust", "HubSpot’s free marketing guides and blog"], ["Thought leadership", "Expert ideas that build authority", "McKinsey Quarterly articles"], ["Freemium and referral", "Free use that grows by word of mouth", "Dropbox’s refer-a-friend storage bonus"]]], ["Tone by Product", [["Reassuring tone", "Calm and protective for high-risk categories", "Allstate: “You’re in good hands”"], ["Playful tone", "Light and silly for treats and snacks", "Skittles"], ["Empowering tone", "Encourages confidence and change", "Always: #LikeAGirl"], ["Witty tone", "Clever humour for everyday products", "Old Spice: “The Man Your Man Could Smell Like”"]]], ["Audience Match", [["Kids", "Mascots, rhyme and bright colour", "Tony the Tiger: “They’re Gr-r-reat!”"], ["Gen Z", "Fast, funny, native to social platforms", "Duolingo’s chaotic TikTok owl"], ["New parents", "Warmth, safety and reassurance", "Johnson’s: “Having a baby changes everything”"], ["Professionals", "Intelligent, status-aware, time-poor", "The Economist: “Great minds like a think”"]]], ["Honest Advertising", [["Puffery", "Obvious exaggeration nobody takes literally", "“The Best a Man Can Get” (Gillette)"], ["Misleading claim", "A claim customers can reasonably be fooled by", "Red Bull’s US settlement over performance claims"], ["Greenwashing", "Overstating eco-friendliness", "H&M’s “Conscious” range, criticised by a Norwegian consumer authority"], ["Dark pattern", "Interface tricks that pressure or trap users", "The FTC’s case over Amazon Prime cancellation"]]]];
+let quizData=RAW.map(r=>({topic:r[0],cards:r[1]}));
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rightMessages=["'name' is a natural!","Great match, 'name'!","'name' thinks like a copywriter!","Spot on, 'name'!","Brilliant, 'name'!"];
+const wrongMessages=["Not that one, 'name'. Re-read the Learn first box.","Close, 'name'! Check each definition again.","Try again, 'name'. Every miss is a lesson."];
+let playerName="Guest",playerDept="Unknown";
+window.addEventListener('DOMContentLoaded',()=>{
+ $('roundList').innerHTML='<b>'+RAW.length+' rounds · '+RAW.reduce((a,r)=>a+r[1].length,0)+' matches</b><br>'+RAW.map((r,i)=>(i+1)+'. '+esc(r[0])).join('<br>')+'<br>📖 Every round teaches the concepts first.';
+ const ready=()=>{$('candidateName').textContent=playerName;$('candidateDept').textContent='Department: '+playerDept;$('startBtn').disabled=false};
+ if(window.GH){playerName=window.GH.name||window.GH.username||"Student";playerDept=window.GH.dept||"Department Unspecified";if(window.GH.avatar)$('candidateAvatar').src=window.GH.avatar;ready()}
+ else setTimeout(()=>{try{playerName=localStorage.getItem("questPlayerName")||"Test Student";playerDept=localStorage.getItem("questPlayerDept")||"CSE"}catch(e){playerName="Test Student";playerDept="CSE"}ready()},500);
+});
+const yay=new Audio('https://andrewveda.github.io/SRM-VEC-English-PWA/sounds/crowd.mp3'),nope=new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3');
+yay.volume=.35;nope.volume=.3;let isMuted=false;
+function toggleMute(){isMuted=!isMuted;$('muteBtn').textContent=isMuted?'🔇':'🔊'}
+function snd(a){if(isMuted)return;try{a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
+const COL=['#2f5233','#6f8f5a','#c9a227','#b5651d'];
+function mega(){const end=Date.now()+3000,iv=setInterval(()=>{const l=end-Date.now();if(l<=0)return clearInterval(iv);const n=50*(l/3000);[[.1,.3],[.7,.9]].forEach(r=>confetti({startVelocity:30,spread:360,ticks:60,zIndex:0,colors:COL,particleCount:n,origin:{x:Math.random()*(r[1]-r[0])+r[0],y:Math.random()-.2}}))},250)}
+let cheatEvents=[],cheatCount=0,isPaused=false,testSubmitted=false,startTime;
+function initAntiCheat(){
+ const mob=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),live=()=>!testSubmitted&&startTime;
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&live()){rec('Tab switched / window minimized','tab');overlay('You switched tabs or minimized the window. This has been recorded.')}});
+ window.addEventListener('blur',()=>{if(live()&&!isPaused&&!mob)rec('Window lost focus','focus')});
+ document.addEventListener('contextmenu',e=>{e.preventDefault();if(live()){rec('Right-click attempted','rightclick');toast('Right-click is disabled','cheat')}});
+ document.addEventListener('keydown',e=>{if(!live())return;
+  if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='u')){e.preventDefault();rec('DevTools shortcut: '+e.key,'devtools');toast('Developer tools are blocked','cheat')}
+  else if(e.ctrlKey&&['s','p','a','c','v','x'].includes(e.key)){e.preventDefault();rec('System shortcut: Ctrl+'+e.key,'shortcut')}});
+ ['copy','paste','cut'].forEach(t=>document.addEventListener(t,e=>{if(live()){e.preventDefault();rec(t+' attempted',t);toast('Copying is disabled','cheat')}}));
+ if(!mob)setInterval(()=>{if(!live()||isPaused)return;const s=performance.now();debugger;if(performance.now()-s>100){rec('Console/Debugger accessed','console');overlay('Console access detected. This incident has been logged.')}},3000);
+ document.addEventListener('keyup',e=>{if(e.key==='PrintScreen'&&live()){rec('Screenshot attempted','screenshot');toast('Screenshots are monitored','cheat')}});
+}
+function rec(d,t){cheatCount++;cheatEvents.push({type:t,description:d,timestamp:new Date().toISOString(),question:current+1});$('cheatCount').textContent=cheatCount;const b=$('cheatCounter');b.classList.add('active');setTimeout(()=>b.classList.remove('active'),500)}
+function overlay(m){isPaused=true;$('cheatMessage').textContent=m;$('cheatOverlay').classList.add('show')}
+function resumeTest(){isPaused=false;$('cheatOverlay').classList.remove('show');toast('Test resumed. Further violations will be flagged.')}
+function toast(m,k=''){const t=$('toast');t.textContent=m;t.className='toast '+k;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+let current=0,correctCount=0,totalWrongGuesses=0,gemsCount=0,elapsedSeconds=0,timerInterval,selected=null;
+function updateGems(){$('gemsCounter').innerHTML=`💎 <b>${gemsCount}</b>`}
+function startQuiz(){
+ $('nameFormScreen').classList.remove('active');$('quizContent').classList.add('active');
+ current=0;correctCount=totalWrongGuesses=gemsCount=0;cheatEvents=[];cheatCount=0;testSubmitted=false;
+ quizData.forEach(q=>q.repeated=false);
+ startTime=Date.now();timerInterval=setInterval(()=>{if(!isPaused)elapsedSeconds=Math.floor((Date.now()-startTime)/1000)},1000);
+ updateGems();initAntiCheat();loadQuestion();
+}
+function loadQuestion(){
+ if(current>=quizData.length)return openCreate();
+ selected=null;$('msg').classList.remove('show');window.scrollTo(0,0);
+ const d=quizData[current];$('progressTracker').textContent=`${current+1} of ${quizData.length}`;$('roundName').textContent=d.topic;
+ $('learn').innerHTML='<h3>📖 Learn first · '+esc(d.topic)+'</h3>'+d.cards.map(c=>`<p><strong>${esc(c[0])}</strong>: ${esc(c[1])}</p>`).join('');
+ $('tray').innerHTML='';$('drop').innerHTML=`<div class="rtitle">${d.isRepeat?'Retry · ':''}Match each example to its concept</div>`;
+ d.cards.map(c=>c[0]).sort(()=>Math.random()-.5).forEach(a=>{const t=document.createElement('div');t.className='tile';t.textContent=a;t.onclick=()=>{if(isPaused)return;document.querySelectorAll('.tile').forEach(o=>o.classList.remove('selected'));selected={el:t,text:a};t.classList.add('selected')};$('tray').appendChild(t)});
+ [...d.cards].sort(()=>Math.random()-.5).forEach(c=>{const z=document.createElement('div');z.className='item';z.innerHTML=esc(c[2])+' ⟶ <b>____</b>';z.dataset.answer=c[0];z.dataset.why=c[1];z.dataset.ex=c[2];z.onclick=()=>place(z);$('drop').appendChild(z)});
+}
+function say(ok,extra){const l=ok?rightMessages:wrongMessages,m=$('msg');m.textContent=l[Math.floor(Math.random()*l.length)].replace(/'name'/g,playerName)+(extra?' 💡 '+extra:'');m.classList.toggle('bad',!ok);m.classList.add('show')}
+function place(z){
+ if(isPaused||!selected||z.classList.contains('filled'))return;
+ const ans=selected.text;
+ if(ans===z.dataset.answer){
+  selected.el.classList.add('solved');selected=null;snd(yay);confetti({particleCount:70,spread:70,origin:{y:.6},colors:COL});
+  correctCount++;gemsCount++;updateGems();say(true,z.dataset.why);
+  z.innerHTML=esc(z.dataset.ex)+` ⟶ <b>${esc(ans)}</b>`;z.classList.add('filled');
+  if(!document.querySelector('.item:not(.filled)'))setTimeout(()=>{current++;loadQuestion()},2600);
+ }else{
+  snd(nope);totalWrongGuesses++;gemsCount=Math.max(0,gemsCount-1);updateGems();say(false);
+  z.classList.add('error');setTimeout(()=>z.classList.remove('error'),350);
+  selected.el.classList.remove('selected');selected=null;
+  const q=quizData[current];
+  if(!q.repeated){const nq=JSON.parse(JSON.stringify(q));nq.isRepeat=true;nq.repeated=true;quizData.push(nq);q.repeated=true;$('progressTracker').textContent=`${current+1} of ${quizData.length}`}
+ }
+}
+const CFG={"title": "Plan the Right Ad", "brief": "Pick a product and match it to the right strategy from this quest. Write a slogan and supporting line that fit it. Say where it will run and what pricing or promotion you will use (or avoid).", "extraLabel": "Medium and promotion", "extraPh": "e.g. magazines, no discounts", "techLabel": "Strategy used", "sloganLabel": "Your slogan", "tagLabel": "Supporting line", "techs": ["Mass reach and repetition", "Proof and comparison", "Aspiration and heritage", "Impulse placement", "Never discount (premium)", "Limited edition", "Everyday low price", "Bundle deal", "Case studies (B2B)", "Influencer seeding", "Playful tone for kids", "Reassuring tone"]};
+let C={prod:'',extra:'',tech:'',slogan:'',tag:'',why:''};
+const wcn=s=>(s.trim().match(/\S+/g)||[]).length;
+function openCreate(){$('quizContent').classList.remove('active');$('createScreen').classList.add('active');$('cBrief').textContent=CFG.brief;window.scrollTo(0,0);createRender()}
+function fld(k,l,ph,mx,ta){return '<div><label>'+esc(l)+'</label>'+(ta?'<textarea class="inp" rows="3" maxlength="'+mx+'" placeholder="'+esc(ph)+'" oninput="C.'+k+'=this.value;wcUpd()">'+esc(C[k])+'</textarea>':'<input class="inp" maxlength="'+mx+'" placeholder="'+esc(ph)+'" value="'+esc(C[k])+'" oninput="C.'+k+'=this.value;wcUpd()">')+'</div>'}
+function pickTech(i){C.tech=CFG.techs[i];createRender()}
+function createRender(){
+ $('cForm').innerHTML='<div class="rtitle">'+esc(CFG.title)+'</div>'+fld('prod','Product or brand','Name a real or imaginary product',40)+fld('extra',CFG.extraLabel,CFG.extraPh,60)
+ +'<div><label>'+esc(CFG.techLabel)+'</label><div class="chips">'+CFG.techs.map((x,i)=>'<button class="cp '+(C.tech===x?'on':'')+'" onclick="pickTech('+i+')">'+esc(x)+'</button>').join('')+'</div></div>'
+ +fld('slogan',CFG.sloganLabel,'2 to 10 words',80)+'<div class="wc" id="wcS"></div>'+fld('tag',CFG.tagLabel,'A short supporting line',80)
+ +fld('why','Why it works','Explain the technique you used and why it suits your audience (8+ words)',240,true)+'<div class="prev" id="cPrev"></div>';
+ wcUpd();
+}
+function wcUpd(){$('wcS').textContent=wcn(C.slogan)+' words';$('cPrev').textContent=C.slogan.trim()?'“'+C.slogan.trim()+'”':'Your slogan preview'}
+function submitCreate(){
+ const s=wcn(C.slogan);let e='';
+ if(!wcn(C.prod))e='Name your product or brand.';
+ else if(!wcn(C.extra))e='Fill in: '+CFG.extraLabel;
+ else if(!C.tech)e='Choose a technique.';
+ else if(s<2||s>10)e='Your slogan must be 2 to 10 words.';
+ else if(wcn(C.tag)<2)e='Write a supporting line (2+ words).';
+ else if(C.tag.trim().toLowerCase()===C.slogan.trim().toLowerCase())e='Your supporting line must differ from the slogan.';
+ else if(wcn(C.why)<8)e='Explain why it works (8+ words).';
+ if(e){snd(nope);toast(e,'cheat');return}
+ gemsCount+=3;elapsedSeconds=Math.floor((Date.now()-startTime)/1000);toast('Creation bonus +3 gems','gold');showScore();
+}
+function buildReport(){
+ const tot=correctCount+totalWrongGuesses,acc=tot?Math.round(correctCount/tot*100):0;
+ const date=new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+ const sec=cheatCount===0?'Verified (Clean)':'Flagged ('+cheatCount+' incidents)';
+ const inc=cheatEvents.length?'<ul>'+cheatEvents.map(e=>'<li>'+esc(e.description)+' ('+esc(e.timestamp.split('T')[1].split('.')[0])+' UTC)</li>').join('')+'</ul>':'';
+ const row=(a,b)=>'<tr><th>'+a+'</th><td>'+esc(b)+'</td></tr>';
+ return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(playerName)+' - '+esc(CFG.title)+'</title><style>*{box-sizing:border-box;margin:0}body{background:#f3ead4;font-family:Georgia,serif;color:#2d2620;padding:24px}.p{max-width:720px;margin:0 auto;background:#fffbf2;border:2px solid #c9a227;border-radius:20px;overflow:hidden}.hd{background:#2f5233;color:#fff;text-align:center;padding:20px 14px}.hd b{display:block;letter-spacing:.04em}.hd span{font-size:.85rem;opacity:.85}.n{text-align:center;padding:26px 14px 6px}.n h1{font-size:2.2rem;color:#2f5233}.n p{color:#b5651d;font-weight:700;font-family:sans-serif;font-size:.85rem}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;padding:16px 22px}.g div{background:#f3ead4;border:1.5px solid #e3d5b0;border-radius:12px;padding:10px;text-align:center}.g b{display:block;font-size:1.5rem;color:#2f5233}.g span{font:.62rem sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8c7c62}.m{margin:6px 22px 14px;background:#1d2b22;color:#fff;border-radius:16px;padding:20px;text-align:center;font-size:1.5rem;font-style:italic;line-height:1.4}.m small{display:block;font:.62rem sans-serif;font-style:normal;letter-spacing:.15em;color:#e8cf7a;margin-bottom:8px}table{width:calc(100% - 44px);margin:0 22px 14px;border-collapse:collapse;font-size:.88rem}th{text-align:left;width:32%;color:#8c7c62;font:700 .7rem sans-serif;text-transform:uppercase;padding:7px 6px;border-bottom:1px solid #e3d5b0;vertical-align:top}td{padding:7px 6px;border-bottom:1px solid #e3d5b0}.s{margin:10px 22px;padding:12px 14px;border-radius:10px;background:'+(cheatCount?'#fef2f2':'#f1f8f1')+';font:.85rem sans-serif}.s ul{margin:6px 0 0 18px}.ft{text-align:center;font:italic .72rem sans-serif;color:#8c7c62;padding:14px}@media print{body{padding:0;background:#fff}}</style></head><body><div class="p"><div class="hd"><b>SRM VALLIAMMAI ENGINEERING COLLEGE</b><span>(Autonomous) · Department of English</span></div><div class="n"><h1>'+esc(playerName)+'</h1><p>'+esc(playerDept)+' · '+esc(QUEST_ID)+' · '+esc(CFG.title)+'</p></div><div class="g"><div><b>'+acc+'%</b><span>Accuracy</span></div><div><b>'+correctCount+'</b><span>Correct</span></div><div><b>'+totalWrongGuesses+'</b><span>Wrong</span></div><div><b>'+gemsCount+'</b><span>Gems</span></div><div><b>'+Math.floor(elapsedSeconds/60)+'m '+(elapsedSeconds%60)+'s</b><span>Time</span></div></div><div class="m"><small>MY SLOGAN</small>“'+esc(C.slogan.trim())+'”</div><table>'+row('Tagline / supporting line',C.tag.trim())+row('Product or brand',C.prod.trim())+row(esc(CFG.extraLabel),C.extra.trim())+row(esc(CFG.techLabel),C.tech)+row('Why it works',C.why.trim())+'</table><div class="s"><b>Anti-cheat audit:</b> '+sec+inc+'</div><div class="ft">Completed on '+esc(date)+' · System-generated report</div></div></body></html>';
+}
+function downloadReport(){
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buildReport()],{type:'text/html'}));
+ a.download=playerName.replace(/[^a-zA-Z0-9]/g,'_')+'_quest-5-right-ad-right-product_Report.html';
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+ toast('Saved! Upload it to your Pages of Progress repo.','gold');
+}
+function showScore(){
+ clearInterval(timerInterval);testSubmitted=true;mega();snd(yay);
+ $('quizContent').classList.remove('active');$('createScreen').classList.remove('active');$('endScreen').classList.add('active');
+ $('endSubtitle').textContent=`${playerName} · ${playerDept}`;$('endSlogan').textContent='“'+C.slogan.trim()+'”';
+ $('endCorrect').textContent=correctCount;$('endWrong').textContent=totalWrongGuesses;$('endGems').textContent=gemsCount;$('endTime').textContent=Math.floor(elapsedSeconds/60)+'m '+(elapsedSeconds%60)+'s';
+ $('cheatList').innerHTML=cheatEvents.length?cheatEvents.map(e=>`<li>⚠ ${esc(e.description)} (Q${e.question})</li>`).join(''):'<li style="color:var(--ok)">✓ No suspicious activity detected</li>';
+ fetch(EDGE_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({student_name:playerName,department:playerDept,correct:correctCount,wrong:totalWrongGuesses,time_spent:elapsedSeconds,quest_id:QUEST_ID,cheat_count:cheatCount,cheat_events:cheatEvents})}).catch(()=>{});
+}
+</script>
+</body></html>
