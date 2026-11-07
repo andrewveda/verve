@@ -174,24 +174,58 @@ function place(z){
   if(!q.repeated){const nq=JSON.parse(JSON.stringify(q));nq.isRepeat=true;nq.repeated=true;quizData.push(nq);q.repeated=true;$('progressTracker').textContent=`${current+1} of ${quizData.length}`}
  }
 }
-const CFG={"title": "Write Your Own Slogan", "brief": "Invent a product and write a slogan that uses ONE literary device from this quest. Then explain which device you used and why it works.", "extraLabel": "Target audience", "extraPh": "e.g. college students", "techLabel": "Literary device used", "sloganLabel": "Your slogan", "tagLabel": "Supporting tagline", "techs": ["Alliteration", "Assonance", "Rhyme", "Onomatopoeia", "Metaphor", "Simile", "Personification", "Hyperbole", "Repetition", "Tricolon", "Antithesis", "Pun", "Paradox", "Understatement", "Rhetorical question", "Iceberg theory"]};
-let C={prod:'',extra:'',tech:'',slogan:'',tag:'',why:''};
+const CFG={
+  "title":"Write Your Own Slogan",
+  "brief":"Invent a product or brand. First analyse your target audience using the fields below. Then create an advertisement and write a slogan using ONE literary device from this quest.",
+  "techLabel":"Literary device used",
+  "sloganLabel":"Your slogan",
+  "tagLabel":"Supporting tagline",
+  "audienceFields":[
+    ["age","Age group","e.g. 18–24 years"],
+    ["gender","Gender","e.g. Women, men, all genders"],
+    ["location","Geographical location","e.g. Urban Chennai, Tier-2 cities"],
+    ["education","Education / occupation","e.g. Undergraduate engineering students"],
+    ["interests","Interests and hobbies","e.g. Gaming, fitness, technology, music"],
+    ["needs","Needs and problems","What does this audience want or struggle with?"],
+    ["income","Income / spending capacity","e.g. Students with a monthly budget of ₹2,000"],
+    ["lifestyle","Lifestyle and values","e.g. Environment-conscious, ambitious, digitally active"],
+    ["behaviour","Buying behaviour","e.g. Compares prices, reads reviews before buying"],
+    ["platforms","Media and preferred platforms","e.g. Instagram, YouTube, WhatsApp"]
+  ],
+  "techs":["Alliteration","Assonance","Rhyme","Onomatopoeia","Metaphor","Simile","Personification","Hyperbole","Repetition","Tricolon","Antithesis","Pun","Paradox","Understatement","Rhetorical question","Iceberg theory"]
+};
+
+let C={
+  prod:'',age:'',gender:'',location:'',education:'',
+  interests:'',needs:'',income:'',lifestyle:'',
+  behaviour:'',platforms:'',tech:'',slogan:'',tag:'',why:''
+};
 const wcn=s=>(s.trim().match(/\S+/g)||[]).length;
 function openCreate(){$('quizContent').classList.remove('active');$('createScreen').classList.add('active');$('cBrief').textContent=CFG.brief;window.scrollTo(0,0);createRender()}
 function fld(k,l,ph,mx,ta){return '<div><label>'+esc(l)+'</label>'+(ta?'<textarea class="inp" rows="3" maxlength="'+mx+'" placeholder="'+esc(ph)+'" oninput="C.'+k+'=this.value;wcUpd()">'+esc(C[k])+'</textarea>':'<input class="inp" maxlength="'+mx+'" placeholder="'+esc(ph)+'" value="'+esc(C[k])+'" oninput="C.'+k+'=this.value;wcUpd()">')+'</div>'}
 function pickTech(i){C.tech=CFG.techs[i];createRender()}
 function createRender(){
- $('cForm').innerHTML='<div class="rtitle">'+esc(CFG.title)+'</div>'+fld('prod','Product or brand','Name a real or imaginary product',40)+fld('extra',CFG.extraLabel,CFG.extraPh,60)
- +'<div><label>'+esc(CFG.techLabel)+'</label><div class="chips">'+CFG.techs.map((x,i)=>'<button class="cp '+(C.tech===x?'on':'')+'" onclick="pickTech('+i+')">'+esc(x)+'</button>').join('')+'</div></div>'
- +fld('slogan',CFG.sloganLabel,'2 to 10 words',80)+'<div class="wc" id="wcS"></div>'+fld('tag',CFG.tagLabel,'A short supporting line',80)
- +fld('why','Why it works','Explain the technique you used and why it suits your audience (8+ words)',240,true)+'<div class="prev" id="cPrev"></div>';
- wcUpd();
+  $('cForm').innerHTML=
+    '<div class="rtitle">'+esc(CFG.title)+'</div>'+
+    fld('prod','Product or brand','Name a real or imaginary product',40)+
+    '<div class="learn"><h3>🎯 Audience analysis</h3><p>Identify exactly who you are advertising to. Avoid vague descriptions such as "students" or "young people". Be specific about every characteristic.</p></div>'+
+    CFG.audienceFields.map(([k,l,p])=>fld(k,l,p,160)).join('')+
+    '<div><label>'+esc(CFG.techLabel)+'</label><div class="chips">'+
+    CFG.techs.map((x,i)=>'<button class="cp '+(C.tech===x?'on':'')+'" onclick="pickTech('+i+')">'+esc(x)+'</button>').join('')+
+    '</div></div>'+
+    fld('slogan',CFG.sloganLabel,'2 to 10 words',80)+
+    '<div class="wc" id="wcS"></div>'+
+    fld('tag',CFG.tagLabel,'A short supporting line',80)+
+    fld('why','Why it works','Explain the technique you used and why it suits your audience (8+ words)',240,true)+
+    '<div class="prev" id="cPrev"></div>';
+  wcUpd();
 }
 function wcUpd(){$('wcS').textContent=wcn(C.slogan)+' words';$('cPrev').textContent=C.slogan.trim()?'“'+C.slogan.trim()+'”':'Your slogan preview'}
 function submitCreate(){
  const s=wcn(C.slogan);let e='';
  if(!wcn(C.prod))e='Name your product or brand.';
- else if(!wcn(C.extra))e='Fill in: '+CFG.extraLabel;
+else if(CFG.audienceFields.some(([k])=>!wcn(C[k])))
+  e='Complete all audience analysis fields before creating your advertisement.';
  else if(!C.tech)e='Choose a technique.';
  else if(s<2||s>10)e='Your slogan must be 2 to 10 words.';
  else if(wcn(C.tag)<2)e='Write a supporting line (2+ words).';
@@ -206,7 +240,10 @@ function buildReport(){
  const sec=cheatCount===0?'Verified (Clean)':'Flagged ('+cheatCount+' incidents)';
  const inc=cheatEvents.length?'<ul>'+cheatEvents.map(e=>'<li>'+esc(e.description)+' ('+esc(e.timestamp.split('T')[1].split('.')[0])+' UTC)</li>').join('')+'</ul>':'';
  const row=(a,b)=>'<tr><th>'+a+'</th><td>'+esc(b)+'</td></tr>';
- return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(playerName)+' - '+esc(CFG.title)+'</title><style>*{box-sizing:border-box;margin:0}body{background:#f3ead4;font-family:Georgia,serif;color:#2d2620;padding:24px}.p{max-width:720px;margin:0 auto;background:#fffbf2;border:2px solid #c9a227;border-radius:20px;overflow:hidden}.hd{background:#2f5233;color:#fff;text-align:center;padding:20px 14px}.hd b{display:block;letter-spacing:.04em}.hd span{font-size:.85rem;opacity:.85}.n{text-align:center;padding:26px 14px 6px}.n h1{font-size:2.2rem;color:#2f5233}.n p{color:#b5651d;font-weight:700;font-family:sans-serif;font-size:.85rem}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;padding:16px 22px}.g div{background:#f3ead4;border:1.5px solid #e3d5b0;border-radius:12px;padding:10px;text-align:center}.g b{display:block;font-size:1.5rem;color:#2f5233}.g span{font:.62rem sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8c7c62}.m{margin:6px 22px 14px;background:#1d2b22;color:#fff;border-radius:16px;padding:20px;text-align:center;font-size:1.5rem;font-style:italic;line-height:1.4}.m small{display:block;font:.62rem sans-serif;font-style:normal;letter-spacing:.15em;color:#e8cf7a;margin-bottom:8px}table{width:calc(100% - 44px);margin:0 22px 14px;border-collapse:collapse;font-size:.88rem}th{text-align:left;width:32%;color:#8c7c62;font:700 .7rem sans-serif;text-transform:uppercase;padding:7px 6px;border-bottom:1px solid #e3d5b0;vertical-align:top}td{padding:7px 6px;border-bottom:1px solid #e3d5b0}.s{margin:10px 22px;padding:12px 14px;border-radius:10px;background:'+(cheatCount?'#fef2f2':'#f1f8f1')+';font:.85rem sans-serif}.s ul{margin:6px 0 0 18px}.ft{text-align:center;font:italic .72rem sans-serif;color:#8c7c62;padding:14px}@media print{body{padding:0;background:#fff}}</style></head><body><div class="p"><div class="hd"><b>SRM VALLIAMMAI ENGINEERING COLLEGE</b><span>(Autonomous) · Department of English</span></div><div class="n"><h1>'+esc(playerName)+'</h1><p>'+esc(playerDept)+' · '+esc(QUEST_ID)+' · '+esc(CFG.title)+'</p></div><div class="g"><div><b>'+acc+'%</b><span>Accuracy</span></div><div><b>'+correctCount+'</b><span>Correct</span></div><div><b>'+totalWrongGuesses+'</b><span>Wrong</span></div><div><b>'+gemsCount+'</b><span>Gems</span></div><div><b>'+Math.floor(elapsedSeconds/60)+'m '+(elapsedSeconds%60)+'s</b><span>Time</span></div></div><div class="m"><small>MY SLOGAN</small>“'+esc(C.slogan.trim())+'”</div><table>'+row('Tagline / supporting line',C.tag.trim())+row('Product or brand',C.prod.trim())+row(esc(CFG.extraLabel),C.extra.trim())+row(esc(CFG.techLabel),C.tech)+row('Why it works',C.why.trim())+'</table><div class="s"><b>Anti-cheat audit:</b> '+sec+inc+'</div><div class="ft">Completed on '+esc(date)+' · System-generated report</div></div></body></html>';
+ const audienceRows=CFG.audienceFields
+  .map(([k,l])=>row(l,C[k].trim()))
+  .join('');
+ return '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(playerName)+' - '+esc(CFG.title)+'</title><style>*{box-sizing:border-box;margin:0}body{background:#f3ead4;font-family:Georgia,serif;color:#2d2620;padding:24px}.p{max-width:720px;margin:0 auto;background:#fffbf2;border:2px solid #c9a227;border-radius:20px;overflow:hidden}.hd{background:#2f5233;color:#fff;text-align:center;padding:20px 14px}.hd b{display:block;letter-spacing:.04em}.hd span{font-size:.85rem;opacity:.85}.n{text-align:center;padding:26px 14px 6px}.n h1{font-size:2.2rem;color:#2f5233}.n p{color:#b5651d;font-weight:700;font-family:sans-serif;font-size:.85rem}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;padding:16px 22px}.g div{background:#f3ead4;border:1.5px solid #e3d5b0;border-radius:12px;padding:10px;text-align:center}.g b{display:block;font-size:1.5rem;color:#2f5233}.g span{font:.62rem sans-serif;text-transform:uppercase;letter-spacing:.1em;color:#8c7c62}.m{margin:6px 22px 14px;background:#1d2b22;color:#fff;border-radius:16px;padding:20px;text-align:center;font-size:1.5rem;font-style:italic;line-height:1.4}.m small{display:block;font:.62rem sans-serif;font-style:normal;letter-spacing:.15em;color:#e8cf7a;margin-bottom:8px}table{width:calc(100% - 44px);margin:0 22px 14px;border-collapse:collapse;font-size:.88rem}th{text-align:left;width:32%;color:#8c7c62;font:700 .7rem sans-serif;text-transform:uppercase;padding:7px 6px;border-bottom:1px solid #e3d5b0;vertical-align:top}td{padding:7px 6px;border-bottom:1px solid #e3d5b0}.s{margin:10px 22px;padding:12px 14px;border-radius:10px;background:'+(cheatCount?'#fef2f2':'#f1f8f1')+';font:.85rem sans-serif}.s ul{margin:6px 0 0 18px}.ft{text-align:center;font:italic .72rem sans-serif;color:#8c7c62;padding:14px}@media print{body{padding:0;background:#fff}}</style></head><body><div class="p"><div class="hd"><b>SRM VALLIAMMAI ENGINEERING COLLEGE</b><span>(Autonomous) · Department of English</span></div><div class="n"><h1>'+esc(playerName)+'</h1><p>'+esc(playerDept)+' · '+esc(QUEST_ID)+' · '+esc(CFG.title)+'</p></div><div class="g"><div><b>'+acc+'%</b><span>Accuracy</span></div><div><b>'+correctCount+'</b><span>Correct</span></div><div><b>'+totalWrongGuesses+'</b><span>Wrong</span></div><div><b>'+gemsCount+'</b><span>Gems</span></div><div><b>'+Math.floor(elapsedSeconds/60)+'m '+(elapsedSeconds%60)+'s</b><span>Time</span></div></div><div class="m"><small>MY SLOGAN</small>“'+esc(C.slogan.trim())+'”</div><table>'+row('Product or brand',C.prod.trim())+audienceRows+row('Literary device',C.tech)+row('My slogan',C.slogan.trim())+row('Tagline / supporting line',C.tag.trim())+row('Why it works',C.why.trim())+'</table><div class="s"><b>Anti-cheat audit:</b> '+sec+inc+'</div><div class="ft">Completed on '+esc(date)+' · System-generated report</div></div></body></html>';
 }
 function downloadReport(){
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buildReport()],{type:'text/html'}));
