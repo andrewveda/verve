@@ -915,7 +915,15 @@ const ENTRIES = [
     if (!raw) return [];
     return raw.split(",").map(x => x.trim().replace(/\s+/g, "").toLowerCase()).filter(Boolean);
   }
+const ALIAS_KEY = 'verve_known_aliases';
 
+  function rememberAliases(...names) {
+    try {
+      const set = new Set(JSON.parse(localStorage.getItem(ALIAS_KEY) || '[]'));
+      names.filter(Boolean).forEach(n => set.add(String(n).trim()));
+      localStorage.setItem(ALIAS_KEY, JSON.stringify([...set]));
+    } catch (e) {}
+  }
   window.changeMonth = function(dir) {
     currentMonth += dir;
     if (currentMonth < 0) { currentMonth = 11; currentYear--; }
@@ -1140,9 +1148,8 @@ const ENTRIES = [
 
     if (window.__initEntryList) window.__initEntryList();
 
-    // Render Calendar Empty state first
     renderCalendar(currentMonth, currentYear);
-    
+    rememberAliases(name, window.GH?.username, window.GH?.name);
     await fetchUserData(name);
   }
 
