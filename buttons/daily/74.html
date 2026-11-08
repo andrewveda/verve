@@ -299,7 +299,7 @@ const RAW=[
  ["US Army: Be all that ___ can be.","you"]],
 ["Places & Positions","Write a slogan using where something is or goes.",
  ["Visa: It's ___ you want to be.","everywhere"],
- ["M&M's: Melts in your mouth, not in your ___.","hand"],
+ ["M&M's: Melts in your mouth, not in your ___.","hands"],
  ["Intel: Intel ___.","Inside"]],
 ["Time & Comparison","Write a slogan that promises something lasting or better.",
  ["De Beers: A diamond is ___.","forever"],
@@ -308,11 +308,11 @@ const RAW=[
 ["Indian Favourites","Write a slogan for a product made in India.",
  ["Airtel: Express ___.","Yourself"],
  ["Amul: Utterly Butterly ___.","Delicious"],
- ["Nirma: Washing powder ___.","Nirma"]],
+ ["Patek Philippe: You never actually own a Patek Philippe. You merely look after it for the next ___.","generation"]],
 ["Feelings & Value","Write a slogan about a feeling you want people to have.",
  ["Coca-Cola: Open ___.","Happiness"],
  ["Coca-Cola: ___ the Feeling.","Taste"],
- ["Mastercard: For everything else, there's ___.","Priceless"]]
+ ["Mastercard: There are some things money can't buy. For everything else, there's ___.","Mastercard"]]
 ];
 let quizData=RAW.map(r=>({topic:r[0],prompt:r[1],questionItems:r.slice(2).map(p=>({word:p[0],answer:p[1]})),answers:r.slice(2).map(p=>p[1])}));
 const FINAL_PROMPT="Every great ad says a lot in a few words. Write one catchy slogan for a product, a college club or yourself, and add why it works. Start with: My slogan is...";
@@ -464,7 +464,7 @@ function startTimer(){timerInterval=setInterval(()=>{if(!isPaused)elapsedSeconds
 function fmt(t){return Math.floor(t/60)+'m '+(t%60)+'s';}
 
 const EDGE_FUNCTION_URL="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
-const QUEST_ID="Quest 240";
+const QUEST_ID="Quest 74";
 
 function showScore(){
   clearInterval(timerInterval);testSubmitted=true;triggerMegaConfetti();
