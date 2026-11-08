@@ -12,6 +12,36 @@ window.PUZZLE_DIRECTORY = {
       },
       "puzzles": [
 {
+  "id": "quote-217",
+  "num": 217,
+  "title": "Puzzle 217",
+  "sub": "Don't let one bad chapter make you…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "Don't let one bad chapter make you forget that you're writing the whole story.",
+    "author": "Unknown",
+    "contributor": "Kavitha",
+    "dept": "CSE-2",
+    "meaning": "This quote reminds me that one mistake or difficult moment cannot define my entire life. I always have the chance to learn, grow, and create a better tomorrow."
+  }
+},
+{
+  "id": "quote-218",
+  "num": 218,
+  "title": "Puzzle 218",
+  "sub": "The mind is everything. What you think…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "The mind is everything. What you think, you become.",
+    "author": "Buddha",
+    "contributor": "Ragavi",
+    "dept": "CSE 2",
+    "meaning": "Our thoughts influence our actions and decisions. The way we think shapes our attitude, choices, and future. Therefore, we should develop positive and meaningful thoughts."
+  }
+},
+{
   "id": "quote-216",
   "num": 216,
   "title": "Puzzle 216",
