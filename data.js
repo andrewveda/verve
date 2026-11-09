@@ -12,6 +12,21 @@ window.PUZZLE_DIRECTORY = {
       },
       "puzzles": [
 {
+  "id": "quote-219",
+  "num": 219,
+  "title": "Puzzle 219",
+  "sub": "Every victory over evil brings…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "Every victory over evil brings a new light into the world.",
+    "author": "Unknown",
+    "contributor": "Kavitha",
+    "dept": "CSE-2",
+    "meaning": "The victory of Lord Krishna over Narakasura and Lord Rama's return to Ayodhya remind us that goodness always wins and every victory brings new hope and happiness."
+  }
+},
+{
   "id": "quote-217",
   "num": 217,
   "title": "Puzzle 217",
