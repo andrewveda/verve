@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Verb Match</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+:root{--paper:#f3ead4;--card:#fffbf2;--line:#e3d5b0;--ink:#2d2620;--muted:#8c7c62;--forest:#2f5233;--moss:#6f8f5a;--clay:#b5651d;--gold:#c9a227;--rust:#a4392c;--cheat:#dc2626;--ok:#10b981;--sh:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);--shm:0 2px 6px rgba(45,38,32,.1),0 10px 26px rgba(45,38,32,.12);--ease:cubic-bezier(.16,1,.3,1)}
+html,body{min-height:100%;overscroll-behavior-x:none}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);min-height:100dvh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;background-image:radial-gradient(ellipse 70% 50% at 12% 8%,rgba(111,143,90,.14),transparent 60%),radial-gradient(ellipse 60% 45% at 92% 88%,rgba(181,101,29,.1),transparent 60%)}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* floating background */
+.fl{position:fixed;bottom:-40px;font-size:1.1rem;opacity:.16;pointer-events:none;z-index:0;animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-115dvh) rotate(300deg)}}
+
+/* security */
+.cheat-overlay{display:none;position:fixed;inset:0;background:rgba(220,38,38,.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff;backdrop-filter:blur(5px)}
+.cheat-overlay.show{display:flex}
+.cheat-overlay h2{font-family:'Fraunces',serif;font-size:2rem;margin-bottom:12px}
+.cheat-overlay p{font-size:1.1rem;margin-bottom:24px;max-width:400px;line-height:1.5}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-120px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-size:.85rem;font-weight:500;z-index:400;transition:transform .3s;box-shadow:var(--shm);max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%)}
+.toast.cheat{background:var(--cheat)}
+.security-notice{background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px;font-size:.75rem;color:var(--cheat);text-align:left}
+.security-notice strong{display:block;margin-bottom:4px;font-size:.8rem}
+
+/* layout */
+.screen{display:none;flex-direction:column;align-items:center;width:100%;min-height:100dvh;position:relative;z-index:1}
+.screen.active{display:flex}
+.col{display:flex;flex-direction:column;width:100%;min-height:100%;max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);gap:12px}
+#nameFormScreen{justify-content:center;padding:24px}
+.gate-card,.end-card{width:100%;max-width:420px;background:var(--card);border:1.5px solid var(--line);border-radius:20px;padding:32px 26px 26px;box-shadow:0 20px 60px rgba(45,38,32,.14);display:flex;flex-direction:column;gap:14px;text-align:center;animation:cardIn .55s cubic-bezier(.34,1.4,.64,1) both}
+@keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+.hero-text{font-family:'Fraunces',serif;font-weight:900;font-size:2.1rem;color:var(--forest);letter-spacing:-.5px;line-height:1.1}
+.hero-text span{display:inline-block;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-5px) rotate(-2deg)}}
+.hero-author{font-size:.9rem;margin-top:8px;color:var(--clay);font-weight:600}
+.chip{background:#fffdf7;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;font-size:.85rem;display:flex;align-items:center;gap:12px}
+.chip img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--forest)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 24px;border:none;border-radius:14px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;transition:transform .2s;touch-action:manipulation}
+.btn-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;box-shadow:0 4px 16px rgba(47,82,51,.25)}
+.btn-primary:not(:disabled){animation:glow 2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 4px 26px rgba(201,162,39,.65)}}
+.btn:active{transform:scale(.97)}
+.btn-secondary{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* HUD */
+.top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{flex:1}
+.brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:1.4rem;color:var(--forest)}
+.lvl{display:inline-block;font-family:'Space Mono',monospace;font-size:.62rem;background:var(--forest);color:#fff;border-radius:99px;padding:3px 10px;margin-top:3px}
+.lvl.up{animation:lvlUp .9s var(--ease)}
+@keyframes lvlUp{0%{transform:scale(1)}30%{transform:scale(1.5) rotate(-6deg);background:var(--gold)}100%{transform:none}}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;box-shadow:var(--sh)}
+.timer-pill{background:var(--card);border:1.5px solid var(--line);border-radius:99px;padding:8px 16px;box-shadow:var(--sh);font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;color:var(--forest)}
+.stat-strip{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:9px 14px;box-shadow:var(--sh);display:flex;justify-content:space-between;align-items:center;gap:6px}
+.stat-nums{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted);font-weight:700}
+.stat-nums b{color:var(--clay);font-size:1.1em}
+.cheat-counter{display:flex;align-items:center;gap:4px;background:#fef2f2;color:var(--cheat);padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:700;border:1px solid #fecaca}
+.cheat-counter.active{background:var(--cheat);color:#fff;animation:shake .5s}
+.combo{font-weight:700;font-size:.8rem;color:#fff;background:linear-gradient(135deg,var(--clay),var(--rust));border-radius:99px;padding:4px 10px;display:none}
+.combo.on{display:inline-block;animation:comboPop .4s cubic-bezier(.2,1.8,.4,1)}
+@keyframes comboPop{from{transform:scale(.3) rotate(-20deg)}to{transform:none}}
+.bar{height:12px;background:#e9dcb8;border-radius:99px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(45,38,32,.15)}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:repeating-linear-gradient(45deg,var(--moss) 0 10px,var(--forest) 10px 20px);background-size:28px 28px;animation:stripe 1s linear infinite;transition:width .7s var(--ease)}
+@keyframes stripe{to{background-position:28px 0}}
+
+/* mount + tiles */
+.mount{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:20px 18px 14px;box-shadow:var(--shm);position:relative;display:flex;flex-direction:column;gap:16px;animation:pageIn .5s var(--ease) both}
+.mount::before{content:'';position:absolute;inset:8px;border:1px dashed #d8c69a;border-radius:8px;pointer-events:none}
+.mount.shake{animation:shake .4s}
+@keyframes pageIn{from{opacity:0;transform:translateX(60px) rotate(2deg)}to{opacity:1;transform:none}}
+.sentence-item{font-family:'Fraunces',serif;font-size:1.1rem;line-height:1.6;text-align:center;position:relative;z-index:1;padding-bottom:12px;border-bottom:1px dashed var(--line);cursor:pointer}
+.sentence-item:last-child{border-bottom:none;padding-bottom:0}
+.sentence-item b{display:inline-block;min-width:70px;padding:1px 8px;border-bottom:2.5px dashed #c9b98d;font-weight:700;color:var(--muted);transition:all .2s}
+.sentence-item.armed b{animation:blink 1s infinite}
+@keyframes blink{50%{border-color:var(--gold);background:rgba(201,162,39,.15)}}
+.sentence-item.filled b{border-bottom-style:solid;border-color:var(--forest);color:var(--forest);animation:tileIn .3s cubic-bezier(.2,1.5,.4,1)}
+.sentence-item.error{animation:shake .35s}
+.sentence-item.correct{animation:flash .7s}
+@keyframes flash{0%{background:rgba(111,143,90,.45);transform:scale(1.03)}100%{background:transparent;transform:none}}
+.caption{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);text-transform:uppercase}
+.tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:52px}
+.tile{display:inline-flex;padding:10px 20px;border-radius:12px;background:#fffdf7;border:1.5px solid #bfe0c8;cursor:pointer;box-shadow:var(--sh);transition:all .15s var(--ease);animation:tileSpawn .4s cubic-bezier(.2,1.5,.4,1) both}
+.tile:nth-child(2){animation-delay:.06s}.tile:nth-child(3){animation-delay:.12s}.tile:nth-child(4){animation-delay:.18s}
+.tile:hover{transform:translateY(-3px)}
+.tile .word{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--forest)}
+.tile.selected{background:var(--forest);border-color:var(--forest);box-shadow:0 6px 16px rgba(47,82,51,.35);animation:wiggle .5s ease infinite alternate}
+.tile.selected .word{color:#fff}
+.tile.solved{opacity:0;transform:scale(.3) translateY(-40px);pointer-events:none;transition:all .4s}
+@keyframes wiggle{from{transform:rotate(-2deg) translateY(-3px)}to{transform:rotate(2deg) translateY(-3px)}}
+@keyframes tileSpawn{from{transform:scale(.5) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+@keyframes tileIn{from{transform:translateY(8px) scale(.8);opacity:0}to{transform:none;opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+.tile.locked{background:#f7eeee;border:1.5px dashed #d9a9a3;box-shadow:none;cursor:not-allowed}
+.tile.locked .word{color:var(--rust);text-decoration:line-through;text-decoration-thickness:2px}
+.tile.locked::before{content:'🔒';margin-right:6px;font-size:.85rem}
+.tile.locked:hover{transform:none}
+.tile.locked{padding:7px 14px}.tile.locked .word{font-size:.9rem}
+.locked-lbl{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--rust);margin-top:2px}
+.locked-tray{gap:8px;min-height:0}
+.avoid{font-size:.85rem;color:var(--rust);margin-bottom:12px;line-height:1.7}
+.avoid s{margin:0 4px;white-space:nowrap}
+.tile.locked.nope{animation:shake .4s}
+.cmp{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;font-family:'Fraunces',serif;font-size:1.02rem}
+.cmp div{border-radius:10px;padding:7px 10px}
+.cmp .bad{background:#fcf0ee;color:var(--rust)}
+.cmp .bad s{text-decoration-thickness:2px}
+.cmp .good{background:#e8f3e6;color:var(--forest);font-weight:700}
+/* feedback + rule */
+#motivationBox{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:12px 16px;font-size:.92rem;font-weight:600;color:var(--forest);text-align:center;opacity:0;transition:opacity .3s;line-height:1.4;pointer-events:none}
+#motivationBox.show{opacity:1}
+#motivationBox.wrong-msg{color:var(--rust);background:#fcf0ee;border-color:#f1d3d0}
+#ruleBox{display:none;background:linear-gradient(135deg,#fff8dc,#fdf0b8);border:2px solid var(--gold);border-radius:14px;padding:16px;text-align:center;box-shadow:0 8px 24px rgba(201,162,39,.3);position:relative;overflow:hidden}
+#ruleBox.show{display:block;animation:stamp .6s cubic-bezier(.2,1.6,.4,1)}
+#ruleBox::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);animation:sheen 1.6s .3s ease-out}
+@keyframes stamp{0%{transform:scale(2) rotate(-6deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes sheen{to{left:130%}}
+.rule-tag{font-weight:700;font-size:.8rem;color:var(--clay);margin-bottom:6px}
+.rule-text{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--forest);line-height:1.4;margin-bottom:12px}
+.rule-text i{color:var(--rust)}
+
+.tile{padding:8px 14px}.tile .word{font-size:.95rem}
+.tray{position:sticky;bottom:calc(env(safe-area-inset-bottom) + 6px);z-index:20;background:rgba(255,251,242,.97);border:1.5px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 -6px 20px rgba(45,38,32,.15);max-height:36dvh;overflow-y:auto;min-height:0;gap:8px}
+.tray:empty{display:none}
+.stat-strip{position:sticky;top:6px;z-index:25}
+.mount{gap:11px}.sentence-item{font-size:1.02rem;line-height:1.55;padding-bottom:10px}
+.lem{font-family:'Inter',sans-serif;font-size:.8rem;color:var(--clay);font-style:normal;font-weight:600}
+.tag{display:block;font-family:'Space Mono',monospace;font-size:.58rem;color:var(--moss);margin-top:1px;animation:tileIn .3s}
+.ptitle{font-family:'Fraunces',serif;font-weight:700;font-size:1.1rem;color:var(--forest);text-align:center}
+#motivationBox{position:fixed;top:calc(env(safe-area-inset-top) + 64px);left:50%;transform:translateX(-50%);width:max-content;max-width:min(480px,92vw);z-index:350;box-shadow:var(--shm)}
+.retry-note{font-size:.82rem;color:var(--rust);font-weight:600;margin-bottom:10px;line-height:1.4}.retry-note.ok{color:var(--forest)}
+/* floaters + banner */
+.pts{position:fixed;z-index:500;font-family:'Fraunces',serif;font-weight:900;font-size:1.5rem;color:var(--gold);text-shadow:0 2px 0 #fff,0 0 8px #fff;pointer-events:none;animation:ptsUp 1s ease-out forwards}
+.pts.bad{color:var(--rust)}
+@keyframes ptsUp{from{transform:translate(-50%,0) scale(.6);opacity:1}to{transform:translate(-50%,-90px) scale(1.4);opacity:0}}
+.banner{position:fixed;inset:0;z-index:600;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(47,82,51,.9);color:#fff;text-align:center;pointer-events:none}
+.banner.show{display:flex;animation:ban 2.2s ease forwards}
+.banner h2{font-family:'Fraunces',serif;font-size:2.6rem;font-weight:900}
+.banner div{font-size:3.5rem;animation:spin 1s ease}
+.banner p{font-size:1.1rem;margin-top:6px;color:#f6e3a1}
+@keyframes ban{0%{opacity:0}12%,80%{opacity:1}100%{opacity:0}}
+@keyframes spin{from{transform:rotate(-360deg) scale(0)}to{transform:none}}
+.gem-pop{animation:gemPop .5s}
+@keyframes gemPop{50%{transform:scale(1.35) rotate(8deg)}}
+
+/* end */
+.end-title{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:var(--forest)}
+.trophy{font-size:4rem;animation:trophy 1.6s ease-in-out infinite}
+@keyframes trophy{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-12px) rotate(6deg)}}
+.stars{font-size:2rem;letter-spacing:6px}
+.stars span{display:inline-block;opacity:0;animation:starIn .6s cubic-bezier(.2,1.8,.4,1) forwards}
+.stars span.off{filter:grayscale(1) opacity(.35)}
+@keyframes starIn{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:none;opacity:1}}
+.rank{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--clay);font-weight:700}
+.end-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;border:1.5px solid var(--line)}
+.stat-num{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:700;color:var(--forest)}
+.stat-num.w{color:var(--rust)}.stat-num.g{color:var(--gold)}
+.stat-lbl{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);margin-top:4px}
+.cheat-report{background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px;text-align:left}
+.cheat-report h4{color:var(--cheat);font-size:.8rem;margin-bottom:8px}
+.cheat-report ul{list-style:none;font-size:.8rem;color:var(--muted)}
+.cheat-report li{padding:3px 0}
+.end-btn-row{display:flex;flex-direction:column;gap:10px}
+</style>
+<base target="_blank">
+</head>
+<body oncontextmenu="return false;">
+
+<div class="cheat-overlay" id="cheatOverlay">
+  <h2>⚠ Security Alert</h2>
+  <p id="cheatMessage"></p>
+  <button class="btn" style="background:#fff;color:var(--cheat);width:auto" onclick="resumeTest()">I Understand — Resume Test</button>
+</div>
+<div class="toast" id="toast"></div>
+<div class="banner" id="banner"><div id="banIcon">🚀</div><h2 id="banTitle"></h2><p id="banSub"></p></div>
+
+<div class="screen active" id="nameFormScreen">
+  <div class="gate-card">
+    <div><div class="hero-text"><span>Subject</span> <span style="animation-delay:.2s">meets</span> <span style="animation-delay:.4s">verb.</span></div>
+    <div class="hero-author">Every person. Every tense. Four sentences per page.<br>Answer every page correctly on the first try. Any page with a mistake returns until it is mastered.<br><b>Total: <span id="pageCount"></span> pages</b> (more if any page has to be repeated).</div></div>
+    <div class="chip">
+      <img id="candidateAvatar" src="https://via.placeholder.com/150" alt="Avatar">
+      <div><strong id="candidateName">Loading User...</strong><br><span id="candidateDept" style="color:var(--muted);font-size:.75rem">Verifying GitHub Auth...</span></div>
+    </div>
+    <div class="security-notice"><strong>🔒 Secure Test Environment</strong>This test is actively monitored. Switching tabs, minimizing the window, or attempting to copy content will be recorded in your final assessment.</div>
+    <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>✨ Enter ✨</button>
+  </div>
+</div>
+
+<div class="screen" id="quizContent">
+  <div class="col">
+    <div class="top-bar">
+      <div class="brand"><h1>Verb Match</h1><span class="lvl" id="lvl">Lv 1 · Rookie</span></div>
+      <button id="muteBtn" class="icon-btn" onclick="toggleMute()" title="Toggle Sound">🔊</button>
+      <div id="timer" hidden>00:00</div>
+    </div>
+    <div class="stat-strip">
+      <span class="stat-nums">📍 <b id="progressTracker">1 of X</b></span>
+      <span class="combo" id="combo">🔥 x1</span>
+      <div class="cheat-counter" id="cheatCounter"><span>🛡</span><span id="cheatCount">0</span></div>
+      <span class="stat-nums" id="gemsCounter">💎 <b>0</b></span>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="ptitle" id="ptitle"></div>
+    <div class="mount" id="dropContainer"></div>
+    <div class="caption" id="caption">Select a tile, then tap a blank. The word in brackets is the verb to use.</div>
+    <div class="tray" id="dragOptions"></div>
+    <div id="motivationBox"></div>
+    <div id="ruleBox"></div>
+  </div>
+</div>
+
+<div class="screen" id="endScreen">
+  <div class="col" style="justify-content:center;align-items:center">
+    <div class="end-card">
+      <div class="trophy">🏆</div>
+      <div class="end-title" id="endTitle">Mission Accomplished.</div>
+      <div class="stars" id="stars"></div>
+      <div class="rank" id="endRank"></div>
+      <div class="rank" id="endSubtitle" style="color:var(--muted)"></div>
+      <div class="end-stats">
+        <div class="stat-box"><div class="stat-num" id="endCorrect">0</div><div class="stat-lbl">CORRECT</div></div>
+        <div class="stat-box"><div class="stat-num w" id="endWrong">0</div><div class="stat-lbl">WRONG</div></div>
+        <div class="stat-box"><div class="stat-num g" id="endGems">0</div><div class="stat-lbl">GEMS</div></div>
+        <div class="stat-box"><div class="stat-num" id="endCombo">0</div><div class="stat-lbl">BEST COMBO</div></div>
+      </div>
+      <div class="cheat-report"><h4>Security Report</h4><ul id="cheatList"></ul></div>
+      <div class="end-btn-row">
+        <button class="btn btn-primary" onclick="downloadPDFReport()">📥 Download PDF Report</button>
+        <button class="btn btn-secondary" onclick="location.reload()">↻ Play Again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUEST_ID = "Quest 19"; // set this to your real quest number (used by the logger and the PDF)
+const EDGE_FUNCTION_URL = "https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+/* ========== DATA: topics are split automatically into pages of four sentences. Tags: 1s 2 3s 1p 3p = person/number, S/P = singular/plural subject ========== */
+const TAGS={"1s":"1st person · singular","2":"2nd person · you","3s":"3rd person · singular","1p":"1st person · plural","3p":"3rd person · plural","S":"singular subject","P":"plural subject"};
+const TOPICS=[
+{n:"To be · Present",r:"<i>I am</i> · <i>you are</i> · <i>he / she / it is</i><br><i>we are</i> · <i>they are</i>",q:[
+["I _______ a student.","am","1s"],["You _______ my friend.","are","2"],["He _______ a doctor.","is","3s"],["They _______ in the library.","are","3p"],
+["I _______ from Chennai.","am","1s"],["We _______ ready for the examination.","are","1p"],["She _______ a teacher.","is","3s"],["The students _______ in the classroom.","are","3p"],
+["You _______ a diligent learner.","are","2"],["My brother _______ ten years old.","is","3s"],["I _______ not tired today.","am","1s"],["The books _______ on the table.","are","3p"]]},
+{n:"To be · Past",r:"Past: <i>I / he / she / it was</i> · <i>you / we / they were</i>",q:[
+["Yesterday, I _______ at home.","was","1s"],["Last night, you _______ at the concert.","were","2"],["In 2015, he _______ a student.","was","3s"],["This morning, they _______ at the station.","were","3p"],
+["Last week, we _______ in Delhi.","were","1p"],["Last Monday, she _______ absent.","was","3s"],["Children, you _______ quiet during the lesson.","were","2"],["Last night, it _______ very cold.","was","3s"],
+["Last year, I _______ a first-year student.","was","1s"],["An hour ago, the children _______ in the park.","were","3p"],["Last summer, we _______ on holiday.","were","1p"],["Last Sunday, he _______ at the temple.","was","3s"]]},
+{n:"To be · Future",r:"Future: <i>will be</i> for every subject",q:[
+["Tomorrow, I _______ at the office.","will be","1s"],["One day, you _______ a great teacher.","will be","2"],["She _______ twenty years old next month.","will be","3s"],["Tonight, they _______ at the airport.","will be","3p"],
+["Next week, we _______ on holiday.","will be","1p"],["The results _______ available on Friday.","will be","3p"],["He _______ here by noon tomorrow.","will be","3s"],["Next year, I _______ a graduate.","will be","1s"],
+["Next week, you _______ in Bengaluru.","will be","2"],["The meeting _______ in the hall tomorrow.","will be","3s"],["Next month, we _______ in our new house.","will be","1p"],["The guests _______ here by seven o'clock.","will be","3p"]]},
+{n:"To be · Present, past and future together",r:"<i>am / is / are</i> (present) · <i>was / were</i> (past) · <i>will be</i> (future)",q:[
+["Now, I _______ in the garden.","am","1s"],["Yesterday, I _______ in the garden.","was","1s"],["Tomorrow, I _______ in the garden.","will be","1s"],["Now, she _______ a student.","is","3s"],
+["Next year, she _______ a graduate.","will be","3s"],["Today, they _______ at school.","are","3p"],["Yesterday, they _______ at the market.","were","3p"],["Tomorrow, you _______ at the airport.","will be","2"],
+["Now, you _______ in the library.","are","2"],["Yesterday, you _______ in the laboratory.","were","2"],["Now, we _______ in the classroom.","are","1p"],["Last week, we _______ in Madurai.","were","1p"]]},
+{n:"To have · Present",r:"<i>I / you / we / they have</i> · <i>he / she / it has</i>",q:[
+["I _______ a new laptop.","have","1s"],["You _______ many friends.","have","2"],["He _______ a red bicycle.","has","3s"],["They _______ a large house.","have","3p"],
+["We _______ a spare room.","have","1p"],["She _______ two sisters.","has","3s"],["The dog _______ a long tail.","has","3s"],["My friends _______ new mobile phones.","have","3p"],
+["The car _______ four wheels.","has","3s"],["I _______ a meeting at ten o'clock every Monday.","have","1s"],["You _______ a pleasant voice.","have","2"],["The students _______ their books.","have","3p"]]},
+{n:"To have · Past",r:"Past: <i>had</i> for every subject",q:[
+["Last year, I _______ a cat.","had","1s"],["Yesterday, you _______ a free afternoon.","had","2"],["Last night, she _______ a headache.","had","3s"],["When they were young, they _______ a farm.","had","3p"],
+["Last summer, we _______ a pleasant holiday.","had","1p"],["Yesterday, the dog _______ a long walk.","had","3s"],["Last week, he _______ an examination.","had","3s"],["Last year, you _______ a new teacher.","had","2"]]},
+{n:"To have · Future",r:"Future: <i>will have</i> for every subject",q:[
+["Next month, I _______ a new position.","will have","1s"],["Tomorrow, you _______ a busy day.","will have","2"],["By Friday, she _______ her results.","will have","3s"],["Next year, they _______ a child.","will have","3p"],
+["Tomorrow, we _______ a meeting at ten o'clock.","will have","1p"],["The school _______ a new library next year.","will have","3s"],["Next week, he _______ an interview.","will have","3s"],["Tomorrow, you _______ the answer.","will have","2"]]},
+{n:"To do · Present",r:"<i>I / you / we / they do</i> · <i>he / she / it does</i>",q:[
+["I _______ my homework every evening.","do","1s"],["You _______ excellent work.","do","2"],["He _______ the washing every day.","does","3s"],["They _______ business in Mumbai.","do","3p"],
+["She _______ yoga every morning.","does","3s"],["We _______ our best.","do","1p"],["The teacher _______ the marking at night.","does","3s"],["My brother _______ the shopping on Sundays.","does","3s"],
+["I _______ not like spicy food.","do","1s"],["She _______ not eat meat.","does","3s"],["They _______ not live here.","do","3p"],["You _______ not need a ticket.","do","2"]]},
+{n:"To do · Past",r:"Past: <i>did</i> for every subject",q:[
+["Yesterday, I _______ all my chores.","did","1s"],["Last night, you _______ an excellent job.","did","2"],["Last night, she _______ her assignment.","did","3s"],["Yesterday, they _______ not attend school.","did","3p"],
+["Last week, we _______ our best.","did","1p"],["Yesterday, he _______ the work carefully.","did","3s"],["Last Sunday, my father _______ the gardening.","did","3s"],["Yesterday, you _______ not complete the task.","did","2"]]},
+{n:"To do · Future",r:"Future: <i>will do</i> for every subject",q:[
+["Tomorrow, I _______ the shopping.","will do","1s"],["Next week, you _______ well in the examination.","will do","2"],["She _______ the laundry on Sunday.","will do","3s"],["They _______ their homework tonight.","will do","3p"],
+["Next week, we _______ a project together.","will do","1p"],["He _______ the cooking tomorrow.","will do","3s"],["The students _______ an experiment on Monday.","will do","3p"],["You _______ the presentation on Friday.","will do","2"]]},
+{n:"Questions with Do / Does / Did",r:"<i>Do</i> + I / you / we / they · <i>Does</i> + he / she / it · <i>Did</i> for the past",q:[
+["_______ she live here at present?","Does","3s"],["_______ you want some tea now?","Do","2"],["_______ he finish the work yesterday?","Did","3s"],["_______ they play cricket every Sunday?","Do","3p"],
+["_______ the teacher know the answer at present?","Does","3s"],["_______ you attend the meeting last week?","Did","2"],["_______ we need a ticket for the journey now?","Do","1p"],["_______ your brother work in Chennai at present?","Does","3s"]]},
+{n:"Simple present · -s, -es and -ies",r:"<i>I / you / we / they</i> + base verb<br><i>he / she / it</i> + verb + <i>s</i><br><i>-es</i> after sh, ch, x, o · <i>-ies</i> after consonant + y",q:[
+["I _______ (play) cricket every Sunday.","play","1s"],["You _______ (speak) English fluently.","speak","2"],["He _______ (play) the guitar in a band.","plays","3s"],["They _______ (visit) their grandparents on weekends.","visit","3p"],
+["I _______ (study) English every night.","study","1s"],["She _______ (study) at the library.","studies","3s"],["My mother _______ (watch) television after dinner.","watches","3s"],["Birds _______ (sing) in the morning.","sing","3p"],
+["You _______ (watch) the news every evening.","watch","2"],["Ravi _______ (go) to college by bus.","goes","3s"],["The baby _______ (cry) at night.","cries","3s"],["We _______ (live) near the beach.","live","1p"],
+["A mechanic _______ (fix) bicycles.","fixes","3s"],["She _______ (teach) mathematics to Class 10.","teaches","3s"],["The sun _______ (rise) in the east.","rises","3s"],["We _______ (try) diligently every day.","try","1p"]]},
+{n:"Simple past · The verb does not change",r:"Past verbs do <i>not</i> change with the subject:<br><i>visited</i> for I, you, he, she, it, we and they",q:[
+["I _______ (visit) my grandmother yesterday.","visited","1s"],["You _______ (call) me last night.","called","2"],["He _______ (study) all day on Sunday.","studied","3s"],["They _______ (win) the match last Friday.","won","3p"],
+["We _______ (eat) dinner at eight o'clock last night.","ate","1p"],["She _______ (go) to Madurai last week.","went","3s"],["It _______ (rain) heavily yesterday.","rained","3s"],["My parents _______ (travel) to Goa last year.","travelled","3p"],
+["I _______ (watch) a film last Saturday.","watched","1s"],["You _______ (speak) very clearly at the meeting.","spoke","2"],["The teacher _______ (give) us homework yesterday.","gave","3s"],["The students _______ (write) an essay last week.","wrote","3p"]]},
+{n:"Simple future · The verb does not change",r:"Future verbs do <i>not</i> change with the subject:<br><i>will travel</i> for I, you, he, she, it, we and they",q:[
+["Tomorrow, I _______ (travel) to Delhi.","will travel","1s"],["Next week, you _______ (enjoy) this film.","will enjoy","2"],["He _______ (join) us at noon tomorrow.","will join","3s"],["They _______ (arrive) tonight.","will arrive","3p"],
+["We _______ (leave) at six o'clock tomorrow.","will leave","1p"],["She _______ (cook) lunch tomorrow.","will cook","3s"],["It _______ (snow) in Kashmir next week.","will snow","3s"],["My sisters _______ (sing) at the party next Saturday.","will sing","3p"],
+["I _______ (meet) you at the station.","will meet","1s"],["You _______ (receive) the letter next week.","will receive","2"],["The teacher _______ (return) the papers on Monday.","will return","3s"],["The children _______ (visit) the museum tomorrow.","will visit","3p"]]},
+{n:"Present continuous",r:"<i>am / is / are</i> + verb + <i>-ing</i>",q:[
+["I _______ (read) a book now.","am reading","1s"],["You _______ (wait) for the bus at present.","are waiting","2"],["He _______ (cook) dinner now.","is cooking","3s"],["They _______ (play) football in the garden now.","are playing","3p"],
+["She _______ (speak) on the telephone at present.","is speaking","3s"],["We _______ (watch) a film at present.","are watching","1p"],["It _______ (rain) outside now.","is raining","3s"],["The teacher _______ (explain) the lesson now.","is explaining","3s"]]},
+{n:"Past continuous",r:"<i>was / were</i> + verb + <i>-ing</i>",q:[
+["At eight o'clock yesterday, I _______ (sleep).","was sleeping","1s"],["You _______ (drive) carefully when I saw you.","were driving","2"],["He _______ (study) when the power failed.","was studying","3s"],["They _______ (dance) at the festival last Saturday.","were dancing","3p"],
+["She _______ (walk) home when it began to rain.","was walking","3s"],["We _______ (have) lunch at one o'clock yesterday.","were having","1p"],["The children _______ (play) in the garden at five o'clock.","were playing","3p"],["It _______ (rain) at midnight.","was raining","3s"]]},
+{n:"Future continuous",r:"<i>will be</i> + verb + <i>-ing</i> for every subject",q:[
+["This time tomorrow, I _______ (fly) to Dubai.","will be flying","1s"],["At noon tomorrow, you _______ (work) at your desk.","will be working","2"],["At noon tomorrow, she _______ (teach) a class.","will be teaching","3s"],["At six o'clock tomorrow, they _______ (prepare) dinner.","will be preparing","3p"],
+["Tonight, we _______ (celebrate) with our friends.","will be celebrating","1p"],["At ten tomorrow, he _______ (attend) a lecture.","will be attending","3s"],["At nine tomorrow, the students _______ (take) an examination.","will be taking","3p"],["This time next week, it _______ (snow) in the hills.","will be snowing","3s"]]},
+{n:"Present perfect",r:"<i>I / you / we / they have</i> + past participle<br><i>he / she / it has</i> + past participle",q:[
+["I _______ (finish) my homework.","have finished","1s"],["You _______ (learn) a great deal this year.","have learned","2"],["He _______ (lose) his keys.","has lost","3s"],["They _______ (buy) a new car this week.","have bought","3p"],
+["We _______ (live) here since 2018.","have lived","1p"],["She _______ (visit) Paris twice.","has visited","3s"],["It _______ (stop) raining.","has stopped","3s"],["The students _______ (complete) the assignment.","have completed","3p"]]},
+{n:"Past perfect",r:"<i>had</i> + past participle for every subject",q:[
+["I _______ (eat) before you arrived.","had eaten","1s"],["You _______ (leave) the office when I telephoned.","had left","2"],["She _______ (study) diligently before the examination began.","had studied","3s"],["They _______ (finish) the work when we arrived.","had finished","3p"],
+["We _______ (see) the film before, so we remained at home.","had seen","1p"],["He _______ (write) the letter before the post office closed.","had written","3s"],["The train _______ (depart) before we reached the station.","had departed","3s"],["The teacher _______ (explain) the lesson before I entered.","had explained","3s"]]},
+{n:"Future perfect",r:"<i>will have</i> + past participle for every subject",q:[
+["By tomorrow, I _______ (complete) the report.","will have completed","1s"],["By next year, you _______ (graduate).","will have graduated","2"],["By noon, he _______ (write) ten pages.","will have written","3s"],["By nine o'clock tonight, they _______ (reach) Delhi.","will have reached","3p"],
+["By 2030, we _______ (live) here for a decade.","will have lived","1p"],["By Friday, she _______ (submit) her thesis.","will have submitted","3s"],["By evening, the workers _______ (finish) the roof.","will have finished","3p"],["By December, the company _______ (open) ten branches.","will have opened","3s"]]},
+{n:"Compound subjects with and, either…or, neither…nor",r:"<i>and</i> → plural verb<br><i>either…or</i> / <i>neither…nor</i> → the verb agrees with the nearer subject",q:[
+["Tea and coffee _______ (be) popular in India.","are","P"],["My brother and my sister _______ (live) in Pune.","live","P"],["Either my brother or my sister _______ (be) at home.","is","S"],["Neither the teacher nor the students _______ (know) the answer.","know","P"],
+["Neither Ravi nor his friends _______ (be) present today.","are","P"],["Either the girls or Meena _______ (be) coming.","is","S"],["The principal and the teachers _______ (attend) the meeting every week.","attend","P"],["Either the manager or the employees _______ (be) responsible.","are","P"],
+["Neither the students nor the teacher _______ (be) absent.","is","S"],["Neither the teachers nor the principal _______ (be) present.","is","S"],["My uncle and my aunt _______ (travel) to Chennai every year.","travel","P"],["Either the teacher or the students _______ (have) the key.","have","P"]]},
+{n:"Indefinite pronouns and quantifiers",r:"<i>everyone, everybody, nobody, no one, anyone, someone, each</i> → singular verb<br><i>both, many, few, several</i> → plural verb",q:[
+["Everyone _______ (like) ice cream.","likes","S"],["Everybody _______ (be) invited to the party.","is","S"],["Nobody _______ (know) the answer.","knows","S"],["Anyone _______ (be) welcome to join.","is","S"],
+["Someone _______ (have) my pen.","has","S"],["Somebody _______ (knock) at the door now.","is knocking","S"],["Each of the students _______ (have) a book.","has","S"],["Both of my parents _______ (work) in Chennai.","work","P"],
+["Many people _______ (enjoy) cricket.","enjoy","P"],["Few students _______ (speak) French.","speak","P"],["Several of my friends _______ (be) doctors.","are","P"],["No one _______ (want) to leave early.","wants","S"]]},
+{n:"Indefinite pronouns in the past and future",r:"The pronoun decides the verb: <i>everyone was</i> · <i>both were</i> · <i>nobody will be</i>",q:[
+["Yesterday, everyone _______ (be) late.","was","S"],["Last week, both of the boys _______ (be) absent.","were","P"],["Tomorrow, nobody _______ (be) at school.","will be","S"],["Last night, someone _______ (leave) a bag here.","left","S"]]},
+{n:"Phrases such as along with, together with, as well as",r:"The verb agrees with the <i>main</i> subject, not with the added phrase",q:[
+["My mother, along with my aunts, _______ (visit) us every summer.","visits","S"],["The teacher, together with the students, _______ (be) in the hall.","is","S"],["The boys, as well as their father, _______ (enjoy) cricket.","enjoys","S"],["The book, with its illustrations, _______ (be) very useful.","is","S"]]},
+{n:"There is / there are",r:"<i>There is</i> + singular or uncountable noun<br><i>there are</i> + plural noun<br>Past: <i>was / were</i> · Future: <i>will be</i>",q:[
+["There _______ a book on the table.","is","S"],["There _______ some water in the bottle.","is","S"],["There _______ three books on the shelf.","are","P"],["There _______ many people at the station.","are","P"],
+["Yesterday, there _______ a cat under the car.","was","S"],["Last night, there _______ two buses.","were","P"],["Tomorrow, there _______ a party at school.","will be","S"],["Next week, there _______ five new students.","will be","P"]]},
+{n:"Special nouns and expressions of quantity",r:"<i>news, mathematics, physics, furniture</i> → singular<br><i>trousers, scissors, clothes, jeans, police</i> → plural<br><i>a number of</i> → plural · <i>the number of</i> → singular",q:[
+["The news _______ (be) good today.","is","S"],["Mathematics _______ (be) my favourite subject.","is","S"],["The furniture _______ (be) new.","is","S"],["My trousers _______ (be) too long.","are","P"],
+["These scissors _______ (be) sharp.","are","P"],["The clothes _______ (be) in the wardrobe.","are","P"],["Half of the cake _______ (be) on the plate.","is","S"],["Half of the cakes _______ (be) on the plate.","are","P"],
+["A number of students _______ (be) absent today.","are","P"],["The number of students _______ (be) fifty.","is","S"],["Physics _______ (be) a branch of science.","is","S"],["The police _______ (be) investigating the matter.","are","P"],
+["Yesterday, the news _______ (be) disappointing.","was","S"],["Last week, my trousers _______ (be) in the laundry.","were","P"],["Tomorrow, the news _______ (be) available at nine.","will be","S"],["Yesterday, the scissors _______ (be) on the desk.","were","P"]]}
+];
+const PAGES=[];
+TOPICS.forEach(t=>{const m=t.q.length/4;for(let i=0;i<m;i++)PAGES.push({n:m>1?`${t.n} · ${i+1}/${m}`:t.n,r:t.r,q:t.q.slice(i*4,i*4+4)})});
+function fmt(t,f){return t.replace(/_+/,f?`<b>${f}</b>`:"<b>____</b>").replace(/\(([^)]+)\)/,'<em class="lem">($1)</em>')}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+/* ========== MOTIVATION ========== */
+const rightMsgs=["'name' is unstoppable!","'name' has grit!","Nothing can slow 'name' down today!","'name' learns fast and never gives up!","Who is awesome? 'name'!","Effort beats talent, and 'name' has both!","Every right answer takes 'name' closer to greatness!","'name' shines brighter with every question!"];
+const wrongMsgs=["'name' knows failure is the stepping stone to success.","'Ever tried. Ever failed. No matter. Try again. Fail better.' — 'name' lives by this.","Every mistake makes 'name' stronger.","Failure is feedback, and 'name' takes feedback like a champion.","Every wrong attempt brings 'name' closer to the right one."];
+const LEVELS=["Rookie","Apprentice","Wordsmith","Grammar Ninja","Language Legend"];
+
+/* ========== AUTH ========== */
+let playerName="Guest",playerDept="Unknown";
+window.addEventListener('DOMContentLoaded',()=>{
+  spawnFloaters();
+  $('pageCount').textContent=PAGES.length;
+  const ready=()=>{document.getElementById('candidateName').textContent=playerName;document.getElementById('candidateDept').textContent='Department: '+playerDept;document.getElementById('startBtn').disabled=false};
+  if(window.GH){
+    playerName=window.GH.name||window.GH.username||"Student";
+    playerDept=window.GH.dept||"Department Unspecified";
+    if(window.GH.avatar)document.getElementById('candidateAvatar').src=window.GH.avatar;
+    ready();
+  }else setTimeout(()=>{playerName=localStorage.getItem("questPlayerName")||"Test Student";playerDept=localStorage.getItem("questPlayerDept")||"CSE";ready()},500);
+});
+function spawnFloaters(){
+  const g=["✦","✎","A","?","!","“","💬","✓"];
+  for(let i=0;i<14;i++){const s=document.createElement('span');s.className='fl';s.textContent=g[i%g.length];s.style.left=Math.random()*100+'vw';s.style.animationDuration=(12+Math.random()*14)+'s';s.style.animationDelay=(-Math.random()*20)+'s';document.body.appendChild(s)}
+}
+
+/* ========== AUDIO + CONFETTI ========== */
+const applause=new Audio('https://andrewveda.github.io/SRM-VEC-English-PWA/sounds/crowd.mp3');applause.volume=.4;
+const wrongSnd=new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3');wrongSnd.volume=.3;
+let isMuted=false;
+function toggleMute(){isMuted=!isMuted;document.getElementById('muteBtn').textContent=isMuted?'🔇':'🔊'}
+function playSound(a){if(isMuted)return;try{a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
+const COLORS=['#2f5233','#6f8f5a','#c9a227','#b5651d'];
+function triggerConfetti(x,y){confetti({particleCount:70,spread:70,origin:{x:x??.5,y:y??.6},colors:COLORS})}
+function cannon(){[.1,.9].forEach(x=>confetti({particleCount:90,angle:x<.5?60:120,spread:70,origin:{x,y:.8},colors:COLORS}))}
+function triggerMegaConfetti(){
+  const end=Date.now()+3000,d={startVelocity:30,spread:360,ticks:60,zIndex:0,colors:COLORS};
+  const iv=setInterval(()=>{const t=end-Date.now();if(t<=0)return clearInterval(iv);const n=50*(t/3000);
+    confetti({...d,particleCount:n,origin:{x:.1+Math.random()*.2,y:Math.random()-.2}});
+    confetti({...d,particleCount:n,origin:{x:.7+Math.random()*.2,y:Math.random()-.2}})},250);
+}
+
+/* ========== ANTI-CHEAT ========== */
+let cheatEvents=[],cheatCount=0,isPaused=false,testSubmitted=false,consoleHits=0;
+function live(){return !testSubmitted&&startTime}
+function initAntiCheat(){
+  const mobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&live()){recordCheat('Tab switched / window minimized','tab');showCheatOverlay('You switched tabs or minimized the window. This has been recorded.')}});
+  window.addEventListener('blur',()=>{if(live()&&!isPaused&&!mobile)recordCheat('Window lost focus','focus')});
+  document.addEventListener('contextmenu',e=>{e.preventDefault();if(live()){recordCheat('Right-click attempted','rightclick');showToast('Right-click is disabled during the test',true)}});
+  document.addEventListener('keydown',e=>{if(!live())return;
+    if(e.key==='F12'){e.preventDefault();recordCheat('F12 (DevTools) pressed','devtools');showToast('Developer tools are blocked',true)}
+    if((e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='u')){e.preventDefault();recordCheat('DevTools shortcut blocked: '+e.key,'shortcut');showToast('Keyboard shortcuts are restricted',true)}
+    if(e.ctrlKey&&['s','p','a','c','v','x'].includes(e.key)){e.preventDefault();recordCheat('System shortcut: Ctrl+'+e.key,'shortcut')}});
+  [['copy','Copy attempted'],['paste','Paste attempted'],['cut','Cut attempted']].forEach(([ev,m])=>document.addEventListener(ev,e=>{if(live()){e.preventDefault();recordCheat(m,ev)}}));
+  document.addEventListener('keyup',e=>{if(e.key==='PrintScreen'&&live()){recordCheat('Screenshot/Print attempted','screenshot');showToast('Screenshots are monitored',true)}});
+  if(!mobile)setInterval(()=>{ // softened: needs 3 slow hits in a row before it flags anyone
+    if(!live()||isPaused)return;
+    const s=performance.now();debugger;const t=performance.now()-s;
+    consoleHits=t>100?consoleHits+1:0;
+    if(consoleHits>=3){consoleHits=0;recordCheat('Console/Debugger accessed','console');showCheatOverlay('Console access detected. This incident has been logged.')}
+  },3000);
+}
+function recordCheat(description,type){cheatCount++;cheatEvents.push({type,description,timestamp:new Date().toISOString(),question:current+1});
+  document.getElementById('cheatCount').textContent=cheatCount;const b=document.getElementById('cheatCounter');b.classList.add('active');setTimeout(()=>b.classList.remove('active'),500)}
+function showCheatOverlay(m){isPaused=true;document.getElementById('cheatMessage').textContent=m;document.getElementById('cheatOverlay').classList.add('show')}
+function resumeTest(){isPaused=false;document.getElementById('cheatOverlay').classList.remove('show');showToast('Test resumed. Further violations will be flagged.')}
+function showToast(m,c=false){const t=document.getElementById('toast');t.textContent=m;t.className='toast'+(c?' cheat':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
+
+/* ========== GAME STATE ========== */
+let pageFinished=false,queue=[],retry=[],round=1,roundDone=0,mastered=0,lvlPending=false,current=0,completed=0,correctCount=0,totalWrongGuesses=0,gemsCount=0,combo=0,bestCombo=0;
+let startTime,timerInterval,selectedOption=null,elapsedSeconds=0,pageHadMistake=false;
+const $=id=>document.getElementById(id);
+const dragOptionsEl=$("dragOptions"),dropContainerEl=$("dropContainer"),motivationBox=$("motivationBox"),ruleBox=$("ruleBox");
+
+function startQuiz(){
+  $("nameFormScreen").classList.remove("active");$("quizContent").classList.add("active");
+  queue=[...PAGES];retry=[];round=1;roundDone=0;mastered=0;lvlPending=false;
+  current=completed=correctCount=totalWrongGuesses=gemsCount=combo=bestCombo=elapsedSeconds=0;
+  cheatEvents=[];cheatCount=0;testSubmitted=false;
+  startTime=Date.now();updateGems();updateCombo();startTimer();initAntiCheat();loadQuestion();
+}
+
+function updateProgress(){
+  const total=completed+(queue.length-current-(pageFinished?1:0))+retry.length;
+  $("progressTracker").textContent=(round>1?`Round ${round} · `:"")+`Page ${pageFinished?completed:completed+1} of ${total}`;
+  $("barFill").style.width=(completed/total*100)+'%';
+}
+
+function loadQuestion(){
+  if(current>=queue.length){
+    if(!retry.length)return showScore();
+    queue=retry;retry=[];current=0;roundDone=0;round++;
+    $("banIcon").textContent="🔁";$("banTitle").textContent=`Round ${round}`;
+    $("banSub").textContent=`${queue.length} page${queue.length>1?"s":""} to answer correctly on the first try`;
+    const b=$("banner");b.classList.remove("show");void b.offsetWidth;b.classList.add("show");setTimeout(()=>b.classList.remove("show"),2200);
+  }
+  selectedOption=null;pageHadMistake=false;pageFinished=false;
+  motivationBox.classList.remove("show");ruleBox.classList.remove("show");
+  $("caption").style.display="";
+  updateProgress();
+  const page=queue[current];$("ptitle").textContent=page.n;
+  dragOptionsEl.innerHTML="";dropContainerEl.innerHTML="";
+  dropContainerEl.style.animation="none";void dropContainerEl.offsetWidth;dropContainerEl.style.animation="";
+  shuffle(page.q.map(x=>x[1])).forEach(ans=>{
+    const d=document.createElement("div");d.className="tile";d.innerHTML=`<span class="word">${ans}</span>`;
+    d.onclick=()=>selectOption(d,ans);dragOptionsEl.appendChild(d);
+  });
+  page.q.forEach(([text,ans,tg])=>{
+    const s=document.createElement("div");s.className="sentence-item";
+    s.innerHTML=fmt(text);
+    s.dataset.answer=ans;s.dataset.original=text;s.dataset.tag=TAGS[tg]||"";
+    s.onclick=e=>placeOption(s,e);dropContainerEl.appendChild(s);
+  });
+}
+
+function selectOption(div,text){
+  if(isPaused)return;
+  document.querySelectorAll(".tile").forEach(o=>o.classList.remove("selected"));
+  selectedOption={el:div,text};div.classList.add("selected");
+  document.querySelectorAll(".sentence-item:not(.filled)").forEach(s=>s.classList.add("armed"));
+}
+
+function floatPts(e,txt,bad){
+  const p=document.createElement("div");p.className="pts"+(bad?" bad":"");p.textContent=txt;
+  p.style.left=(e?.clientX??innerWidth/2)+"px";p.style.top=((e?.clientY??innerHeight/2)-20)+"px";
+  document.body.appendChild(p);setTimeout(()=>p.remove(),1000);
+}
+
+function placeOption(zone,e){
+  if(isPaused||!selectedOption||zone.classList.contains("filled"))return;
+  const ans=selectedOption.text;
+  document.querySelectorAll(".sentence-item").forEach(s=>s.classList.remove("armed"));
+  if(ans===zone.dataset.answer){
+    playSound(applause);
+    combo++;bestCombo=Math.max(bestCombo,combo);
+    const mult=Math.min(5,1+Math.floor(combo/3));
+    correctCount++;gemsCount+=mult;updateGems();updateCombo();
+    floatPts(e,"+"+mult+" 💎");
+    triggerConfetti((e?.clientX??innerWidth/2)/innerWidth,(e?.clientY??innerHeight/2)/innerHeight);
+    showMotivation(true);
+    zone.innerHTML=fmt(zone.dataset.original,ans)+`<span class="tag">${zone.dataset.tag}</span>`;
+    zone.classList.add("correct","filled");
+    const te=selectedOption.el;te.classList.remove("selected");te.classList.add("solved");setTimeout(()=>te.remove(),400);
+    selectedOption=null;
+    if(!document.querySelector(".sentence-item:not(.filled)"))setTimeout(pageDone,700);
+  }else{
+    playSound(wrongSnd);
+    totalWrongGuesses++;gemsCount--;combo=0;updateGems();updateCombo();
+    if(!pageHadMistake){pageHadMistake=true;retry.push(queue[current]);updateProgress();showToast(`🔁 This page will repeat after the test. You now have ${completed+(queue.length-current)+retry.length} pages in total.`)}
+    floatPts(e,"−1 💎",true);showMotivation(false);
+    zone.classList.add("error");setTimeout(()=>zone.classList.remove("error"),350);
+    dropContainerEl.classList.add("shake");setTimeout(()=>dropContainerEl.classList.remove("shake"),400);
+    selectedOption.el.classList.remove("selected");selectedOption=null;
+  }
+}
+
+function pageDone(){
+  roundDone++;completed++;pageFinished=true;
+  const perfect=!pageHadMistake;
+  if(perfect){mastered++;gemsCount+=2;updateGems();floatPts(null,"Perfect! +2 💎");lvlPending=mastered%10===0&&mastered<=40}
+  
+  updateProgress();
+  motivationBox.classList.remove("show");$("caption").style.display="none";
+  const last=current+1>=queue.length;
+  const note=perfect?'<div class="retry-note ok">✓ Correct on the first try. Page mastered!</div>':'<div class="retry-note">🔁 Not correct on the first try. This page will return after the test and will repeat until all four sentences are correct on the first try.</div>';
+  const label=last?(retry.length?"Continue to the repeat round →":"Finish 🏆"):"Next page →";
+  ruleBox.innerHTML=`<div class="rule-tag">💡 Remember</div>${note}<div class="rule-text">${queue[current].r}</div><button class="btn btn-primary" id="nextBtn">${label}</button>`;
+  ruleBox.classList.remove("show");void ruleBox.offsetWidth;ruleBox.classList.add("show");
+  ruleBox.scrollIntoView({behavior:"smooth",block:"end"});
+  $("nextBtn").onclick=()=>{
+    current++;
+    if(lvlPending){lvlPending=false;if(current<queue.length||retry.length)levelUp()}
+    loadQuestion();window.scrollTo({top:0,behavior:"smooth"});
+  };
+}
+
+function levelUp(){
+  const lv=Math.min(LEVELS.length-1,Math.floor(mastered/10));
+  const el=$("lvl");el.textContent=`Lv ${lv+1} · ${LEVELS[lv]}`;el.classList.remove("up");void el.offsetWidth;el.classList.add("up");
+  $("banIcon").textContent=["🌱","📘","✍️","🥷","👑"][lv];
+  $("banTitle").textContent="Level Up!";$("banSub").textContent=`You are now a ${LEVELS[lv]}`;
+  const b=$("banner");b.classList.remove("show");void b.offsetWidth;b.classList.add("show");
+  cannon();setTimeout(()=>b.classList.remove("show"),2200);
+}
+
+function updateGems(){const g=$("gemsCounter");g.innerHTML=`💎 <b>${gemsCount}</b>`;g.classList.remove('gem-pop');void g.offsetWidth;g.classList.add('gem-pop')}
+function updateCombo(){
+  const c=$("combo");
+  if(combo>=2){const m=Math.min(5,1+Math.floor(combo/3));c.textContent=`🔥 ${combo} streak · x${m}`;c.classList.remove("on");void c.offsetWidth;c.classList.add("on")}
+  else c.classList.remove("on");
+}
+function showMotivation(ok){
+  const l=ok?rightMsgs:wrongMsgs;
+  motivationBox.textContent=l[Math.floor(Math.random()*l.length)].replace(/'name'/g,playerName);
+  motivationBox.classList.toggle('wrong-msg',!ok);motivationBox.classList.add("show");clearTimeout(window._mt);window._mt=setTimeout(()=>motivationBox.classList.remove("show"),2200);
+}
+
+/* ========== TIMER + END ========== */
+function startTimer(){timerInterval=setInterval(()=>{if(isPaused)return;elapsedSeconds=Math.floor((Date.now()-startTime)/1000);
+  const m=Math.floor(elapsedSeconds/60),s=elapsedSeconds%60;$("timer").textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')},1000)}
+function countUp(id,to){const el=$(id);let n=0;const step=Math.max(1,Math.ceil(Math.abs(to)/30));const iv=setInterval(()=>{n=to>=0?Math.min(to,n+step):Math.max(to,n-step);el.textContent=n;if(n===to)clearInterval(iv)},35)}
+
+function showScore(){
+  clearInterval(timerInterval);testSubmitted=true;triggerMegaConfetti();
+  $("quizContent").classList.remove("active");$("endScreen").classList.add("active");
+  $("endSubtitle").textContent=`${playerName} · ${playerDept}`;
+  countUp("endCorrect",correctCount);countUp("endWrong",totalWrongGuesses);countUp("endGems",gemsCount);countUp("endCombo",bestCombo);
+  const acc=correctCount/(correctCount+totalWrongGuesses||1),n=acc>=.9?3:acc>=.7?2:1;
+  $("stars").innerHTML=[0,1,2].map(i=>`<span class="${i<n?'':'off'}" style="animation-delay:${.4+i*.35}s">⭐</span>`).join('');
+  $("endRank").textContent=`${Math.round(acc*100)}% accuracy · ${round} round${round>1?"s":""} · ${LEVELS[n===3?4:n===2?3:2]}`;
+  const cl=$('cheatList');
+  cl.innerHTML=cheatEvents.length?cheatEvents.map(e=>`<li>⚠ ${e.description} (Q${e.question})</li>`).join(''):'<li style="color:var(--ok)">✓ No suspicious activity detected</li>';
+  fetch(EDGE_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({student_name:playerName,department:playerDept,correct:correctCount,wrong:totalWrongGuesses,time_spent:elapsedSeconds,quest_id:QUEST_ID,rounds:round,cheat_count:cheatCount,cheat_events:cheatEvents})}).catch(()=>{});
+}
+
+/* ========== PDF ========== */
+function downloadPDFReport(){
+  const {jsPDF}=window.jspdf,doc=new jsPDF();
+  const date=new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+  doc.setFillColor(47,82,51);doc.rect(0,0,210,45,'F');doc.setTextColor(255,255,255);
+  doc.setFont('times','bold');doc.setFontSize(18);doc.text('SRM VALLIAMMAI ENGINEERING COLLEGE',105,16,{align:'center'});
+  doc.setFontSize(12);doc.setFont('times','italic');doc.text('(Autonomous)',105,23,{align:'center'});
+  doc.setFontSize(15);doc.setFont('times','normal');doc.text('Department of English',105,31,{align:'center'});
+  doc.setFontSize(14);doc.setFont('times','bold');doc.setTextColor(201,162,39);doc.text('Linguistic Assessment Report',105,39,{align:'center'});
+  doc.setTextColor(0,0,0);doc.setFontSize(11);doc.text('CANDIDATE INFORMATION',20,55);
+  doc.autoTable({startY:58,body:[['Student Name',playerName],['Department',playerDept],['Quest ID',QUEST_ID],['Completed On',date]],theme:'plain',styles:{fontSize:10,font:'times',cellPadding:3},columnStyles:{0:{fontStyle:'bold',cellWidth:60,textColor:[70,70,70]},1:{cellWidth:120}},margin:{left:20,right:20}});
+  let y=doc.lastAutoTable.finalY+10;
+  doc.setFont('times','bold');doc.text('PERFORMANCE SUMMARY',20,y);
+  doc.autoTable({startY:y+3,body:[['Total Sentences',String(PAGES.reduce((n,p)=>n+p.q.length,0))],['Correct Answers',String(correctCount)],['Wrong Attempts',String(totalWrongGuesses)],['Final Gems Earned',String(gemsCount)],['Best Streak',String(bestCombo)],['Rounds Needed',String(round)],['Total Time',`${Math.floor(elapsedSeconds/60)}m ${elapsedSeconds%60}s`],['Security Audit',cheatCount===0?"Verified (Clean)":`Flagged (${cheatCount} Incidents)`]],theme:'grid',styles:{fontSize:10,font:'times',cellPadding:3},margin:{left:20,right:20}});
+  y=doc.lastAutoTable.finalY+10;
+  if(cheatCount>0){
+    if(y>250){doc.addPage();y=20}
+    doc.setFont('times','bold');doc.setTextColor(220,38,38);doc.text('SECURITY INCIDENTS LOG',20,y);doc.setTextColor(0,0,0);
+    doc.autoTable({startY:y+3,head:[['Time','Question','Violation Type']],body:cheatEvents.map(e=>[e.timestamp.split('T')[1].split('.')[0],`Q${e.question}`,e.description]),theme:'grid',styles:{fontSize:9,font:'times',cellPadding:2},headStyles:{fillColor:[220,38,38]},margin:{left:20,right:20}});
+    y=doc.lastAutoTable.finalY+12;
+  }
+  doc.addPage();y=20;
+  doc.setFont('times','bold');doc.setFontSize(11);doc.text('SENTENCE BANK WITH CORRECT ANSWERS',20,y);y+=8;
+  PAGES.forEach((p,i)=>{
+    if(y>235){doc.addPage();y=20}
+    doc.setFont('times','bold');doc.setTextColor(47,82,51);doc.text(`Page ${i+1}: ${p.n}`,20,y);y+=6;
+    doc.setFont('times','normal');doc.setTextColor(0,0,0);
+    p.q.forEach(([t,a],j)=>{
+      const lines=doc.splitTextToSize(`${j+1}. ${t.replace(/_+/,'____')}`,160);
+      doc.text(lines,25,y);y+=lines.length*5;
+      doc.setTextColor(111,143,90);doc.text(`Answer: ${a}`,30,y);doc.setTextColor(0,0,0);y+=6;
+    });
+    y+=2;doc.setDrawColor(227,213,176);doc.line(20,y,190,y);y+=6;
+  });
+  const pc=doc.getNumberOfPages();
+  for(let i=1;i<=pc;i++){doc.setPage(i);doc.setDrawColor(201,162,39);doc.setLineWidth(.5);doc.line(20,280,190,280);doc.setFontSize(8);doc.setTextColor(128,128,128);doc.setFont('times','italic');doc.text('This is a system-generated report',105,287,{align:'center'})}
+  doc.save(`${playerName.replace(/[^a-zA-Z0-9]/g,'_')}_${QUEST_ID.replace(/\s/g,'')}_Report.pdf`);
+}
+</script>
+</body>
+</html>
