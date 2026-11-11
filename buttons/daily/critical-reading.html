@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Read Between the Lines</title>
+<!-- Auth Guard to protect and load user session -->
+<script src="../../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#faf8f4;--fg:#1f1d1a;--mut:#6b665e;--card:#fff;--bd:#e4dfd6;--ac:#4f46e5;--ok:#15803d;--bad:#dc2626;
+--ev:#15803d;--lack:#dc2626;--mis:#c2570c;--ass:#7e3fb8;--emo:#0369a1;--fs:19px;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17160f;--fg:#ece8df;--mut:#a39d90;--card:#23211a;--bd:#38352b;--ac:#a5b4fc;--ok:#4ade80;--bad:#f87171;--ev:#4ade80;--lack:#f87171;--mis:#fb923c;--ass:#c4a0f0;--emo:#38bdf8;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17160f;--fg:#ece8df;--mut:#a39d90;--card:#23211a;--bd:#38352b;--ac:#a5b4fc;--ok:#4ade80;--bad:#f87171;--ev:#4ade80;--lack:#f87171;--mis:#fb923c;--ass:#c4a0f0;--emo:#38bdf8;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--bd)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;max-width:700px;margin:0 auto}
+.t{font:700 22px Caveat,"Bradley Hand",cursive}
+.t small{display:block;font:11px/1.1 system-ui,sans-serif;color:var(--mut)}
+#pn{font-size:13px;color:var(--mut)}
+.prog{height:3px;background:var(--bd)}.prog i{display:block;height:100%;width:50%;background:var(--ac);transition:width .25s}
+main{max-width:700px;margin:0 auto;padding:12px 14px 96px}
+h1{font:700 26px/1.2 Georgia,serif;margin:4px 0 6px}
+h2{font:700 22px/1.2 Georgia,serif;margin:0}
+.sub{color:var(--mut);margin:2px 0 12px}
+button{font:600 15px system-ui,sans-serif;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--fg)}
+button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+:root[data-theme="dark"] button.pri{color:#17160f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button.pri{color:#17160f}}
+button:disabled{opacity:.4}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.how{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 14px;margin-bottom:12px}
+.how p{margin:4px 0}
+.tools{position:sticky;top:calc(env(safe-area-inset-top,0px) + 44px);z-index:10;background:var(--bg);padding:8px 0;display:flex;flex-wrap:wrap;gap:6px}
+.tool{min-height:40px;padding:0 10px;font-size:14px;border-width:2px}
+.tool[aria-pressed="true"]{color:#fff}
+.tool[data-t=ev]{border-color:var(--ev)}.tool[data-t=ev][aria-pressed="true"]{background:var(--ev)}
+.tool[data-t=lack]{border-color:var(--lack)}.tool[data-t=lack][aria-pressed="true"]{background:var(--lack)}
+.tool[data-t=mis]{border-color:var(--mis)}.tool[data-t=mis][aria-pressed="true"]{background:var(--mis)}
+.tool[data-t=ass]{border-color:var(--ass)}.tool[data-t=ass][aria-pressed="true"]{background:var(--ass)}
+.tool[data-t=emo]{border-color:var(--emo)}.tool[data-t=emo][aria-pressed="true"]{background:var(--emo)}
+:root[data-theme="dark"] .tool[aria-pressed="true"]{color:#17160f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tool[aria-pressed="true"]{color:#17160f}}
+.psg{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:6px 14px;font:var(--fs)/1.85 Georgia,"Times New Roman",serif}
+.psg p{margin:.7em 0}
+.s{cursor:pointer;border-radius:4px;padding:1px 0;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.s:hover{background:rgba(79,70,229,.1)}
+.s[data-t]{border-bottom:3px solid var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.s[data-t=ev]{--c:var(--ev)}.s[data-t=lack]{--c:var(--lack)}.s[data-t=mis]{--c:var(--mis)}.s[data-t=ass]{--c:var(--ass)}.s[data-t=emo]{--c:var(--emo)}
+.s sup{font:700 11px system-ui,sans-serif;color:var(--c);margin-left:3px;white-space:nowrap}
+.locked .s{cursor:default}
+.s.good{outline:2px solid var(--ok)}.s.wrong{outline:2px solid var(--bad)}.s.miss{outline:2px dashed var(--mis)}
+.fb{margin-top:12px}
+.fi{background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--bd);border-radius:10px;padding:8px 12px;margin:8px 0}
+.fi.good{border-left-color:var(--ok)}.fi.wrong{border-left-color:var(--bad)}.fi.miss{border-left-color:var(--mis)}
+.fi q{display:block;font:italic 15px/1.4 Georgia,serif;color:var(--mut)}
+.fi b{display:block;margin:2px 0}
+.rate{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;margin:8px 0 0}.rate>span{font-weight:600;font-size:14px;flex:1 1 100%}
+.star{position:relative;display:inline-block;font-size:38px;line-height:1.1;color:var(--mut)}
+.star i{position:absolute;left:0;top:0;overflow:hidden;color:#e0a100;font-style:normal;white-space:nowrap}
+.star button{position:absolute;top:0;bottom:0;width:50%;min-height:0;min-width:0;padding:0;border:0;border-radius:0;background:transparent}
+.star button:first-of-type{left:0}.star button:last-of-type{right:0}
+.rv{font-size:14px;color:var(--mut)}
+.card{background:var(--card);border:2px solid var(--bd);border-radius:14px;padding:10px 14px;margin:12px 0}
+.card.sh{border-color:var(--mis)}.card.cr{border-color:var(--ok)}
+.card h3{font:700 20px Caveat,"Bradley Hand",cursive;margin:0 0 4px}
+label{display:block;font-weight:600;margin:10px 0 4px}
+textarea{display:block;width:100%;box-sizing:border-box;min-height:64px;font:600 20px/26px Caveat,"Bradley Hand",cursive;padding:6px 10px;border:2px dashed var(--ac);border-radius:10px;color:var(--fg);background:var(--bg);resize:vertical}
+details{margin:8px 0}summary{cursor:pointer;color:var(--ac);font-weight:600;min-height:32px}
+details .psg{font-size:16px;line-height:1.6;margin-top:6px}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:2px solid var(--bd);padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px))}
+.dock div{display:flex;gap:8px;max-width:700px;margin:0 auto}.dock button{flex:1;min-height:48px;font-size:16px}
+#toast{position:fixed;left:50%;top:80px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:99px;font:14px system-ui,sans-serif;display:none;z-index:40;max-width:90%;text-align:center}
+.hide{display:none}
+</style></head><body>
+<div class="top"><div class="row"><span class="t">🔎 Read Between the Lines<small id="who"></small></span><span id="pn"></span></div><div class="prog"><i id="pr"></i></div></div>
+<main>
+<!-- STEP 1 -->
+<section id="s1">
+ <h1>Step 1: Hunt for evidence</h1>
+ <p class="sub">Good readers don’t just believe a story. They ask: “How do we know that?”</p>
+ <div class="how"><p><b>How it works</b></p>
+ <p>1. Pick a tag below. 2. Tap a sentence in the story to mark it. 3. Tap it again to remove the tag. 4. Press <b>Next</b> when you are done.</p>
+ <p>Tip: not every sentence needs a tag. Mark only the ones that make you ask “How do we know?”</p></div>
+ <div class="tools" id="tools" role="group" aria-label="Tags"></div>
+ <div class="psg" id="psg"></div>
+</section>
+<!-- STEP 2 -->
+<section id="s2" class="hide">
+ <h1>Shallow reading vs Critical reading</h1>
+ <p class="sub">Gullible vs rational</p>
+ <details><summary>Peek at the story again</summary><div class="psg" id="psg2"></div></details>
+ <div class="card sh"><h3>🙈 After a shallow reading (gullible)</h3>
+  <label for="ts">Title of the story after a shallow reading:</label><textarea id="ts" data-k="ts"></textarea>
+  <label for="ms">Moral of the story after a shallow reading:</label><textarea id="ms" data-k="ms"></textarea></div>
+ <div class="card cr"><h3>👽 After a critical reading (rational)</h3>
+  <label for="tc">Title of the story after a critical reading:</label><textarea id="tc" data-k="tc"></textarea>
+  <label for="mc">Moral of the story after a critical reading:</label><textarea id="mc" data-k="mc"></textarea></div>
+ <div id="people"></div>
+</section>
+</main>
+<div class="dock"><div><button id="pv" class="hide">← Back</button><button id="nx" class="pri"></button></div></div>
+<div id="toast"></div>
+<script>
+const QUEST_ID='Quest 58';   // change to this quest's number
+const TITLE='Read Between the Lines: Daniel’s Story';
+const EDGE_FUNCTION_URL="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+
+const TAGS={ev:'Solid evidence',lack:'Lack of evidence',mis:'Misleading claim',ass:'Assumption',emo:'Emotional language'};
+const HELP={ev:'Something specific that can be checked.',lack:'A claim with nothing to back it up.',mis:'Sounds true but stretches or twists the facts.',ass:'The writer guesses what someone thinks or feels.',emo:'Words that push a feeling instead of giving facts.'};
+// Story sentences. PARAS lists which sentences sit in each paragraph.
+const SN=[
+`Daniel was a sophomore majoring in engineering.`,
+`He was known for his intelligence and diligence, consistently scoring high marks in his classes.`,
+`However, one of his courses, Advanced Calculus, was proving to be particularly challenging.`,
+`Despite studying hard, Daniel struggled to grasp the concepts and feared he might fail the upcoming exam.`,
+`As the exam approached, Daniel’s friend, Mark, offered him a way out.`,
+`Mark had managed to obtain a copy of the exam questions and answers.`,
+`He suggested that Daniel use it to ensure a good grade.`,
+`Daniel was tempted; the pressure to maintain his GPA was immense, and he didn’t want to disappoint his parents or jeopardize his scholarship.`,
+`After much contemplation, Daniel decided against cheating.`,
+`He couldn’t compromise his integrity for a grade.`,
+`Instead, he sought help from his professor, explained his difficulties, and asked for additional resources to study.`,
+`The professor appreciated Daniel’s honesty and provided him with extra tutoring sessions and practice problems.`,
+`On the day of the exam, Daniel felt more prepared, though still nervous.`,
+`He gave his best effort and, to his relief, passed the exam with a satisfactory grade.`,
+`More importantly, he felt proud of himself for making the right choice.`,
+`Later, Daniel’s professor commended him for his determination and integrity, and he became known among his peers for his honesty.`,
+`The experience reinforced Daniel’s belief that maintaining integrity is essential, even when faced with difficult choices.`];
+const PARAS=[[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14],[15,16]];
+const FIELDS=[['ts','Title (shallow reading)'],['ms','Moral (shallow reading)'],['tc','Title (critical reading)'],['mc','Moral (critical reading)'],['od','Opinion of Daniel'],['om','Opinion of Mark'],['op','Opinion of the professor']];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let KEY_='',S={st:1,F:{},chk:0,Rt:{},A:{},T:0,sent:0},tool='',tt=0,playerName='Guest',playerDept='Unknown',elapsedSeconds=0;
+const save=()=>{if(!KEY_)return;try{localStorage.setItem(KEY_,JSON.stringify(S))}catch(e){}};
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(tt);tt=setTimeout(()=>e.style.display='none',2400)}
+
+$('#tools').innerHTML=Object.keys(TAGS).map(k=>`<button class="tool" data-t="${k}" aria-pressed="false" title="${esc(HELP[k])}">${TAGS[k]}</button>`).join('');
+$('#tools').onclick=e=>{const b=e.target.closest('.tool');if(!b)return;
+ tool=tool==b.dataset.t?'':b.dataset.t;
+ document.querySelectorAll('.tool').forEach(x=>x.setAttribute('aria-pressed',x.dataset.t==tool));
+ if(tool)toast(HELP[tool])};
+
+function passage(withTags){return PARAS.map(p=>'<p>'+p.map(i=>{
+ const t=withTags?S.F[i]:'';let c='s';
+ return `<span class="${c}" data-i="${i}"${t?` data-t="${t}"`:''}>${esc(SN[i])}${t?`<sup>${TAGS[t]}</sup>`:''}</span>`}).join(' ')+'</p>').join('')}
+
+$('#psg').onclick=e=>{const s=e.target.closest('.s');if(!s)return;
+ if(!tool){toast('Pick a tag first, then tap a sentence.');return}
+ const i=s.dataset.i;if(S.F[i]==tool)delete S.F[i];else S.F[i]=tool;save();$('#psg').innerHTML=passage(true)};
+
+function render(){const two=S.st==2;
+ $('#s1').classList.toggle('hide',two);$('#s2').classList.toggle('hide',!two);
+ $('#pn').textContent='Step '+S.st+' / 2';$('#pr').style.width=(S.st*50)+'%';
+ $('#pv').classList.toggle('hide',!two);
+ const nx=$('#nx');nx.disabled=false;
+ if(!two){$('#psg').innerHTML=passage(true);nx.textContent='Next →'}
+ else{$('#psg2').innerHTML=passage(false);FIELDS.forEach(([k])=>$('#'+k).value=S.A[k]||'');drawStars();nx.textContent='Finish ✓'}}
+const flagCount=()=>Object.keys(S.F).length;
+const PEOPLE=[['d','Daniel','od'],['m','Mark','om'],['p','The professor','op']];
+const MODES=[['S','🙈 Shallow reading (gullible)'],['C','👽 Critical reading (rational, deep)']];
+function starRow(id){const v=S.Rt[id]||0;let h='';
+ for(let k=1;k<=5;k++){const f=v>=k?100:v>=k-.5?50:0;
+  h+=`<span class="star"><i style="width:${f}%">★</i>☆<button data-r="${id}" data-v="${k-.5}" aria-label="${k-.5} stars"></button><button data-r="${id}" data-v="${k}" aria-label="${k} stars"></button></span>`}
+ return h+`<span class="rv">${v?v+' / 5':'not rated'}</span>`}
+function drawStars(){PEOPLE.forEach(([p])=>MODES.forEach(([m])=>$('#rt-'+p+m).innerHTML=starRow(p+m)))}
+$('#people').innerHTML=PEOPLE.map(([p,n,t])=>`<div class="card"><h3>💭 Your opinion of ${n}</h3><label for="${t}">What do you think of ${n}?</label><textarea id="${t}" data-k="${t}"></textarea>`+
+ MODES.map(([m,l])=>`<div class="rate"><span>Rate ${n}: ${l}</span><div id="rt-${p}${m}"></div></div>`).join('')+`</div>`).join('');
+$('#people').onclick=e=>{const b=e.target.closest('button[data-r]');if(!b)return;const v=+b.dataset.v,id=b.dataset.r;
+ S.Rt[id]=S.Rt[id]==v?0:v;save();drawStars()};
+document.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',e=>{S.A[t.dataset.k]=t.value;save()}));
+$('#pv').onclick=()=>{S.st=1;save();render();scrollTo(0,0)};
+$('#nx').onclick=()=>{if(S.st==1){S.st=2;save();render();scrollTo(0,0)}else finish()};
+
+/* ---- downloadable report ---- */
+function report(){
+ const flags=SN.map((s,i)=>S.F[i]?`<li><b>${esc(TAGS[S.F[i]])}</b>: ${esc(s)}</li>`:'').join('')||'<li>(none)</li>';
+ const rt=PEOPLE.map(([k,n])=>`<p><b>${n}:</b> shallow ${S.Rt[k+'S']||'not rated'} / 5 · critical ${S.Rt[k+'C']||'not rated'} / 5</p>`).join('');
+ const ans=FIELDS.map(([k,l])=>`<p><b>${esc(l)}:</b><br>${esc(S.A[k]||'').replace(/\n/g,'<br>')}</p>`).join('');
+ return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(TITLE)} – ${esc(playerName)}</title>
+<style>body{font:16px/1.6 Georgia,serif;max-width:720px;margin:0 auto;padding:20px;background:#faf8f4;color:#1f1d1a}
+.meta{color:#6b665e;font:14px system-ui,sans-serif;margin-bottom:18px}
+section{background:#fff;border:1px solid #e4dfd6;border-radius:12px;padding:12px 16px;margin:12px 0}
+h2{font:700 15px system-ui,sans-serif;color:#4f46e5;margin:0 0 6px}
+@media(prefers-color-scheme:dark){body{background:#17160f;color:#ece8df}section{background:#23211a;border-color:#38352b}}</style></head><body>
+<h1>${esc(TITLE)}</h1>
+<div class="meta">${esc(playerName)} · ${esc(playerDept)} · ${esc(QUEST_ID)}<br>Sentences flagged: ${flagCount()} · Time: ${Math.floor(elapsedSeconds/60)}m ${elapsedSeconds%60}s</div>
+<section><h2>My flags</h2><ul>${flags}</ul></section><section><h2>My reflections</h2>${ans}</section><section><h2>My star ratings</h2>${rt}</section></body></html>`}
+function downloadReport(){
+ const blob=new Blob([report()],{type:'text/html'});const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download=(QUEST_ID+'-'+playerName).replace(/[^\w\-]+/g,'_')+'.html';
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+
+/* ---- send scores ---- */
+function finish(){
+ if(!S.sent){S.sent=1;save();
+  fetch(EDGE_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},keepalive:true,body:JSON.stringify({
+   student_name:playerName,department:playerDept,correct:flagCount(),wrong:0,time_spent:elapsedSeconds,quest_id:QUEST_ID})}).catch(()=>{S.sent=0;save()});
+  toast('Quest complete! Score sent ✓ Downloading your work…')}
+ else toast('Quest complete ✓ Downloading your work…');
+ downloadReport()}
+
+function boot(){
+ if(window.GH){playerName=window.GH.name||window.GH.username||'Student';playerDept=window.GH.dept||'Department Unspecified'}
+ else{playerName=localStorage.getItem('questPlayerName')||'Test Student';playerDept=localStorage.getItem('questPlayerDept')||'CSE'}
+ $('#who').textContent=playerName+' · '+playerDept;
+ KEY_='quest-'+QUEST_ID.replace(/\W/g,'')+'-'+playerName;
+ try{const s=JSON.parse(localStorage.getItem(KEY_)||'null');if(s)S={...S,...s}}catch(e){}
+ elapsedSeconds=S.T||0;render();
+ setInterval(()=>{if(document.visibilityState=='visible'){S.T=(S.T||0)+1;elapsedSeconds=S.T;if(S.T%5==0)save()}},1000)}
+const go0=()=>window.GH?boot():setTimeout(boot,500);
+document.readyState=='loading'?addEventListener('DOMContentLoaded',go0):go0();
+</script></body></html>
