@@ -74,6 +74,7 @@ button:disabled{opacity:.4}
 .fc.on em{font:italic 14px/1.35 Georgia,serif;font-weight:400}
 @keyframes pop{from{transform:scale(.94)}to{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.fc.on{animation:none}}
+.fcs.q .fc{--c:var(--ac)}
 .fc[data-t=ev]{--c:var(--ev)}.fc[data-t=lack]{--c:var(--lack)}.fc[data-t=mis]{--c:var(--mis)}.fc[data-t=ass]{--c:var(--ass)}.fc[data-t=emo]{--c:var(--emo)}
 .meter{font-size:14px;color:var(--mut);margin:4px 0 0}
 .demo{font:19px/1.7 Georgia,serif;margin:8px 0}.dnote{font:14px/1.4 system-ui,sans-serif;color:var(--mut);margin:0 0 10px;min-height:20px}
@@ -94,17 +95,21 @@ details .psg{font-size:16px;line-height:1.6;margin-top:6px}
 <main>
 <!-- STEP 0 -->
 <section id="s0">
- <h1>How to read like a detective</h1>
- <p class="sub">Don’t just believe what you read. Test it.</p>
- <div class="gq"><b>“How do we know that?”</b><span>Ask this about every claim you read.</span></div>
+ <h1>Sharpen your critical reading skills!</h1>
+ <p class="sub">Don’t just believe what you read. Question it.</p>
+ <div class="gq"><b>“How do we know that?”</b><span>Socrates asked questions until the truth showed itself.</span></div>
  <div class="how"><p><b>Your 3-step reading recipe</b></p>
- <ol class="steps"><li>Read once to get the story.</li><li>Read again and stop at each claim. Ask: “How do we know that?”</li><li>Mark what you find with a tag.</li></ol></div>
- <h2>Meet your 5 detective tags</h2>
- <p class="sub">Tap each card to flip it.</p>
+ <ol class="steps"><li>Read once to get the story.</li><li>Read again. Stop at each claim and ask a Socratic question.</li><li>Mark what your questions uncover with a tag.</li></ol></div>
+ <h2>Six Socratic questions</h2>
+ <p class="sub">Tap each card to flip it. Use these on any text.</p>
+ <div class="fcs q" id="qcs"></div>
+ <p class="meter" id="qmeter"></p>
+ <h2 style="margin-top:16px">Meet your 5 thinking tags</h2>
+ <p class="sub">Your questions lead you to these. Tap to flip.</p>
  <div class="fcs" id="fcs"></div>
  <p class="meter" id="meter"></p>
  <h2 style="margin-top:16px">Try it on two sentences</h2>
- <p class="sub">Tap a sentence to see what a detective notices.</p>
+ <p class="sub">Tap a sentence to see what the question uncovers.</p>
  <div class="demo" id="demo"></div>
 </section>
 <!-- STEP 1 -->
@@ -164,7 +169,7 @@ const FIELDS=[['ts','Title (shallow reading)'],['ms','Moral (shallow reading)'],
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let KEY_='',S={st:0,I:{},F:{},chk:0,Rt:{},A:{},T:0,sent:0},tool='',tt=0,playerName='Guest',playerDept='Unknown',elapsedSeconds=0;
+let KEY_='',S={st:0,I:{},Q:{},F:{},chk:0,Rt:{},A:{},T:0,sent:0},tool='',tt=0,playerName='Guest',playerDept='Unknown',elapsedSeconds=0;
 const save=()=>{if(!KEY_)return;try{localStorage.setItem(KEY_,JSON.stringify(S))}catch(e){}};
 function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(tt);tt=setTimeout(()=>e.style.display='none',2400)}
 
@@ -189,13 +194,25 @@ ass:['🔮','Is the writer guessing what someone thinks or feels?','“She slamm
 emo:['💥','Is it pushing a feeling instead of giving facts?','“A horrible, heartless act.”']};
 const DEMO=[['Everyone knows homework is useless.','lack','Who is “everyone”? No proof is given.'],
 ['Ravi must have felt jealous when she won.','ass','The writer is guessing what Ravi felt.']];
-function drawIntro(){const n=Object.keys(S.I).length;
+const SQ=[['🧩','Clarify','What exactly do you mean by that?','“Known for his honesty”: known by whom?'],
+['🔍','Evidence','How do we know this is true? What is the proof?','“He studied hard”: where do we see it?'],
+['🧱','Assumptions','What is being taken for granted here?','Is the exam copy even real?'],
+['👀','Other views','How would someone else see this?','What would Mark say? The professor?'],
+['🌊','Consequences','If this is true, what follows? Who is affected?','Does honesty always pay off like this?'],
+['🪞','Question the question','Why is it told this way? What is left out?','Why does the story skip Daniel’s doubts?']];
+function drawQ(){const n=Object.keys(S.Q).length;
+ $('#qcs').innerHTML=SQ.map((c,k)=>{const on=S.Q[k];
+  return `<button class="fc${on?' on':''}" aria-pressed="${!!on}" data-q="${k}">`+(on?`<span><b>${c[0]} ${c[1]}</b><br>${c[2]}<br><em>${c[3]}</em></span>`:`<span class="ic">${c[0]}</span>${c[1]}<small>tap to flip</small>`)+`</button>`}).join('');
+ $('#qmeter').textContent=n>=6?'🏛️ Socratic thinker unlocked! Six questions, ready to use.':'Flipped '+n+' of 6'}
+$('#qcs').onclick=e=>{const b=e.target.closest('.fc');if(!b)return;const k=b.dataset.q;
+ if(S.Q[k])delete S.Q[k];else S.Q[k]=1;save();drawQ();if(Object.keys(S.Q).length==6&&S.Q[k])toast('🏛️ Socratic thinker unlocked!')};
+function drawIntro(){drawQ();const n=Object.keys(S.I).length;
  $('#fcs').innerHTML=Object.keys(CARDS).map(k=>{const on=S.I[k],c=CARDS[k];
   return `<button class="fc${on?' on':''}" data-t="${k}" aria-pressed="${!!on}">`+(on?`<span><b>${c[0]} ${TAGS[k]}</b><br>${c[1]}<br><em>${c[2]}</em></span>`:`<span class="ic">${c[0]}</span>${TAGS[k]}<small>tap to flip</small>`)+`</button>`}).join('');
- $('#meter').textContent=n>=5?'🕵️ Detective badge unlocked! You know all 5 tags.':'Flipped '+n+' of 5'}
+ $('#meter').textContent=n>=5?'🏛️ You know all 5 tags.':'Flipped '+n+' of 5'}
 $('#fcs').onclick=e=>{const b=e.target.closest('.fc');if(!b)return;const k=b.dataset.t;
- if(S.I[k])delete S.I[k];else S.I[k]=1;save();drawIntro();if(Object.keys(S.I).length==5&&S.I[k])toast('🕵️ Detective badge unlocked!')};
-function drawDemo(){$('#demo').innerHTML=DEMO.map((d,i)=>`<div><span class="s" data-i="${i}"${S['d'+i]?` data-t="${d[1]}"`:''}>${esc(d[0])}${S['d'+i]?`<sup>${TAGS[d[1]]}</sup>`:''}</span></div><p class="dnote">${S['d'+i]?'🔎 '+esc(d[2]):''}</p>`).join('')}
+ if(S.I[k])delete S.I[k];else S.I[k]=1;save();drawIntro();if(Object.keys(S.I).length==5&&S.I[k])toast('🏛️ All 5 tags flipped!')};
+function drawDemo(){$('#demo').innerHTML=DEMO.map((d,i)=>`<div><span class="s" data-i="${i}"${S['d'+i]?` data-t="${d[1]}"`:''}>${esc(d[0])}${S['d'+i]?`<sup>${TAGS[d[1]]}</sup>`:''}</span></div><p class="dnote">${S['d'+i]?'❓ '+esc(d[2]):''}</p>`).join('')}
 $('#demo').onclick=e=>{const x=e.target.closest('.s');if(!x)return;const k='d'+x.dataset.i;S[k]=S[k]?0:1;save();drawDemo()};
 function render(){const st=S.st;
  [0,1,2].forEach(i=>$('#s'+i).classList.toggle('hide',st!=i));
