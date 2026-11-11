@@ -62,6 +62,22 @@ button:disabled{opacity:.4}
 .star button{position:absolute;top:0;bottom:0;width:50%;min-height:0;min-width:0;padding:0;border:0;border-radius:0;background:transparent}
 .star button:first-of-type{left:0}.star button:last-of-type{right:0}
 .rv{font-size:14px;color:var(--mut)}
+.gq{background:var(--ac);color:#fff;border-radius:16px;padding:14px 16px;text-align:center;margin:8px 0 12px}
+:root[data-theme="dark"] .gq{color:#17160f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .gq{color:#17160f}}
+.gq b{display:block;font:700 30px/1.1 Caveat,"Bradley Hand",cursive}
+.gq span{font-size:14px;opacity:.9}
+.fcs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.fc{min-height:116px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;text-align:center;border:2px solid var(--c);border-radius:14px;font:600 15px/1.3 system-ui,sans-serif}
+.fc .ic{font-size:28px;line-height:1}.fc small{color:var(--mut);font-weight:500}
+.fc.on{background:color-mix(in srgb,var(--c) 14%,var(--card));text-align:left;align-items:flex-start;animation:pop .25s}
+.fc.on em{font:italic 14px/1.35 Georgia,serif;font-weight:400}
+@keyframes pop{from{transform:scale(.94)}to{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.fc.on{animation:none}}
+.fc[data-t=ev]{--c:var(--ev)}.fc[data-t=lack]{--c:var(--lack)}.fc[data-t=mis]{--c:var(--mis)}.fc[data-t=ass]{--c:var(--ass)}.fc[data-t=emo]{--c:var(--emo)}
+.meter{font-size:14px;color:var(--mut);margin:4px 0 0}
+.demo{font:19px/1.7 Georgia,serif;margin:8px 0}.dnote{font:14px/1.4 system-ui,sans-serif;color:var(--mut);margin:0 0 10px;min-height:20px}
+.steps{margin:0;padding-left:20px}.steps li{margin:4px 0}
 .card{background:var(--card);border:2px solid var(--bd);border-radius:14px;padding:10px 14px;margin:12px 0}
 .card.sh{border-color:var(--mis)}.card.cr{border-color:var(--ok)}
 .card h3{font:700 20px Caveat,"Bradley Hand",cursive;margin:0 0 4px}
@@ -76,6 +92,21 @@ details .psg{font-size:16px;line-height:1.6;margin-top:6px}
 </style></head><body>
 <div class="top"><div class="row"><span class="t">🔎 Read Between the Lines<small id="who"></small></span><span id="pn"></span></div><div class="prog"><i id="pr"></i></div></div>
 <main>
+<!-- STEP 0 -->
+<section id="s0">
+ <h1>How to read like a detective</h1>
+ <p class="sub">Don’t just believe what you read. Test it.</p>
+ <div class="gq"><b>“How do we know that?”</b><span>Ask this about every claim you read.</span></div>
+ <div class="how"><p><b>Your 3-step reading recipe</b></p>
+ <ol class="steps"><li>Read once to get the story.</li><li>Read again and stop at each claim. Ask: “How do we know that?”</li><li>Mark what you find with a tag.</li></ol></div>
+ <h2>Meet your 5 detective tags</h2>
+ <p class="sub">Tap each card to flip it.</p>
+ <div class="fcs" id="fcs"></div>
+ <p class="meter" id="meter"></p>
+ <h2 style="margin-top:16px">Try it on two sentences</h2>
+ <p class="sub">Tap a sentence to see what a detective notices.</p>
+ <div class="demo" id="demo"></div>
+</section>
 <!-- STEP 1 -->
 <section id="s1">
  <h1>Step 1: Hunt for evidence</h1>
@@ -133,7 +164,7 @@ const FIELDS=[['ts','Title (shallow reading)'],['ms','Moral (shallow reading)'],
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let KEY_='',S={st:1,F:{},chk:0,Rt:{},A:{},T:0,sent:0},tool='',tt=0,playerName='Guest',playerDept='Unknown',elapsedSeconds=0;
+let KEY_='',S={st:0,I:{},F:{},chk:0,Rt:{},A:{},T:0,sent:0},tool='',tt=0,playerName='Guest',playerDept='Unknown',elapsedSeconds=0;
 const save=()=>{if(!KEY_)return;try{localStorage.setItem(KEY_,JSON.stringify(S))}catch(e){}};
 function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(tt);tt=setTimeout(()=>e.style.display='none',2400)}
 
@@ -151,12 +182,28 @@ $('#psg').onclick=e=>{const s=e.target.closest('.s');if(!s)return;
  if(!tool){toast('Pick a tag first, then tap a sentence.');return}
  const i=s.dataset.i;if(S.F[i]==tool)delete S.F[i];else S.F[i]=tool;save();$('#psg').innerHTML=passage(true)};
 
-function render(){const two=S.st==2;
- $('#s1').classList.toggle('hide',two);$('#s2').classList.toggle('hide',!two);
- $('#pn').textContent='Step '+S.st+' / 2';$('#pr').style.width=(S.st*50)+'%';
- $('#pv').classList.toggle('hide',!two);
+const CARDS={ev:['✅','Can I check it? It has names, numbers or things that really happened.','“Daniel scored 92 in Physics.”'],
+lack:['🕳️','Says who? Where is the proof?','“Everyone loves him.” Who is everyone?'],
+mis:['🎭','Does it stretch the facts to sound bigger than it is?','“He passed one quiz, so he’s a genius.”'],
+ass:['🔮','Is the writer guessing what someone thinks or feels?','“She slammed the door. She must hate us.”'],
+emo:['💥','Is it pushing a feeling instead of giving facts?','“A horrible, heartless act.”']};
+const DEMO=[['Everyone knows homework is useless.','lack','Who is “everyone”? No proof is given.'],
+['Ravi must have felt jealous when she won.','ass','The writer is guessing what Ravi felt.']];
+function drawIntro(){const n=Object.keys(S.I).length;
+ $('#fcs').innerHTML=Object.keys(CARDS).map(k=>{const on=S.I[k],c=CARDS[k];
+  return `<button class="fc${on?' on':''}" data-t="${k}" aria-pressed="${!!on}">`+(on?`<span><b>${c[0]} ${TAGS[k]}</b><br>${c[1]}<br><em>${c[2]}</em></span>`:`<span class="ic">${c[0]}</span>${TAGS[k]}<small>tap to flip</small>`)+`</button>`}).join('');
+ $('#meter').textContent=n>=5?'🕵️ Detective badge unlocked! You know all 5 tags.':'Flipped '+n+' of 5'}
+$('#fcs').onclick=e=>{const b=e.target.closest('.fc');if(!b)return;const k=b.dataset.t;
+ if(S.I[k])delete S.I[k];else S.I[k]=1;save();drawIntro();if(Object.keys(S.I).length==5&&S.I[k])toast('🕵️ Detective badge unlocked!')};
+function drawDemo(){$('#demo').innerHTML=DEMO.map((d,i)=>`<div><span class="s" data-i="${i}"${S['d'+i]?` data-t="${d[1]}"`:''}>${esc(d[0])}${S['d'+i]?`<sup>${TAGS[d[1]]}</sup>`:''}</span></div><p class="dnote">${S['d'+i]?'🔎 '+esc(d[2]):''}</p>`).join('')}
+$('#demo').onclick=e=>{const x=e.target.closest('.s');if(!x)return;const k='d'+x.dataset.i;S[k]=S[k]?0:1;save();drawDemo()};
+function render(){const st=S.st;
+ [0,1,2].forEach(i=>$('#s'+i).classList.toggle('hide',st!=i));
+ $('#pn').textContent=st?'Step '+st+' / 2':'Start here';$('#pr').style.width=((st+1)/3*100)+'%';
+ $('#pv').classList.toggle('hide',!st);
  const nx=$('#nx');nx.disabled=false;
- if(!two){$('#psg').innerHTML=passage(true);nx.textContent='Next →'}
+ if(st==0){drawIntro();drawDemo();nx.textContent='Let’s go →'}
+ else if(st==1){$('#psg').innerHTML=passage(true);nx.textContent='Next →'}
  else{$('#psg2').innerHTML=passage(false);FIELDS.forEach(([k])=>$('#'+k).value=S.A[k]||'');drawStars();nx.textContent='Finish ✓'}}
 const flagCount=()=>Object.keys(S.F).length;
 const PEOPLE=[['d','Daniel','od'],['m','Mark','om'],['p','The professor','op']];
@@ -171,8 +218,8 @@ $('#people').innerHTML=PEOPLE.map(([p,n,t])=>`<div class="card"><h3>💭 Your op
 $('#people').onclick=e=>{const b=e.target.closest('button[data-r]');if(!b)return;const v=+b.dataset.v,id=b.dataset.r;
  S.Rt[id]=S.Rt[id]==v?0:v;save();drawStars()};
 document.querySelectorAll('textarea').forEach(t=>t.addEventListener('input',e=>{S.A[t.dataset.k]=t.value;save()}));
-$('#pv').onclick=()=>{S.st=1;save();render();scrollTo(0,0)};
-$('#nx').onclick=()=>{if(S.st==1){S.st=2;save();render();scrollTo(0,0)}else finish()};
+$('#pv').onclick=()=>{if(S.st>0){S.st--;save();render();scrollTo(0,0)}};
+$('#nx').onclick=()=>{if(S.st<2){S.st++;save();render();scrollTo(0,0)}else finish()};
 
 /* ---- downloadable report ---- */
 function report(){
