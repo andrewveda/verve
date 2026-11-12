@@ -12,6 +12,21 @@ window.PUZZLE_DIRECTORY = {
       },
       "puzzles": [
 {
+  "id": "quote-220",
+  "num": 220,
+  "title": "Puzzle 220",
+  "sub": "It's not about how much we lost…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "It's not about how much we lost. It's about how much we have left.",
+    "author": "Tony Stark",
+    "contributor": "Narendran",
+    "dept": "",
+    "meaning": "It means losing things isn’t the end, as long as we still have something worth holding on to. Sometimes, what we have left is more than enough to start again."
+  }
+},
+{
   "id": "quote-219",
   "num": 219,
   "title": "Puzzle 219",
