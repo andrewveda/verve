@@ -22,7 +22,7 @@ window.PUZZLE_DIRECTORY = {
     "quote": "It's not about how much we lost. It's about how much we have left.",
     "author": "Tony Stark",
     "contributor": "Narendran",
-    "dept": "",
+    "dept": "CSE 2",
     "meaning": "It means losing things isn’t the end, as long as we still have something worth holding on to. Sometimes, what we have left is more than enough to start again."
   }
 },
