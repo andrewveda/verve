@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5efdf">
+<title>The Innovation Challenge | Mock Smart India Hackathon</title>
+<style>
+:root{
+  --cream:#f5efdf;--paper:#fffaf0;--ink:#29251d;--muted:#746b5b;
+  --gold:#b28a3e;--gold2:#d7bd7b;--line:#e6d9b9;--deep:#80602a;
+  --shadow:0 14px 40px rgba(75,55,20,.09);--radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:82px}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.6}
+button,a{font:inherit}
+a{color:inherit}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(245,239,223,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1080px;margin:auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;font-family:Arial,sans-serif;font-weight:700}
+.crest{width:34px;height:34px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--deep);font-size:17px}
+.nav{display:flex;gap:16px;font:600 .72rem Arial,sans-serif;color:var(--muted)}
+.nav a{text-decoration:none}
+.nav a:hover{color:var(--deep)}
+.hero{max-width:1080px;margin:auto;padding:70px 22px 42px;text-align:center;position:relative}
+.eyebrow{font:700 .7rem Arial,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--deep)}
+.rule{display:flex;align-items:center;justify-content:center;gap:12px;margin:16px auto}
+.rule:before,.rule:after{content:"";width:54px;height:1px;background:var(--gold2)}
+.hero h1{font-size:clamp(2.55rem,8vw,5.6rem);line-height:.99;letter-spacing:-.045em;font-weight:500;margin:18px auto 18px;max-width:850px}
+.hero h1 em{color:var(--deep);font-weight:400}
+.hero p{font-size:clamp(1rem,2.5vw,1.2rem);color:var(--muted);max-width:660px;margin:0 auto}
+.hero-note{display:inline-block;margin-top:28px;padding:10px 17px;border:1px solid var(--gold2);border-radius:999px;color:var(--deep);font:700 .68rem Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.wrap{max-width:900px;margin:auto;padding:0 18px 70px}
+.intro{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin:10px 0 42px}
+.intro strong{color:var(--deep)}
+.section-kicker{font:700 .68rem Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--deep);margin:0 0 8px}
+.section-title{font-size:clamp(1.8rem,5vw,2.7rem);line-height:1.12;font-weight:500;margin:0 0 12px}
+.section-desc{color:var(--muted);margin:0 0 24px}
+.stages{display:grid;gap:14px}
+.stage{background:var(--paper);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 6px 22px rgba(75,55,20,.045)}
+.stage-head{width:100%;border:0;background:transparent;color:inherit;text-align:left;padding:19px 18px;display:grid;grid-template-columns:46px 1fr 24px;gap:14px;align-items:center;cursor:pointer}
+.num{width:44px;height:44px;border-radius:50%;border:1px solid var(--gold2);display:grid;place-items:center;color:var(--deep);font-size:1.1rem}
+.stage-title{font-size:1.2rem;line-height:1.2;font-weight:600}
+.stage-sub{display:block;color:var(--muted);font:700 .64rem Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;margin-top:5px}
+.chev{color:var(--gold);font:1.5rem Arial,sans-serif;transition:transform .2s}
+.stage.open .chev{transform:rotate(45deg)}
+.stage-body{display:none;padding:0 20px 22px 78px}
+.stage.open .stage-body{display:block}
+.stage-body p{margin:0 0 12px}
+.stage-body h4{font:700 .72rem Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;color:var(--deep);margin:20px 0 8px}
+.stage-body ul{padding-left:19px;margin:7px 0 14px}
+.stage-body li{padding:2px 0}
+.deliverable{background:#f4ecd8;border-left:3px solid var(--gold);padding:12px 14px;margin-top:17px;border-radius:0 12px 12px 0}
+.deliverable b{color:var(--deep)}
+.tag{display:inline-block;background:#eee2c4;color:#71521d;padding:4px 9px;border-radius:999px;font:700 .61rem Arial,sans-serif;letter-spacing:.09em;text-transform:uppercase;margin:7px 0}
+.highlight{border-color:#c6a65e}
+.highlight .num{background:#f2e5c5;border-color:var(--gold)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px}
+.panel h3{font-size:1.15rem;font-weight:600;margin:0 0 12px}
+.panel p,.panel li{color:var(--muted)}
+.panel ul{padding-left:18px;margin:8px 0}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--paper)}
+table{width:100%;border-collapse:collapse;min-width:320px;font-size:.93rem}
+th,td{text-align:left;padding:12px 15px;border-bottom:1px solid var(--line)}
+th{font:700 .68rem Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--deep);background:#f1e8d3}
+td:last-child,th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{font-weight:700;color:var(--deep);border-bottom:0}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.day{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:13px 10px;text-align:center}
+.day b{display:block;color:var(--deep);font-size:1.05rem}
+.day span{display:block;font: .7rem Arial,sans-serif;color:var(--muted);margin-top:4px}
+.mantra{margin:44px 0 20px;padding:34px 22px;text-align:center;border:1px solid var(--gold2);border-radius:24px;background:linear-gradient(145deg,#f8f1df,#efe3c5)}
+.mantra h2{font-size:clamp(1.7rem,5vw,2.7rem);font-weight:500;line-height:1.15;margin:0 0 13px}
+.mantra p{max-width:650px;margin:auto;color:var(--muted)}
+.footer{text-align:center;padding:25px 18px 45px;color:var(--muted);font: .68rem Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.progress{height:3px;background:#e9dfc8}
+.progress span{display:block;height:100%;width:0;background:var(--gold);transition:width .2s}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.action{border:1px solid var(--gold2);background:transparent;border-radius:999px;padding:10px 15px;color:var(--deep);font:700 .7rem Arial,sans-serif;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
+.action:hover{background:#f0e4c7}
+@media(max-width:650px){
+ .nav{gap:10px}.nav a:nth-child(2){display:none}
+ .hero{padding:52px 20px 32px}
+ .wrap{padding:0 13px 48px}
+ .intro{padding:20px;margin-bottom:30px}
+ .stage-head{padding:16px 14px;grid-template-columns:40px 1fr 20px;gap:11px}
+ .num{width:39px;height:39px}
+ .stage-title{font-size:1.08rem}
+ .stage-body{padding:0 17px 19px 65px;font-size:.96rem}
+ .grid2{grid-template-columns:1fr}
+ .timeline{grid-template-columns:repeat(2,1fr)}
+ .day:last-child{grid-column:span 2}
+ .section-title{font-size:2rem}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+@media print{
+ .topbar,.actions{display:none}
+ body{background:white}.stage-body{display:block!important}.stage{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="progress"><span id="progressBar"></span></div>
+<header class="topbar">
+ <div class="topbar-inner">
+  <div class="brand"><span class="crest">✦</span><span>The Innovation Challenge</span></div>
+  <nav class="nav"><a href="#journey">The journey</a><a href="#evaluation">Evaluation</a><a href="#timeline">Timeline</a></nav>
+ </div>
+</header>
+
+<section class="hero">
+ <div class="eyebrow">A Mock Smart India Hackathon Experience</div>
+ <div class="rule">✧</div>
+ <h1>Mystic Summit<br>Hackathon <em>2026</em></h1>
+ <p>A multi-stage innovation challenge. Think deeply, investigate intelligently, design purposefully, build boldly and defend your solution.</p>
+ <div class="hero-note">Six stages · One team · One meaningful solution</div>
+</section>
+
+<main class="wrap">
+ <section class="intro">
+  <p class="section-kicker">The challenge</p>
+  <p style="font-size:1.12rem;margin:0">A hackathon is not a race to write the most code. It is a test of how well you can <strong>understand a real problem, question assumptions, develop a feasible response and demonstrate that it works.</strong></p>
+  <div class="actions">
+   <button class="action" onclick="toggleAll(true)">Expand all stages</button>
+   <button class="action" onclick="toggleAll(false)">Collapse all</button>
+   <button class="action" onclick="window.print()">Print roadmap</button>
+  </div>
+ </section>
+
+ <section id="journey">
+  <p class="section-kicker">The journey</p>
+  <h2 class="section-title">Six stages. One innovation journey.</h2>
+  <p class="section-desc">Open each stage to explore the tasks, expectations and submission requirements. Complete each stage before moving to the next.</p>
+
+  <div class="stages">
+   <article class="stage open">
+    <button class="stage-head" aria-expanded="true">
+     <span class="num">01</span><span><span class="stage-title">Registration</span><span class="stage-sub">Assemble your dream team</span></span><span class="chev">+</span>
+    </button>
+    <div class="stage-body">
+     <span class="tag">Entry stage</span>
+     <p>Build your team and formally enter the challenge.</p>
+     <h4>Your team must</h4>
+     <ul><li>Register a distinctive team name.</li><li>Form a team of six members.</li><li>Appoint a team leader and identify a faculty mentor.</li><li>Assign preliminary roles: research, design, development, documentation, presentation and testing.</li><li>Select one problem statement from the challenge list.</li></ul>
+     <div class="deliverable"><b>Submission:</b> Team registration form, member details, role allocation and selected problem statement.</div>
+    </div>
+   </article>
+
+   <article class="stage highlight">
+    <button class="stage-head" aria-expanded="false">
+     <span class="num">02</span><span><span class="stage-title">Problem Discovery</span><span class="stage-sub">Understand before you innovate · Shortlisting round 1</span></span><span class="chev">+</span>
+    </button>
+    <div class="stage-body">
+     <span class="tag">First elimination round</span>
+     <p>This is the first major evaluation. Your team must prove that it understands the problem, the context in which it exists and the people affected by it. Do not jump straight to a solution.</p>
+     <h4>Task A · Brainstorm</h4>
+     <ul><li>What exactly is the problem?</li><li>Who experiences it, and in what circumstances?</li><li>Why does the problem exist?</li><li>What solutions already exist? Why are they insufficient?</li><li>What happens if the problem remains unsolved?</li></ul>
+     <h4>Task B · Define the problem</h4>
+     <ul><li>Rewrite the problem statement in your own words.</li><li>Identify target users and stakeholders.</li><li>Investigate root causes; distinguish symptoms from causes.</li><li>Support your understanding with research, examples or evidence.</li></ul>
+     <h4>Task C · Establish the boundaries</h4>
+     <ul><li><b>Expected outcomes:</b> What should a successful solution achieve?</li><li><b>Functional requirements:</b> What must it do?</li><li><b>Constraints:</b> Budget, time, infrastructure, technology, accessibility and connectivity.</li><li><b>Assumptions:</b> What are you taking for granted?</li><li><b>Success criteria:</b> How will you measure whether it works?</li></ul>
+     <h4>Task D · Create your submission</h4>
+     <p>Create a professional webpage or presentation titled <i>Problem Discovery and Solution Blueprint</i>. It must include:</p>
+     <ol><li>Problem statement and background</li><li>Target audience and stakeholders</li><li>Root-cause analysis</li><li>Existing solutions and their limitations</li><li>Expected outcomes</li><li>Functional and non-functional requirements</li><li>Constraints and assumptions</li><li>Preliminary solution direction</li><li>Measurable success criteria</li><li>Research sources and evidence</li></ol>
+     <div class="deliverable"><b>Submission:</b> A webpage or PPT that demonstrates a thorough, evidence-informed understanding of the problem.<br><b>Shortlisting principle:</b> Repeating the problem statement is not analysis. Show independent thinking, meaningful investigation and clarity.</div>
+    </div>
+   </article>
+
+   <article class="stage highlight">
+    <button class="stage-head" aria-expanded="false">
+     <span class="num">03</span><span><span class="stage-title">Solution Architecture</span><span class="stage-sub">Turn your thinking into a plan · Shortlisting round 2</span></span><span class="chev">+</span>
+    </button>
+    <div class="stage-body">
+     <span class="tag">Second elimination round</span>
+     <p>Shortlisted teams now move from understanding the problem to designing a credible solution.</p>
+     <h4>Your team must</h4>
+     <ul><li>Generate at least three possible solutions.</li><li>Compare alternatives and justify the chosen approach.</li><li>Draw a system architecture, process flow or user journey.</li><li>Identify the technologies, tools and platforms required.</li><li>Break the solution into modules and assign responsibilities.</li><li>Explain how users will interact with the solution.</li><li>Identify technical challenges, dependencies and risks.</li></ul>
+     <div class="deliverable"><b>Submission:</b> Solution blueprint, architecture/workflow diagram, technology stack and implementation plan.<br><b>Judgement:</b> Is the solution innovative, practical, scalable and technically feasible?</div>
+    </div>
+   </article>
+
+   <article class="stage">
+    <button class="stage-head" aria-expanded="false">
+     <span class="num">04</span><span><span class="stage-title">Development Sprint</span><span class="stage-sub">Build it</span></span><span class="chev">+</span>
+    </button>
+    <div class="stage-body">
+     <span class="tag">Build phase</span>
+     <p>The blueprint is approved. Now turn the idea into something people can see, use and test.</p>
+     <h4>Your team must</h4>
+     <ul><li>Set up the development environment and shared repository.</li><li>Divide work into manageable tasks and milestones.</li><li>Build the core features first.</li><li>Develop the user interface and required backend/database components.</li><li>Integrate the modules and maintain regular progress updates.</li><li>Document important technical decisions and challenges.</li></ul>
+     <div class="deliverable"><b>Submission:</b> A functional prototype or Minimum Viable Product (MVP), with a repository and brief progress log.</div>
+    </div>
+   </article>
+
+   <article class="stage">
+    <button class="stage-head" aria-expanded="false">
+     <span class="num">05</span><span><span class="stage-title">Testing &amp; Validation</span><span class="stage-sub">Break it before the jury does</span></span><span class="chev">+</span>
+    </button>
+    <div class="stage-body">
+     <p>A prototype is not proof of success. Test whether it solves the problem it was designed to solve.</p>
+     <h4>Your team must</h4>
+     <ul><li>Test all major features and identify bugs.</li><li>Run realistic user scenarios and, where possible, gather user feedback.</li><li>Check the solution against the original expected outcomes.</li><li>Measure performance against the success criteria.</li><li>Improve the prototype based on findings.</li><li>Prepare a reliable demonstration and document limitations.</li></ul>
+     <div class="deliverable"><b>Submission:</b> Tested prototype, test report, feedback and evidence of improvements.<br><b>Judgement:</b> Does it actually solve the problem, or does it merely look impressive?</div>
+    </div>
+   </article>
+
+   <article class="stage highlight">
+    <button class="stage-head" aria-expanded="false">
+     <span class="num">06</span><span><span class="stage-title">The Grand Finale</span><span class="stage-sub">Pitch · Demonstrate · Defend</span></span><span class="chev">+</span>
+    </button>
+    <div class="stage-body">
+     <span class="tag">Final evaluation</span>
+     <p>Present your work to the jury. Make a compelling case for why your solution deserves to exist beyond this hackathon.</p>
+     <h4>Your final presentation must include</h4>
+     <ul><li>The problem and why it matters.</li><li>Target users and their needs.</li><li>The proposed solution and its innovation.</li><li>System architecture and technology stack.</li><li>A live demonstration of the prototype.</li><li>Testing results and measurable outcomes.</li><li>Limitations, future improvements and scalability.</li><li>Potential for real-world implementation.</li></ul>
+     <h4>Prepare for the jury</h4>
+     <ul><li>Why did you choose this approach?</li><li>What makes your solution different?</li><li>What if your assumptions are wrong?</li><li>Can it work at scale?</li><li>What would you improve with another month?</li></ul>
+     <div class="deliverable"><b>Submission:</b> Final pitch, live prototype demonstration and technical defence.<br><b>The objective:</b> Convince the jury that your solution is useful, feasible and ready for the next step.</div>
+    </div>
+   </article>
+  </div>
+ </section>
+
+ <section id="evaluation" style="margin-top:54px">
+  <p class="section-kicker">The scorecard</p>
+  <h2 class="section-title">How will you be evaluated?</h2>
+  <p class="section-desc">Use the rubrics to understand what the jury values. Marks total 100 at every evaluation stage.</p>
+  <div class="grid2">
+   <div class="panel">
+    <h3>Round 1 · Problem discovery</h3>
+    <div class="table-wrap"><table><tbody>
+     <tr><td>Understanding of the problem</td><td>20</td></tr><tr><td>Research and evidence</td><td>15</td></tr><tr><td>Users and stakeholders</td><td>10</td></tr><tr><td>Root-cause analysis</td><td>15</td></tr><tr><td>Outcomes and success criteria</td><td>15</td></tr><tr><td>Constraints and feasibility</td><td>10</td></tr><tr><td>Independent thinking</td><td>10</td></tr><tr><td>Presentation clarity</td><td>5</td></tr><tr><td>Total</td><td>100</td></tr>
+    </tbody></table></div>
+   </div>
+   <div class="panel">
+    <h3>Round 2 · Solution architecture</h3>
+    <div class="table-wrap"><table><tbody>
+     <tr><td>Innovation and originality</td><td>20</td></tr><tr><td>Technical feasibility</td><td>20</td></tr><tr><td>Architecture and workflow</td><td>15</td></tr><tr><td>Expected outcomes alignment</td><td>15</td></tr><tr><td>Scalability</td><td>10</td></tr><tr><td>Risk identification</td><td>10</td></tr><tr><td>Technology justification</td><td>10</td></tr><tr><td>Total</td><td>100</td></tr>
+    </tbody></table></div>
+   </div>
+   <div class="panel" style="grid-column:1/-1">
+    <h3>Grand Finale · Final evaluation</h3>
+    <div class="table-wrap"><table><tbody>
+     <tr><td>Innovation</td><td>20</td></tr><tr><td>Working prototype</td><td>25</td></tr><tr><td>Technical implementation</td><td>15</td></tr><tr><td>Real-world impact</td><td>15</td></tr><tr><td>Presentation and demonstration</td><td>10</td></tr><tr><td>Testing and validation</td><td>10</td></tr><tr><td>Jury responses</td><td>5</td></tr><tr><td>Total</td><td>100</td></tr>
+    </tbody></table></div>
+   </div>
+  </div>
+ </section>
+
+
+ <section id="timeline" style="margin-top:54px">
+  <p class="section-kicker">Important dates</p>
+  <h2 class="section-title">Mark your calendar.</h2>
+  <p class="section-desc">Keep track of every milestone. Missing a submission deadline means missing your chance to progress.</p>
+  <div class="stages">
+   <article class="stage">
+    <div class="stage-head" style="cursor:default">
+     <span class="num">12</span><span><span class="stage-title">Registration Opens</span><span class="stage-sub">12 November</span></span><span class="tag">Opening</span>
+    </div>
+   </article>
+   <article class="stage">
+    <div class="stage-head" style="cursor:default">
+     <span class="num">16</span><span><span class="stage-title">Registration Closes</span><span class="stage-sub">16 November</span></span><span class="tag">Deadline</span>
+    </div>
+   </article>
+   <article class="stage">
+    <div class="stage-head" style="cursor:default">
+     <span class="num">21</span><span><span class="stage-title">Proposal Submission</span><span class="stage-sub">21 November</span></span><span class="tag">Submission</span>
+    </div>
+   </article>
+   <article class="stage highlight">
+    <div class="stage-head" style="cursor:default">
+     <span class="num">22</span><span><span class="stage-title">Shortlisted Teams Announced</span><span class="stage-sub">22 November</span></span><span class="tag">Selection</span>
+    </div>
+   </article>
+   <article class="stage">
+    <div class="stage-head" style="cursor:default">
+     <span class="num">27</span><span><span class="stage-title">Prototype Planning &amp; Presentation Preparation</span><span class="stage-sub">27 November · Friday</span></span><span class="chev">+</span>
+    </div>
+    <div class="stage-body">
+     <p>Shortlisted teams plan preliminary prototypes or demonstrations, update their GitHub documentation and prepare presentation slides.</p>
+     <div class="deliverable"><b>Focus:</b> Prototype planning, GitHub documentation and presentation preparation.<br><b>English learning outcomes:</b> Technical writing, presentation structuring and explaining processes in English.</div>
+    </div>
+   </article>
+   <article class="stage highlight">
+    <div class="stage-head" style="cursor:default">
+     <span class="num">28</span><span><span class="stage-title">Final Presentation, Video Recording &amp; Evaluation</span><span class="stage-sub">28 November · Saturday</span></span><span class="chev">+</span>
+    </div>
+    <div class="stage-body">
+     <p>The 16 shortlisted teams record video/PowerPoint presentations explaining their proposed solutions and demonstrate their prototypes before the evaluation panel. Evaluation, feedback and selection of winning teams follow.</p>
+     <div class="deliverable"><b>Focus:</b> Final presentation, recorded explanation, prototype demonstration and jury evaluation.<br><b>English learning outcomes:</b> Public speaking, presentation skills, fluency, pronunciation, professional communication and defending ideas in English.</div>
+    </div>
+   </article>
+  </div>
+ </section>
+
+ <section style="margin-top:54px">
+  <p class="section-kicker">Make it an experience</p>
+  <h2 class="section-title">Bring the hackathon atmosphere to campus.</h2>
+  <div class="grid2">
+   <div class="panel"><h3>The people</h3><ul><li><b>SPOC:</b> Coordinates registration, submissions and communication.</li><li><b>Jury:</b> Faculty across departments and, where possible, industry experts.</li><li><b>Mentors:</b> Guide teams without building the solution for them.</li></ul></div>
+   <div class="panel"><h3>The experience</h3><ul><li><b>Submission portal:</b> Host team profiles, webpages, presentations and progress reports.</li><li><b>Innovation wall:</b> Showcase each team's problem and proposed solution.</li><li><b>Jury interrogation:</b> Invite questions at every elimination stage.</li></ul></div>
+  </div>
+
+
+ <section class="mantra">
+  <div class="eyebrow">The philosophy</div>
+  <div class="rule">✧</div>
+  <h2>Think. Investigate. Design.<br>Build. Test. Defend.</h2>
+  </section>
+</main>
+<footer class="footer">The Innovation Challenge · Mock Smart India Hackathon</footer>
+<script>
+const stages=[...document.querySelectorAll('.stage')];
+stages.forEach(stage=>{
+ const btn=stage.querySelector('.stage-head');
+ btn.addEventListener('click',()=>{
+  const open=stage.classList.toggle('open');
+  btn.setAttribute('aria-expanded',String(open));
+ });
+});
+function toggleAll(open){
+ stages.forEach(stage=>{stage.classList.toggle('open',open);stage.querySelector('.stage-head').setAttribute('aria-expanded',String(open));});
+}
+window.addEventListener('scroll',()=>{
+ const doc=document.documentElement;
+ const max=doc.scrollHeight-doc.clientHeight;
+ document.getElementById('progressBar').style.width=(max>0?(doc.scrollTop/max*100):0)+'%';
+},{passive:true});
+</script>
+</body>
+</html>
