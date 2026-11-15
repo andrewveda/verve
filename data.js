@@ -11,6 +11,23 @@ window.PUZZLE_DIRECTORY = {
         "ref": "Marcus Aurelius"
       },
       "puzzles": [
+
+{
+  "id": "quote-221",
+  "num": 221,
+  "title": "Puzzle 221",
+  "sub": "If you hit a wrong note, it's the next…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "If you hit a wrong note, it's the next note that you play that determines if it's good or bad.",
+    "author": "Miles Davis",
+    "contributor": "Kohulan",
+    "dept": "CSE 2",
+    "meaning": "I believe mistakes don't define us; what matters is how we respond to them. Instead of panicking over a wrong step, we should learn from it and move forward. Sometimes, the way we correct our mistakes makes the journey even more meaningful."
+  }
+},
+
 {
   "id": "quote-220",
   "num": 220,
