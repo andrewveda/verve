@@ -11,7 +11,36 @@ window.PUZZLE_DIRECTORY = {
         "ref": "Marcus Aurelius"
       },
       "puzzles": [
-
+{
+  "id": "quote-222",
+  "num": 222,
+  "title": "Puzzle 222",
+  "sub": "A true warrior needs no sword.",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "A true warrior needs no sword.",
+    "author": "Thors",
+    "contributor": "Kavitha",
+    "dept": "CSE-2",
+    "meaning": "True strength comes from wisdom, self-control, and choosing peace instead of violence."
+  }
+},
+{
+  "id": "quote-223",
+  "num": 223,
+  "title": "Puzzle 223",
+  "sub": "Do not measure your progress by…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "Do not measure your progress by how far you have gone, but by how much you have learned along the way.",
+    "author": "Unknown",
+    "contributor": "Ragavi",
+    "dept": "CSE 2",
+    "meaning": "This quote reminds me that learning is more important than rushing towards success. Every experience teaches us something valuable."
+  }
+},
 {
   "id": "quote-221",
   "num": 221,
