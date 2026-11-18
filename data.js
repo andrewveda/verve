@@ -21,8 +21,8 @@ window.PUZZLE_DIRECTORY = {
   "quoteData": {
     "quote": "Believe in your dreams, learn from your mistakes, and turn every challenge into an opportunity to shine.",
     "author": "A.P.J. Abdul Kalam",
-    "contributor": "Lavanya.G",
-    "dept": "CSE – 2",
+    "contributor": "Lavanya G",
+    "dept": "CSE 2",
     "meaning": "It reminds me to stay confident, learn from failures, and work towards achieving my goals."
   }
 },
