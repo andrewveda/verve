@@ -12,6 +12,22 @@ window.PUZZLE_DIRECTORY = {
       },
       "puzzles": [
 {
+  "id": "quote-224",
+  "num": 224,
+  "title": "Puzzle 224",
+  "sub": "Believe in your dreams, learn from…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "Believe in your dreams, learn from your mistakes, and turn every challenge into an opportunity to shine.",
+    "author": "A.P.J. Abdul Kalam",
+    "contributor": "Lavanya.G",
+    "dept": "CSE – 2",
+    "meaning": "It reminds me to stay confident, learn from failures, and work towards achieving my goals."
+  }
+},
+
+{
   "id": "quote-222",
   "num": 222,
   "title": "Puzzle 222",
