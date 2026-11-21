@@ -66,23 +66,43 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .bonus{position:fixed;top:90px;left:50%;font:700 2rem 'Rajdhani',sans-serif;color:#00e676;z-index:40;pointer-events:none;animation:fly 1s forwards}
 @keyframes fly{to{opacity:0;transform:translateY(-50px)}}
 
-/* desktop: left panel + huge board on the right */
+/* desktop: warm info zone (stats | word list) above a cool keyboard + board panel that join together */
 @media (min-width:900px) and (min-height:560px){
- :root{--g:10px;--t:min(calc((100vh - 32px - 5*var(--g))/6),calc((54vw - 4*var(--g))/5))}
- #game.on{display:grid;grid-template-columns:minmax(0,1fr) calc(5*var(--t) + 4*var(--g) + 24px);grid-template-rows:auto auto minmax(0,1fr) auto auto;
-  grid-template-areas:"b w" "h w" "l w" "k w" "r w";gap:14px 24px;padding:16px;overflow:hidden;align-items:stretch}
- .brand{display:block;grid-area:b;text-align:center;line-height:1}
- .hud{grid-area:h;--arc:clamp(120px,21vh,210px);gap:28px;padding:14px 28px}
- .hud small{font-size:.85rem}.hud b{font-size:clamp(2.2rem,6vh,3.6rem)}.hud i{font-size:1rem}
- .log{grid-area:l;display:block;overflow-y:auto;min-height:0;padding:0 12px 8px;background:var(--card);border-radius:16px}
- .kb{grid-area:k;gap:10px}.kr{gap:8px}
+ :root{--g:10px;--t:min(calc((100vh - 32px - 5*var(--g))/6),calc((54vw - 4*var(--g))/5));--pn:#0c2340}
+ #game.on{display:grid;grid-template-columns:minmax(210px,.8fr) minmax(0,1.2fr) calc(5*var(--t) + 4*var(--g) + 24px);
+  grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"b b w" "h l w" "k k w" "r r w";
+  gap:14px 24px;padding:16px;overflow:hidden;align-items:stretch}
+ .brand{display:block;grid-area:b;text-align:center;line-height:1;background:linear-gradient(135deg,#ffb020,#ff5d73);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+ /* column 1: statistics */
+ .hud{grid-area:h;display:grid;grid-template-columns:1fr 1fr;align-content:center;justify-items:center;gap:10px 8px;
+  max-width:none;width:auto;min-height:0;overflow:hidden;padding:16px 12px;--arc:clamp(100px,min(21vh,13vw),200px);
+  background:linear-gradient(160deg,#2b1240,#1a0b2c);border:1px solid rgba(255,176,32,.3);border-radius:18px;color:#f6e9ff}
+ .arcw{grid-column:1/-1}
+ .sc,.wn{text-align:center}
+ .hud small{font-size:.85rem;color:#d9b8ff}
+ .hud b{font-size:clamp(2rem,5.5vh,3.4rem);color:#ffb020}.wn b{color:#ff5d73}
+ .hud i{font-size:.9rem;color:#d9b8ff}
+ #arc{stroke:#ffb020!important}.hud.warn #arc{stroke:#ff7a45!important}.hud.low #arc{stroke:#ff3b5c!important}
+ .hud.warn #tt{color:#ffb020}.hud.low #tt{color:#ff5d73}
+
+ /* column 2: scrollable word list */
+ .log{grid-area:l;display:block;overflow-y:auto;min-height:0;padding:0 12px 10px;background:#1f0f33;border:1px solid rgba(255,93,115,.3);border-radius:18px}
+ .lt{background:#1f0f33;color:#d9b8ff}
+ .lr{background:#2e1850;border-left-color:#ffb020}.lr.bad{border-left-color:#ff5d73}
+ .lr b{color:#fff4e0}.lr span,.lr small{color:#d9b8ff}.lr em{color:#ffb020}.lr.bad em{color:#ff5d73}
+
+ /* keyboard + board: one cool panel, joined where they meet */
+ .kb{grid-area:k;gap:10px;max-width:none;width:auto;justify-self:stretch;margin-right:-24px;padding:14px 38px 14px 14px;
+  background:var(--pn);border:1px solid rgba(0,198,255,.25);border-right:0;border-radius:20px 0 0 20px}
+ .kr{gap:8px}
  .key{height:clamp(58px,9vh,92px);font-size:clamp(1.5rem,2.4vw,2.2rem);border-radius:12px}.key.wide{font-size:clamp(1rem,1.5vw,1.4rem)}
- .bar{grid-area:r}#hint{font-size:15px}
- .bw{grid-area:w;padding:12px}
- .brand,.hud,.log,.kb,.bar{width:100%;max-width:800px;justify-self:center}
+ .bw{grid-area:w;padding:12px;background:var(--pn);border:1px solid rgba(0,198,255,.25);border-radius:20px}
  .tile{border-radius:14px}
- #flash{inset:0 auto 0 0;width:calc(100vw - 5*var(--t) - 4*var(--g) - 60px)}
- .bonus{left:240px;top:150px}
+ .bar{grid-area:r;width:100%;max-width:800px;justify-self:center}#hint{font-size:15px}
+
+ #flash{inset:0 auto 0 0;width:calc(100vw - 5*var(--t) - 4*var(--g) - 60px);background:rgba(26,11,44,.9)}
+ .bonus{left:120px;top:170px}
 }
 .lt{position:sticky;top:0;background:var(--card);padding:10px 0 8px;font-size:.8rem;color:var(--mu);text-transform:uppercase;letter-spacing:1px}
 .lr{display:grid;grid-template-columns:auto 1fr auto;gap:2px 14px;align-items:center;padding:8px 12px;margin-bottom:6px;border-radius:10px;background:var(--sf);border-left:4px solid var(--co)}
