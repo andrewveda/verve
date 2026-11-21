@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Has / Have Quest</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="../auth-guard.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+:root{--paper:#f3ead4;--card:#fffbf2;--card-line:#e3d5b0;--ink:#2d2620;--ink-muted:#8c7c62;--forest:#2f5233;--moss:#6f8f5a;--clay:#b5651d;--gold:#c9a227;--rust:#a4392c;--prep:#2f6b3f;--cheat:#dc2626;--warning:#f59e0b;--success:#10b981;--shadow-sm:0 1px 2px rgba(45,38,32,.08),0 3px 8px rgba(45,38,32,.06);--shadow-md:0 2px 6px rgba(45,38,32,.10),0 10px 26px rgba(45,38,32,.12);--ease:cubic-bezier(.16,1,.3,1)}
+html,body{min-height:100%;overscroll-behavior-x:none}
+body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);min-height:100dvh;display:flex;flex-direction:column;align-items:center;background-image:radial-gradient(ellipse 70% 50% at 12% 8%,rgba(111,143,90,.14) 0%,transparent 60%),radial-gradient(ellipse 60% 45% at 92% 88%,rgba(181,101,29,.10) 0%,transparent 60%)}
+.cheat-overlay{display:none;position:fixed;inset:0;background:rgba(220,38,38,.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;color:#fff;backdrop-filter:blur(5px)}
+.cheat-overlay.show{display:flex}
+.cheat-overlay h2{font-family:'Fraunces',serif;font-size:2rem;margin-bottom:12px}
+.cheat-overlay p{font-size:1.1rem;opacity:.9;margin-bottom:24px;max-width:400px;line-height:1.5}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-120px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-size:.85rem;font-weight:500;z-index:400;transition:transform .3s ease;box-shadow:var(--shadow-md);max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.cheat{background:var(--cheat)}
+.security-notice{background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px;margin-bottom:20px;font-size:.75rem;color:var(--cheat);text-align:left}
+.security-notice strong{display:block;margin-bottom:4px;font-size:.8rem}
+.screen{display:none;flex-direction:column;align-items:center;width:100%;min-height:100dvh}
+.screen.active{display:flex}
+.col{display:flex;flex-direction:column;width:100%;min-height:100%;max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 12px);gap:clamp(10px,1.4dvh,14px)}
+#nameFormScreen{justify-content:center;padding:24px}
+.gate-card{width:100%;max-width:420px;background:var(--card);border:1.5px solid var(--card-line);border-radius:20px;padding:34px 26px 28px;box-shadow:0 20px 60px rgba(45,38,32,.14);display:flex;flex-direction:column;align-items:stretch;gap:14px;animation:cardIn .5s cubic-bezier(.34,1.4,.64,1) forwards;text-align:center}
+.hero-quote{margin-bottom:8px}
+.hero-text{font-family:'Fraunces',serif;font-weight:900;font-size:2.1rem;color:var(--forest);letter-spacing:-.5px;line-height:1.1}
+.hero-author{font-size:1rem;margin-top:8px;color:var(--clay);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.candidate-chip{background:#fffdf7;border:1.5px solid var(--card-line);border-radius:12px;padding:12px 14px;margin-bottom:8px;text-align:left;font-size:.85rem;display:flex;align-items:center;gap:12px}
+.candidate-chip img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--forest)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px 24px;border:none;border-radius:14px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;touch-action:manipulation;text-transform:uppercase;letter-spacing:.03em}
+.btn-primary{background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;box-shadow:0 4px 16px rgba(47,82,51,.25)}
+.btn-primary:active{transform:scale(.97)}
+.btn-secondary{background:var(--card);color:var(--ink);border:1.5px solid var(--card-line)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.top-bar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{text-align:center;flex:1}
+.brand h1{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.15rem,3.6dvh,1.55rem);letter-spacing:-.3px;color:var(--forest)}
+.brand span{color:var(--rust)}
+.brand .sub{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);margin-top:1px}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--card-line);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;transition:transform .15s,background .15s;color:var(--ink);box-shadow:var(--shadow-sm)}
+.icon-btn:active{transform:scale(.9)}
+.timer-pill{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--card-line);border-radius:99px;padding:8px 16px;box-shadow:var(--shadow-sm)}
+.timer-text{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;color:var(--forest);white-space:nowrap}
+.stat-strip{background:var(--card);border:1.5px solid var(--card-line);border-radius:12px;padding:9px 14px;box-shadow:var(--shadow-sm);display:flex;justify-content:space-between;align-items:center}
+.stat-nums{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--ink-muted);font-weight:700}
+.stat-nums b{color:var(--clay);font-size:1.1em;margin:0 2px}
+.cheat-counter{display:flex;align-items:center;gap:4px;background:#fef2f2;color:var(--cheat);padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:700;border:1px solid #fecaca}
+.cheat-counter.active{background:var(--cheat);color:#fff;animation:shake .5s}
+.mount{background:var(--card);border:1.5px solid var(--card-line);border-radius:14px;padding:20px 18px 14px;box-shadow:var(--shadow-md);position:relative;display:flex;flex-direction:column;gap:16px}
+.mount::before{content:'';position:absolute;top:8px;left:8px;right:8px;bottom:8px;border:1px dashed #d8c69a;border-radius:8px;pointer-events:none}
+.sentence-item{font-family:'Fraunces',serif;font-size:1.1rem;line-height:1.6;text-align:center;position:relative;z-index:1;padding-bottom:12px;border-bottom:1px dashed var(--card-line);cursor:pointer}
+.sentence-item:last-child{border-bottom:none;padding-bottom:0}
+.sentence-item b{display:inline-block;min-width:120px;padding:1px 8px;border-bottom:2.5px dashed #c9b98d;font-weight:700;color:var(--ink-muted);text-align:center}
+.sentence-item.filled b{border-bottom-style:solid;border-bottom-color:var(--prep);color:var(--prep);animation:tileIn .25s cubic-bezier(.2,1.5,.4,1)}
+.sentence-item.error{animation:shake .35s ease}
+.sentence-item.correct{animation:pop .4s var(--ease)}
+.mount-caption{text-align:center;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--ink-muted);margin-top:10px;letter-spacing:.03em;text-transform:uppercase}
+.tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:52px;align-content:flex-start;margin-bottom:12px}
+.tile{display:inline-flex;padding:10px 22px;border-radius:12px;background:#fffdf7;border:1.5px solid #bfe0c8;cursor:pointer;box-shadow:var(--shadow-sm);transition:all .15s var(--ease);animation:tileSpawn .22s cubic-bezier(.2,1.5,.4,1)}
+.tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.tile:active{transform:scale(.94)}
+.tile.selected{background:var(--forest);border-color:var(--forest)}
+.tile.selected .word{color:#fff}
+.tile.solved{opacity:0;pointer-events:none}
+.tile{max-width:100%;text-align:center}.tile .word{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--prep)}
+#motivationBox{background:#faf5e6;border:1.5px solid #ecdfb9;border-radius:12px;padding:14px 16px;font-size:.95rem;font-weight:600;color:var(--forest);text-align:center;opacity:0;transition:opacity .3s;margin-top:auto;line-height:1.4;cursor:pointer;pointer-events:none}
+#motivationBox.show{opacity:1;pointer-events:auto}
+#motivationBox.wrong-msg{color:var(--rust);background:#fcf0ee;border-color:#f1d3d0}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes tileIn{from{transform:translateY(6px) scale(.85);opacity:0}to{transform:none;opacity:1}}
+@keyframes tileSpawn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes gemPop{0%{transform:scale(1)}50%{transform:scale(1.3) rotate(10deg);color:var(--gold)}100%{transform:scale(1) rotate(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+.gem-pop{animation:gemPop .5s ease}
+.end-card{background:var(--card);border:1.5px solid var(--card-line);border-radius:20px;padding:32px 26px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(45,38,32,.14);animation:cardIn .55s cubic-bezier(.34,1.4,.64,1) forwards}
+.end-title{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;text-align:center;color:var(--forest);margin-bottom:4px}
+.end-subtitle{text-align:center;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--ink-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px}
+.end-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.stat-box{background:var(--paper);border-radius:12px;padding:13px 8px;text-align:center;border:1.5px solid var(--card-line)}
+.stat-num{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:700;color:var(--forest);line-height:1}
+.stat-num.wrong-val{color:var(--rust)}.stat-num.gem-val{color:var(--gold)}
+.stat-lbl{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.cheat-report{background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:14px;margin-bottom:20px;text-align:left}
+.cheat-report h4{color:var(--cheat);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.cheat-report ul{list-style:none;font-size:.8rem;color:var(--ink-muted)}
+.cheat-report li{padding:3px 0;display:flex;align-items:center;gap:6px}
+.cheat-report li::before{content:"⚠";color:var(--warning);font-size:.7rem}
+.end-btn-row{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+textarea{user-select:text;-webkit-user-select:text}
+.end-name{font-family:'Fraunces',serif;font-size:2.2rem;font-weight:900;text-align:center;line-height:1.1;margin-bottom:6px;word-break:break-word}
+.tag{display:block;font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--clay);margin-bottom:3px}
+.sentence-item{text-align:center;font-size:1.2rem;line-height:1.7}
+.tile{flex-direction:column;align-items:center;gap:3px;text-align:center}
+.tile .word{font-size:.92rem;line-height:1.35}
+.tile small{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.04em;color:var(--ink-muted)}
+.tile.selected small{color:#d7e8d4}
+.who{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--ink-muted);font-weight:400}
+.credits{font-size:.68rem;line-height:1.4;color:var(--ink-muted);text-align:center}
+</style>
+<base target="_blank">
+</head>
+<body oncontextmenu="return false;">
+
+<div class="cheat-overlay" id="cheatOverlay">
+  <h2>⚠ Security Alert</h2>
+  <p id="cheatMessage">Suspicious activity detected. Please return to the test immediately.</p>
+  <button class="btn" style="background:#fff;color:var(--cheat);width:auto;" onclick="resumeTest()">I Understand — Resume Test</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="screen active" id="nameFormScreen">
+  <div class="gate-card">
+    <div class="hero-quote">
+      <div class="hero-text">Has / Have Quest</div>
+      <div class="hero-author">Has · Have ✅</div>
+    </div>
+    <div class="candidate-chip">
+      <img id="candidateAvatar" src="https://via.placeholder.com/150" alt="Avatar">
+      <div>
+        <strong id="candidateName">Loading User...</strong><br>
+        <span id="candidateDept" style="color:var(--ink-muted);font-size:.75rem;">Verifying GitHub Auth...</span>
+      </div>
+    </div>
+    <div class="security-notice">
+      <strong>🔒 Secure Test Environment</strong>
+      This test is actively monitored. Switching tabs, minimizing the window, or attempting to copy content will be recorded in your final assessment.
+    </div>
+      <button class="btn btn-primary" id="startBtn" onclick="startQuiz()" disabled>✅ Start The Quest</button>
+  </div>
+</div>
+
+<div class="screen" id="quizContent">
+  <div class="col">
+    <div class="top-bar">
+      <div class="brand"><h1>Has / Have <span>Quest</span></h1><div class="sub">Has · Have</div></div>
+      <div style="display:flex;gap:8px;">
+        <button id="muteBtn" class="icon-btn" onclick="toggleMute()" title="Toggle Sound">🔊</button>
+        
+      </div>
+    </div>
+    <div class="stat-strip">
+      <span class="stat-nums">📍 <b id="progressTracker">1 of X</b></span>
+      <div class="cheat-counter" id="cheatCounter"><span>🛡</span><span id="cheatCount">0</span></div>
+      <span class="stat-nums" id="gemsCounter">💎 <b>0</b></span>
+    </div>
+    <div class="mount" id="dropContainer"></div>
+    <div class="mount-caption" id="caption">Tap has or have, then tap the blank</div>
+    <div class="tray" id="dragOptions"></div>
+    <div id="motivationBox" onclick="this.classList.remove('show')" title="Tap to dismiss"></div>
+  </div>
+</div>
+
+<div class="screen" id="endScreen">
+  <div class="col" style="justify-content:center;align-items:center;">
+    <div class="end-card">
+      <div class="end-title">Quest Complete. 🎉</div>
+      <div class="end-name" id="endName"></div>
+      <div class="end-subtitle" id="endSubtitle">Player details</div>
+      <div class="end-stats">
+        <div class="stat-box"><div class="stat-num" id="endCorrect">0</div><div class="stat-lbl">Correct</div></div>
+        <div class="stat-box"><div class="stat-num wrong-val" id="endWrong">0</div><div class="stat-lbl">Wrong</div></div>
+        <div class="stat-box"><div class="stat-num gem-val" id="endGems">0</div><div class="stat-lbl">Gems</div></div>
+        <div class="stat-box"><div class="stat-num" id="endTime">0s</div><div class="stat-lbl">Time</div></div>
+      </div>
+      <div class="cheat-report"><h4>Security Report</h4><ul id="cheatList"></ul></div>
+      <div class="end-btn-row">
+        <button class="btn btn-primary" onclick="downloadReport()">📥 Download My Report (HTML)</button>
+        <button class="btn btn-secondary" onclick="location.reload()">↻ Play Again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== AUTH ===== */
+let playerName="Guest",playerDept="Unknown",playerAvatar="";
+window.addEventListener('DOMContentLoaded',()=>{
+  if(window.GH){
+    playerName=window.GH.name||window.GH.username||"Student";
+    playerDept=window.GH.dept||"Department Unspecified";
+    playerAvatar=window.GH.avatar||"https://via.placeholder.com/150";
+    document.getElementById('candidateName').textContent=playerName;
+    document.getElementById('candidateDept').textContent='Department: '+playerDept;
+    document.getElementById('candidateAvatar').src=playerAvatar;
+    document.getElementById('startBtn').disabled=false;
+  }else{
+    setTimeout(()=>{
+      try{playerName=localStorage.getItem("questPlayerName")||"Test Student";playerDept=localStorage.getItem("questPlayerDept")||"CSE";}catch(e){playerName="Test Student";playerDept="CSE";}
+      document.getElementById('candidateName').textContent=playerName;
+      document.getElementById('candidateDept').textContent='Department: '+playerDept;
+      document.getElementById('startBtn').disabled=false;
+    },500);
+  }
+});
+
+/* ===== AUDIO ===== */
+const applauseSound=new Audio('https://andrewveda.github.io/SRM-VEC-English-PWA/sounds/crowd.mp3');
+const wrongSound=new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3');
+applauseSound.volume=.4;wrongSound.volume=.3;
+let isMuted=false;
+function toggleMute(){isMuted=!isMuted;document.getElementById('muteBtn').textContent=isMuted?'🔇':'🔊';}
+function playSound(a){if(isMuted)return;try{a.currentTime=0;a.play().catch(()=>{});}catch(e){}}
+
+/* ===== CONFETTI ===== */
+const COLORS=['#2f5233','#6f8f5a','#c9a227','#b5651d'];
+function triggerConfetti(){confetti({particleCount:100,spread:70,origin:{y:.6},colors:COLORS});}
+function triggerMegaConfetti(){
+  const duration=3000,end=Date.now()+duration,d={startVelocity:30,spread:360,ticks:60,zIndex:0,colors:COLORS};
+  const r=(a,b)=>Math.random()*(b-a)+a;
+  const iv=setInterval(()=>{
+    const left=end-Date.now();if(left<=0)return clearInterval(iv);
+    const n=50*(left/duration);
+    confetti({...d,particleCount:n,origin:{x:r(.1,.3),y:Math.random()-.2}});
+    confetti({...d,particleCount:n,origin:{x:r(.7,.9),y:Math.random()-.2}});
+  },250);
+}
+
+/* ===== ANTI-CHEAT ===== */
+let cheatEvents=[],cheatCount=0,isPaused=false,testSubmitted=false;
+function initAntiCheat(){
+  const isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const live=()=>!testSubmitted&&startTime;
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden&&live()){recordCheat('Tab switched / window minimized','tab');showCheatOverlay('You switched tabs or minimized the window. This has been recorded.');}
+  });
+  window.addEventListener('blur',()=>{if(live()&&!isPaused&&!isMobile)recordCheat('Window lost focus','focus');});
+  document.addEventListener('contextmenu',e=>{e.preventDefault();if(live()){recordCheat('Right-click attempted','rightclick');showToast('Right-click is disabled during the test',true);}});
+  document.addEventListener('keydown',e=>{
+    if(!live())return;
+    if(e.key==='F12'){e.preventDefault();recordCheat('F12 (DevTools) pressed','devtools');showToast('Developer tools are blocked',true);}
+    if((e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='u')){e.preventDefault();recordCheat('DevTools shortcut blocked: '+e.key,'shortcut');showToast('Keyboard shortcuts are restricted',true);}
+    if(e.ctrlKey&&['s','p','a','c','v','x'].includes(e.key)){e.preventDefault();recordCheat('System shortcut: Ctrl+'+e.key,'shortcut');}
+  });
+  document.addEventListener('copy',e=>{if(live()){e.preventDefault();recordCheat('Copy attempted','copy');showToast('Copying is disabled',true);}});
+  document.addEventListener('paste',e=>{if(live()){e.preventDefault();recordCheat('Paste attempted','paste');}});
+  document.addEventListener('cut',e=>{if(live()){e.preventDefault();recordCheat('Cut attempted','cut');}});
+  if(!isMobile){
+    setInterval(()=>{
+      if(testSubmitted||!startTime||isPaused)return;
+      const s=performance.now();debugger;const t=performance.now();
+      if(t-s>100){recordCheat('Console/Debugger accessed','console');showCheatOverlay('Console access detected. This incident has been logged.');}
+    },3000);
+  }
+  document.addEventListener('keyup',e=>{if(e.key==='PrintScreen'){recordCheat('Screenshot/Print attempted','screenshot');showToast('Screenshots are monitored',true);}});
+}
+function recordCheat(description,type){
+  cheatCount++;
+  cheatEvents.push({type,description,timestamp:new Date().toISOString(),question:current+1});
+  document.getElementById('cheatCount').textContent=cheatCount;
+  const b=document.getElementById('cheatCounter');b.classList.add('active');setTimeout(()=>b.classList.remove('active'),500);
+}
+function showCheatOverlay(msg){isPaused=true;document.getElementById('cheatMessage').textContent=msg;document.getElementById('cheatOverlay').classList.add('show');}
+function resumeTest(){isPaused=false;document.getElementById('cheatOverlay').classList.remove('show');showToast('Test resumed. Further violations will be flagged.');}
+function showToast(msg,isCheat=false){
+  const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isCheat?' cheat':'');t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ===== DATA: HAS / HAVE ===== */
+const RAW=[
+["Harry Potter", ["I ___ a new broom.", "have"], ["Harry ___ a new broom.", "has"], ["Ron and Ginny ___ new brooms.", "have"], ["Hermione ___ a new broom.", "has"]],
+["Lord of the Rings", ["Frodo ___ a new sword.", "has"], ["Merry and Pippin ___ new swords.", "have"], ["Sam ___ a new sword.", "has"], ["I ___ a new sword.", "have"]],
+["Whiplash", ["Fletcher and Jim ___ new drums.", "have"], ["Nicole ___ a new drum.", "has"], ["I ___ a new drum.", "have"], ["Andrew ___ a new drum.", "has"]],
+["The Godfather", ["Kay ___ a new car.", "has"], ["I ___ a new car.", "have"], ["Michael ___ a new car.", "has"], ["Sonny and Fredo ___ new cars.", "have"]],
+["Dexter", ["I ___ a new boat.", "have"], ["Dexter ___ a new boat.", "has"], ["Rita and Astor ___ new boats.", "have"], ["Debra ___ a new boat.", "has"]],
+["Harry Potter", ["Hagrid ___ a new owl.", "has"], ["Fred and George ___ new owls.", "have"], ["Luna ___ a new owl.", "has"], ["I ___ a new owl.", "have"]],
+["Lord of the Rings", ["Legolas and Gimli ___ new bows.", "have"], ["Aragorn ___ a new bow.", "has"], ["I ___ a new bow.", "have"], ["Gandalf ___ a new bow.", "has"]],
+["Whiplash", ["Jim ___ a new jacket.", "has"], ["I ___ a new jacket.", "have"], ["Fletcher ___ a new jacket.", "has"], ["Ryan and Carl ___ new jackets.", "have"]],
+["The Godfather", ["I ___ a new suit.", "have"], ["Vito ___ a new suit.", "has"], ["Clemenza and Tessio ___ new suits.", "have"], ["Tom ___ a new suit.", "has"]],
+["Dexter", ["Harrison ___ a new phone.", "has"], ["Cody and Astor ___ new phones.", "have"], ["Rita ___ a new phone.", "has"], ["I ___ a new phone.", "have"]],
+["Harry Potter", ["Seamus and Dean ___ new wands.", "have"], ["Neville ___ a new wand.", "has"], ["I ___ a new wand.", "have"], ["Draco ___ a new wand.", "has"]],
+["Lord of the Rings", ["Eowyn ___ a new map.", "has"], ["I ___ a new map.", "have"], ["Arwen ___ a new map.", "has"], ["Boromir and Faramir ___ new maps.", "have"]],
+["Whiplash", ["I ___ a new notebook.", "have"], ["Nicole ___ a new notebook.", "has"], ["Andrew and Jim ___ new notebooks.", "have"], ["Ryan ___ a new notebook.", "has"]],
+["The Godfather", ["Connie ___ a new pen.", "has"], ["Michael and Kay ___ new pens.", "have"], ["Sonny ___ a new pen.", "has"], ["I ___ a new pen.", "have"]],
+["Dexter", ["Quinn and Debra ___ new cameras.", "have"], ["Masuka ___ a new camera.", "has"], ["I ___ a new camera.", "have"], ["Angel ___ a new camera.", "has"]],
+["Harry Potter", ["Harry ___ a new book.", "has"], ["I ___ a new book.", "have"], ["Ginny ___ a new book.", "has"], ["Crabbe and Goyle ___ new books.", "have"]],
+["Lord of the Rings", ["I ___ a new hat.", "have"], ["Bilbo ___ a new hat.", "has"], ["Frodo and Sam ___ new hats.", "have"], ["Elrond ___ a new hat.", "has"]],
+["Whiplash", ["Carl ___ a new ticket.", "has"], ["Nicole and Fletcher ___ new tickets.", "have"], ["Andrew ___ a new ticket.", "has"], ["I ___ a new ticket.", "have"]],
+["The Godfather", ["Vito and Tom ___ new bikes.", "have"], ["Clemenza ___ a new bike.", "has"], ["I ___ a new bike.", "have"], ["Fredo ___ a new bike.", "has"]],
+["Dexter", ["Angel ___ a new bed.", "has"], ["I ___ a new bed.", "have"], ["Debra ___ a new bed.", "has"], ["Dexter and Rita ___ new beds.", "have"]],
+["Harry Potter", ["I ___ a new cloak.", "have"], ["Ron ___ a new cloak.", "has"], ["Luna and Neville ___ new cloaks.", "have"], ["Hagrid ___ a new cloak.", "has"]],
+["Lord of the Rings", ["Legolas ___ a new horse.", "has"], ["Aragorn and Arwen ___ new horses.", "have"], ["Gimli ___ a new horse.", "has"], ["I ___ a new horse.", "have"]],
+["Whiplash", ["Ryan and Nicole ___ new bags.", "have"], ["Fletcher ___ a new bag.", "has"], ["I ___ a new bag.", "have"], ["Jim ___ a new bag.", "has"]],
+["The Godfather", ["Connie ___ a new watch.", "has"], ["I ___ a new watch.", "have"], ["Tessio ___ a new watch.", "has"], ["Kay and Michael ___ new watches.", "have"]],
+["Dexter", ["I ___ a new lamp.", "have"], ["Quinn ___ a new lamp.", "has"], ["Harrison and Cody ___ new lamps.", "have"], ["Masuka ___ a new lamp.", "has"]]
+];
+let quizData=RAW.map(r=>({topic:r[0],questionItems:r.slice(1).map(p=>({word:p[0],answer:p[1]})),answers:r.slice(1).map(p=>p[1])}));
+
+const rightMessages=["Correct, 'name'!", "Well done, 'name'!", "Spot on, 'name'!", "'name' knows has and have!", "Perfect, 'name'!", "Great work, 'name'!", "Yes! Nice one, 'name'!"];
+const wrongMessages=["Not quite, 'name'. Is the subject one person (has) or I / more than one (have)?", "Check the subject again, 'name'! I = have, one person = has, two people = have.", "Try again, 'name'. Count the people in the subject!", "Almost, 'name'. Read the sentence once more!"];
+
+let current=0,correctCount=0,totalWrongGuesses=0,gemsCount=0,startTime,timerInterval,selectedOption=null,elapsedSeconds=0,busy=false;
+const $=id=>document.getElementById(id);
+const dragOptionsEl=$("dragOptions"),dropContainerEl=$("dropContainer"),gemsCounterEl=$("gemsCounter"),progressTracker=$("progressTracker"),
+ motivationBox=$("motivationBox");
+
+function startQuiz(){
+  $("nameFormScreen").classList.remove("active");$("quizContent").classList.add("active");
+  current=0;correctCount=0;totalWrongGuesses=0;gemsCount=0;elapsedSeconds=0;
+  cheatEvents=[];cheatCount=0;testSubmitted=false;busy=false;
+  quizData.forEach(q=>q.repeated=false);
+  startTime=Date.now();updateGems();startTimer();initAntiCheat();loadQuestion();
+}
+function loadQuestion(){
+  if(current>=quizData.length)return showScore();
+  selectedOption=null;busy=false;motivationBox.classList.remove("show");
+  progressTracker.innerHTML=`${current+1} of ${quizData.length}`;
+  const data=JSON.parse(JSON.stringify(quizData[current]));
+  dragOptionsEl.innerHTML="";dropContainerEl.innerHTML="";
+  [...data.answers].sort(()=>Math.random()-.5).forEach(ans=>{
+    const div=document.createElement("div");div.classList.add("tile");
+    const sp=document.createElement("span");sp.className="word";sp.textContent=ans;div.appendChild(sp);
+    div.onclick=()=>selectOption(div,ans);dragOptionsEl.appendChild(div);
+  });
+  data.questionItems.forEach(item=>{
+    const drop=document.createElement("div");drop.classList.add("sentence-item");
+    drop.innerHTML=item.word.replace("___","<b>____</b>");
+    drop.dataset.answer=item.answer;drop.dataset.original=item.word;
+    drop.onclick=()=>placeOption(drop);dropContainerEl.appendChild(drop);
+  });
+}
+function selectOption(div,text){
+  if(isPaused||busy)return;
+  document.querySelectorAll(".tile").forEach(o=>o.classList.remove("selected"));
+  selectedOption={el:div,text};div.classList.add("selected");
+}
+function flyTile(tile,target,done){
+  const a=tile.getBoundingClientRect(),b=target.getBoundingClientRect();
+  if(!tile.animate){tile.classList.add("solved");return done();}
+  const c=tile.cloneNode(true);
+  Object.assign(c.style,{position:'fixed',left:a.left+'px',top:a.top+'px',width:a.width+'px',margin:0,zIndex:500,pointerEvents:'none',animation:'none'});
+  document.body.appendChild(c);tile.classList.add("solved");
+  const dx=b.left+b.width/2-(a.left+a.width/2),dy=b.top+b.height/2-(a.top+a.height/2);
+  c.animate([
+    {transform:'translate(0,0) scale(1)',opacity:1},
+    {transform:`translate(${dx*.5}px,${dy*.5-34}px) scale(.85)`,opacity:1,offset:.5},
+    {transform:`translate(${dx}px,${dy}px) scale(.5)`,opacity:.85}
+  ],{duration:520,easing:'cubic-bezier(.45,0,.25,1)'}).onfinish=()=>{c.remove();done();};
+}
+function placeOption(dropZone){
+  if(busy||isPaused||!selectedOption||dropZone.classList.contains("filled"))return;
+  const answer=selectedOption.text,correctAnswer=dropZone.dataset.answer;
+  if(answer===correctAnswer){
+    busy=true;const tile=selectedOption.el;selectedOption=null;
+    flyTile(tile,dropZone.querySelector('b'),()=>{
+      playSound(applauseSound);triggerConfetti();
+      correctCount++;gemsCount++;updateGems();showMotivation(true);
+      dropZone.innerHTML=dropZone.dataset.original.replace("___",`<b>${answer}</b>`);
+      dropZone.classList.add("correct","filled");busy=false;
+      if(document.querySelectorAll(".sentence-item:not(.filled)").length===0){
+        setTimeout(()=>{current++;loadQuestion();},900);
+      }
+    });
+  }else{
+    playSound(wrongSound);totalWrongGuesses++;gemsCount--;updateGems();showMotivation(false);
+    dropZone.classList.add("error");setTimeout(()=>dropZone.classList.remove("error"),350);
+    selectedOption.el.classList.remove("selected");selectedOption=null;
+    const q=quizData[current];
+    if(!q.repeated){
+      const nq=JSON.parse(JSON.stringify(q));nq.repeated=false;nq.isRepeat=true;quizData.push(nq);q.repeated=true;
+      progressTracker.innerHTML=`${current+1} of ${quizData.length}`;
+    }
+  }
+}
+
+function updateGems(){
+  gemsCounterEl.innerHTML=`💎 <b>${gemsCount}</b>`;
+  gemsCounterEl.classList.add('gem-pop');setTimeout(()=>gemsCounterEl.classList.remove('gem-pop'),500);
+}
+function showMotivation(ok){
+  const list=ok?rightMessages:wrongMessages;
+  motivationBox.textContent=list[Math.floor(Math.random()*list.length)].replace(/'name'/g,playerName);
+  motivationBox.classList.toggle('wrong-msg',!ok);motivationBox.classList.add("show");
+}
+
+function startTimer(){timerInterval=setInterval(()=>{if(!isPaused)elapsedSeconds=Math.floor((Date.now()-startTime)/1000);},1000);}
+function fmt(t){return Math.floor(t/60)+'m '+(t%60)+'s';}
+
+const EDGE_FUNCTION_URL="https://yellow-lab-4999.andrewveda.workers.dev/functions/v1/logQuest";
+const QUEST_ID="Quest 87";
+
+function showScore(){
+  clearInterval(timerInterval);testSubmitted=true;triggerMegaConfetti();
+  document.getElementById("quizContent").classList.remove("active");
+  document.getElementById("endScreen").classList.add("active");
+  document.getElementById("endSubtitle").innerText=`${playerName} · ${playerDept}`;
+  document.getElementById("endCorrect").innerText=correctCount;
+  document.getElementById("endWrong").innerText=totalWrongGuesses;
+  document.getElementById("endGems").innerText=gemsCount;
+  $("endTime").innerText=fmt(elapsedSeconds);$("endName").textContent=playerName;
+  const list=document.getElementById('cheatList');
+  list.innerHTML=cheatEvents.length===0
+    ?'<li style="color:var(--success)">✓ No suspicious activity detected</li>'
+    :cheatEvents.map(e=>'<li>'+e.description+' (Q'+e.question+')</li>').join('');
+  fetch(EDGE_FUNCTION_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    student_name:playerName,department:playerDept,correct:correctCount,wrong:totalWrongGuesses,
+    time_spent:elapsedSeconds,quest_id:QUEST_ID,cheat_count:cheatCount,cheat_events:cheatEvents})}).catch(()=>{});
+}
+
+/* ===== HTML REPORT ===== */
+function esc(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function buildReport(){
+  const tot=correctCount+totalWrongGuesses,acc=tot?Math.round(correctCount/tot*100):0;
+  const date=new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+  const sec=cheatCount===0?'Verified (Clean)':`Flagged (${cheatCount} incidents)`;
+  const inc=cheatEvents.length?`<ul>${cheatEvents.map(e=>`<li>${esc(e.description)} (Q${e.question})</li>`).join('')}</ul>`:'';
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(playerName)} - Has / Have Quest Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0}body{background:#f3ead4;font-family:Inter,Arial,sans-serif;color:#2d2620;padding:24px}
+.p0{max-width:760px;margin:0 auto;background:#fffbf2;border:2px solid #c9a227;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(45,38,32,.15)}
+.hd{background:#2f5233;color:#fff;text-align:center;padding:22px 16px}.hd b{display:block;font-size:1.05rem;letter-spacing:.04em}.hd span{font-size:.85rem;opacity:.85}
+.hd i{display:block;margin-top:8px;color:#e8cf7a;font-style:normal;letter-spacing:.2em;font-size:.75rem}
+.nm{text-align:center;padding:34px 16px 10px}.nm small{letter-spacing:.2em;font-size:.7rem;color:#8c7c62}
+.nm h1{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:clamp(2.4rem,9vw,4.2rem);line-height:1.05;color:#2f5233;margin:6px 0;word-break:break-word}
+.nm p{font-weight:600;color:#b5651d}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;padding:18px 24px}
+.g div{background:#f3ead4;border:1.5px solid #e3d5b0;border-radius:12px;padding:12px;text-align:center}.g b{display:block;font-family:Fraunces,Georgia,serif;font-size:1.6rem;color:#2f5233}.g span{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:#8c7c62}
+.m{margin:8px 24px 18px;background:#1d2b22;color:#fff;border-radius:16px;padding:20px;text-align:center;font-family:Fraunces,Georgia,serif;font-size:1.25rem;font-style:italic;line-height:1.5}
+.m small{display:block;font-family:Inter,sans-serif;font-style:normal;font-size:.65rem;letter-spacing:.15em;color:#e8cf7a;margin-bottom:8px}
+h2{margin:6px 24px 10px;font-size:.8rem;letter-spacing:.14em;color:#8c7c62;text-transform:uppercase}.r{margin:0 24px 10px;padding:12px 14px;border-left:4px solid #6f8f5a;background:#fff;border-radius:8px}
+.t{font-weight:700;color:#2f5233}.p{font-size:.78rem;color:#8c7c62;margin:2px 0 6px}.a{font-family:Fraunces,Georgia,serif;font-style:italic}
+.s{margin:14px 24px;padding:12px 14px;border-radius:10px;background:#f1f8f1;font-size:.85rem}.s ul{margin:6px 0 0 18px}.ft{text-align:center;font-size:.72rem;color:#8c7c62;padding:16px}
+@media print{body{padding:0;background:#fff}.p0{box-shadow:none}}</style></head><body><div class="p0">
+<div class="hd"><b>SRM VALLIAMMAI ENGINEERING COLLEGE</b><span>(Autonomous) · Department of English</span><i>QUEST COMPLETION REPORT</i></div>
+<div class="nm"><small>AWARDED TO</small><h1>${esc(playerName)}</h1><p>${esc(playerDept)} · ${QUEST_ID} · Has / Have</p></div>
+<div class="g"><div><b>${acc}%</b><span>Accuracy</span></div><div><b>${correctCount}</b><span>Correct</span></div><div><b>${totalWrongGuesses}</b><span>Wrong</span></div><div><b>${gemsCount}</b><span>Gems</span></div><div><b>${fmt(elapsedSeconds)}</b><span>Time</span></div></div>
+<div class="s"><b>Security audit:</b> ${sec}${inc}</div>
+<div class="ft">Completed on ${esc(date)} · System-generated report · Well done! ✅</div></div></body></html>`;
+}
+function downloadReport(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([buildReport()],{type:'text/html'}));
+  a.download=`${playerName.replace(/[^a-zA-Z0-9]/g,'_')}_${QUEST_ID.replace(/[^a-zA-Z0-9]/g,'')}_Report.html`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+</script>
+</body>
+</html>
