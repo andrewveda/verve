@@ -1,0 +1,559 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wordle Blitz — 5-Minute Word Sprint</title>
+
+    <!-- Google Fonts: Space Grotesk (Bold Wordle Tile Display) & Inter (Crisp UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Authentic Dark-Mode Wordle Palette -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        tile: ['Space Grotesk', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        wordle: {
+                            bg: '#121213',
+                            card: '#1a1a1c',
+                            green: '#538d4e',
+                            greenHover: '#5fa159',
+                            yellow: '#b59f3b',
+                            gray: '#3a3a3c',
+                            border: '#818384',
+                            emptyBorder: '#3a3a3c',
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+
+    <!-- Custom Zero-Scroll Layout, 3D Tile Flip, Typing Pop & Shimmer Styles -->
+    <style>
+        /* Strict Zero-Scroll Single-Screen Lock */
+        html, body {
+            height: 100dvh;
+            max-height: 100dvh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #09090a;
+            color: #ffffff;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+        }
+
+        /* Centered 440px Mobile App Frame on Desktop, Full Viewport on Mobile */
+        .app-frame {
+            height: 100dvh;
+            max-height: 100dvh;
+            width: 100%;
+            max-width: 440px;
+            background-color: #121213;
+            background-image:
+                radial-gradient(circle at 50% -5%, rgba(83, 141, 78, 0.22) 0%, transparent 48%),
+                radial-gradient(circle at 88% 55%, rgba(181, 159, 59, 0.08) 0%, transparent 40%);
+            overflow: hidden;
+        }
+
+        /* Header Wordle Title Tiles */
+        .hero-tile {
+            width: clamp(26px, 3.8dvh, 36px);
+            height: clamp(26px, 3.8dvh, 36px);
+            font-size: clamp(14px, 2.2dvh, 20px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+            animation: heroPop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes heroPop {
+            0% {
+                opacity: 0;
+                transform: scale(0.75) translateY(-4px);
+            }
+            70% {
+                opacity: 1;
+                transform: scale(1.06) translateY(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Solve Board Tiles (Responsive clamp for 360x640 up to large phones) */
+        .board-row {
+            perspective: 650px;
+        }
+
+        .solve-tile {
+            width: clamp(35px, 5.4dvh, 48px);
+            height: clamp(35px, 5.4dvh, 48px);
+            font-size: clamp(18px, 2.8dvh, 25px);
+            border: 2px solid #3a3a3c;
+            background-color: #121213;
+            color: #ffffff;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            line-height: 1;
+            user-select: none;
+            -webkit-user-select: none;
+            transform-style: preserve-3d;
+            transition: border-color 0.12s ease;
+        }
+
+        /* Active Typed State (before flip) */
+        .solve-tile.typed {
+            border-color: #818384;
+            animation: typePop 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes typePop {
+            0% { transform: scale(0.88); }
+            55% { transform: scale(1.11); }
+            100% { transform: scale(1); }
+        }
+
+        /* Authentic 3D Wordle Flip Animation */
+        .solve-tile.flipping {
+            animation: wordleFlip 0.44s ease-in-out both;
+        }
+
+        @keyframes wordleFlip {
+            0% { transform: rotateX(0deg); }
+            50% { transform: rotateX(90deg); }
+            100% { transform: rotateX(0deg); }
+        }
+
+        /* Revealed Color States */
+        .solve-tile.state-green {
+            background-color: #538d4e;
+            border-color: #538d4e;
+        }
+
+        .solve-tile.state-yellow {
+            background-color: #b59f3b;
+            border-color: #b59f3b;
+        }
+
+        .solve-tile.state-gray {
+            background-color: #3a3a3c;
+            border-color: #3a3a3c;
+        }
+
+        /* Celebratory Wave Bounce on Solved SPARK Row */
+        .solve-tile.win-bounce {
+            animation: winWave 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes winWave {
+            0%, 100% { transform: translateY(0) scale(1); }
+            40% { transform: translateY(-7px) scale(1.07); }
+            72% { transform: translateY(2px) scale(0.98); }
+        }
+
+        /* Smooth Fade/Slide for Row Explanations */
+        .row-explain {
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.32s ease, transform 0.32s ease;
+            min-height: clamp(16px, 2.2dvh, 20px);
+        }
+
+        .row-explain.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Board Smooth Fade-Out Before Loop Reset */
+        .board-resetting {
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        /* Live Pulsing Indicator Dot */
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .live-dot {
+            animation: livePulse 1.4s ease-in-out infinite;
+        }
+
+        /* Single Bottom CTA Button Gentle Shimmer */
+        .cta-btn {
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 20px -4px rgba(83, 141, 78, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        }
+
+        .cta-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                110deg,
+                transparent 28%,
+                rgba(255, 255, 255, 0.24) 50%,
+                transparent 72%
+            );
+            transform: translateX(-130%);
+            animation: btnShimmer 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes btnShimmer {
+            0%, 58% { transform: translateX(-130%); }
+            100% { transform: translateX(130%); }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased flex justify-center items-center selection:bg-wordle-green selection:text-white">
+
+    <!-- =============================================================== -->
+    <!-- ZERO-SCROLL SINGLE-SCREEN MOBILE APP CONTAINER (100dvh)         -->
+    <!-- =============================================================== -->
+    <main class="app-frame mx-auto flex flex-col justify-between px-[clamp(12px,3.6vw,20px)] py-[clamp(10px,2dvh,20px)] md:border-x md:border-wordle-gray/80 md:shadow-2xl">
+
+        <!-- =========================================================== -->
+        <!-- 1. HEADER: WORDLE BLITZ TILES + PUNCHY SUBTITLE             -->
+        <!-- =========================================================== -->
+        <header class="text-center flex flex-col items-center gap-[clamp(5px,1dvh,9px)] shrink-0">
+            <!-- Playful 2-Row Wordle Tile Title -->
+            <div class="flex flex-col items-center gap-1" aria-label="Wordle Blitz">
+                <!-- Row 1: W O R D L E -->
+                <div class="flex justify-center gap-1">
+                    <span class="hero-tile rounded-md bg-wordle-green border border-wordle-green font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 40ms;">W</span>
+                    <span class="hero-tile rounded-md bg-wordle-yellow border border-wordle-yellow font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 90ms;">O</span>
+                    <span class="hero-tile rounded-md bg-wordle-green border border-wordle-green font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 140ms;">R</span>
+                    <span class="hero-tile rounded-md bg-wordle-gray border border-wordle-border/60 font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 190ms;">D</span>
+                    <span class="hero-tile rounded-md bg-wordle-green border border-wordle-green font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 240ms;">L</span>
+                    <span class="hero-tile rounded-md bg-wordle-yellow border border-wordle-yellow font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 290ms;">E</span>
+                </div>
+                <!-- Row 2: B L I T Z -->
+                <div class="flex justify-center gap-1">
+                    <span class="hero-tile rounded-md bg-wordle-yellow border border-wordle-yellow font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 340ms;">B</span>
+                    <span class="hero-tile rounded-md bg-wordle-green border border-wordle-green font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 390ms;">L</span>
+                    <span class="hero-tile rounded-md bg-wordle-green border border-wordle-green font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 440ms;">I</span>
+                    <span class="hero-tile rounded-md bg-wordle-yellow border border-wordle-yellow font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 490ms;">T</span>
+                    <span class="hero-tile rounded-md bg-wordle-green border border-wordle-green font-tile font-bold text-white flex items-center justify-center" style="animation-delay: 540ms;">Z</span>
+                </div>
+            </div>
+
+            <!-- Punchy 1-Line Subtitle -->
+            <p class="font-bold tracking-tight text-zinc-100 leading-tight text-[clamp(12px,1.85dvh,15px)]">
+                5 minutes. Non-stop Wordles. <span class="text-[#6aaa64]">Pure brain speed!</span>
+            </p>
+        </header>
+
+        <!-- =========================================================== -->
+        <!-- 2. ULTRA-SIMPLE COLOR KEY (1 COMPACT ROW)                   -->
+        <!-- =========================================================== -->
+        <section aria-label="Color Key" class="shrink-0 flex items-center justify-center gap-2 sm:gap-3">
+            <div class="inline-flex items-center gap-1.5 bg-wordle-card border border-wordle-gray rounded-lg px-2 py-1 text-[clamp(10px,1.45dvh,12px)] font-semibold text-zinc-200">
+                <span class="w-3 h-3 rounded-[3px] bg-wordle-green shrink-0"></span>
+                <span>Right spot</span>
+            </div>
+            <div class="inline-flex items-center gap-1.5 bg-wordle-card border border-wordle-gray rounded-lg px-2 py-1 text-[clamp(10px,1.45dvh,12px)] font-semibold text-zinc-200">
+                <span class="w-3 h-3 rounded-[3px] bg-wordle-yellow shrink-0"></span>
+                <span>Wrong spot</span>
+            </div>
+            <div class="inline-flex items-center gap-1.5 bg-wordle-card border border-wordle-gray rounded-lg px-2 py-1 text-[clamp(10px,1.45dvh,12px)] font-semibold text-zinc-200">
+                <span class="w-3 h-3 rounded-[3px] bg-wordle-gray border border-wordle-border/50 shrink-0"></span>
+                <span>Not in word</span>
+            </div>
+        </section>
+
+        <!-- =========================================================== -->
+        <!-- 3. ANIMATED STEP-BY-STEP SOLVE CARD (TARGET: SPARK)         -->
+        <!-- =========================================================== -->
+        <section aria-label="How to Solve Example" class="shrink-0 rounded-2xl bg-wordle-card border border-wordle-gray/90 px-3 py-[clamp(8px,1.5dvh,14px)] flex flex-col gap-[clamp(6px,1.2dvh,11px)] shadow-lg">
+
+            <!-- Compact Card Header with Pulsing Live Dot -->
+            <div class="flex items-center justify-between px-1">
+                <h2 class="font-tile font-bold uppercase tracking-widest text-zinc-400 text-[clamp(10px,1.45dvh,12px)]">
+                    HOW TO SOLVE
+                </h2>
+                <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-wordle-bg border border-wordle-gray/80">
+                    <span class="live-dot w-2 h-2 rounded-full bg-[#6aaa64]"></span>
+                    <span class="font-tile font-bold uppercase tracking-wider text-[10px] text-zinc-300">WATCH</span>
+                </div>
+            </div>
+
+            <!-- 3-Row Animated Wordle Grid + Crystal-Clear Explanations -->
+            <div id="solve-board" class="flex flex-col gap-[clamp(7px,1.3dvh,12px)] transition-opacity duration-300">
+
+                <!-- Row 1: CRANE -->
+                <div class="flex flex-col items-center gap-[clamp(3px,0.55dvh,5px)]">
+                    <div class="board-row flex justify-center gap-1.5" data-row="0">
+                        <div class="solve-tile" data-col="0"></div>
+                        <div class="solve-tile" data-col="1"></div>
+                        <div class="solve-tile" data-col="2"></div>
+                        <div class="solve-tile" data-col="3"></div>
+                        <div class="solve-tile" data-col="4"></div>
+                    </div>
+                    <p id="explain-0" class="row-explain text-center text-[clamp(11px,1.55dvh,13px)] font-medium text-zinc-300 leading-tight">
+                        <strong class="text-[#6aaa64] font-extrabold">A</strong> is right! <strong class="text-[#d4bc4b] font-extrabold">R</strong> moves. Drop C, N, E.
+                    </p>
+                </div>
+
+                <!-- Row 2: SMART -->
+                <div class="flex flex-col items-center gap-[clamp(3px,0.55dvh,5px)]">
+                    <div class="board-row flex justify-center gap-1.5" data-row="1">
+                        <div class="solve-tile" data-col="0"></div>
+                        <div class="solve-tile" data-col="1"></div>
+                        <div class="solve-tile" data-col="2"></div>
+                        <div class="solve-tile" data-col="3"></div>
+                        <div class="solve-tile" data-col="4"></div>
+                    </div>
+                    <p id="explain-1" class="row-explain text-center text-[clamp(11px,1.55dvh,13px)] font-medium text-zinc-300 leading-tight">
+                        <strong class="text-[#6aaa64] font-extrabold">S, A, R</strong> locked! Drop M &amp; T.
+                    </p>
+                </div>
+
+                <!-- Row 3: SPARK -->
+                <div class="flex flex-col items-center gap-[clamp(3px,0.55dvh,5px)]">
+                    <div class="board-row flex justify-center gap-1.5" data-row="2">
+                        <div class="solve-tile" data-col="0"></div>
+                        <div class="solve-tile" data-col="1"></div>
+                        <div class="solve-tile" data-col="2"></div>
+                        <div class="solve-tile" data-col="3"></div>
+                        <div class="solve-tile" data-col="4"></div>
+                    </div>
+                    <p id="explain-2" class="row-explain text-center text-[clamp(11px,1.55dvh,13px)] font-semibold text-zinc-100 leading-tight">
+                        All green — <strong class="text-[#6aaa64] font-extrabold">SOLVED!</strong> Next word! ⚡
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- =========================================================== -->
+        <!-- 4. 3-COLUMN COMPACT CHALLENGE STRIP                         -->
+        <!-- =========================================================== -->
+        <section aria-label="Game Highlights" class="shrink-0 grid grid-cols-3 gap-2">
+            <!-- Card 1: 5-MIN BLITZ -->
+            <div class="rounded-xl bg-wordle-card border border-wordle-gray/90 px-2 py-[clamp(7px,1.25dvh,11px)] text-center flex flex-col items-center justify-center gap-0.5">
+                <span class="text-[clamp(14px,2dvh,18px)] leading-none" aria-hidden="true">⏱️</span>
+                <h3 class="font-tile font-bold text-[clamp(10px,1.4dvh,12px)] tracking-wide text-white uppercase mt-0.5">
+                    5-MIN BLITZ
+                </h3>
+                <p class="text-[clamp(10px,1.35dvh,11.5px)] text-zinc-300 leading-tight">
+                    Solve as many as you can!
+                </p>
+            </div>
+
+            <!-- Card 2: FLUID IQ -->
+            <div class="rounded-xl bg-wordle-card border border-wordle-gray/90 px-2 py-[clamp(7px,1.25dvh,11px)] text-center flex flex-col items-center justify-center gap-0.5">
+                <span class="text-[clamp(14px,2dvh,18px)] leading-none" aria-hidden="true">🧠</span>
+                <h3 class="font-tile font-bold text-[clamp(10px,1.4dvh,12px)] tracking-wide text-white uppercase mt-0.5">
+                    FLUID IQ
+                </h3>
+                <p class="text-[clamp(10px,1.35dvh,11.5px)] text-zinc-300 leading-tight">
+                    Think fast, crack patterns!
+                </p>
+            </div>
+
+            <!-- Card 3: FLEXIBLE MIND -->
+            <div class="rounded-xl bg-wordle-card border border-wordle-gray/90 px-2 py-[clamp(7px,1.25dvh,11px)] text-center flex flex-col items-center justify-center gap-0.5">
+                <span class="text-[clamp(14px,2dvh,18px)] leading-none" aria-hidden="true">🔄</span>
+                <h3 class="font-tile font-bold text-[clamp(10px,1.4dvh,12px)] tracking-wide text-white uppercase mt-0.5">
+                    FLEXIBLE MIND
+                </h3>
+                <p class="text-[clamp(10px,1.35dvh,11.5px)] text-zinc-300 leading-tight">
+                    Pivot ideas in a flash!
+                </p>
+            </div>
+        </section>
+
+        <!-- =========================================================== -->
+        <!-- 5. ONLY ONE BUTTON ON THE ENTIRE PAGE (BOTTOM CTA)          -->
+        <!-- =========================================================== -->
+        <footer class="shrink-0 w-full">
+            <a href="https://andrewveda.com/verve/wordleblitz-draft"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="cta-btn w-full h-[clamp(46px,6.6dvh,56px)] rounded-2xl bg-wordle-green hover:bg-wordle-greenHover active:scale-[0.97] transition-transform duration-150 flex items-center justify-center font-tile font-bold text-[clamp(15px,2.2dvh,18px)] tracking-wider uppercase text-white border border-emerald-300/25">
+                PLAY WORDLE BLITZ →
+            </a>
+        </footer>
+
+    </main>
+
+    <!-- =============================================================== -->
+    <!-- WORD-BY-WORD TYPING + 3D FLIP LOOP ENGINE                       -->
+    <!-- =============================================================== -->
+    <script>
+        (function () {
+            'use strict';
+
+            // Target word: SPARK (3-step authentic solve sequence)
+            const STEPS = [
+                {
+                    word: 'CRANE',
+                    states: ['gray', 'yellow', 'green', 'gray', 'gray']
+                },
+                {
+                    word: 'SMART',
+                    states: ['green', 'gray', 'green', 'green', 'gray']
+                },
+                {
+                    word: 'SPARK',
+                    states: ['green', 'green', 'green', 'green', 'green']
+                }
+            ];
+
+            // Animation timing constants (ms)
+            const TYPE_INTERVAL = 130;
+            const PRE_FLIP_PAUSE = 220;
+            const FLIP_STAGGER = 130;
+            const FLIP_HALF_DURATION = 220;
+            const ROW_DIGEST_PAUSE = 900;
+            const COMPLETE_PAUSE = 2600;
+
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+            /**
+             * Resets all tiles to empty dark-bordered squares and hides explanations.
+             */
+            function resetBoard() {
+                STEPS.forEach((_, rowIdx) => {
+                    const rowEl = document.querySelector(`[data-row="${rowIdx}"]`);
+                    const explainEl = document.getElementById(`explain-${rowIdx}`);
+                    if (explainEl) explainEl.classList.remove('visible');
+                    if (!rowEl) return;
+
+                    const tiles = rowEl.querySelectorAll('.solve-tile');
+                    tiles.forEach((tile) => {
+                        tile.textContent = '';
+                        tile.className = 'solve-tile';
+                        tile.style.animationDelay = '';
+                    });
+                });
+            }
+
+            /**
+             * Animates a single row:
+             * 1) Types letters one by one with pop animation + lighter border
+             * 2) Brief pause
+             * 3) Sequentially 3D-flips each tile left-to-right to reveal its color
+             * 4) Smoothly reveals the 1-line explanation underneath
+             */
+            async function animateRow(rowIdx, stepData, isFinalRow) {
+                const rowEl = document.querySelector(`[data-row="${rowIdx}"]`);
+                const explainEl = document.getElementById(`explain-${rowIdx}`);
+                if (!rowEl) return;
+
+                const tiles = Array.from(rowEl.querySelectorAll('.solve-tile'));
+
+                // Phase 1: Type each letter one by one
+                for (let col = 0; col < 5; col++) {
+                    const tile = tiles[col];
+                    tile.textContent = stepData.word[col];
+                    tile.classList.add('typed');
+                    await sleep(TYPE_INTERVAL);
+                }
+
+                // Pause briefly after word is typed
+                await sleep(PRE_FLIP_PAUSE);
+
+                // Phase 2: Sequential left-to-right 3D flip
+                const flipPromises = tiles.map((tile, col) => {
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            tile.classList.remove('typed');
+                            // Force reflow to ensure clean animation trigger
+                            void tile.offsetWidth;
+                            tile.classList.add('flipping');
+
+                            // Swap to revealed color right at 90deg edge-on midpoint
+                            setTimeout(() => {
+                                tile.classList.add(`state-${stepData.states[col]}`);
+                            }, FLIP_HALF_DURATION);
+
+                            // Resolve once full 440ms flip finishes
+                            setTimeout(() => {
+                                tile.classList.remove('flipping');
+                                resolve();
+                            }, FLIP_HALF_DURATION * 2);
+                        }, col * FLIP_STAGGER);
+                    });
+                });
+
+                await Promise.all(flipPromises);
+
+                // Phase 3: Reveal crystal-clear explanation
+                if (explainEl) {
+                    explainEl.classList.add('visible');
+                }
+
+                // Phase 4: Celebratory wave bounce on the winning SPARK row
+                if (isFinalRow) {
+                    tiles.forEach((tile, col) => {
+                        void tile.offsetWidth;
+                        tile.style.animationDelay = `${col * 75}ms`;
+                        tile.classList.add('win-bounce');
+                    });
+                }
+            }
+
+            /**
+             * Runs the continuous step-by-step solve animation loop.
+             */
+            async function runSolveLoop() {
+                const boardEl = document.getElementById('solve-board');
+                if (!boardEl) return;
+
+                // Brief initial delay so hero tiles pop in first
+                await sleep(450);
+
+                while (true) {
+                    try {
+                        resetBoard();
+                        boardEl.classList.remove('board-resetting');
+
+                        // Row 1: CRANE
+                        await animateRow(0, STEPS[0], false);
+                        await sleep(ROW_DIGEST_PAUSE);
+
+                        // Row 2: SMART
+                        await animateRow(1, STEPS[1], false);
+                        await sleep(ROW_DIGEST_PAUSE);
+
+                        // Row 3: SPARK (Solved!)
+                        await animateRow(2, STEPS[2], true);
+                        await sleep(COMPLETE_PAUSE);
+
+                        // Smooth fade-out before looping
+                        boardEl.classList.add('board-resetting');
+                        await sleep(380);
+                    } catch (err) {
+                        // Fail gracefully and retry
+                        await sleep(1000);
+                    }
+                }
+            }
+
+            window.addEventListener('DOMContentLoaded', runSolveLoop);
+        })();
+    </script>
+</body>
+</html>
+```
