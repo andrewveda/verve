@@ -1,6 +1,5 @@
 [
-  { "questId": "Video 2223", "title": "Stand up comedy", "video": "https://www.youtube.com/watch?v=5pt8ikjo99I", "category": "Kohulan's Space", "watchTarget": 12 },
-  { "questId": "Video 2221", "title": "Obelix and Co.", "video": "https://www.youtube.com/watch?v=tStsLZWYlMI", "category": "Comics", "watchTarget": 12 },
+
   { "questId": "Video 2224", "title": "Ronald Reagan Joke #1", "video": "https://www.youtube.com/watch?v=dY4Rg6rfHTI", "category": "Ronald Reagan's Funniest Jokes", "watchTarget": 12 },
   { "questId": "Video 2225", "title": "Ronald Reagan Joke #2", "video": "https://www.youtube.com/watch?v=5sIOeV_i8kg", "category": "Ronald Reagan's Funniest Jokes", "watchTarget": 12 },
   { "questId": "Video 2226", "title": "Ronald Reagan Joke #3", "video": "https://www.youtube.com/watch?v=haTpGGM330U", "category": "Ronald Reagan's Funniest Jokes", "watchTarget": 12 },
