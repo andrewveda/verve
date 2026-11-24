@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,39 +6,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#0a0908">
 <title>Communication Analysis Assignment</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&family=DM+Mono:wght@400;500&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+
 <style>
 :root {
-  --gold: #b8913a; 
-  --gold-border: rgba(184,145,58,0.22); 
+  --gold: #b8913a;
+  --gold-border: rgba(184,145,58,0.22);
   --gold-pale: rgba(184,145,58,0.10);
   --crimson: #6b0f1a;
   --bg: #0a0908;
   --surface: #12100e;
-  --text: rgba(255,255,255,0.9); 
+  --text: rgba(255,255,255,0.9);
   --text-muted: rgba(255,255,255,0.5);
   --fell: 'IM Fell English', Georgia, serif;
   --sans: 'Jost', system-ui, sans-serif;
   --mono: 'DM Mono', monospace;
   --serif: 'Cormorant Garamond', Georgia, serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-body { 
-  background: var(--bg); 
-  color: var(--text); 
-  font-family: var(--sans); 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  justify-content: center; 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   min-height: 100dvh;
   padding: 20px;
 }
 
 .container {
-  width: 100%; 
-  max-width: 480px; 
+  width: 100%;
+  max-width: 480px;
   background: var(--surface);
   border: 1px solid var(--gold-border);
   border-radius: 20px;
@@ -48,57 +57,178 @@ body {
   overflow: hidden;
 }
 
-.container::before { 
-  content: ''; 
-  position: absolute; 
-  top: 0; left: 0; right: 0; 
-  height: 3px; 
-  background: linear-gradient(90deg, var(--crimson), var(--gold), var(--crimson)); 
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--crimson), var(--gold), var(--crimson));
 }
 
-.eyebrow { 
-  font-family: var(--mono); 
-  font-size: 10px; 
-  letter-spacing: 2.5px; 
-  text-transform: uppercase; 
-  color: var(--gold); 
-  margin-bottom: 12px; 
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
 }
 
-.title { 
-  font-family: var(--fell); 
-  font-style: italic; 
-  font-size: 2rem; 
-  line-height: 1.1; 
-  margin-bottom: 16px; 
+.title {
+  font-family: var(--fell);
+  font-style: italic;
+  font-size: 2rem;
+  line-height: 1.1;
+  margin-bottom: 16px;
 }
 
-.description { 
-  font-family: var(--serif); 
-  font-size: 16px; 
-  color: var(--text-muted); 
-  line-height: 1.5; 
-  margin-bottom: 32px; 
+.description {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 26px;
 }
+
+/* Note-making hierarchy */
+
+.notes-section {
+  text-align: left;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--gold-border);
+  border-radius: 14px;
+  padding: 20px 16px;
+  margin-bottom: 28px;
+}
+
+.notes-heading {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.notes-intro {
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.hierarchy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.level {
+  position: relative;
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.level-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.marker {
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 13px;
+  min-width: 25px;
+  flex-shrink: 0;
+}
+
+.level-text {
+  color: rgba(255,255,255,0.82);
+}
+
+.level-text small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.level-1 {
+  padding-left: 0;
+}
+
+.level-2 {
+  margin-left: 22px;
+  padding-left: 12px;
+  border-left: 1px solid var(--gold-border);
+}
+
+.level-3 {
+  margin-left: 22px;
+  padding-left: 12px;
+  border-left: 1px solid var(--gold-border);
+}
+
+.level-4 {
+  margin-left: 22px;
+  padding-left: 12px;
+  border-left: 1px solid var(--gold-border);
+}
+
+.level-5 {
+  margin-left: 22px;
+  padding-left: 12px;
+  border-left: 1px solid var(--gold-border);
+}
+
+.hierarchy-divider {
+  height: 1px;
+  background: var(--gold-border);
+  margin: 5px 0;
+}
+
+.notes-reminder {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 9px;
+  background: var(--gold-pale);
+  color: rgba(255,255,255,0.75);
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.notes-reminder strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* Video links */
 
 .btn-link {
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-direction: column;
-  background: rgba(255,255,255,0.05); 
+  background: rgba(255,255,255,0.05);
   border: 1px solid var(--gold-border);
-  color: var(--text); 
+  color: var(--text);
   text-decoration: none;
-  border-radius: 14px; 
-  padding: 18px; 
-  width: 100%; 
-  margin-bottom: 12px; 
+  border-radius: 14px;
+  padding: 18px;
+  width: 100%;
+  margin-bottom: 12px;
   transition: all 0.2s;
 }
 
-.btn-link:active { 
-  transform: scale(0.97); 
+.btn-link:active {
+  transform: scale(0.97);
   background: rgba(255,255,255,0.08);
 }
 
@@ -107,33 +237,153 @@ body {
 }
 
 .btn-title {
-  font-family: var(--sans); 
-  font-weight: 500; 
+  font-family: var(--sans);
+  font-weight: 500;
   font-size: 17px;
   margin-bottom: 4px;
 }
 
 .btn-sub {
-  font-family: var(--mono); 
-  font-size: 11px; 
+  font-family: var(--mono);
+  font-size: 11px;
   color: var(--gold);
 }
 
-/* Desktop spacing adjustment */
+/* Desktop */
+
 @media (min-width: 600px) {
-  .container { padding: 48px 40px; }
+  .container {
+    padding: 48px 40px;
+  }
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
+
   <div class="eyebrow">Side Quest or A Mission? You decide!</div>
-  <h1 class="title">Communication Analysis:<br>Angela Lee Duckworth</h1>
+
+  <h1 class="title">
+    Communication Analysis:<br>
+    Angela Lee Duckworth
+  </h1>
+
   <p class="description">
-    Watch both presentations and take detailed notes using the provided tools. Compare the two talks to analyze how her communication style has evolved.
+    Watch both presentations and take detailed notes using the provided tools. Compare the two talks to analyse how her communication style has evolved.
   </p>
-  
+
+  <!-- NOTE-MAKING HIERARCHY -->
+
+  <section class="notes-section">
+
+    <div class="notes-heading">Your Note-Making Guide</div>
+
+    <p class="notes-intro">
+      Organise your notes using the following hierarchical structure. Maintain the correct numbering and indentation at every level.
+    </p>
+
+    <div class="hierarchy">
+
+      <!-- Main heading -->
+
+      <div class="level level-1">
+        <div class="level-content">
+          <span class="marker">—</span>
+          <span class="level-text">
+            <strong>MAIN HEADING</strong>
+            <small>No numbering</small>
+          </span>
+        </div>
+      </div>
+
+      <!-- First subheading -->
+
+      <div class="level level-2">
+        <div class="level-content">
+          <span class="marker">I.</span>
+          <span class="level-text">
+            <strong>First Subheading</strong>
+            <small>Uppercase Roman numerals (I, II, III)</small>
+          </span>
+        </div>
+      </div>
+
+      <!-- Supporting point -->
+
+      <div class="level level-3">
+        <div class="level-content">
+          <span class="marker">A.</span>
+          <span class="level-text">
+            Supporting Point
+            <small>Capital letters (A, B, C)</small>
+          </span>
+        </div>
+      </div>
+
+      <!-- Additional detail -->
+
+      <div class="level level-4">
+        <div class="level-content">
+          <span class="marker">i.</span>
+          <span class="level-text">
+            Additional Detail
+            <small>Lowercase Roman numerals (i, ii, iii)</small>
+          </span>
+        </div>
+      </div>
+
+      <!-- Specific example -->
+
+      <div class="level level-5">
+        <div class="level-content">
+          <span class="marker">a.</span>
+          <span class="level-text">
+            Specific Example
+            <small>Lowercase letters (a, b, c)</small>
+          </span>
+        </div>
+      </div>
+
+      <!-- Further information -->
+
+      <div class="level level-5" style="margin-left: 66px;">
+        <div class="level-content">
+          <span class="marker">1.</span>
+          <span class="level-text">
+            Further Information
+            <small>Arabic numerals (1, 2, 3)</small>
+          </span>
+        </div>
+      </div>
+
+      <div class="hierarchy-divider"></div>
+
+      <div class="level level-2">
+        <div class="level-content">
+          <span class="marker">II.</span>
+          <span class="level-text">Second Subheading</span>
+        </div>
+      </div>
+
+      <div class="level level-2">
+        <div class="level-content">
+          <span class="marker">III.</span>
+          <span class="level-text">Third Subheading</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="notes-reminder">
+      <strong>Remember:</strong> Note-making is not simply shortening a passage. Identify the key ideas, organise them logically, use concise phrases and show relationships through proper indentation.
+    </div>
+
+  </section>
+
+  <!-- VIDEO LINKS -->
+
   <a href="https://andrewveda.com/verve/note-taking/grit-1" class="btn-link">
     <span class="btn-title">Video 1: Her First TED Talk</span>
     <span class="btn-sub">TAKE NOTES &#8594;</span>
@@ -143,6 +393,7 @@ body {
     <span class="btn-title">Video 2: Her Second TED Talk</span>
     <span class="btn-sub">TAKE NOTES &#8594;</span>
   </a>
+
 </div>
 
 </body>
