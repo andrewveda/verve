@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mission: Veni, Vidi, Vici! Analytics (CSE-2)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#f5f1e6;--sf:#fffdf7;--ink:#1c2230;--mut:#6a6f7c;--ln:#e2d9c2;--gold:#a67c14;--blue:#2d6591;--rose:#b2446a;--grn:#3b7a58;--trk:#ece5d1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0d1420;--sf:#151e2e;--ink:#e9e6dc;--mut:#8f98a8;--ln:#26324a;--gold:#d9b34a;--blue:#6aa6d8;--rose:#e0789c;--grn:#6fc08f;--trk:#1d2840}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0d1420;--sf:#151e2e;--ink:#e9e6dc;--mut:#8f98a8;--ln:#26324a;--gold:#d9b34a;--blue:#6aa6d8;--rose:#e0789c;--grn:#6fc08f;--trk:#1d2840}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:1240px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(26px,5vw,42px);line-height:1.05;margin:0 0 4px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:17px;margin:34px 0 12px;font-weight:800}
+h3{font-size:14px;margin:0 0 10px;font-weight:600}
+.sub{color:var(--mut);margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+button,select,input,textarea{font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--ln);border-radius:999px;padding:7px 14px}
+button{cursor:pointer}button:hover{border-color:var(--gold)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+button.pri{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:600}
+button.pri:hover{filter:brightness(1.06)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+textarea{width:100%;border-radius:12px;min-height:90px;display:none;font:12px monospace}
+.src{font-size:13px;color:var(--mut)}
+.kp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.k{background:var(--sf);border:1px solid var(--ln);border-top:3px solid var(--gold);border-radius:10px;padding:12px}
+.k b{display:block;font-size:24px;font-weight:800;letter-spacing:-.01em}
+.k span{font-size:12.5px;color:var(--mut)}
+.g{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))}
+.c{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:16px;min-width:0}
+.br{display:grid;grid-template-columns:92px 1fr auto;gap:10px;align-items:center;margin:7px 0;font-size:13.5px}
+.br i{height:10px;background:var(--trk);border-radius:6px;overflow:hidden}
+.br b{display:block;height:100%;border-radius:6px}
+.br em{font-style:normal;font-weight:600;font-variant-numeric:tabular-nums;font-size:13px}
+.tl{display:flex;align-items:flex-end;gap:3px;height:120px}
+.tl b{flex:1;background:var(--blue);border-radius:3px 3px 0 0;min-height:2px}
+.ax{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mut);margin-top:4px}
+.tw{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 9px;text-align:right;border-bottom:1px solid var(--ln);white-space:nowrap}
+th{cursor:pointer;color:var(--mut);font-weight:600;position:sticky;top:0;background:var(--sf)}
+th:first-child,td:first-child,th.l,td.l{text-align:left}
+svg{width:100%;height:auto;display:block;color:var(--blue)}
+svg text{fill:var(--mut);font-size:10px}
+.hl li{margin:6px 0}
+.pg{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:10px;font-size:13px}
+.ql{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.ql a{padding:8px 16px;border:1px solid var(--gold);border-radius:999px;color:var(--gold);text-decoration:none;font-weight:600;font-size:13px;background:var(--sf)}
+.ql a:hover{background:var(--gold);color:#fff}
+tr.cl{cursor:pointer}tr.cl:hover td{background:var(--trk)}
+.lb{max-height:560px;overflow-y:auto}
+.lr{display:grid;grid-template-columns:44px 1fr auto;align-items:center;padding:10px 6px;border-bottom:1px solid var(--ln);cursor:pointer}
+.lr:hover{background:var(--trk)}.lr .rk{text-align:center;font-weight:800;color:var(--mut)}
+.lr .nm b{display:block}.lr small{color:var(--mut);font-size:11px;font-weight:400}
+.lr em{font-style:normal;font-weight:800;font-size:19px;color:var(--gold);font-variant-numeric:tabular-nums}
+.lr.m1{border-left:3px solid #c9a84c}.lr.m2{border-left:3px solid #9ca3af}.lr.m3{border-left:3px solid #b87333}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:rgba(166,124,20,.14);color:var(--gold);border:1px solid rgba(166,124,20,.35);margin-left:6px;vertical-align:middle}
+#modal{display:none;position:fixed;inset:0;background:rgba(10,12,18,.55);backdrop-filter:blur(5px);justify-content:center;align-items:flex-start;z-index:50;overflow-y:auto;padding:30px 12px}
+#mc{background:var(--sf);border:1px solid var(--gold);border-radius:18px;padding:22px 18px;width:100%;max-width:580px;position:relative}
+.mh{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--ln);padding-bottom:12px}
+.mh h2{margin:0;font-size:24px;flex:1}
+.mtag{position:absolute;top:-12px;left:18px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--sf);border:1px solid var(--gold);color:var(--gold)}
+#mx{width:34px;height:34px;padding:0;font-size:20px;line-height:1}
+.md{text-align:center;color:var(--mut);font-size:12px;letter-spacing:.1em;margin:8px 0 14px}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:14px}
+.sb{background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:10px}
+.sb span,.sb small{display:block;font-size:11px;color:var(--mut)}.sb b{font-size:21px;color:var(--gold);display:block}
+.db{background:var(--bg);border:1px solid var(--ln);border-radius:12px;padding:13px;margin-bottom:12px}
+.db h3{font-size:14px}.db p{margin:0 0 8px}
+.cr{margin:12px 0}.cr>b{font-size:12px}
+.cl2{display:grid;grid-template-columns:34px 1fr 64px;gap:6px;align-items:center;margin:3px 0;font-size:11px}
+.cl2 i{height:8px;background:var(--trk);border-radius:6px;overflow:hidden}
+.cl2 u{display:block;height:100%;text-decoration:none;border-radius:6px}
+.cl2 em{font-style:normal;font-weight:700;text-align:right}
+span.you{color:var(--gold)}span.high{color:var(--rose)}u.you{background:var(--gold)}u.avg{background:var(--mut);opacity:.5}u.high{background:var(--rose)}
+.mcal{max-height:420px;overflow-y:auto}
+.mct{text-align:center;font-weight:700;font-size:12px;color:var(--gold);margin:12px 0 6px}
+.mcg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;font-size:10px;text-align:center}
+.mcd{border:1px solid var(--ln);border-radius:5px;min-height:34px;padding:3px;background:var(--sf);text-align:left}
+.mcd.on{background:rgba(201,168,76,.16);border-color:var(--gold)}.mcd b{display:block}
+.chips{display:flex;flex-wrap:wrap;gap:5px}.chips span{font-size:11px;border:1px solid var(--ln);border-radius:6px;padding:3px 7px;background:var(--sf)}
+.ab{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}#wab{background:#128c3e;color:#fff;border-color:#128c3e}
+
+/* Official Record Mapper */
+.map-card{border:1px solid var(--gold);margin:18px 0 8px}
+.map-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.map-head h2{margin:0;font-size:18px}
+.map-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.map-box{background:var(--bg);border:1px solid var(--ln);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.map-box label{font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+.map-box select,.map-box input[type="search"]{width:100%;border-radius:10px}
+.pick-list{max-height:240px;overflow-y:auto;border:1px solid var(--ln);border-radius:10px;background:var(--sf);padding:4px}
+.pick-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-bottom:1px solid var(--ln);cursor:pointer;font-size:13px;border-radius:6px}
+.pick-item:last-child{border-bottom:none}
+.pick-item:hover{background:var(--trk)}
+.pick-item.sel{background:rgba(166,124,20,.14)}
+.pick-item input{width:16px;height:16px;margin:0;accent-color:var(--gold);flex-shrink:0}
+.pick-meta{margin-left:auto;font-size:11.5px;color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pick-hint{font-size:10px;font-weight:700;color:var(--grn);border:1px solid var(--grn);border-radius:999px;padding:1px 6px}
+.sel-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:26px}
+.sel-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(166,124,20,.16);border:1px solid var(--gold);color:var(--ink);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.sel-chip button{border:none;background:transparent;padding:0;color:var(--gold);font-weight:800;font-size:14px;line-height:1}
+.map-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-top:4px}
+.map-sum .sb{padding:8px 10px}.map-sum .sb b{font-size:18px}
+.map-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--ln)}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>Mission: Veni, Vidi, Vici! Analytics</h1>
+<p class="sub">Live from the CSE-2 report card view. Every number is calculated from the current data each time the page loads.</p>
+
+<div class="ql">
+<a href="https://andrewveda.com/SRM-VEC-English-PWA/buttons/wordleleaderboard" onclick="event.preventDefault();window.open(this.href,'wordleLeaderboard','width=480,height=720,noopener')">🟩 Wordle Blitz Leaderboard ↗</a>
+<a href="https://andrewveda.com/SRM-VEC-English-PWA/buttons/blossom_leaderboard" onclick="event.preventDefault();window.open(this.href,'blossomLeaderboard','width=480,height=720,noopener')">🌸 Blossom Leaderboard ↗</a></div>
+<p class="src" id="last"></p>
+<div class="bar"><button id="refresh">Refresh now</button><span class="src" id="src">Loading…</span></div>
+
+<section class="c map-card" id="mapperCard">
+  <div class="map-head">
+    <div>
+      <h2>🪪 Official Record Mapper</h2>
+      <p class="src" style="margin:2px 0 0">Select your official record, check all your display names from the leaderboard, then download your combined Report, Quest Calendar, or Mapped Usernames.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span class="src" id="mapCount">0 of 59 mapped</span>
+      <button id="dlMapCsv">⬇️ Download Mapped Usernames</button>
+    </div>
+  </div>
+  <div class="map-grid">
+    <div class="map-box">
+      <label for="offSearch">1. Select Official Record (59 CSE-2 Students)</label>
+      <input id="offSearch" type="search" placeholder="Filter by roll no, reg no, or official name…">
+      <select id="offRec" aria-label="Official Student Record" size="6" style="height:178px;padding:6px"></select>
+      <div class="src" id="offInfo">Select a student to start mapping.</div>
+    </div>
+    <div class="map-box">
+      <label for="lbSearch">2. Select Display Name(s) from Leaderboard</label>
+      <input id="lbSearch" type="search" placeholder="Search leaderboard usernames to check…">
+      <div class="pick-list" id="pickList"><div class="src" style="padding:10px">Loading leaderboard names…</div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <span class="src" id="selCount">0 display names selected</span>
+        <button id="clearSel" type="button" style="padding:4px 10px;font-size:12px">Clear selected</button>
+      </div>
+      <div class="sel-chips" id="selChips"></div>
+    </div>
+  </div>
+  <div id="mapPreview" style="margin-top:12px"></div>
+  <div class="map-actions">
+    <button id="btnViewMerged" class="pri" disabled>👁️ View Combined Profile</button>
+    <button id="btnDlReport" class="pri" disabled>📄 Download Report (PDF)</button>
+    <button id="btnDlCal" class="pri" disabled>📅 Download Calendar (PNG)</button>
+    <button id="btnWaMerged" disabled>💬 Send Card on WhatsApp</button>
+  </div>
+</section>
+
+<div class="bar" style="position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:8px 0">
+  <select id="dept" aria-label="Department"></select>
+  <input id="q" type="search" placeholder="Search student name">
+  <label class="src"><input type="checkbox" id="nz" checked style="width:auto"> Hide students with zero attempts</label>
+  <span class="src" id="cnt"></span>
+</div>
+
+<div id="app"></div>
+<div id="modal"><div id="mc"></div></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const sum=a=>a.reduce((s,x)=>s+x,0),avg=a=>a.length?sum(a)/a.length:0;
+const pc=(a,p)=>{if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),i=(s.length-1)*p,l=Math.floor(i);return s[l]+(s[Math.ceil(i)]-s[l])*(i-l)};
+const sd=a=>{const m=avg(a);return Math.sqrt(avg(a.map(x=>(x-m)**2)))};
+const corr=(a,b)=>{const ma=avg(a),mb=avg(b);let n=0,da=0,db=0;a.forEach((x,i)=>{n+=(x-ma)*(b[i]-mb);da+=(x-ma)**2;db+=(b[i]-mb)**2});return da&&db?n/Math.sqrt(da*db):0};
+const f=n=>Math.round(n).toLocaleString('en-IN');
+const pct=x=>(x*100).toFixed(1)+'%';
+const dur=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?h+'h '+m+'m':m+'m'};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const csvEsc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+const DAY=864e5;
+let ALL=[],VIEW=[],sortK='total_score',sortD=-1,page=0,lead='total_score',ldir=1;
+
+const OFFICIAL=[
+  {reg:'142226104060',roll:'26CS060',name:'KALEELUR RAHMAN S'},
+  {reg:'142226104061',roll:'26CS061',name:'KAMESHH V'},
+  {reg:'142226104062',roll:'26CS062',name:'KANISHKA M'},
+  {reg:'142226104063',roll:'26CS063',name:'KARTHIKEYAN S (14-03-2008)'},
+  {reg:'142226104064',roll:'26CS064',name:'KARTHIKEYAN S (04-03-2009)'},
+  {reg:'142226104065',roll:'26CS065',name:'KASI VISWANATHAN S S'},
+  {reg:'142226104066',roll:'26CS066',name:'KATHIKSHA V'},
+  {reg:'142226104067',roll:'26CS067',name:'KAVINILA M'},
+  {reg:'142226104068',roll:'26CS068',name:'KAVITHA S'},
+  {reg:'142226104069',roll:'26CS069',name:'KAVITHASHREE B'},
+  {reg:'142226104070',roll:'26CS070',name:'K KAVIYA SRI'},
+  {reg:'142226104071',roll:'26CS071',name:'KEERTHIKA M'},
+  {reg:'142226104072',roll:'26CS072',name:'KHAJA MOHIDEEN P'},
+  {reg:'142226104073',roll:'26CS073',name:'B KIRTHIKA SRI'},
+  {reg:'142226104074',roll:'26CS074',name:'B KIRUTHIKA'},
+  {reg:'142226104075',roll:'26CS075',name:'KISHOR S'},
+  {reg:'142226104076',roll:'26CS076',name:'KISHORE KUMAR D E'},
+  {reg:'142226104077',roll:'26CS077',name:'KISHORE V'},
+  {reg:'142226104078',roll:'26CS078',name:'A KOHULAN'},
+  {reg:'142226104079',roll:'26CS079',name:'KOWSHIK KAMAL L'},
+  {reg:'142226104080',roll:'26CS080',name:'KRISHNAVARSHINI S V'},
+  {reg:'142226104081',roll:'26CS081',name:'T LAKSHITHA DEVI'},
+  {reg:'142226104082',roll:'26CS082',name:'LAVANYA G'},
+  {reg:'142226104083',roll:'26CS083',name:'LAVANYA R'},
+  {reg:'142226104084',roll:'26CS084',name:'LOHENDRA T G'},
+  {reg:'142226104085',roll:'26CS085',name:'LOKESHWER V K'},
+  {reg:'142226104086',roll:'26CS086',name:'MADHAAVAN D'},
+  {reg:'142226104087',roll:'26CS087',name:'P MADHUKRISHNA'},
+  {reg:'142226104088',roll:'26CS088',name:'MADHUMATHI S'},
+  {reg:'142226104089',roll:'26CS089',name:'MANISH M'},
+  {reg:'142226104090',roll:'26CS090',name:'MEGARSHITH PACHA'},
+  {reg:'142226104091',roll:'26CS091',name:'MOHAMMED MAGTHUM P'},
+  {reg:'142226104092',roll:'26CS092',name:'MOHANA KRISHNA MURTHY S'},
+  {reg:'142226104093',roll:'26CS093',name:'MUGUNTHA PRIYAN S'},
+  {reg:'142226104094',roll:'26CS094',name:'A MUHAMMAD NAWFAL RIYAZ'},
+  {reg:'142226104095',roll:'26CS095',name:'MUKILAN S'},
+  {reg:'142226104096',roll:'26CS096',name:'NANDHINI M'},
+  {reg:'142226104097',roll:'26CS097',name:'R NANDITA'},
+  {reg:'142226104098',roll:'26CS098',name:'NARENDRAN K'},
+  {reg:'142226104099',roll:'26CS099',name:'NAVEENA M S'},
+  {reg:'142226104100',roll:'26CS100',name:'NETHRA S'},
+  {reg:'142226104101',roll:'26CS101',name:'NITHYAPRIYA S'},
+  {reg:'142226104102',roll:'26CS102',name:'NIVETHA T'},
+  {reg:'142226104103',roll:'26CS103',name:'NIVETHA V'},
+  {reg:'142226104104',roll:'26CS104',name:'NIWIN KUMAR S'},
+  {reg:'142226104105',roll:'26CS105',name:'OVIYA P'},
+  {reg:'142226104106',roll:'26CS106',name:'PAVITHRA S'},
+  {reg:'142226104107',roll:'26CS107',name:'PHILIP P'},
+  {reg:'142226104108',roll:'26CS108',name:'POORNASHRI S'},
+  {reg:'142226104109',roll:'26CS109',name:'PRABAKAR A'},
+  {reg:'142226104110',roll:'26CS110',name:'PRASANNA KUMAR P'},
+  {reg:'142226104111',roll:'26CS111',name:'PRASANTH R'},
+  {reg:'142226104112',roll:'26CS112',name:'PRAVEEN KUMAR M'},
+  {reg:'142226104113',roll:'26CS113',name:'PRAWIN KUMAR K'},
+  {reg:'142226104114',roll:'26CS114',name:'PREETHI SRI A'},
+  {reg:'142226104115',roll:'26CS115',name:'PRINCY J'},
+  {reg:'142226104116',roll:'26CS116',name:'RAGAV KRISHNA V'},
+  {reg:'142226104117',roll:'26CS117',name:'RAGAVI E'},
+  {reg:'142226104118',roll:'26CS118',name:'RAGUL R'}
+];
+
+const MAP_KEY='vvv_cse2_official_map_v1';
+let MAPS={};
+try{MAPS=JSON.parse(localStorage.getItem(MAP_KEY)||'{}')||{}}catch(e){MAPS={}}
+let curReg=OFFICIAL[0].reg;
+const saveMaps=()=>{try{localStorage.setItem(MAP_KEY,JSON.stringify(MAPS))}catch(e){}};
+const getSel=reg=>Array.isArray(MAPS[reg])?MAPS[reg]:[];
+const findOwner=dispName=>{for(const rec of OFFICIAL){if(getSel(rec.reg).includes(dispName))return rec}return null};
+
+const SB_URL='https://yellow-lab-4999.andrewveda.workers.dev';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE';
+const VIEW_NAME='report_card_cse2_view';
+const BOOK_MAP={222:"Lateral Thinking Pt 1",234:"Lateral Thinking Pt 2",240:"Thinking, Fast & Slow Pt 1",242:"Thinking, Fast & Slow Pt 2",243:"Thinking, Fast & Slow Pt 3",253:"The Willpower Instinct",255:"The Chimp Paradox Pt 1",256:"The Chimp Paradox Pt 2",223:"Grit Pt 1",235:"Grit Pt 2",230:"Can't Hurt Me",254:"Peak",225:"Atomic Habits",229:"The Mountain Is You",241:"The Subtle Art",233:"Unbreakable",244:"Courage to Be Disliked Pt 1",245:"Courage to Be Disliked Pt 2",246:"Courage to Be Disliked Pt 3",247:"Courage to Be Disliked Pt 4",248:"Courage to Be Disliked Pt 5",250:"Courage to Be Disliked Pt 6",226:"Win Friends & Influence People",227:"The Daily Stoic",265:"Start with Why Pt 1",266:"Start with Why Pt 2",257:"Checklist Manifesto Pt 1",258:"Checklist Manifesto Pt 2",231:"Man's Search For Meaning Pt 1",238:"Man's Search For Meaning Pt 2",236:"Illusions",237:"Fountainhead / Atlas Shrugged",267:"Sapiens Pt 1",268:"Sapiens Pt 2",239:"Politics & the English Language",252:"Steal Like an Artist",269:"Unpublished David Ogilvy Pt 1",270:"Unpublished David Ogilvy Pt 2",224:"Psychology of Money Pt 1",249:"Psychology of Money Pt 2",232:"7 Habits of Highly Effective People",259:"Bold Pt 1",260:"Bold Pt 2",261:"Zero to One Pt 1",262:"Zero to One Pt 2",263:"Adapt Pt 1",264:"Adapt Pt 2"};
+const parseItems=raw=>!raw||raw==='NULL'?[]:String(raw).split(',').map(i=>i.trim()).filter(Boolean).map(it=>{const[t,n]=it.split(' ');return{type:t,number:Number(n),label:it}});
+const NUM=['total_attempts','total_correct','total_wrong','accuracy','total_score','total_time','quests_completed','videos_completed','stories_completed','cryptic_completed','wordle_completed','vocab_completed'];
+function norm(rows){const o=rows.filter(r=>String(r.department||'').trim().toUpperCase()!=='FRIENDS & FAMILY').map(r=>{const x={...r};NUM.forEach(k=>x[k]=parseFloat(x[k])||0);
+x.name=String(x.name??'Unknown');x.department=String(x.department||'Unknown').trim().toUpperCase();const d=Date.parse(x.last_test_taken);x.ts=isNaN(d)?null:d;
+const qs=parseItems(x.quest_list),v4=qs.filter(q=>['quest','velocity'].includes((q.type||'').toLowerCase())&&q.number>=1000&&q.number<=9999).length,themes=qs.filter(q=>q.label.includes('VocabTheme_')).length;
+x.vocab_completed=(String(x.vocab_list||'').match(/VocabDate_\d{4}-\d{2}-\d{2}/g)||[]).length+v4+themes*10;
+x.book_list=qs.filter(q=>BOOK_MAP[q.number]).map(q=>BOOK_MAP[q.number]);x.books_completed=x.book_list.length;
+x.quotes_completed=qs.filter(q=>q.label.includes('quotes-quest')).length;
+x.videos_completed=parseItems(x.video_list).length+qs.filter(q=>q.label.includes('Quest Video ')).length;
+x.stories_completed=parseItems(x.story_list).length+qs.filter(q=>q.label.includes('Quest Story ')).length;return x});
+if(Math.max(0,...o.map(x=>x.accuracy))>1.5)o.forEach(x=>x.accuracy/=100);return o}
+
+function mergeStudent(rec,names){
+  const rows=names.map(n=>ALL.find(x=>x.name===n)).filter(Boolean);
+  if(!rows.length)return null;
+  const tc=sum(rows.map(r=>r.total_correct)),tw=sum(rows.map(r=>r.total_wrong)),at=sum(rows.map(r=>r.total_attempts));
+  const acc=(tc+tw)>0?tc/(tc+tw):(at>0?sum(rows.map(r=>r.accuracy*r.total_attempts))/at:avg(rows.map(r=>r.accuracy)));
+  const joinList=k=>rows.map(r=>r[k]).filter(v=>v&&v!=='NULL').join(', ');
+  const books=[...new Set(rows.flatMap(r=>r.book_list||[]))];
+  const tsList=rows.map(r=>r.ts).filter(v=>v!=null);
+  const depts=[...new Set(rows.map(r=>r.department).filter(Boolean))];
+  return{
+    name:rec.name,
+    reg:rec.reg,
+    roll:rec.roll,
+    mapped_names:rows.map(r=>r.name),
+    department:depts.join(' / ')||'CSE-2',
+    total_attempts:at,
+    total_correct:tc,
+    total_wrong:tw,
+    accuracy:acc,
+    total_score:sum(rows.map(r=>r.total_score)),
+    total_time:sum(rows.map(r=>r.total_time)),
+    quests_completed:sum(rows.map(r=>r.quests_completed)),
+    videos_completed:sum(rows.map(r=>r.videos_completed)),
+    stories_completed:sum(rows.map(r=>r.stories_completed)),
+    cryptic_completed:sum(rows.map(r=>r.cryptic_completed)),
+    wordle_completed:sum(rows.map(r=>r.wordle_completed)),
+    vocab_completed:sum(rows.map(r=>r.vocab_completed)),
+    books_completed:books.length,
+    book_list:books,
+    quotes_completed:sum(rows.map(r=>r.quotes_completed)),
+    quest_list:joinList('quest_list'),
+    video_list:joinList('video_list'),
+    story_list:joinList('story_list'),
+    cryptic_list:joinList('cryptic_list'),
+    vocab_list:joinList('vocab_list'),
+    ts:tsList.length?Math.max(...tsList):null
+  };
+}
+
+function matchScore(offName,dispName){
+  const clean=s=>s.toLowerCase().replace(/\([^)]*\)/g,'').replace(/[^a-z0-9\s]/g,' ').trim();
+  const oToks=clean(offName).split(/\s+/).filter(t=>t.length>=3);
+  const dLow=clean(dispName);
+  if(!oToks.length||!dLow)return 0;
+  let sc=0;
+  oToks.forEach(t=>{if(dLow.includes(t))sc+=2;else if(t.length>=4&&dLow.includes(t.slice(0,4)))sc+=1});
+  return sc;
+}
+
+function renderOffList(){
+  const q=($('#offSearch').value||'').trim().toLowerCase(),sel=$('#offRec');
+  const filtered=OFFICIAL.filter(r=>!q||r.name.toLowerCase().includes(q)||r.roll.toLowerCase().includes(q)||r.reg.includes(q));
+  sel.innerHTML=filtered.map(r=>{
+    const cnt=getSel(r.reg).length;
+    return `<option value="${r.reg}"${r.reg===curReg?' selected':''}>${r.roll} · ${r.reg} · ${esc(r.name)}${cnt?' ('+cnt+' mapped)':''}</option>`;
+  }).join('');
+  if(filtered.length&&!filtered.some(r=>r.reg===curReg)){curReg=filtered[0].reg;sel.value=curReg}
+  const mappedTotal=OFFICIAL.filter(r=>getSel(r.reg).length>0).length;
+  $('#mapCount').textContent=`${mappedTotal} of ${OFFICIAL.length} mapped`;
+}
+
+function renderMapper(){
+  renderOffList();
+  const rec=OFFICIAL.find(r=>r.reg===curReg)||OFFICIAL[0];
+  if(!rec)return;
+  curReg=rec.reg;
+  const selected=getSel(rec.reg);
+  $('#offInfo').innerHTML=`<b>${esc(rec.name)}</b> · Roll: <b>${rec.roll}</b> · Reg: <b>${rec.reg}</b>`;
+
+  const q=($('#lbSearch').value||'').trim().toLowerCase();
+  const list=$('#pickList');
+  if(!ALL.length){list.innerHTML='<div class="src" style="padding:10px">Loading leaderboard names…</div>';return}
+
+  const items=ALL
+    .filter(x=>!q||x.name.toLowerCase().includes(q))
+    .map(x=>({x,isSel:selected.includes(x.name),ms:matchScore(rec.name,x.name)}))
+    .sort((a,b)=>(b.isSel-a.isSel)||(b.ms-a.ms)||b.x.total_score-a.x.total_score);
+
+  list.innerHTML=items.length?items.map(({x,isSel,ms})=>{
+    const other=findOwner(x.name);
+    const otherTag=other&&other.reg!==rec.reg?` <span class="tag" title="Mapped to ${esc(other.name)}">${other.roll}</span>`:'';
+    const sugTag=!isSel&&ms>=2?' <span class="pick-hint">match</span>':'';
+    return `<label class="pick-item${isSel?' sel':''}"><input type="checkbox" data-n="${esc(x.name)}"${isSel?' checked':''}><span>${esc(x.name)}${sugTag}${otherTag}</span><span class="pick-meta">${f(x.total_score)} pts · ${f(x.total_attempts)} att</span></label>`;
+  }).join(''):'<div class="src" style="padding:10px">No leaderboard names match your search.</div>';
+
+  list.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    cb.onchange=()=>{
+      const name=cb.dataset.n;
+      let arr=[...getSel(rec.reg)];
+      if(cb.checked){if(!arr.includes(name))arr.push(name)}
+      else arr=arr.filter(v=>v!==name);
+      if(arr.length)MAPS[rec.reg]=arr;else delete MAPS[rec.reg];
+      saveMaps();
+      renderMapper();
+      render();
+    };
+  });
+
+  $('#selCount').textContent=`${selected.length} display ${selected.length===1?'name':'names'} selected`;
+  $('#selChips').innerHTML=selected.length
+    ?selected.map(n=>`<span class="sel-chip">${esc(n)} <button type="button" data-rm="${esc(n)}" aria-label="Remove ${esc(n)}">×</button></span>`).join('')
+    :'<span class="src">No display names selected yet. Check one or more names above.</span>';
+  $('#selChips').querySelectorAll('button[data-rm]').forEach(b=>{
+    b.onclick=()=>{
+      const arr=getSel(rec.reg).filter(v=>v!==b.dataset.rm);
+      if(arr.length)MAPS[rec.reg]=arr;else delete MAPS[rec.reg];
+      saveMaps();
+      renderMapper();
+      render();
+    };
+  });
+
+  const merged=mergeStudent(rec,selected);
+  const pv=$('#mapPreview');
+  const has=!!merged;
+  $('#btnViewMerged').disabled=!has;
+  $('#btnDlReport').disabled=!has;
+  $('#btnDlCal').disabled=!has;
+  $('#btnWaMerged').disabled=!has;
+
+  if(has){
+    pv.innerHTML=`<div class="map-sum">
+      <div class="sb"><span>Combined Score</span><b>${f(merged.total_score)}</b><small>${merged.mapped_names.length} username${merged.mapped_names.length>1?'s':''}</small></div>
+      <div class="sb"><span>Accuracy</span><b>${Math.round(merged.accuracy*100)}%</b><small>${f(merged.total_correct)}/${f(merged.total_correct+merged.total_wrong)}</small></div>
+      <div class="sb"><span>Active Days</span><b>${activeDays(merged)}</b><small>${questMarks(merged).size} quest days</small></div>
+      <div class="sb"><span>Quests Done</span><b>${f(merged.quests_completed)}</b><small>${fmtT(merged.total_time)}</small></div>
+    </div>`;
+  }else{
+    pv.innerHTML='';
+  }
+}
+
+$('#offSearch').oninput=renderOffList;
+$('#offRec').onchange=()=>{curReg=$('#offRec').value;renderMapper()};
+$('#lbSearch').oninput=renderMapper;
+$('#clearSel').onclick=()=>{delete MAPS[curReg];saveMaps();renderMapper();render()};
+$('#btnViewMerged').onclick=()=>{const rec=OFFICIAL.find(r=>r.reg===curReg),m=mergeStudent(rec,getSel(curReg));if(m)showDetail(m)};
+$('#btnDlReport').onclick=()=>{const rec=OFFICIAL.find(r=>r.reg===curReg),m=mergeStudent(rec,getSel(curReg));if(m)pdf(m)};
+$('#btnDlCal').onclick=()=>{const rec=OFFICIAL.find(r=>r.reg===curReg),m=mergeStudent(rec,getSel(curReg));if(m)downloadCalendar(m,$('#btnDlCal'))};
+$('#btnWaMerged').onclick=()=>{const rec=OFFICIAL.find(r=>r.reg===curReg),m=mergeStudent(rec,getSel(curReg));if(m)wa(m,$('#btnWaMerged'))};
+
+$('#dlMapCsv').onclick=()=>{
+  const mappedRows=OFFICIAL.filter(r=>getSel(r.reg).length>0);
+  if(!mappedRows.length){alert('No official records have been mapped to display names yet. Select a student and check at least one display name first.');return}
+  const head=['Register Number','Roll Number','Official Name','Mapped Usernames','Mapped Count','Combined Score','Accuracy (%)','Total Attempts','Correct','Wrong','Active Days','Quest Days','Quests','Videos','Stories','Cryptic','Wordle','Vocab','Books','Quotes','Total Time (s)','Last Test'];
+  const lines=[head.map(csvEsc).join(',')];
+  mappedRows.forEach(rec=>{
+    const names=getSel(rec.reg),m=mergeStudent(rec,names);
+    const row=[
+      rec.reg,rec.roll,rec.name,names.join(' | '),names.length,
+      m?Math.round(m.total_score):0,
+      m?(m.accuracy*100).toFixed(1):'0.0',
+      m?m.total_attempts:0,m?m.total_correct:0,m?m.total_wrong:0,
+      m?activeDays(m):0,m?questMarks(m).size:0,
+      m?m.quests_completed:0,m?m.videos_completed:0,m?m.stories_completed:0,
+      m?m.cryptic_completed:0,m?m.wordle_completed:0,m?m.vocab_completed:0,
+      m?m.books_completed:0,m?m.quotes_completed:0,
+      m?Math.round(m.total_time):0,m?fmtDate(m.ts):'N/A'
+    ];
+    lines.push(row.map(csvEsc).join(','));
+  });
+  const blob=new Blob([lines.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+  const u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download='CSE2_Mapped_Usernames.csv';a.click();URL.revokeObjectURL(u);
+};
+
+async function fetchAll(){let out=[],from=0,step=1000;for(;;){const r=await fetch(`${SB_URL}/rest/v1/${VIEW_NAME}?select=*&order=name.asc`,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Range-Unit':'items',Range:`${from}-${from+step-1}`}});
+if(!r.ok)throw new Error(r.status+' '+(await r.text()).slice(0,160));const p=await r.json();out=out.concat(p);if(p.length<step)break;from+=step}return out}
+function ingest(rows){ALL=norm(rows);if(!ALL.length){$('#src').textContent=VIEW_NAME+' returned no rows.';$('#app').innerHTML='';return}
+const sel=$('#dept'),keep=sel.value,ds=[...new Set(ALL.map(x=>x.department))].sort();
+sel.innerHTML='<option value="">All departments</option>'+ds.map(d=>`<option>${esc(d)}</option>`).join('');sel.value=ds.includes(keep)?keep:'';sel.style.display=ds.length>1?'':'none';
+$('#src').textContent='Live from '+VIEW_NAME+' · '+f(ALL.length)+' rows · updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});const lt=[...ALL].filter(x=>x.ts).sort((a,b)=>b.ts-a.ts)[0];$('#last').textContent=lt?'Last logged: '+lt.name+' · '+fmtDate(lt.ts):'';
+renderMapper();apply()}
+async function loadLive(){$('#src').textContent='Loading…';try{ingest(await fetchAll())}catch(e){console.error(e);$('#src').textContent='Could not load '+VIEW_NAME+' ('+e.message+'). Press Refresh to retry.'}}
+$('#refresh').onclick=loadLive;
+
+const fmtDate=t=>t?new Date(t).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}):'N/A';
+const fmtT=s=>{s=Math.round(s||0);return Math.floor(s/3600)+'h '+Math.floor(s%3600/60)+'m '+s%60+'s'};
+const START_DATE=new Date('2025-08-25'),QSTART=new Date('2026-09-01');
+const mapDate=(n,b)=>{const d=new Date(b);d.setDate(d.getDate()+(n-1));return d};
+function activeDays(s){const set=new Set(),add=d=>{if(d&&!isNaN(d))set.add(d.toDateString())};
+['quest_list','video_list','story_list','cryptic_list'].forEach(k=>parseItems(s[k]).forEach(i=>add(mapDate(i.number,START_DATE))));
+(String(s.vocab_list||'').match(/VocabDate_\d{4}-\d{2}-\d{2}/g)||[]).forEach(m=>add(new Date(m.slice(10)+'T00:00:00')));return set.size}
+function questMarks(s){const m=new Set();parseItems(s.quest_list).filter(q=>(q.type||'').toLowerCase()==='quest').forEach(q=>{const d=mapDate(q.number,QSTART);if(!isNaN(d))m.add(d.toDateString())});return m}
+function calMonth(base,marks){const y=base.getFullYear(),mo=base.getMonth(),first=new Date(y,mo,1).getDay(),nd=new Date(y,mo+1,0).getDate();
+let h=`<div class="mct">${base.toLocaleString('en-IN',{month:'long',year:'numeric'})}</div><div class="mcg">`+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div>${d}</div>`).join('');
+for(let i=0;i<first;i++)h+='<div></div>';
+for(let d=1;d<=nd;d++)h+=marks.has(new Date(y,mo,d).toDateString())?`<div class="mcd on"><b>${d}</b>♥️</div>`:`<div class="mcd">${d}</div>`;return h+'</div>'}
+function calendar(s){const marks=questMarks(s),t=new Date(),end=new Date(t.getFullYear(),t.getMonth(),1);let c=new Date(2026,8,1),h='';while(c<=end){h+=calMonth(c,marks);c.setMonth(c.getMonth()+1)}return h}
+function cmp(label,val,av,fmt,high){const vs=[val,av];if(high!==undefined)vs.push(high);const mx=Math.max(...vs)*1.15||1,ls=[['You','you',val],['Avg','avg',av]];if(high!==undefined)ls.push(['High','high',high]);
+return `<div class="cr"><b>${label}</b>`+ls.map(l=>`<div class="cl2"><span class="${l[1]}">${l[0]}</span><i><u class="${l[1]}" style="width:${l[2]/mx*100}%"></u></i><em>${fmt(l[2])}</em></div>`).join('')+'</div>'}
+const closeM=()=>{$('#modal').style.display='none'};
+$('#modal').onclick=e=>{if(e.target.id==='modal')closeM()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+
+function showDetail(s){const ag=k=>avg(ALL.map(x=>x[k]||0)),A={sc:ag('total_score'),ac:ag('accuracy'),tm:ag('total_time'),at:ag('total_attempts'),hi:Math.max(...ALL.map(x=>x.total_score||0),0)};
+const rankIdx=[...ALL].sort((a,b)=>b.total_score-a.total_score).findIndex(x=>x===s);
+const rankLabel=rankIdx>=0?`Rank #${rankIdx+1}`:(s.roll?`${s.roll} · ${s.reg}`:'Combined Profile');
+const mx=k=>Math.max(...ALL.map(x=>x[k]||0),1);
+const ac=[['♥️ Quests','quests_completed'],['😍 Videos','videos_completed'],['📜 Stories','stories_completed'],['🔐 Cryptic','cryptic_completed'],['🟩 Wordle','wordle_completed'],['📚 Vocab','vocab_completed'],['📖 Books','books_completed'],['💬 Quotes','quotes_completed']];
+const bx=(l,v,ft)=>`<div class="sb"><span>${l}</span><b>${v}</b><small>${ft}</small></div>`;
+const mappedBlock=s.mapped_names&&s.mapped_names.length?`<div class="db"><h3>🔗 Mapped leaderboard usernames (${s.mapped_names.length})</h3><div class="chips">${s.mapped_names.map(n=>`<span>${esc(n)}</span>`).join('')}</div></div>`:'';
+const subMeta=[s.roll?'Roll: '+s.roll:'',s.reg?'Reg: '+s.reg:'',s.department].filter(Boolean).join(' · ');
+$('#mc').innerHTML=`<div class="mh"><div class="mtag">Student profile · ${esc(rankLabel)}</div><h2>${esc(s.name)}</h2><button id="mx" aria-label="Close">×</button></div><div class="md">${esc(subMeta)}</div>
+${mappedBlock}
+<div class="sg">${bx('Total score',f(s.total_score),'Mission points')}${bx('Accuracy',Math.round(s.accuracy*100)+'%','Hit rate')}${bx('Attempts',f(s.total_attempts),'Total tries')}${bx('Correct',f(s.total_correct),'Direct hits')}${bx('Wrong',f(s.total_wrong),'Near misses')}${bx('Active days',activeDays(s),'Days logged')}${bx('Time on mission',fmtT(s.total_time),'Cumulative')}</div>
+<div class="db"><h3>📈 You vs class average vs high score</h3>${cmp('Score',s.total_score,A.sc,v=>f(v),A.hi)}${cmp('Accuracy',s.accuracy*100,A.ac*100,v=>Math.round(v)+'%')}${cmp('Time logged',s.total_time,A.tm,dur)}${cmp('Attempts',s.total_attempts,A.at,v=>f(v))}</div>
+<div class="db"><h3>🧩 Activity breakdown</h3><p class="src">Bar length is relative to the highest student in each category.</p>${ac.map(a=>`<div class="br"><span>${a[0]}</span><i><b style="width:${Math.min(100,s[a[1]]/mx(a[1])*100)}%;background:var(--gold)"></b></i><em>${f(s[a[1]])}</em></div>`).join('')}</div>
+<div class="db"><h3>♥️ Quest calendar</h3><p class="src">Each heart is a day a Quest was completed, counting from Quest 1 on 1 Sep 2026.</p><div class="mcal">${calendar(s)}</div></div>
+<div class="db"><h3>📚 Library log</h3><div class="chips">${s.book_list.length?s.book_list.map(b=>`<span>${esc(b)}</span>`).join(''):'<span>No books logged</span>'}</div></div>
+<div class="db"><h3>🕐 Last mission</h3><p>${fmtDate(s.ts)}</p></div>
+<div class="ab"><button id="pdfb">📄 Download PDF</button><button id="calb">📅 Download Calendar</button><button id="wab">Send on WhatsApp</button></div>`;
+$('#modal').style.display='flex';$('#modal').scrollTop=0;$('#mx').onclick=closeM;$('#pdfb').onclick=()=>pdf(s);$('#calb').onclick=()=>downloadCalendar(s,$('#calb'));$('#wab').onclick=()=>wa(s,$('#wab'))}
+
+async function lib(src,test){if(test())return;await new Promise((ok,no)=>{const e=document.createElement('script');e.src=src;e.onload=ok;e.onerror=no;document.head.appendChild(e)})}
+
+async function pdf(s){await lib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',()=>window.jspdf);
+const{jsPDF}=window.jspdf,doc=new jsPDF({unit:'pt',format:'a4'}),PW=doc.internal.pageSize.getWidth(),PH=doc.internal.pageSize.getHeight(),M=44,CW=PW-M*2;
+const CB=[250,246,238],CC=[243,237,224],CD=[232,224,208],G=[180,140,40],GR=[150,112,18],GL=[201,168,76],INK=[22,16,6],IM=[72,56,28],ID=[130,112,72];
+const T=(t,x,y,sz,st,c,al)=>{doc.setFont('helvetica',st||'normal');doc.setFontSize(sz);doc.setTextColor(...(c||INK));doc.text(String(t),x,y,{align:al||'left'})};
+const box=(x,y,w,h,fill)=>{doc.setFillColor(...fill);doc.setDrawColor(...GL);doc.setLineWidth(.6);doc.roundedRect(x,y,w,h,7,7,'FD')};
+const line=y=>{doc.setDrawColor(...GL);doc.setLineWidth(.8);doc.line(M,y,PW-M,y)},C='center';
+doc.setFillColor(...CB);doc.rect(0,0,PW,PH,'F');doc.setFillColor(...G);doc.rect(0,0,PW,7,'F');doc.rect(0,PH-7,PW,7,'F');
+let y=32;T('SRM VALLIAMMAI ENGINEERING COLLEGE',PW/2,y,15,'bold',GR,C);y+=18;T('Department of English',PW/2,y,11,'normal',IM,C);y+=14;T('Mission: Veni, Vidi, Vici!',PW/2,y,10,'normal',IM,C);y+=14;line(y);
+y+=34;T(s.name.toUpperCase(),PW/2,y,s.name.length>24?20:30,'bold',INK,C);y+=18;
+const subLine=[s.reg?'REG: '+s.reg:'',s.roll?'ROLL: '+s.roll:'',s.department].filter(Boolean).join('  ·  ');
+T(subLine,PW/2,y,11,'bold',GR,C);y+=14;line(y);y+=18;
+box(M,y,CW,84,CC);[[f(s.total_score),'MISSION SCORE','points earned'],[Math.round(s.accuracy*100)+'%','ACCURACY','questions correct'],[activeDays(s),'ACTIVE DAYS','days with activity']].forEach((h,i)=>{const mid=M+i*CW/3+CW/6;T(h[0],mid,y+46,34,'bold',INK,C);T(h[1],mid,y+61,8,'bold',GR,C);T(h[2],mid,y+73,7.5,'normal',ID,C)});y+=96;
+box(M,y,CW,50,CC);T('TIME ON MISSION',M+18,y+20,9,'bold',GR);T('cumulative study time',M+18,y+35,8.5,'normal',ID);T(fmtT(s.total_time),PW-M-18,y+33,22,'bold',INK,'right');y+=62;
+const GAP=10,w3=(CW-GAP*2)/3;[['QUESTS TAKEN',s.total_attempts,'total attempts'],['CORRECT',s.total_correct,'direct hits'],['WRONG',s.total_wrong,'near misses'],['QUESTS DONE',s.quests_completed,'completed'],['VIDEOS',s.videos_completed,'completed'],['STORIES',s.stories_completed,'completed']].forEach((c,i)=>{const cx=M+(i%3)*(w3+GAP),cy=y+Math.floor(i/3)*(80+GAP);box(cx,cy,w3,80,CC);T(f(c[1]),cx+w3/2,cy+43,30,'bold',INK,C);T(c[0],cx+w3/2,cy+57,8,'bold',GR,C);T(c[2],cx+w3/2,cy+69,7.5,'normal',ID,C)});y+=2*(80+GAP)+2;
+const w5=(CW-GAP*4)/5;[['CRYPTIC',s.cryptic_completed,'puzzles solved'],['WORDLE',s.wordle_completed,'puzzles solved'],['VOCAB',s.vocab_completed,'words mastered'],['BOOKS',s.books_completed,'insights read'],['QUOTES',s.quotes_completed,'quotes logged']].forEach((c,i)=>{const cx=M+i*(w5+GAP);box(cx,y,w5,74,CD);T(f(c[1]),cx+w5/2,y+39,24,'bold',INK,C);T(c[0],cx+w5/2,y+53,7.5,'bold',GR,C);T(c[2],cx+w5/2,y+65,7,'normal',ID,C)});y+=86;
+box(M,y,CW,48,CC);T('LAST MISSION',M+18,y+19,8.5,'bold',GR);T(fmtDate(s.ts),M+18,y+35,10,'bold');T('TOTAL SCORE',PW-M-18,y+19,8.5,'bold',GR,'right');T(f(s.total_score)+' pts',PW-M-18,y+36,16,'bold',INK,'right');y+=60;
+if(s.mapped_names&&s.mapped_names.length){
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+  const mText=doc.splitTextToSize(s.mapped_names.join(', '),CW-36);
+  const mh=Math.max(44,26+mText.length*12);
+  box(M,y,CW,mh,CC);
+  T('MAPPED USERNAMES ('+s.mapped_names.length+')',M+18,y+16,8,'bold',GR);
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(...INK);
+  doc.text(mText,M+18,y+30);
+  y+=mh+12;
+}
+line(y);y+=13;
+T('Generated '+fmtDate(Date.now())+'  ·  Mission: Veni, Vidi, Vici!  ·  SRM Valliammai',PW/2,y,8,'normal',ID,C);
+const fname=(s.roll?s.roll+'_':'')+s.name.replace(/[^a-zA-Z0-9]+/g,'_')+'_MissionReport.pdf';
+doc.save(fname)}
+
+async function downloadCalendar(s,btn){
+  const orig=btn?btn.textContent:'';
+  if(btn){btn.textContent='Generating…';btn.disabled=true}
+  try{
+    await lib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',()=>window.html2canvas);
+    const marks=questMarks(s),t=new Date(),end=new Date(t.getFullYear(),t.getMonth(),1);
+    let c=new Date(2026,8,1),monthsHtml='';
+    while(c<=end){
+      const y=c.getFullYear(),mo=c.getMonth(),first=new Date(y,mo,1).getDay(),nd=new Date(y,mo+1,0).getDate();
+      let cells=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div style="font-size:10px;font-weight:700;color:#827048;padding-bottom:4px">${d}</div>`).join('');
+      for(let i=0;i<first;i++)cells+='<div></div>';
+      for(let d=1;d<=nd;d++){
+        const on=marks.has(new Date(y,mo,d).toDateString());
+        cells+=`<div style="border:1px solid ${on?'#a67c14':'#e2d9c2'};border-radius:6px;min-height:32px;padding:3px 4px;background:${on?'rgba(201,168,76,.22)':'#fffdf7'};text-align:left;font-size:10px;color:#1c2230"><b>${d}</b>${on?'<div>♥️</div>':''}</div>`;
+      }
+      monthsHtml+=`<div style="background:#fffdf7;border:1px solid #e2d9c2;border-radius:12px;padding:12px"><div style="text-align:center;font-weight:800;font-size:13px;color:#967012;margin-bottom:8px">${c.toLocaleString('en-IN',{month:'long',year:'numeric'})}</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">${cells}</div></div>`;
+      c.setMonth(c.getMonth()+1);
+    }
+    const sub=[s.reg?'Reg: '+s.reg:'',s.roll?'Roll: '+s.roll:'',s.department].filter(Boolean).join(' · ');
+    const mappedHtml=s.mapped_names&&s.mapped_names.length?`<div style="margin-top:10px;padding:8px 12px;background:#f3ede0;border:1px solid #c9a84c;border-radius:10px;font-size:11.5px;color:#1c2230"><b style="color:#967012">Mapped Usernames (${s.mapped_names.length}):</b> ${s.mapped_names.map(esc).join(', ')}</div>`:'';
+    const card=document.createElement('div');
+    card.style.cssText="position:fixed;left:-9999px;top:0;width:780px;font-family:'Bricolage Grotesque',sans-serif;background:#faf6ee;color:#1c2230;border:2px solid #c9a84c;border-radius:18px;overflow:hidden";
+    card.innerHTML=`<div style="height:8px;background:#a67c14"></div>
+    <div style="padding:24px 26px">
+      <div style="text-align:center;border-bottom:1px solid #e2d9c2;padding-bottom:14px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#967012">SRM Valliammai Engineering College · Department of English</div>
+        <div style="font-size:11px;color:#6a6f7c;margin-top:2px">Mission: Veni, Vidi, Vici! · Quest Calendar</div>
+        <div style="font-size:26px;font-weight:800;color:#161006;margin-top:10px">${esc(s.name).toUpperCase()}</div>
+        <div style="font-size:12px;font-weight:700;color:#967012;margin-top:4px">${esc(sub)}</div>
+        ${mappedHtml}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;text-align:center">
+        <div style="background:#f3ede0;border:1px solid #c9a84c;border-radius:10px;padding:10px"><div style="font-size:22px;font-weight:800;color:#967012">${marks.size}</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6a6f7c">Quest Days (♥️)</div></div>
+        <div style="background:#f3ede0;border:1px solid #c9a84c;border-radius:10px;padding:10px"><div style="font-size:22px;font-weight:800;color:#967012">${activeDays(s)}</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6a6f7c">Active Days</div></div>
+        <div style="background:#f3ede0;border:1px solid #c9a84c;border-radius:10px;padding:10px"><div style="font-size:22px;font-weight:800;color:#967012">${f(s.total_score)}</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6a6f7c">Mission Score</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">${monthsHtml}</div>
+      <div style="text-align:center;font-size:10px;color:#827048;margin-top:16px;padding-top:10px;border-top:1px solid #e2d9c2">Generated ${fmtDate(Date.now())} · Each ♥️ marks a completed Quest day (from 1 Sep 2026)</div>
+    </div>
+    <div style="height:8px;background:#a67c14"></div>`;
+    document.body.appendChild(card);
+    const cv=await html2canvas(card,{scale:2,backgroundColor:'#faf6ee',logging:false,width:780});
+    card.remove();
+    const fname=(s.roll?s.roll+'_':'')+s.name.replace(/[^a-zA-Z0-9]+/g,'_')+'_QuestCalendar.png';
+    cv.toBlob(bl=>{const u=URL.createObjectURL(bl),a=document.createElement('a');a.href=u;a.download=fname;a.click();URL.revokeObjectURL(u)},'image/png');
+  }catch(e){console.error(e);alert('Could not generate calendar image. Please try again.')}
+  finally{if(btn){btn.textContent=orig;btn.disabled=false}}
+}
+
+function dl(bl,name){const u=URL.createObjectURL(bl),a=document.createElement('a');a.href=u;a.download=name+'_MissionCard.png';a.click();URL.revokeObjectURL(u);setTimeout(()=>window.open('https://web.whatsapp.com/send?text='+encodeURIComponent('🎖️ *Mission: Veni, Vidi, Vici!*\nReport card for *'+name+'*. Attach the downloaded image.'),'_blank'),800)}
+async function wa(s,btn){const b=btn||$('#wab'),orig=b?b.textContent:'Send on WhatsApp';if(b){b.textContent='Generating…';b.disabled=true}
+try{await lib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',()=>window.html2canvas);
+const g='rgba(201,168,76,',bar='<div style="height:6px;background:linear-gradient(90deg,#8c6414,#e8c97a,#c9a84c,#f5e6a0,#c9a84c,#8c6414)"></div>';
+const tile=(v,l,big)=>{const on=big||v>0;return `<div style="flex:1;min-width:${big?0:'11%'};background:${on?'linear-gradient(135deg,'+g+'.22),'+g+'.1))':'rgba(255,255,255,.04)'};border:1px solid ${on?g+'.45)':'rgba(255,255,255,.08)'};border-radius:12px;padding:${big?'16px 8px':'10px 2px'};text-align:center"><div style="font-size:${big?34:16}px;font-weight:800;color:${on?'#e8c97a':g+'.3)'};line-height:1">${v}</div><div style="font-size:${big?8:7}px;letter-spacing:.14em;text-transform:uppercase;color:${g}.55);margin-top:4px">${l}</div></div>`};
+const ac=[['Quests','quests_completed'],['Videos','videos_completed'],['Stories','stories_completed'],['Cryptic','cryptic_completed'],['Wordle','wordle_completed'],['Vocab','vocab_completed'],['Books','books_completed'],['Quotes','quotes_completed']];
+const sub=[s.roll||'',s.reg||'',s.department].filter(Boolean).join(' · ');
+const mappedLine=s.mapped_names&&s.mapped_names.length?`<div style="margin-top:8px;font-size:9.5px;color:${g}.72)">Usernames: ${s.mapped_names.map(esc).join(', ')}</div>`:'';
+const card=document.createElement('div');card.style.cssText="position:fixed;left:-9999px;top:0;width:540px;font-family:'Bricolage Grotesque',sans-serif;background:linear-gradient(145deg,#1a1200,#2d1f00 40%,#1a0f00);border-radius:20px;overflow:hidden";
+card.innerHTML=bar+`<div style="padding:28px"><div style="text-align:center;margin-bottom:18px"><div style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:${g}.6)">SRM Valliammai Engineering College</div><div style="font-size:9px;letter-spacing:.18em;color:${g}.45);margin-top:4px">Department of English · Mission: Veni, Vidi, Vici!</div></div>
+<div style="text-align:center;margin-bottom:20px"><div style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:${g}.55);margin-bottom:8px">Student Profile</div><div style="font-size:28px;font-weight:800;color:#f5e6a0;line-height:1.1">${esc(s.name).toUpperCase()}</div><div style="margin-top:6px;font-size:10px;font-weight:600;letter-spacing:.14em;color:${g}.6)">${esc(sub)}</div>${mappedLine}</div>
+<div style="display:flex;gap:10px;margin-bottom:14px">${tile(f(s.total_score),'Mission score',1)}${tile(Math.round(s.accuracy*100)+'%','Accuracy',1)}${tile(activeDays(s),'Active days',1)}</div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:${g}.16);border:1px solid ${g}.4);border-radius:10px;padding:12px 16px;margin-bottom:14px"><span style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:${g}.6)">Time on mission</span><b style="font-size:18px;color:#e8c97a">${fmtT(s.total_time)}</b></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px">${ac.map(a=>tile(s[a[1]],a[0])).join('')}</div>
+<div style="text-align:center;font-size:8px;letter-spacing:.12em;color:${g}.35)">${fmtDate(Date.now())}</div></div>`+bar;
+document.body.appendChild(card);
+const cv=await html2canvas(card,{scale:2,backgroundColor:null,logging:false,width:540});card.remove();
+cv.toBlob(async bl=>{const file=new File([bl],s.name+'_MissionCard.png',{type:'image/png'});
+if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:s.name+' — Mission Report',text:'🎖️ Mission: Veni, Vidi, Vici! — Report for '+s.name})}catch(e){if(e.name!=='AbortError')dl(bl,s.name)}}else dl(bl,s.name);
+if(b){b.textContent=orig;b.disabled=false}},'image/png')}catch(e){console.error(e);if(b){b.textContent='Error, try again';b.disabled=false}}}
+['dept','q','nz'].forEach(i=>$('#'+i).oninput=()=>{page=0;apply()});
+
+function apply(){const d=$('#dept').value,q=$('#q').value.toLowerCase(),nz=$('#nz').checked;
+VIEW=ALL.filter(x=>(!d||x.department===d)&&(!q||x.name.toLowerCase().includes(q))&&(!nz||x.total_attempts>0));
+$('#cnt').textContent=f(VIEW.length)+' of '+f(ALL.length)+' students';render()}
+
+const tile=(l,v,s)=>`<div class="k"><b>${v}</b><span>${l}${s?'<br>'+s:''}</span></div>`;
+const bars=(rows,col)=>{const m=Math.max(...rows.map(r=>r[1]),1);return rows.map(([l,v,t])=>`<div class="br"><span>${l}</span><i><b style="width:${v/m*100}%;background:var(--${col||'blue'})"></b></i><em>${t??f(v)}</em></div>`).join('')};
+function hist(vals,edges,labels,col){const n=vals.length||1;return bars(labels.map((l,i)=>{const c=vals.filter(v=>v>=edges[i]&&v<edges[i+1]).length;return[l,c,f(c)+' · '+(c/n*100).toFixed(0)+'%']}),col)}
+function autoBins(vals,k,unit){const mx=Math.max(1,...vals),w=Math.ceil(mx/k/(unit||1))*(unit||1),e=[],l=[];for(let i=0;i<k;i++){e.push(i*w);l.push(f(i*w)+'–'+f((i+1)*w))}e.push(Infinity);e[k]=Infinity;return{e:e.slice(0,k).concat([Infinity]),l}}
+function scatter(xs,ys,xl,yl,sq){const W=420,H=250,P=34,mx=Math.max(1e-9,...xs.map(x=>sq?Math.sqrt(x):x)),my=Math.max(1e-9,...ys);
+const pts=xs.map((x,i)=>`<circle cx="${P+(sq?Math.sqrt(x):x)/mx*(W-P-8)}" cy="${H-P-ys[i]/my*(H-P-8)}" r="2.6" fill="currentColor" opacity=".45"/>`).join('');
+return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${xl} versus ${yl}"><path d="M${P} 6V${H-P}H${W-6}" stroke="var(--ln)" fill="none"/>${pts}<text x="${W/2}" y="${H-8}" text-anchor="middle">${xl}${sq?' (sqrt scale)':''}</text><text x="10" y="${H/2}" transform="rotate(-90 10 ${H/2})" text-anchor="middle">${yl}</text><text x="${P-4}" y="14" text-anchor="end">${my>=10?f(my):my.toFixed(2)}</text></svg>`}
+
+function render(){const V=VIEW,n=V.length,app=$('#app');if(!n){app.innerHTML='<p class="sub">No students match. Load data, or loosen the filters.</p>';return}
+const now=Date.now(),col=k=>V.map(x=>x[k]),acc=col('accuracy'),sc=col('total_score'),tm=col('total_time'),at=col('total_attempts');
+const ageD=x=>x.ts==null?Infinity:(now-x.ts)/DAY,a1=V.filter(x=>ageD(x)<=1).length,a7=V.filter(x=>ageD(x)<=7).length,a30=V.filter(x=>ageD(x)<=30).length;
+const tc=sum(col('total_correct')),tw=sum(col('total_wrong'));
+const acts=[['Quests','quests_completed','blue'],['Videos','videos_completed','rose'],['Wordle','wordle_completed','grn'],['Cryptic','cryptic_completed','gold'],['Vocab','vocab_completed','blue'],['Stories','stories_completed','rose'],['Books','books_completed','gold'],['Quotes','quotes_completed','grn']];
+const actTot=acts.map(a=>[a[0],sum(col(a[1]))]);
+const sortedSc=[...sc].sort((a,b)=>b-a),top10=sum(sortedSc.slice(0,Math.max(1,Math.ceil(n*.1)))),tsc=sum(sc)||1;
+let h='<h2>At a glance</h2><div class="kp">'+
+tile('Students',f(n))+tile('Total attempts',f(sum(at)),'avg '+avg(at).toFixed(1)+' each')+tile('Total score',f(sum(sc)))+
+tile('Average score',f(avg(sc)),'median '+f(pc(sc,.5)))+tile('Top score',f(Math.max(...sc)))+tile('Average accuracy',pct(avg(acc)),'median '+pct(pc(acc,.5)))+
+tile('Overall hit rate',pct(tc/((tc+tw)||1)),'all answers pooled')+tile('Correct answers',f(tc))+tile('Wrong answers',f(tw))+
+tile('Total time',dur(sum(tm)),f(sum(tm)/3600)+' hours')+tile('Avg time per student',dur(avg(tm)),'median '+dur(pc(tm,.5)))+tile('Seconds per attempt',(sum(tm)/(sum(at)||1)).toFixed(0)+'s')+
+tile('Active today',f(a1),pct(a1/n))+tile('Active 7 days',f(a7),pct(a7/n))+tile('Active 30 days',f(a30),pct(a30/n))+tile('Dormant 30+ days',f(n-a30),pct((n-a30)/n))+
+tile('Score std deviation',f(sd(sc)))+tile('Accuracy std deviation',pct(sd(acc)))+tile('Top 10% score share',pct(top10/tsc),'of all points')+tile('Departments',f(new Set(V.map(x=>x.department)).size))+'</div>';
+
+h+='<h2>Activity</h2><div class="g"><div class="c"><h3>Total completions by activity</h3>'+bars(actTot.map(a=>[a[0],a[1],f(a[1])+' · '+pct(a[1]/(sum(actTot.map(z=>z[1]))||1))]),'blue')+'</div>'+
+'<div class="c"><h3>Students who tried each activity</h3>'+bars(acts.map(a=>{const c=V.filter(x=>x[a[1]]>0).length;return[a[0],c,f(c)+' · '+pct(c/n)]}),'grn')+'</div>'+
+'<div class="c"><h3>Average completions per student</h3>'+bars(acts.map(a=>[a[0],avg(col(a[1])),avg(col(a[1])).toFixed(2)]),'gold')+'</div>'+
+'<div class="c"><h3>Students by number of activity types tried</h3>'+bars([0,1,2,3,4,5,6,7,8].map(k=>{const c=V.filter(x=>acts.filter(a=>x[a[1]]>0).length===k).length;return[k+(k==1?' type':' types'),c,f(c)+' · '+pct(c/n)]}),'rose')+'</div></div>';
+
+const sb=autoBins(sc,8,10),tb=autoBins(tm.map(x=>x/3600),8,1),ae=[0,1,11,51,201,Infinity];
+h+='<h2>Distributions</h2><div class="g"><div class="c"><h3>Accuracy bands</h3>'+hist(acc,[0,.5,.7,.85,.95,1.0001],['0–50%','50–70%','70–85%','85–95%','95–100%'],'rose')+'</div>'+
+'<div class="c"><h3>Score ranges</h3>'+hist(sc,sb.e,sb.l,'gold')+'</div>'+
+'<div class="c"><h3>Time logged (hours)</h3>'+hist(tm.map(x=>x/3600),tb.e,tb.l,'blue')+'</div>'+
+'<div class="c"><h3>Engagement tiers by attempts</h3>'+hist(at,ae,['0','1–10','11–50','51–200','200+'],'grn')+'</div>'+
+'<div class="c"><h3>Last test taken</h3>'+bars([['Today',V.filter(x=>ageD(x)<=1).length],['2–7 days',V.filter(x=>ageD(x)>1&&ageD(x)<=7).length],['8–30 days',V.filter(x=>ageD(x)>7&&ageD(x)<=30).length],['31–90 days',V.filter(x=>ageD(x)>30&&ageD(x)<=90).length],['90+ days',V.filter(x=>ageD(x)>90&&ageD(x)<Infinity).length],['No record',V.filter(x=>x.ts==null).length]].map(r=>[r[0],r[1],f(r[1])+' · '+pct(r[1]/n)]),'blue')+'</div>'+
+'<div class="c"><h3>Percentiles</h3><div class="tw"><table><tr><th class="l">Percentile</th><th>Score</th><th>Accuracy</th><th>Attempts</th><th>Time</th></tr>'+[.1,.25,.5,.75,.9,.99].map(p=>`<tr><td class="l">p${p*100}</td><td>${f(pc(sc,p))}</td><td>${pct(pc(acc,p))}</td><td>${f(pc(at,p))}</td><td>${dur(pc(tm,p))}</td></tr>`).join('')+'</table></div></div></div>';
+
+const days=Array.from({length:30},(_,i)=>V.filter(x=>x.ts!=null&&Math.floor((now-x.ts)/DAY)===29-i).length),md=Math.max(...days,1);
+h+='<h2>Trends and relationships</h2><div class="g"><div class="c"><h3>Students by day of last test, past 30 days</h3><div class="tl">'+days.map((d,i)=>`<b style="height:${d/md*100}%" title="${29-i} days ago: ${d}"></b>`).join('')+'</div><div class="ax"><span>30 days ago</span><span>today</span></div></div>'+
+'<div class="c"><h3>Score vs accuracy</h3>'+scatter(sc,acc,'Score','Accuracy',true)+'<p class="sub">Correlation r = '+corr(sc,acc).toFixed(2)+'</p></div>'+
+'<div class="c"><h3>Time vs score</h3>'+scatter(tm,sc,'Time (s)','Score',true)+'<p class="sub">Correlation r = '+corr(tm,sc).toFixed(2)+'</p></div>'+
+'<div class="c"><h3>Attempts vs accuracy</h3>'+scatter(at,acc,'Attempts','Accuracy',true)+'<p class="sub">Correlation r = '+corr(at,acc).toFixed(2)+'</p></div></div>';
+
+const gr={};V.forEach(x=>(gr[x.department]=gr[x.department]||[]).push(x));
+const rows=Object.entries(gr).map(([d,a])=>({d,n:a.length,sc:avg(a.map(x=>x.total_score)),tot:sum(a.map(x=>x.total_score)),ac:avg(a.map(x=>x.accuracy)),at:sum(a.map(x=>x.total_attempts)),tm:sum(a.map(x=>x.total_time)),a7:a.filter(x=>ageD(x)<=7).length,top:a.reduce((m,x)=>x.total_score>m.total_score?x:m,a[0])})).sort((a,b)=>b.sc-a.sc);
+h+='<h2>Departments</h2><div class="c"><div class="tw"><table><tr><th class="l">Department</th><th>Students</th><th>Avg score</th><th>Total score</th><th>Avg accuracy</th><th>Attempts</th><th>Time</th><th>Active 7d</th><th class="l">Top student</th></tr>'+
+rows.map(r=>`<tr><td class="l">${esc(r.d)}</td><td>${f(r.n)}</td><td>${f(r.sc)}</td><td>${f(r.tot)}</td><td>${pct(r.ac)}</td><td>${f(r.at)}</td><td>${dur(r.tm)}</td><td>${f(r.a7)} (${pct(r.a7/r.n)})</td><td class="l">${esc(r.top.name)}</td></tr>`).join('')+'</table></div></div>';
+
+const L=[['total_score','Score',x=>f(x)],['accuracy','Accuracy',pct],['total_attempts','Attempts',f],['total_time','Time',dur],['quests_completed','Quests',f],['videos_completed','Videos',f],['wordle_completed','Wordle',f],['cryptic_completed','Cryptic',f],['vocab_completed','Vocab',f],['stories_completed','Stories',f],['books_completed','Books',f],['quotes_completed','Quotes',f],['total_correct','Correct',f],['total_wrong','Wrong',f]];
+const lm=L.find(l=>l[0]===lead),lst=[...V].sort((a,b)=>ldir*((b[lead]||0)-(a[lead]||0)));
+h+='<h2>Leaderboard</h2><div class="bar">'+L.map(l=>`<button class="${l[0]===lead?'on':''}" data-l="${l[0]}">${l[1]}${l[0]===lead?(ldir>0?' ▼':' ▲'):''}</button>`).join('')+'</div><p class="src">Click any student to open their profile, quest calendar, PDF and WhatsApp card.</p><div class="c lb">'+lst.map((x,i)=>{
+  const own=findOwner(x.name);
+  const tag=own?`<span class="tag" title="${esc(own.name)}">${own.roll}</span>`:'';
+  return `<div class="lr ${i<3&&ldir>0?'m'+(i+1):''}" data-i="${i}"><span class="rk">${i<3&&ldir>0?['🥇','🥈','🥉'][i]:i+1}</span><span class="nm"><b>${esc(x.name)}${tag} <small>· ${esc(x.department)}</small></b><small>${lm[1].toUpperCase()}</small></span><em>${lm[2](x[lead]||0)}</em></div>`;
+}).join('')+'</div>';
+
+const best=rows[0],pop=[...actTot].sort((a,b)=>b[1]-a[1])[0];
+h+='<h2>Highlights</h2><div class="c"><ul class="hl">'+
+`<li>${esc(best.d)} has the highest average score (${f(best.sc)}) across ${f(best.n)} students.</li>`+
+`<li>${pct(acc.filter(x=>x>=.85).length/n)} of students score 85% accuracy or better; ${pct(acc.filter(x=>x<.5).length/n)} are below 50%.</li>`+
+`<li>The top 10% of students earn ${pct(top10/tsc)} of all points.</li>`+
+`<li>${esc(pop[0])} is the most completed activity with ${f(pop[1])} completions.</li>`+
+`<li>${f(n-a30)} students (${pct((n-a30)/n)}) have not taken a test in 30 days.</li>`+
+`<li>More attempts go with ${corr(at,acc)>.15?'higher':corr(at,acc)<-.15?'lower':'roughly unchanged'} accuracy (r = ${corr(at,acc).toFixed(2)}).</li></ul></div>`;
+
+const cols=[['name','Student','l',x=>esc(x.name)],['department','Dept','l',x=>esc(x.department)],['total_score','Score',0,x=>f(x.total_score)],['accuracy','Accuracy',0,x=>pct(x.accuracy)],['total_attempts','Attempts',0,x=>f(x.total_attempts)],['total_correct','Correct',0,x=>f(x.total_correct)],['total_wrong','Wrong',0,x=>f(x.total_wrong)],['quests_completed','Quests',0,x=>f(x.quests_completed)],['videos_completed','Videos',0,x=>f(x.videos_completed)],['wordle_completed','Wordle',0,x=>f(x.wordle_completed)],['cryptic_completed','Cryptic',0,x=>f(x.cryptic_completed)],['vocab_completed','Vocab',0,x=>f(x.vocab_completed)],['stories_completed','Stories',0,x=>f(x.stories_completed)],['books_completed','Books',0,x=>f(x.books_completed)],['quotes_completed','Quotes',0,x=>f(x.quotes_completed)],['total_time','Time',0,x=>dur(x.total_time)],['ts','Last test','',x=>x.ts?new Date(x.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'-']];
+const S=[...V].sort((a,b)=>typeof a[sortK]==='string'?sortD*a[sortK].localeCompare(b[sortK]):sortD*((a[sortK]??-1)-(b[sortK]??-1))),PS=25,pages=Math.ceil(n/PS);if(page>=pages)page=0;
+h+='<h2>All students</h2><div class="c"><div class="tw"><table><tr><th>#</th>'+cols.map(c=>`<th class="${c[2]||''}" data-s="${c[0]}">${c[1]}${sortK===c[0]?(sortD<0?' ▾':' ▴'):''}</th>`).join('')+'</tr>'+
+S.slice(page*PS,page*PS+PS).map((x,i)=>`<tr class="cl" data-r="${page*PS+i}"><td>${page*PS+i+1}</td>`+cols.map(c=>`<td class="${c[2]||''}">${c[3](x)}</td>`).join('')+'</tr>').join('')+
+`</table></div><div class="pg"><button id="pv">Previous</button><span>Page ${page+1} of ${pages}</span><button id="nx">Next</button></div></div>`;
+app.innerHTML=h;
+app.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{if(lead===b.dataset.l)ldir=-ldir;else{lead=b.dataset.l;ldir=1}render()});app.querySelectorAll('.lr').forEach(r=>r.onclick=()=>showDetail(lst[+r.dataset.i]));app.querySelectorAll('tr[data-r]').forEach(t=>t.onclick=()=>showDetail(S[+t.dataset.r]));
+app.querySelectorAll('th[data-s]').forEach(t=>t.onclick=()=>{const k=t.dataset.s;sortD=sortK===k?-sortD:-1;sortK=k;page=0;render()});
+$('#pv').onclick=()=>{page=Math.max(0,page-1);render()};$('#nx').onclick=()=>{page=Math.min(pages-1,page+1);render()}}
+
+renderOffList();
+loadLive();setInterval(loadLive,300000);
+</script>
+</body>
+</html>
