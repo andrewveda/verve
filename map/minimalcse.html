@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CSE-2 Name Mapping</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#f5f1e6;--sf:#fffdf7;--ink:#1c2230;--mut:#6a6f7c;--ln:#e2d9c2;--gold:#a67c14;--blue:#2d6591;--rose:#b2446a;--grn:#3b7a58;--trk:#ece5d1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0d1420;--sf:#151e2e;--ink:#e9e6dc;--mut:#8f98a8;--ln:#26324a;--gold:#d9b34a;--blue:#6aa6d8;--rose:#e0789c;--grn:#6fc08f;--trk:#1d2840}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0d1420;--sf:#151e2e;--ink:#e9e6dc;--mut:#8f98a8;--ln:#26324a;--gold:#d9b34a;--blue:#6aa6d8;--rose:#e0789c;--grn:#6fc08f;--trk:#1d2840}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+.w{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:clamp(24px,5vw,38px);line-height:1.05;margin:0 0 4px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:18px;margin:0;font-weight:800}
+h3{font-size:14px;margin:12px 0 8px;font-weight:600}
+.src{font-size:13px;color:var(--mut);margin:0}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+button,select,input{font:inherit;color:var(--ink);background:var(--sf);border:1px solid var(--ln);border-radius:999px;padding:7px 14px}
+button{cursor:pointer}button:hover{border-color:var(--gold)}
+button.pri{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+input[type=checkbox]{width:auto}
+.c{background:var(--sf);border:1px solid var(--gold);border-radius:14px;padding:16px;margin:16px 0;min-width:0}
+.hd{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:12px}
+.sb{background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:8px 10px}
+.sb span,.sb small{display:block;font-size:11px;color:var(--mut)}.sb b{display:block;font-size:20px;color:var(--gold)}
+.tw{overflow:auto;max-width:100%;max-height:540px;margin-top:10px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 9px;text-align:right;border-bottom:1px solid var(--ln);white-space:nowrap}
+th{color:var(--mut);font-weight:600;position:sticky;top:0;background:var(--sf);z-index:1}
+th.l,td.l{text-align:left}td.wrap{white-space:normal}
+td select{width:100%;min-width:230px;border-radius:10px;padding:5px 8px}
+tr.ok td:first-child{box-shadow:inset 3px 0 var(--grn)}
+tr.find td{background:rgba(217,160,30,.16)}tr.find td:first-child{box-shadow:inset 3px 0 var(--gold)}
+tr.nomap td{background:rgba(178,68,106,.16)}tr.nomap td:first-child{box-shadow:inset 3px 0 var(--rose)}
+.warn{color:var(--rose);font-weight:700}
+.sugg{font-size:11px;padding:2px 8px;margin-left:6px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}.chips span{font-size:11px;border:1px solid var(--ln);border-radius:6px;padding:3px 7px;background:var(--bg)}
+.map-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px;margin-top:12px}
+.map-box{background:var(--bg);border:1px solid var(--ln);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.map-box label.t{font-size:12px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+.map-box select,.map-box input[type=search]{width:100%;border-radius:10px}
+.pick-list{max-height:300px;overflow-y:auto;border:1px solid var(--ln);border-radius:10px;background:var(--sf);padding:4px}
+.pick-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-bottom:1px solid var(--ln);font-size:13px;border-radius:6px}
+.pick-item:last-child{border-bottom:none}.pick-item:hover{background:var(--trk)}
+.pick-item.sel{background:rgba(166,124,20,.14)}.pick-item.find{background:rgba(217,160,30,.12)}
+.pick-item label.pk{display:flex;align-items:center;gap:8px;flex:1;min-width:0;cursor:pointer}
+.pick-item input{width:16px;height:16px;margin:0;accent-color:var(--gold);flex-shrink:0}
+.pick-item button.fo{padding:2px 7px;font-size:12px;opacity:.55}.pick-item button.fo.on{opacity:1;background:var(--gold);border-color:var(--gold)}
+.pick-meta{font-size:11.5px;color:var(--mut);white-space:nowrap}
+.pick-hint,.tag{display:inline-block;font-size:10px;font-weight:700;border-radius:999px;padding:1px 6px;margin-left:5px;vertical-align:middle}
+.pick-hint{color:var(--grn);border:1px solid var(--grn)}.tag{color:var(--gold);border:1px solid var(--gold)}
+.sel-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:26px}
+.sel-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(166,124,20,.16);border:1px solid var(--gold);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
+.sel-chip button{border:none;background:transparent;padding:0;color:var(--gold);font-weight:800;font-size:14px;line-height:1}
+tr[data-reg]{cursor:pointer}tr[data-reg]:hover td{filter:brightness(.97)}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>CSE-2 Name Mapping</h1>
+<p class="src">Match every leaderboard display name to an official student record. Not sure? Choose <b>🔍 Find out</b>.</p>
+<div class="bar"><button id="refresh">Refresh names</button><span class="src" id="src">Loading…</span></div>
+
+<section class="c">
+  <div class="hd"><h2>🔗 1. Map display names</h2><span class="src" id="amCount"></span></div>
+  <p class="src" style="margin-top:4px">Pick an official record, then tick its display name(s). Not sure about a name? Tap its 🔍 to mark it <b>Find out</b>. You can also tap a row in the report below to jump to that official.</p>
+  <div class="map-grid">
+    <div class="map-box">
+      <label class="t" for="offSearch">1. Select official record (59 CSE-2 students)</label>
+      <input id="offSearch" type="search" placeholder="Filter by roll no, reg no, or official name…">
+      <select id="offRec" aria-label="Official student record" size="6" style="height:178px;padding:6px"></select>
+      <div class="src" id="offInfo"></div>
+    </div>
+    <div class="map-box">
+      <label class="t" for="lbSearch">2. Tick display name(s) from leaderboard</label>
+      <input id="lbSearch" type="search" placeholder="Search leaderboard usernames…">
+      <select id="lbFilter" aria-label="Show"><option value="">Show: all names</option><option value="none">Unassigned only</option><option value="find">Find out only</option><option value="ok">Already mapped</option></select>
+      <div class="pick-list" id="pickList"></div>
+      <div class="hd"><span class="src" id="selCount"></span><button id="clearSel" type="button" style="padding:4px 10px;font-size:12px">Clear selected</button></div>
+      <div class="sel-chips" id="selChips"></div>
+    </div>
+  </div>
+</section>
+
+<section class="c">
+  <div class="hd"><h2>📋 2. Mapping report</h2>
+  <div class="bar" style="margin:0"><label class="src"><input type="checkbox" id="rptOnly"> Only officials without display names</label>
+  <button class="pri" id="rptCsv">⬇️ CSV</button><button class="pri" id="rptPdf">⬇️ PDF</button></div></div>
+  <div class="sum" id="rptSum"></div>
+  <div class="tw"><table id="rptTable"></table></div>
+  <div id="rptExtra"></div>
+</section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const sum=a=>a.reduce((s,x)=>s+x,0);
+const f=n=>Math.round(n).toLocaleString('en-IN');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const csvEsc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+const fmtDate=t=>new Date(t).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});
+let ALL=[];
+
+const OFFICIAL=[
+{reg:'142226104060',roll:'26CS060',name:'KALEELUR RAHMAN S'},{reg:'142226104061',roll:'26CS061',name:'KAMESHH V'},{reg:'142226104062',roll:'26CS062',name:'KANISHKA M'},
+{reg:'142226104063',roll:'26CS063',name:'KARTHIKEYAN S (14-03-2008)'},{reg:'142226104064',roll:'26CS064',name:'KARTHIKEYAN S (04-03-2009)'},{reg:'142226104065',roll:'26CS065',name:'KASI VISWANATHAN S S'},
+{reg:'142226104066',roll:'26CS066',name:'KATHIKSHA V'},{reg:'142226104067',roll:'26CS067',name:'KAVINILA M'},{reg:'142226104068',roll:'26CS068',name:'KAVITHA S'},
+{reg:'142226104069',roll:'26CS069',name:'KAVITHASHREE B'},{reg:'142226104070',roll:'26CS070',name:'K KAVIYA SRI'},{reg:'142226104071',roll:'26CS071',name:'KEERTHIKA M'},
+{reg:'142226104072',roll:'26CS072',name:'KHAJA MOHIDEEN P'},{reg:'142226104073',roll:'26CS073',name:'B KIRTHIKA SRI'},{reg:'142226104074',roll:'26CS074',name:'B KIRUTHIKA'},
+{reg:'142226104075',roll:'26CS075',name:'KISHOR S'},{reg:'142226104076',roll:'26CS076',name:'KISHORE KUMAR D E'},{reg:'142226104077',roll:'26CS077',name:'KISHORE V'},
+{reg:'142226104078',roll:'26CS078',name:'A KOHULAN'},{reg:'142226104079',roll:'26CS079',name:'KOWSHIK KAMAL L'},{reg:'142226104080',roll:'26CS080',name:'KRISHNAVARSHINI S V'},
+{reg:'142226104081',roll:'26CS081',name:'T LAKSHITHA DEVI'},{reg:'142226104082',roll:'26CS082',name:'LAVANYA G'},{reg:'142226104083',roll:'26CS083',name:'LAVANYA R'},
+{reg:'142226104084',roll:'26CS084',name:'LOHENDRA T G'},{reg:'142226104085',roll:'26CS085',name:'LOKESHWER V K'},{reg:'142226104086',roll:'26CS086',name:'MADHAAVAN D'},
+{reg:'142226104087',roll:'26CS087',name:'P MADHUKRISHNA'},{reg:'142226104088',roll:'26CS088',name:'MADHUMATHI S'},{reg:'142226104089',roll:'26CS089',name:'MANISH M'},
+{reg:'142226104090',roll:'26CS090',name:'MEGARSHITH PACHA'},{reg:'142226104091',roll:'26CS091',name:'MOHAMMED MAGTHUM P'},{reg:'142226104092',roll:'26CS092',name:'MOHANA KRISHNA MURTHY S'},
+{reg:'142226104093',roll:'26CS093',name:'MUGUNTHA PRIYAN S'},{reg:'142226104094',roll:'26CS094',name:'A MUHAMMAD NAWFAL RIYAZ'},{reg:'142226104095',roll:'26CS095',name:'MUKILAN S'},
+{reg:'142226104096',roll:'26CS096',name:'NANDHINI M'},{reg:'142226104097',roll:'26CS097',name:'R NANDITA'},{reg:'142226104098',roll:'26CS098',name:'NARENDRAN K'},
+{reg:'142226104099',roll:'26CS099',name:'NAVEENA M S'},{reg:'142226104100',roll:'26CS100',name:'NETHRA S'},{reg:'142226104101',roll:'26CS101',name:'NITHYAPRIYA S'},
+{reg:'142226104102',roll:'26CS102',name:'NIVETHA T'},{reg:'142226104103',roll:'26CS103',name:'NIVETHA V'},{reg:'142226104104',roll:'26CS104',name:'NIWIN KUMAR S'},
+{reg:'142226104105',roll:'26CS105',name:'OVIYA P'},{reg:'142226104106',roll:'26CS106',name:'PAVITHRA S'},{reg:'142226104107',roll:'26CS107',name:'PHILIP P'},
+{reg:'142226104108',roll:'26CS108',name:'POORNASHRI S'},{reg:'142226104109',roll:'26CS109',name:'PRABAKAR A'},{reg:'142226104110',roll:'26CS110',name:'PRASANNA KUMAR P'},
+{reg:'142226104111',roll:'26CS111',name:'PRASANTH R'},{reg:'142226104112',roll:'26CS112',name:'PRAVEEN KUMAR M'},{reg:'142226104113',roll:'26CS113',name:'PRAWIN KUMAR K'},
+{reg:'142226104114',roll:'26CS114',name:'PREETHI SRI A'},{reg:'142226104115',roll:'26CS115',name:'PRINCY J'},{reg:'142226104116',roll:'26CS116',name:'RAGAV KRISHNA V'},
+{reg:'142226104117',roll:'26CS117',name:'RAGAVI E'},{reg:'142226104118',roll:'26CS118',name:'RAGUL R'}
+];
+
+/* Same storage keys as the full dashboard, so existing mappings carry over (same browser + same site). */
+const MAP_KEY='vvv_cse2_official_map_v1',UNS_KEY='vvv_cse2_find_out_v1';
+let MAPS={},UNS=[];
+try{MAPS=JSON.parse(localStorage.getItem(MAP_KEY)||'{}')||{}}catch(e){MAPS={}}
+try{UNS=JSON.parse(localStorage.getItem(UNS_KEY)||'[]')||[]}catch(e){UNS=[]}
+const save=()=>{try{localStorage.setItem(MAP_KEY,JSON.stringify(MAPS));localStorage.setItem(UNS_KEY,JSON.stringify(UNS))}catch(e){}};
+const getSel=reg=>Array.isArray(MAPS[reg])?MAPS[reg]:[];
+const findOwner=dn=>OFFICIAL.find(r=>getSel(r.reg).includes(dn))||null;
+const statusOf=dn=>{const o=findOwner(dn);return o?{t:'ok',o}:UNS.includes(dn)?{t:'find'}:{t:'none'}};
+function setOwner(dn,val){ // '' = not assigned, '__find__' = Find out, else register number
+  OFFICIAL.forEach(r=>{const a=getSel(r.reg).filter(v=>v!==dn);if(a.length)MAPS[r.reg]=a;else delete MAPS[r.reg]});
+  UNS=UNS.filter(v=>v!==dn);
+  if(val==='__find__')UNS.push(dn);else if(val)MAPS[val]=[...getSel(val),dn];
+  save();
+}
+function matchScore(off,disp){
+  const clean=s=>s.toLowerCase().replace(/\([^)]*\)/g,'').replace(/[^a-z0-9\s]/g,' ').trim();
+  const toks=clean(off).split(/\s+/).filter(t=>t.length>=3),d=clean(disp);if(!toks.length||!d)return 0;
+  let sc=0;toks.forEach(t=>{if(d.includes(t))sc+=2;else if(t.length>=4&&d.includes(t.slice(0,4)))sc+=1});return sc;
+}
+function bestSuggest(dn){let b=null,bs=0,tie=false;OFFICIAL.forEach(r=>{const s=matchScore(r.name,dn);if(s>bs){bs=s;b=r;tie=false}else if(s===bs&&s>0)tie=true});return bs>=4&&!tie?b:null}
+const lists=()=>({un:ALL.filter(x=>statusOf(x.name).t==='none').map(x=>x.name),fo:UNS.filter(n=>ALL.some(x=>x.name===n))});
+
+/* ---------- Data ---------- */
+const SB_URL='https://yellow-lab-4999.andrewveda.workers.dev';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE';
+const VIEW_NAME='report_card_cse2_view';
+async function fetchAll(){let out=[],from=0,step=1000;for(;;){const r=await fetch(`${SB_URL}/rest/v1/${VIEW_NAME}?select=*&order=name.asc`,{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Range-Unit':'items',Range:`${from}-${from+step-1}`}});
+if(!r.ok)throw new Error(r.status+' '+(await r.text()).slice(0,160));const p=await r.json();out=out.concat(p);if(p.length<step)break;from+=step}return out}
+function norm(rows){return rows.filter(r=>String(r.department||'').trim().toUpperCase()!=='FRIENDS & FAMILY').map(r=>({name:String(r.name??'Unknown'),total_score:parseFloat(r.total_score)||0,total_attempts:parseFloat(r.total_attempts)||0}))}
+async function loadLive(){$('#src').textContent='Loading…';
+  try{ALL=norm(await fetchAll());$('#src').textContent=f(ALL.length)+' display names · updated '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});renderAll()}
+  catch(e){console.error(e);$('#src').textContent='Could not load names ('+e.message+'). Press Refresh to retry.'}}
+$('#refresh').onclick=loadLive;
+
+/* ---------- Render ---------- */
+const chipsOf=a=>a.length?`<div class="chips">${a.map(n=>`<span>${esc(n)}</span>`).join('')}</div>`:'';
+const rptRows=()=>OFFICIAL.map(r=>{const n=getSel(r.reg);return{r,n,sc:sum(n.map(d=>(ALL.find(x=>x.name===d)||{}).total_score||0))}});
+function renderAll(){renderReport();renderMap()}
+let curReg=OFFICIAL[0].reg;
+function renderOffList(){
+  const q=$('#offSearch').value.trim().toLowerCase(),sel=$('#offRec');
+  const fl=OFFICIAL.filter(r=>!q||r.name.toLowerCase().includes(q)||r.roll.toLowerCase().includes(q)||r.reg.includes(q));
+  sel.innerHTML=fl.map(r=>{const c=getSel(r.reg).length;return `<option value="${r.reg}"${r.reg===curReg?' selected':''}>${r.roll} · ${r.reg} · ${esc(r.name)}${c?' ('+c+' mapped)':' ⚠ none'}</option>`}).join('');
+  if(fl.length&&!fl.some(r=>r.reg===curReg)){curReg=fl[0].reg;sel.value=curReg}
+}
+function renderMap(){
+  renderOffList();
+  const rec=OFFICIAL.find(r=>r.reg===curReg)||OFFICIAL[0];curReg=rec.reg;
+  const selected=getSel(rec.reg);
+  $('#offInfo').innerHTML=`<b>${esc(rec.name)}</b> · Roll: <b>${rec.roll}</b> · Reg: <b>${rec.reg}</b>`;
+  $('#selCount').textContent=`${selected.length} display ${selected.length===1?'name':'names'} selected`;
+  $('#selChips').innerHTML=selected.length?selected.map(n=>`<span class="sel-chip">${esc(n)} <button type="button" data-rm="${esc(n)}" aria-label="Remove ${esc(n)}">×</button></span>`).join(''):'<span class="src">No display names selected yet.</span>';
+  $('#selChips').querySelectorAll('button[data-rm]').forEach(b=>b.onclick=()=>{setOwner(b.dataset.rm,'');renderAll()});
+  const list=$('#pickList');
+  if(!ALL.length){list.innerHTML='<div class="src" style="padding:10px">Loading leaderboard names…</div>';return}
+  const cnt={ok:0,find:0,none:0};ALL.forEach(x=>cnt[statusOf(x.name).t]++);
+  $('#amCount').textContent=`${cnt.ok} mapped · ${cnt.find} find out · ${cnt.none} unassigned (of ${ALL.length})`;
+  const q=$('#lbSearch').value.trim().toLowerCase(),fl=$('#lbFilter').value,st=list.scrollTop;
+  const items=ALL.map(x=>({x,s:statusOf(x.name),isSel:selected.includes(x.name),ms:matchScore(rec.name,x.name)}))
+    .filter(i=>(!q||i.x.name.toLowerCase().includes(q))&&(!fl||i.s.t===fl))
+    .sort((a,b)=>(b.isSel-a.isSel)||(b.ms-a.ms)||b.x.total_score-a.x.total_score);
+  list.innerHTML=items.length?items.map(({x,s,isSel,ms})=>{
+    const tag=s.t==='find'?'<span class="tag">find out</span>':(s.t==='ok'&&s.o.reg!==rec.reg?`<span class="tag" title="Mapped to ${esc(s.o.name)}">${s.o.roll}</span>`:'');
+    const hint=!isSel&&s.t==='none'&&ms>=2?'<span class="pick-hint">match</span>':'';
+    return `<div class="pick-item${isSel?' sel':''}${s.t==='find'?' find':''}"><label class="pk"><input type="checkbox" data-n="${esc(x.name)}"${isSel?' checked':''}><span>${esc(x.name)}${hint}${tag}</span></label><button type="button" class="fo${s.t==='find'?' on':''}" data-fo="${esc(x.name)}" title="Not sure: mark Find out">🔍</button><span class="pick-meta">${f(x.total_score)} pts</span></div>`}).join(''):'<div class="src" style="padding:10px">No display names match.</div>';
+  list.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.onchange=()=>{setOwner(cb.dataset.n,cb.checked?rec.reg:'');renderAll()});
+  list.querySelectorAll('button.fo').forEach(b=>b.onclick=()=>{const n=b.dataset.fo;setOwner(n,statusOf(n).t==='find'?'':'__find__');renderAll()});
+  list.scrollTop=st;
+}
+function renderReport(){
+  const all=rptRows(),miss=all.filter(x=>!x.n.length),{un,fo}=lists(),only=$('#rptOnly').checked;
+  $('#rptSum').innerHTML=`<div class="sb"><span>Officials with display names</span><b>${all.length-miss.length}</b><small>of ${all.length}</small></div><div class="sb"><span>Officials WITHOUT</span><b class="warn">${miss.length}</b><small>highlighted below</small></div><div class="sb"><span>Find out</span><b>${fo.length}</b><small>display names</small></div><div class="sb"><span>Unassigned</span><b>${un.length}</b><small>display names</small></div>`;
+  $('#rptTable').innerHTML='<tr><th class="l">Roll</th><th class="l">Register No.</th><th class="l">Official name</th><th class="l">Mapped display names</th><th>Score</th></tr>'+(only?miss:all).map(x=>`<tr class="${x.n.length?'':'nomap'}" data-reg="${x.r.reg}"><td class="l">${x.r.roll}</td><td class="l">${x.r.reg}</td><td class="l">${esc(x.r.name)}</td><td class="l wrap">${x.n.length?chipsOf(x.n):'<span class="warn">⚠ No display name mapped</span>'}</td><td>${x.n.length?f(x.sc):'-'}</td></tr>`).join('');
+  $('#rptExtra').innerHTML=(fo.length?`<h3>🔍 Find out (${fo.length})</h3>${chipsOf(fo)}`:'')+(un.length?`<h3>Unassigned display names (${un.length})</h3>${chipsOf(un)}`:'');
+}
+
+/* ---------- Downloads ---------- */
+async function lib(src,test){if(test())return;await new Promise((ok,no)=>{const e=document.createElement('script');e.src=src;e.onload=ok;e.onerror=no;document.head.appendChild(e)})}
+$('#rptCsv').onclick=()=>{
+  const {un,fo}=lists(),L=[['Roll Number','Register Number','Official Name','Status','Mapped Display Names','Count']];
+  rptRows().forEach(({r,n})=>L.push([r.roll,r.reg,r.name,n.length?'MAPPED':'NO DISPLAY NAME',n.join(' | '),n.length]));
+  if(fo.length)L.push(['','','(not sure)','FIND OUT',fo.join(' | '),fo.length]);
+  if(un.length)L.push(['','','(no official chosen)','UNASSIGNED',un.join(' | '),un.length]);
+  const u=URL.createObjectURL(new Blob(['\ufeff'+L.map(r=>r.map(csvEsc).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8;'})),a=document.createElement('a');
+  a.href=u;a.download='CSE2_Mapping_Report.csv';a.click();URL.revokeObjectURL(u);
+};
+$('#rptPdf').onclick=async()=>{
+  try{await lib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',()=>window.jspdf)}catch(e){alert('Could not load the PDF library.');return}
+  const{jsPDF}=window.jspdf,d=new jsPDF({unit:'pt',format:'a4'}),PH=d.internal.pageSize.getHeight(),M=40,W=d.internal.pageSize.getWidth()-M*2;let y=48;
+  const need=h=>{if(y+h>PH-40){d.addPage();y=48}};
+  d.setFont('helvetica','bold');d.setFontSize(14);d.setTextColor(20,20,20);d.text('CSE-2 Mapping Report: Official Names and Display Names',M,y);y+=16;
+  const all=rptRows(),miss=all.filter(x=>!x.n.length),{un,fo}=lists();
+  d.setFont('helvetica','normal');d.setFontSize(9);d.text(`${all.length-miss.length} of ${all.length} officials mapped  |  ${miss.length} WITHOUT display name (highlighted)  |  Generated ${fmtDate(Date.now())}`,M,y);y+=18;
+  all.forEach(({r,n})=>{
+    const ln=d.splitTextToSize(n.length?n.join(', '):'NO DISPLAY NAME MAPPED',W-215),h=Math.max(1,ln.length)*11+8;need(h);
+    if(!n.length){d.setFillColor(250,218,228);d.rect(M-4,y-10,W+8,h,'F')}
+    d.setFont('helvetica','bold');d.setFontSize(9);d.setTextColor(20,20,20);d.text(r.roll,M,y);
+    d.setFont('helvetica','normal');d.text(d.splitTextToSize(r.name,140),M+58,y);
+    if(!n.length)d.setTextColor(178,34,80);d.text(ln,M+205,y);d.setTextColor(20,20,20);y+=h;
+  });
+  [['FIND OUT',fo],['UNASSIGNED DISPLAY NAMES',un]].forEach(([t,a])=>{if(!a.length)return;y+=8;need(30);d.setFont('helvetica','bold');d.text(`${t} (${a.length})`,M,y);y+=12;d.setFont('helvetica','normal');
+    d.splitTextToSize(a.join(', '),W).forEach(l=>{need(12);d.text(l,M,y);y+=11})});
+  d.save('CSE2_Mapping_Report.pdf');
+};
+
+$('#offSearch').oninput=renderMap;$('#offRec').onchange=()=>{curReg=$('#offRec').value;renderMap()};
+$('#lbSearch').oninput=renderMap;$('#lbFilter').onchange=renderMap;
+$('#clearSel').onclick=()=>{getSel(curReg).forEach(n=>setOwner(n,''));renderAll()};
+$('#rptOnly').onchange=renderReport;
+$('#rptTable').onclick=e=>{const tr=e.target.closest('tr[data-reg]');if(!tr)return;curReg=tr.dataset.reg;$('#offSearch').value='';renderMap();$('#offRec').scrollIntoView({block:'center',behavior:'smooth'})};
+renderOffList();renderMap();renderReport();loadLive();
+</script>
+</body>
+</html>
