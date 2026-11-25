@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Class Activity Console</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+:root {
+  --bg: #faf8f4;
+  --surface: #ffffff;
+  --surface-alt: #f5f0e8;
+  --gold: #b8860b;
+  --gold-light: #d4a017;
+  --gold-pale: rgba(184,134,11,0.10);
+  --gold-border: rgba(184,134,11,0.25);
+  --text: #1a1510;
+  --text-mid: #5c4a2a;
+  --text-dim: #8a6f4d;
+  --risk-red: #c0392b;
+  --risk-bg: rgba(192,57,43,0.07);
+  --risk-border: rgba(192,57,43,0.22);
+  --success: #2e7d32;
+  --success-bg: rgba(46,125,50,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Crimson Pro', serif;
+  min-height: 100vh;
+}
+:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+
+/* HEADER */
+header {
+  text-align: center;
+  padding: 28px 20px 0;
+  border-bottom: 1px solid var(--gold-border);
+  background: linear-gradient(180deg,#fdfbf6,var(--bg));
+}
+.eyebrow {
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:.35em; color:var(--text-dim);
+  text-transform:uppercase; margin-bottom:6px;
+}
+h1 {
+  font-family:'Cinzel',serif;
+  font-size: clamp(20px,4vw,34px);
+  font-weight:900; color:var(--gold); letter-spacing:.1em;
+}
+.hruler {
+  display:flex; align-items:center; gap:12px;
+  justify-content:center; max-width:360px;
+  margin:8px auto 0;
+}
+.hruler span { flex:1; height:1px; background:var(--gold-border); }
+.hruler em {
+  font-family:'Cinzel',serif; font-size:9px;
+  color:var(--text-dim); font-style:normal; letter-spacing:.2em;
+}
+
+/* TOOLBAR */
+.toolbar {
+  display:flex; flex-wrap:wrap; align-items:center;
+  gap:10px; padding:13px 18px;
+  background:var(--surface);
+  border-bottom:1px solid var(--gold-border);
+}
+.tg { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.tsep { width:1px; height:30px; background:var(--gold-border); margin:0 2px; }
+.tlabel {
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:.2em; color:var(--text-dim); white-space:nowrap;
+}
+input[type=text], select, input[type=date] {
+  font-family:'Crimson Pro',serif; font-size:14px;
+  padding:6px 11px; border-radius:8px;
+  border:1px solid var(--gold-border);
+  background:var(--surface-alt); color:var(--text);
+  outline:none; transition:border-color .2s;
+}
+input[type=text]:focus, select:focus, input[type=date]:focus {
+  border-color:var(--gold);
+}
+.btn {
+  font-family:'Cinzel',serif; font-size:10px;
+  letter-spacing:.1em; padding:7px 14px;
+  border-radius:8px; border:1px solid var(--gold-border);
+  background:var(--surface); color:var(--gold);
+  cursor:pointer; transition:all .18s; white-space:nowrap;
+}
+.btn:hover { background:var(--gold-pale); border-color:var(--gold); }
+.btn.primary { background:var(--gold); color:#fff; border-color:var(--gold); }
+.btn.primary:hover { background:var(--gold-light); }
+.btn.sm { padding:5px 10px; font-size:9px; }
+
+/* TABS */
+.tabs {
+  background:var(--surface);
+  border-bottom:2px solid var(--gold-border);
+  display:flex; padding:0 18px;
+  overflow-x:auto;
+}
+.tab {
+  font-family:'Cinzel',serif; font-size:10px;
+  letter-spacing:.13em; padding:13px 18px 11px;
+  cursor:pointer; color:var(--text-dim);
+  background:none; border:none;
+  border-bottom:2px solid transparent; margin-bottom:-2px;
+  transition:all .18s; white-space:nowrap;
+  display:flex; align-items:center; gap:6px;
+}
+.tab:hover { color:var(--gold); }
+.tab.active { color:var(--gold); border-bottom-color:var(--gold); font-weight:700; }
+.badge {
+  background:var(--gold-pale); color:var(--gold);
+  border-radius:100px; font-size:9px; padding:1px 6px; font-weight:700;
+}
+.badge.danger { background:var(--risk-bg); color:var(--risk-red); }
+
+/* MAIN */
+.main-wrap { padding:20px 18px 48px; }
+.tc { display:none; }
+.tc.active { display:block; }
+
+/* ERROR BANNER */
+#errBox {
+  display:none; margin:16px 18px 0; padding:14px 16px;
+  border-radius:12px; background:var(--risk-bg);
+  border:1px solid var(--risk-border); color:var(--risk-red);
+  font-size:15px; align-items:center; gap:14px; flex-wrap:wrap;
+}
+
+/* STATS BAR */
+.stats-bar {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:10px; margin-bottom:22px;
+}
+.sc {
+  background:var(--surface); border:1px solid var(--gold-border);
+  border-radius:12px; padding:14px 16px; text-align:center;
+}
+.sc .num {
+  font-family:'Cinzel',serif; font-size:26px;
+  font-weight:900; color:var(--gold); line-height:1;
+}
+.sc .lbl { font-size:12px; color:var(--text-dim); margin-top:4px; }
+.sc.danger .num { color:var(--risk-red); }
+
+/* CALENDAR */
+.cal-legend {
+  font-size:14px; color:var(--text-mid); margin-bottom:14px;
+}
+.cal-legend strong { color:var(--gold); font-family:'Cinzel',serif; font-size:12px; }
+.month-block {
+  margin-bottom:20px; padding:16px;
+  border-radius:14px; background:var(--surface);
+  border:1px solid var(--gold-border);
+  box-shadow:0 4px 16px rgba(0,0,0,.04);
+}
+.month-title {
+  font-family:'Cinzel',serif; text-align:center;
+  color:var(--gold); font-weight:700; margin-bottom:10px;
+  font-size:13px; letter-spacing:.1em;
+}
+.cal-grid {
+  display:grid; grid-template-columns:repeat(7,1fr); gap:5px; font-size:12px;
+}
+.dlbl {
+  font-family:'Cinzel',serif; text-align:center;
+  font-size:9px; color:var(--text-dim); padding:3px 0; letter-spacing:.05em;
+}
+.day {
+  display:block; width:100%; text-align:left;
+  font:inherit; color:inherit;
+  border-radius:8px; padding:6px; min-height:54px;
+  border:1px solid var(--gold-border); position:relative;
+  transition:all .18s; background:var(--surface-alt);
+}
+.day.today { outline:2px dashed var(--gold-light); outline-offset:1px; }
+.day.marked { cursor:pointer; border-color:var(--gold-light); }
+.day.marked:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(184,134,11,.15); }
+.day.selected { box-shadow:0 0 0 2px var(--gold)!important; }
+.day.light  { background:rgba(184,134,11,.09); }
+.day.medium { background:rgba(184,134,11,.17); }
+.day.heavy  { background:rgba(184,134,11,.27); }
+.day.peak   { background:rgba(184,134,11,.42); box-shadow:0 0 12px rgba(184,134,11,.22); }
+.dnum { display:block; font-weight:700; font-size:11px; color:var(--text); }
+.dcount {
+  position:absolute; bottom:5px; right:7px;
+  font-family:'Cinzel',serif; font-size:14px;
+  font-weight:900; color:var(--gold); white-space:nowrap;
+}
+.dcount .u { color:var(--text-mid); font-weight:600; font-size:12px; }
+
+/* DAY BREAKDOWN */
+#breakdown {
+  display:none; margin-top:16px; animation:fadeUp .2s ease;
+}
+@keyframes fadeUp {
+  from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)}
+}
+.bd-header {
+  font-family:'Cinzel',serif; font-size:14px; font-weight:800;
+  color:var(--gold); margin-bottom:12px;
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;
+}
+.dept-cards {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px;
+}
+.dc {
+  background:var(--surface); border-radius:12px; padding:14px;
+  border:1px solid var(--gold-border); box-shadow:0 4px 12px rgba(0,0,0,.04);
+}
+.dc-title {
+  font-family:'Cinzel',serif; font-weight:800; color:var(--gold);
+  display:flex; justify-content:space-between; font-size:11px;
+  letter-spacing:.08em; margin-bottom:8px;
+}
+.slist { font-size:13px; display:grid; gap:3px; }
+.srow {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:3px 0; border-bottom:1px solid var(--gold-border);
+}
+.srow:last-child{border-bottom:none}
+.rep { color:var(--gold); font-weight:700; font-size:12px; white-space:nowrap; }
+.rtag {
+  font-size:9px; padding:1px 6px;
+  background:var(--risk-bg); color:var(--risk-red);
+  border-radius:100px; font-family:'Cinzel',serif;
+}
+
+/* LEADERBOARD */
+.lb-wrap { overflow-x:auto; }
+table {
+  width:100%; border-collapse:collapse;
+  background:var(--surface); border-radius:14px;
+  overflow:hidden; border:1px solid var(--gold-border);
+  font-size:14px;
+}
+thead th {
+  font-family:'Cinzel',serif; font-size:9px; letter-spacing:.15em;
+  color:var(--text-dim); padding:11px 12px; text-align:left;
+  background:var(--surface-alt); border-bottom:1px solid var(--gold-border);
+  white-space:nowrap; user-select:none;
+}
+thead th[data-sort] { cursor:pointer; }
+thead th[data-sort]:hover { color:var(--gold); }
+tbody td { padding:9px 12px; border-bottom:1px solid rgba(184,134,11,.07); vertical-align:middle; }
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover td { background:var(--gold-pale); }
+.riskrow td { background:var(--risk-bg)!important; }
+.ab-wrap { display:flex; align-items:center; gap:7px; min-width:120px; }
+.ab { flex:1; height:5px; background:var(--gold-border); border-radius:3px; overflow:hidden; }
+.ab-fill { height:100%; background:var(--gold); border-radius:3px; }
+.streak-pill {
+  display:inline-flex; align-items:center; gap:3px;
+  background:var(--success-bg); color:var(--success);
+  border-radius:100px; padding:2px 7px; font-size:12px;
+}
+.flag-btn {
+  background:none; border:1px solid var(--risk-border);
+  color:var(--risk-red); border-radius:6px;
+  padding:3px 8px; font-size:10px; cursor:pointer;
+  font-family:'Cinzel',serif; letter-spacing:.05em; transition:all .15s;
+}
+.flag-btn:hover { background:var(--risk-bg); }
+.flag-btn.on { background:var(--risk-red); color:#fff; border-color:var(--risk-red); }
+.risk-badge {
+  background:var(--risk-bg); color:var(--risk-red);
+  border-radius:100px; padding:1px 7px;
+  font-family:'Cinzel',serif; font-size:8px; letter-spacing:.05em;
+  margin-left:5px;
+}
+
+/* DEPT COMPARISON */
+.dept-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:16px;
+}
+.dept-card {
+  background:var(--surface); border:1px solid var(--gold-border);
+  border-radius:14px; padding:18px;
+  box-shadow:0 4px 14px rgba(0,0,0,.04);
+}
+.dept-card-name {
+  font-family:'Cinzel',serif; font-size:13px; font-weight:800;
+  color:var(--gold); margin-bottom:12px; letter-spacing:.1em;
+}
+.dsr { display:flex; justify-content:space-between; margin-bottom:7px; font-size:14px; }
+.dsr strong { font-family:'Cinzel',serif; color:var(--text); }
+.bar-row { margin-top:10px; }
+.bar-lbl { font-size:11px; color:var(--text-dim); display:flex; justify-content:space-between; margin-bottom:4px; }
+.bar-track { height:7px; background:var(--gold-border); border-radius:4px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--gold),var(--gold-light)); }
+.dept-risk-alert {
+  margin-top:10px; padding:8px 10px; border-radius:8px;
+  background:var(--risk-bg); color:var(--risk-red);
+  font-size:12px; border:1px solid var(--risk-border);
+}
+
+/* AT RISK */
+.risk-controls {
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:16px; font-size:14px; color:var(--text-mid); flex-wrap:wrap;
+}
+.risk-controls strong { color:var(--risk-red); }
+input[type=range] { accent-color:var(--risk-red); }
+table.risk-tbl thead th { color:var(--risk-red); background:var(--risk-bg); }
+table.risk-tbl { border-color:var(--risk-border); }
+
+/* MODAL */
+.overlay {
+  position:fixed; inset:0; z-index:200;
+  background:rgba(0,0,0,.45);
+  display:flex; align-items:center; justify-content:center;
+}
+.modal {
+  background:var(--surface); border-radius:16px; padding:28px;
+  max-width:460px; width:92%;
+  border:1px solid var(--gold-border);
+  box-shadow:0 20px 60px rgba(0,0,0,.14);
+  animation:fadeUp .2s ease;
+}
+.modal h3 {
+  font-family:'Cinzel',serif; color:var(--gold);
+  font-size:15px; letter-spacing:.1em; margin-bottom:14px;
+}
+.modal p { font-size:14px; color:var(--text-mid); margin-bottom:16px; line-height:1.65; }
+.pdf-check {
+  display:flex; align-items:center; gap:9px;
+  padding:8px 0; border-bottom:1px solid var(--gold-border);
+  font-size:14px;
+}
+.pdf-check:last-child{border-bottom:none}
+.pdf-check input { accent-color:var(--gold); width:15px; height:15px; }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+
+/* LOADER */
+#loader {
+  position:fixed; inset:0; z-index:999;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg); flex-direction:column;
+}
+.loader-icon {
+  font-family:'Cinzel',serif; font-size:48px; color:var(--gold);
+  animation:pulse 1.4s ease infinite;
+}
+@keyframes pulse {
+  0%,100%{opacity:.3;transform:scale(.96)} 50%{opacity:1;transform:scale(1)}
+}
+.loader-text {
+  font-family:'Cinzel',serif; font-size:10px; letter-spacing:.28em;
+  color:var(--text-dim); margin-top:14px;
+}
+
+/* NOTIF */
+.notif {
+  position:fixed; bottom:22px; right:22px; z-index:999;
+  background:var(--gold); color:#fff; padding:11px 18px;
+  border-radius:10px; font-family:'Cinzel',serif; font-size:11px;
+  letter-spacing:.1em; box-shadow:0 8px 24px rgba(184,134,11,.35);
+  animation:fadeUp .3s ease; transition:opacity .4s;
+}
+.notif.err { background:var(--risk-red); }
+
+@media(max-width:600px){
+  .cal-grid{gap:3px}
+  .day{min-height:46px; padding:4px}
+  .dcount{font-size:12px; right:4px}
+  .dcount .u{font-size:10px}
+  .tabs{overflow-x:auto}
+  .tab{font-size:9px;padding:11px 12px}
+  .tsep{display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important; transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-icon">⚜</div>
+  <div class="loader-text">LOADING RECORDS…</div>
+</div>
+
+<div id="app" style="display:none">
+
+<!-- HEADER -->
+<header>
+  <div class="eyebrow">Teacher Dashboard · Academic Records</div>
+  <h1>CLASS ACTIVITY CONSOLE</h1>
+  <div class="hruler"><span></span><em>Academic Year 2026–27</em><span></span></div>
+  <div style="height:14px"></div>
+</header>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="tg">
+    <label class="tlabel" for="deptSel">Department</label>
+    <select id="deptSel"></select>
+  </div>
+  <div class="tsep"></div>
+  <div class="tg">
+    <label class="tlabel" for="searchBox">Search</label>
+    <input type="text" id="searchBox" placeholder="Student name…" style="width:155px">
+  </div>
+  <div class="tsep"></div>
+  <div class="tg">
+    <label class="tlabel" for="dfrom">From</label>
+    <input type="date" id="dfrom">
+    <span style="color:var(--text-dim);font-size:13px">–</span>
+    <input type="date" id="dto" aria-label="To date">
+    <button class="btn sm" id="clearDatesBtn">✕ Clear</button>
+  </div>
+  <div class="tsep"></div>
+  <div class="tg" style="margin-left:auto">
+    <button class="btn" id="csvBtn">⬇ CSV</button>
+    <button class="btn primary" id="pdfBtn">📄 Download Report</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs" role="tablist">
+  <button class="tab active" id="t-cal"  role="tab" data-tab="cal">📅 Calendar</button>
+  <button class="tab"        id="t-lb"   role="tab" data-tab="lb">🏆 Leaderboard</button>
+  <button class="tab"        id="t-dept" role="tab" data-tab="dept">🏛 Departments</button>
+  <button class="tab"        id="t-risk" role="tab" data-tab="risk">
+    ⚠ At-Risk <span class="badge danger" id="riskBadge">0</span>
+  </button>
+</div>
+
+<!-- LOAD ERROR -->
+<div id="errBox" role="alert">
+  <span>Couldn't load student records. Check your connection, then try again.</span>
+  <button class="btn sm" id="retryBtn">Retry</button>
+</div>
+
+<!-- STATS BAR -->
+<div style="padding:16px 18px 0">
+  <div class="stats-bar" id="statsBar"></div>
+</div>
+
+<!-- CONTENT -->
+<div class="main-wrap">
+
+  <!-- CALENDAR -->
+  <div class="tc active" id="tc-cal">
+    <p class="cal-legend">Each day shows <strong>activities · students</strong>.
+      In a day's breakdown, a number in brackets after a name is how many activities that student recorded that day.</p>
+    <div id="calWrap"></div>
+    <div id="breakdown"></div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div class="tc" id="tc-lb">
+    <div class="lb-wrap">
+      <table id="lbTable">
+        <thead>
+          <tr>
+            <th data-sort="rank" tabindex="0">RANK ↕</th>
+            <th data-sort="name" tabindex="0">STUDENT ↕</th>
+            <th data-sort="dept" tabindex="0">DEPT ↕</th>
+            <th data-sort="total" tabindex="0" title="Total activities (active days)">TOTAL (DAYS) ↕</th>
+            <th data-sort="quests" tabindex="0">QUESTS ↕</th>
+            <th data-sort="videos" tabindex="0">VIDEOS ↕</th>
+            <th data-sort="stories" tabindex="0">STORIES ↕</th>
+            <th data-sort="streak" tabindex="0">STREAK ↕</th>
+            <th data-sort="last" tabindex="0">LAST ACTIVE ↕</th>
+            <th>STATUS</th>
+            <th>FLAG</th>
+          </tr>
+        </thead>
+        <tbody id="lbBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- DEPARTMENTS -->
+  <div class="tc" id="tc-dept">
+    <div class="dept-grid" id="deptGrid"></div>
+  </div>
+
+  <!-- AT RISK -->
+  <div class="tc" id="tc-risk">
+    <div class="risk-controls">
+      <span>Flag students with fewer than
+        <strong id="thrDisplay">3</strong> activities in last 14 days</span>
+      <input type="range" min="1" max="15" value="3" id="thrSlider" aria-label="At-risk threshold">
+    </div>
+    <div class="lb-wrap">
+      <table class="risk-tbl">
+        <thead>
+          <tr>
+            <th>STUDENT</th><th>DEPT</th><th>TOTAL (DAYS)</th>
+            <th>LAST 14 DAYS</th><th>STREAK</th><th>LAST ACTIVE</th><th>REASON</th>
+          </tr>
+        </thead>
+        <tbody id="riskBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /main-wrap -->
+</div><!-- /app -->
+
+<!-- PDF MODAL -->
+<div class="overlay" id="pdfOverlay" style="display:none" role="dialog" aria-modal="true" aria-labelledby="pdfTitle">
+  <div class="modal">
+    <h3 id="pdfTitle">📄 GENERATE ACTIVITY REPORT</h3>
+    <p>Select sections to include. Report scope:<br>
+      <strong id="pdfScope" style="color:var(--gold)">All Departments</strong>
+    </p>
+    <div>
+      <div class="pdf-check"><input type="checkbox" id="ps1" checked><label for="ps1">Overview &amp; Statistics Summary</label></div>
+      <div class="pdf-check"><input type="checkbox" id="ps2" checked><label for="ps2">Department Comparison</label></div>
+      <div class="pdf-check"><input type="checkbox" id="ps3" checked><label for="ps3">Student Leaderboard (Top 30)</label></div>
+      <div class="pdf-check"><input type="checkbox" id="ps4" checked><label for="ps4">At-Risk Student Alerts</label></div>
+      <div class="pdf-check"><input type="checkbox" id="ps5" checked><label for="ps5">Attendance &amp; Streak Tracking</label></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="pdfCancel">Cancel</button>
+      <button class="btn primary" id="pdfGo">⬇ Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCRIPT
+════════════════════════════════════════════ -->
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const sb = createClient(
+  "https://yellow-lab-4999.andrewveda.workers.dev",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFoZXpzc29jenZwYmt0ZWZmY2d6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NTk1ODUsImV4cCI6MjA3ODQzNTU4NX0.2ZlqXnZxv0opkhynAT7OlK4S-xPygcc7ETUyTXRfGHE"
+);
+
+/* ── HELPERS ── */
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const startOfDay = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const dkey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const parseLocal = str => { const [y,m,d] = str.split("-").map(Number); return new Date(y, m-1, d); };
+const fmtDate = d => d ? d.toLocaleDateString("en-IN") : "—";
+
+/* ── CONSTANTS (all local-midnight dates, so no timezone drift) ── */
+const START_DATE = new Date(2026, 8, 1);   // 1 Sep 2026 = item number 1
+const CAL_START  = new Date(2026, 8, 1);
+const TODAY      = startOfDay(new Date());
+const CUT14      = addDays(TODAY, -13);    // today + previous 13 days
+const TYPES = [
+  ["quest_list", "Quest"],
+  ["video_list", "Video"],
+  ["story_list", "Story"],
+];
+
+/* ── STATE ── */
+let storedFlags = [];
+try { storedFlags = JSON.parse(localStorage.getItem("atRiskManual") || "[]"); } catch {}
+
+const G = window.G = {
+  all: [],
+  dept: "ALL",
+  search: "",
+  dateFrom: null,
+  dateTo: null,
+  threshold: 3,
+  sortKey: "total",
+  sortDir: -1,
+  atRisk: new Set(storedFlags),
+  selectedDay: null,
+  dateMap: {},
+  render,
+};
+
+/* ── PARSE + PRECOMPUTE (done once per student at load) ── */
+function parseItems(raw) {
+  if (!raw || raw === "NULL") return [];
+  return raw.split(",").map(i => i.trim()).filter(Boolean).map(i => {
+    const [t, n] = i.split(" ");
+    return { type: t, number: +n };
+  }).filter(i => Number.isFinite(i.number));
+}
+function n2date(n) {
+  return new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate() + (n - 1));
+}
+function prepare(s) {
+  s._dept = (s.department || "UNKNOWN").toUpperCase();
+  s._acts = TYPES.flatMap(([field, label]) =>
+    parseItems(s[field]).map(i => ({ type: label, date: n2date(i.number) })));
+
+  // Only activity up to today counts towards recency, last active and streak.
+  const past = s._acts.filter(a => a.date <= TODAY);
+  s._r14 = past.filter(a => a.date >= CUT14).length;
+
+  const dayKeys = new Set(past.map(a => dkey(a.date)));
+  s._last = past.length ? new Date(Math.max(...past.map(a => a.date.getTime()))) : null;
+
+  // Current streak: consecutive active days ending today (or yesterday, so it
+  // doesn't reset to zero before the student has had a chance to act today).
+  let streak = 0;
+  let cur = dayKeys.has(dkey(TODAY)) ? TODAY : (dayKeys.has(dkey(addDays(TODAY, -1))) ? addDays(TODAY, -1) : null);
+  while (cur && dayKeys.has(dkey(cur))) { streak++; cur = addDays(cur, -1); }
+  s._streak = streak;
+  return s;
+}
+
+/* ── DATE-FILTERED VIEWS ── */
+function inRange(d) {
+  if (G.dateFrom && d < G.dateFrom) return false;
+  if (G.dateTo   && d > G.dateTo)   return false;
+  return true;
+}
+const actsIn = s => s._acts.filter(a => inRange(a.date));
+const totalIn = s => actsIn(s).length;
+
+/* ── FILTER ── */
+function filtered() {
+  return G.all.filter(s => {
+    if (G.dept !== "ALL" && s._dept !== G.dept) return false;
+    if (G.search && !(s.name || "").toLowerCase().includes(G.search)) return false;
+    return true;
+  });
+}
+function isAtRisk(s) {
+  return G.atRisk.has(s.name) || s._r14 < G.threshold;
+}
+
+/* ── LOAD ── */
+async function load() {
+  $("loader").style.display = "flex";
+  $("errBox").style.display = "none";
+  let data = null, error = null;
+  try {
+    ({ data, error } = await sb.from("report_card_cse2_view").select("*"));
+  } catch (e) { error = e; }
+  $("loader").style.display = "none";
+  $("app").style.display = "block";
+  if (error) {
+    $("errBox").style.display = "flex";
+    notify("⚠ Data load failed", true);
+    return;
+  }
+  G.all = (data || []).map(prepare);
+  const depts = [...new Set(G.all.map(s => s._dept))].sort();
+  $("deptSel").innerHTML = `<option value="ALL">All Departments</option>` +
+    depts.map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join("");
+  G.dept = "ALL";
+  render();
+}
+window.addEventListener("load", load);
+
+/* ── RENDER ALL ── */
+function render() {
+  renderStats();
+  renderCalendar();
+  renderBreakdown();
+  renderLeaderboard();
+  renderDepts();
+  renderAtRisk();
+}
+
+/* ── STATS ── */
+function renderStats() {
+  const data = filtered();
+  const total = data.reduce((a, s) => a + totalIn(s), 0);
+  const riskCount = data.filter(isAtRisk).length;
+  const avgStreak = data.length ? Math.round(data.reduce((a, s) => a + s._streak, 0) / data.length) : 0;
+  const avg = data.length ? Math.round(total / data.length) : 0;
+
+  $("statsBar").innerHTML = `
+    <div class="sc"><div class="num">${data.length}</div><div class="lbl">Students</div></div>
+    <div class="sc"><div class="num">${total}</div><div class="lbl">Total Activities</div></div>
+    <div class="sc"><div class="num">${avg}</div><div class="lbl">Avg / Student</div></div>
+    <div class="sc"><div class="num">${avgStreak}d</div><div class="lbl">Avg Current Streak</div></div>
+    <div class="sc danger"><div class="num">${riskCount}</div><div class="lbl">At-Risk</div></div>
+  `;
+  $("riskBadge").textContent = riskCount;
+}
+
+/* ── CALENDAR ──
+   G.dateMap[dayKey] = { acts, students: Map(student -> {count, types}) }  */
+function renderCalendar() {
+  const dm = {};
+  filtered().forEach(s => {
+    actsIn(s).forEach(a => {
+      const k = dkey(a.date);
+      const day = (dm[k] ??= { acts: 0, students: new Map() });
+      day.acts++;
+      const e = day.students.get(s) ?? { count: 0, types: {} };
+      e.count++;
+      e.types[a.type] = (e.types[a.type] || 0) + 1;
+      day.students.set(s, e);
+    });
+  });
+  G.dateMap = dm;
+  if (G.selectedDay && !dm[G.selectedDay]) G.selectedDay = null;
+
+  const parts = [];
+  let cur = new Date(CAL_START.getFullYear(), CAL_START.getMonth(), 1);
+  const lastMonth = TODAY > CAL_START ? TODAY : CAL_START;
+  const end = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
+  while (cur <= end) {
+    parts.push(renderMonth(new Date(cur), dm));
+    cur = new Date(cur.getFullYear(), cur.getMonth() + 1, 1);
+  }
+  $("calWrap").innerHTML = parts.join("");
+}
+
+function renderMonth(base, dm) {
+  const y = base.getFullYear(), m = base.getMonth();
+  const first = new Date(y, m, 1).getDay();
+  const days  = new Date(y, m + 1, 0).getDate();
+  const DAYS  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const todayKey = dkey(TODAY);
+
+  let h = `<div class="month-block">
+    <div class="month-title">${esc(base.toLocaleString('en-IN', { month: 'long', year: 'numeric' }))}</div>
+    <div class="cal-grid">
+    ${DAYS.map(d => `<div class="dlbl">${d}</div>`).join('')}`;
+
+  for (let i = 0; i < first; i++) h += `<div></div>`;
+  for (let d = 1; d <= days; d++) {
+    const date = new Date(y, m, d);
+    const k = dkey(date);
+    const info = dm[k];
+    const cls = (k === todayKey ? " today" : "");
+    if (info) {
+      const n = info.acts, u = info.students.size;
+      const lvl = n > 20 ? "peak" : n > 10 ? "heavy" : n > 5 ? "medium" : "light";
+      const sel = G.selectedDay === k ? " selected" : "";
+      h += `<button type="button" class="day marked ${lvl}${sel}${cls}" data-day="${k}"
+              aria-label="${d} ${esc(base.toLocaleString('en-IN', { month: 'long' }))}: ${n} activities by ${u} students">
+              <span class="dnum">${d}</span>
+              <span class="dcount">${n}<span class="u"> · ${u}</span></span>
+            </button>`;
+    } else {
+      h += `<div class="day${cls}"><span class="dnum">${d}</span></div>`;
+    }
+  }
+  return h + "</div></div>";
+}
+
+function showDay(key) {
+  G.selectedDay = key;
+  renderCalendar();
+  renderBreakdown();
+  $("breakdown").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+function closeDay() {
+  G.selectedDay = null;
+  renderCalendar();
+  renderBreakdown();
+}
+
+function renderBreakdown() {
+  const panel = $("breakdown");
+  const info = G.selectedDay && G.dateMap[G.selectedDay];
+  if (!info) { panel.style.display = "none"; return; }
+
+  const byDept = {};
+  info.students.forEach((v, s) => { (byDept[s._dept] ??= []).push({ s, ...v }); });
+
+  const label = parseLocal(G.selectedDay).toLocaleDateString("en-IN",
+    { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+  let h = `<div class="bd-header">
+    <span>📅 ${esc(label)}</span>
+    <span style="font-weight:400;font-size:12px;color:var(--text-dim)">${info.acts} activities · ${info.students.size} students</span>
+    <button class="btn sm" data-close-day>✕ Close</button>
+  </div><div class="dept-cards">`;
+
+  Object.keys(byDept).sort().forEach(dept => {
+    const list = byDept[dept].sort((a, b) => (a.s.name || "").localeCompare(b.s.name || ""));
+    h += `<div class="dc">
+      <div class="dc-title">${esc(dept)}<span>${list.length}</span></div>
+      <div class="slist">${list.map(({ s, count, types }) => `
+        <div class="srow" title="${esc(Object.entries(types).map(([t, n]) => `${t} ×${n}`).join(", "))}">
+          <span>${esc(s.name)}${count > 1 ? ` <span class="rep">(${count})</span>` : ""}</span>
+          ${G.atRisk.has(s.name) ? '<span class="rtag">AT RISK</span>' : ""}
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  panel.innerHTML = h + "</div>";
+  panel.style.display = "block";
+}
+
+/* ── ROWS (shared by leaderboard, CSV and PDF) ── */
+function buildRows() {
+  const rows = filtered().map(s => {
+    const a = actsIn(s);
+    const by = t => a.filter(x => x.type === t).length;
+    return {
+      name: s.name || "Unnamed", dept: s._dept,
+      total: a.length,
+      days: new Set(a.map(x => dkey(x.date))).size,
+      quests: by("Quest"), videos: by("Video"), stories: by("Story"),
+      streak: s._streak, last: s._last, r14: s._r14, risk: isAtRisk(s),
+    };
+  });
+  // Competition ranking by total activities (ties share a rank), independent of table sort.
+  const byTotal = [...rows].sort((a, b) => b.total - a.total);
+  byTotal.forEach((r, i) => {
+    r.rank = (i > 0 && r.total === byTotal[i - 1].total) ? byTotal[i - 1].rank : i + 1;
+  });
+  return rows;
+}
+const totalLabel = r => `${r.total} (${r.days}d)`;
+
+/* ── LEADERBOARD ── */
+function renderLeaderboard() {
+  const rows = buildRows();
+  const max = Math.max(...rows.map(r => r.total), 1);
+  const key = G.sortKey;
+  const sorted = [...rows].sort((a, b) => {
+    const av = a[key], bv = b[key];
+    if (key === "last") return G.sortDir * ((av ? av.getTime() : 0) - (bv ? bv.getTime() : 0));
+    if (typeof av === "string") return G.sortDir * av.localeCompare(bv || "");
+    return G.sortDir * ((av || 0) - (bv || 0));
+  });
+  const medals = ["🥇", "🥈", "🥉"];
+  $("lbBody").innerHTML = sorted.map(r => `
+    <tr class="${r.risk ? "riskrow" : ""}">
+      <td>${r.total > 0 && r.rank <= 3 ? medals[r.rank - 1] : `<span style="color:var(--text-dim)">${r.rank}</span>`}</td>
+      <td><strong>${esc(r.name)}</strong>${G.atRisk.has(r.name) ? '<span class="risk-badge">FLAGGED</span>' : ''}</td>
+      <td>${esc(r.dept)}</td>
+      <td>
+        <div class="ab-wrap" title="${r.total} activities across ${r.days} active days">
+          <div class="ab"><div class="ab-fill" style="width:${Math.round(r.total / max * 100)}%"></div></div>
+          <span><strong>${r.total}</strong> <span class="rep">(${r.days}d)</span></span>
+        </div>
+      </td>
+      <td>${r.quests}</td><td>${r.videos}</td><td>${r.stories}</td>
+      <td>${r.streak > 0 ? `<span class="streak-pill">🔥 ${r.streak}d</span>` : "—"}</td>
+      <td style="font-size:12px;color:var(--text-dim)">${fmtDate(r.last)}</td>
+      <td>${r.risk
+        ? `<span style="color:var(--risk-red);font-size:13px">⚠ Low</span>`
+        : `<span style="color:var(--success);font-size:13px">✓ Active</span>`}</td>
+      <td>
+        <button class="flag-btn ${G.atRisk.has(r.name) ? "on" : ""}" data-flag="${esc(r.name)}">
+          ${G.atRisk.has(r.name) ? "✓ Flagged" : "Flag"}
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+function sortBy(key) {
+  if (G.sortKey === key) G.sortDir *= -1;
+  else { G.sortKey = key; G.sortDir = (key === "name" || key === "dept" || key === "rank") ? 1 : -1; }
+  renderLeaderboard();
+}
+
+function toggleFlag(name) {
+  if (G.atRisk.has(name)) G.atRisk.delete(name);
+  else G.atRisk.add(name);
+  try { localStorage.setItem("atRiskManual", JSON.stringify([...G.atRisk])); } catch {}
+  render();
+}
+
+/* ── DEPARTMENTS ── */
+function renderDepts() {
+  const dmap = {};
+  filtered().forEach(s => { (dmap[s._dept] ??= []).push(s); });
+  const allDepts = Object.keys(dmap).sort();
+  const totals = {};
+  allDepts.forEach(d => { totals[d] = dmap[d].reduce((a, s) => a + totalIn(s), 0); });
+  const maxTotal = Math.max(...Object.values(totals), 1);
+
+  $("deptGrid").innerHTML = allDepts.map(dept => {
+    const ss = dmap[dept];
+    const total = totals[dept];
+    const avg = Math.round(total / ss.length);
+    const riskC = ss.filter(isAtRisk).length;
+    const avgSt = Math.round(ss.reduce((a, s) => a + s._streak, 0) / ss.length);
+    const pct = Math.round(total / maxTotal * 100);
+    return `<div class="dept-card">
+      <div class="dept-card-name">${esc(dept)}</div>
+      <div class="dsr"><span>Students</span><strong>${ss.length}</strong></div>
+      <div class="dsr"><span>Total Activities</span><strong>${total}</strong></div>
+      <div class="dsr"><span>Avg / Student</span><strong>${avg}</strong></div>
+      <div class="dsr"><span>Avg Streak</span><strong>${avgSt}d</strong></div>
+      <div class="bar-row">
+        <div class="bar-lbl"><span>Activity Share</span><span>${pct}%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      ${riskC > 0 ? `<div class="dept-risk-alert">⚠ ${riskC} student${riskC > 1 ? "s" : ""} at risk</div>` : ""}
+    </div>`;
+  }).join('');
+}
+
+/* ── AT RISK ── */
+function renderAtRisk() {
+  const rows = buildRows().filter(r => r.risk).sort((a, b) => a.r14 - b.r14);
+  $("riskBadge").textContent = rows.length;
+  const body = $("riskBody");
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:32px">No at-risk students — all students are active ✓</td></tr>`;
+    return;
+  }
+  body.innerHTML = rows.map(r => {
+    const manual = G.atRisk.has(r.name);
+    const reason = manual ? "Manually flagged" : `Only ${r.r14} activities in 14 days`;
+    return `<tr>
+      <td><strong>${esc(r.name)}</strong>${manual ? '<span class="risk-badge">FLAGGED</span>' : ''}</td>
+      <td>${esc(r.dept)}</td>
+      <td>${r.total} <span class="rep">(${r.days}d)</span></td>
+      <td style="color:var(--risk-red);font-weight:700">${r.r14}</td>
+      <td>${r.streak > 0 ? `🔥 ${r.streak}d` : "—"}</td>
+      <td style="font-size:12px;color:var(--text-dim)">${fmtDate(r.last)}</td>
+      <td style="font-size:13px;color:var(--text-mid)">${esc(reason)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── TAB SWITCH ── */
+function switchTab(id) {
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.remove("active"); t.setAttribute("aria-selected", "false");
+  });
+  document.querySelectorAll(".tc").forEach(c => c.classList.remove("active"));
+  $("t-" + id).classList.add("active");
+  $("t-" + id).setAttribute("aria-selected", "true");
+  $("tc-" + id).classList.add("active");
+}
+
+/* ── CSV EXPORT ── */
+function csvCell(v) {
+  let s = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;          // block spreadsheet formula injection
+  return '"' + s.replace(/"/g, '""') + '"';
+}
+function exportCSV() {
+  const rows = buildRows();
+  const head = ["Rank","Name","Department","Total","Active Days","Total (Active Days)",
+                "Quests","Videos","Stories","Current Streak (days)","Last Active","Last 14 Days","At Risk"];
+  const lines = rows.map(r => [
+    r.rank, r.name, r.dept, r.total, r.days, totalLabel(r),
+    r.quests, r.videos, r.stories, r.streak,
+    r.last ? fmtDate(r.last) : "—", r.r14, r.risk ? "Yes" : "No",
+  ].map(csvCell).join(","));
+  const csv = "\uFEFF" + [head.map(csvCell).join(","), ...lines].join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  a.download = `activity-${G.dept}-${dkey(new Date())}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  notify("CSV downloaded");
+}
+
+/* ── PDF MODAL ── */
+function openPDF() {
+  $("pdfScope").textContent = G.dept === "ALL" ? "All Departments" : G.dept;
+  $("pdfOverlay").style.display = "flex";
+}
+function closePDF() { $("pdfOverlay").style.display = "none"; }
+
+/* ── PDF GENERATE ── */
+function generatePDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const W   = doc.internal.pageSize.getWidth();
+  const now = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" });
+  const scopeLabel = G.dept === "ALL" ? "All Departments" : G.dept;
+  const data = filtered();
+  const rows = buildRows();
+  let y = 15;
+
+  const GOLD = [184,134,11];
+  const DARK = [26,21,16];
+  const DIM  = [100,80,60];
+  const RRED = [192,57,43];
+  const RBGR = [255,235,233];
+  const OK   = [46,125,50];
+
+  function chk(need = 25) { if (y + need > 272) { doc.addPage(); y = 15; } }
+  function hdr(txt, size = 13, col = GOLD) {
+    chk(14);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(size); doc.setTextColor(...col);
+    doc.text(txt, 14, y); y += 8;
+  }
+  function rule(col = GOLD) {
+    doc.setDrawColor(...col); doc.setLineWidth(0.35);
+    doc.line(14, y, W - 14, y); y += 5;
+  }
+
+  /* COVER BAND */
+  doc.setFillColor(...GOLD);
+  doc.rect(0, 0, W, 42, "F");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20); doc.setTextColor(255, 255, 255);
+  doc.text("CLASS ACTIVITY REPORT", W / 2, 17, { align: "center" });
+  doc.setFontSize(11);
+  doc.text("Academic Year 2026-27", W / 2, 26, { align: "center" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+  doc.text(`Generated: ${now}   |   Scope: ${scopeLabel}`, W / 2, 35, { align: "center" });
+  y = 52;
+
+  /* 1. OVERVIEW */
+  if ($("ps1").checked) {
+    hdr("1. Overview & Statistics");
+    rule();
+    const totalActs = data.reduce((a, s) => a + totalIn(s), 0);
+    const riskCnt = data.filter(isAtRisk).length;
+    const avgSt = data.length ? Math.round(data.reduce((a, s) => a + s._streak, 0) / data.length) : 0;
+    const avgAct = data.length ? Math.round(totalActs / data.length) : 0;
+    const range = (G.dateFrom || G.dateTo)
+      ? `${G.dateFrom ? fmtDate(G.dateFrom) : "start"} to ${G.dateTo ? fmtDate(G.dateTo) : "today"}`
+      : "Full period";
+
+    doc.autoTable({
+      startY: y,
+      head: [["Metric", "Value"]],
+      body: [
+        ["Total Students", data.length],
+        ["Total Activities (filtered)", totalActs],
+        ["Average Activities / Student", avgAct],
+        ["Average Current Streak", `${avgSt} days`],
+        ["At-Risk Students", riskCnt],
+        ["At-Risk Threshold", `< ${G.threshold} activities in 14 days`],
+        ["Date Range Filter", range],
+        ["Manually Flagged", G.atRisk.size],
+      ],
+      theme: "plain",
+      styles: { fontSize: 10, cellPadding: 3.5, textColor: DARK },
+      headStyles: { fillColor: GOLD, textColor: [255,255,255], fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [250,248,244] },
+      margin: { left: 14, right: 14 },
+    });
+    y = doc.lastAutoTable.finalY + 12;
+  }
+
+  /* 2. DEPARTMENTS */
+  if ($("ps2").checked) {
+    chk(20); hdr("2. Department Comparison"); rule();
+    const dmap = {};
+    data.forEach(s => { (dmap[s._dept] ??= []).push(s); });
+    const deptRows = Object.keys(dmap).sort().map(dept => {
+      const ss = dmap[dept];
+      const total = ss.reduce((a, s) => a + totalIn(s), 0);
+      const avg = Math.round(total / ss.length);
+      const risk = ss.filter(isAtRisk).length;
+      const avgSt = Math.round(ss.reduce((a, s) => a + s._streak, 0) / ss.length);
+      return [dept, ss.length, total, avg, `${avgSt}d`, risk];
+    });
+    doc.autoTable({
+      startY: y,
+      head: [["Department","Students","Total Activities","Avg/Student","Avg Streak","At-Risk"]],
+      body: deptRows,
+      theme: "plain",
+      styles: { fontSize: 9.5, cellPadding: 3.2, textColor: DARK },
+      headStyles: { fillColor: GOLD, textColor: [255,255,255], fontStyle: "bold" },
+      columnStyles: { 5: { textColor: RRED, fontStyle: "bold" } },
+      alternateRowStyles: { fillColor: [250,248,244] },
+      margin: { left: 14, right: 14 },
+    });
+    y = doc.lastAutoTable.finalY + 12;
+  }
+
+  /* 3. LEADERBOARD */
+  if ($("ps3").checked) {
+    chk(20); hdr("3. Student Leaderboard - Top 30 by Total Activity"); rule();
+    const top30 = [...rows].sort((a, b) => a.rank - b.rank).slice(0, 30);
+    doc.autoTable({
+      startY: y,
+      head: [["Rank","Name","Dept","Total (days)","Quests","Videos","Stories","Streak","Last Active"]],
+      body: top30.map(r => [
+        r.rank, r.name, r.dept, totalLabel(r), r.quests, r.videos, r.stories,
+        r.streak > 0 ? `${r.streak}d` : "-", fmtDate(r.last),
+      ]),
+      theme: "plain",
+      styles: { fontSize: 8.5, cellPadding: 2.8, textColor: DARK },
+      headStyles: { fillColor: GOLD, textColor: [255,255,255], fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [250,248,244] },
+      margin: { left: 14, right: 14 },
+    });
+    y = doc.lastAutoTable.finalY + 12;
+  }
+
+  /* 4. AT-RISK */
+  if ($("ps4").checked) {
+    chk(20); hdr("4. At-Risk Student Alerts", 13, RRED); rule(RRED);
+    const riskList = rows.filter(r => r.risk).sort((a, b) => a.r14 - b.r14);
+    if (!riskList.length) {
+      chk(10);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+      doc.setTextColor(...OK);
+      doc.text("No at-risk students detected. All students are active.", 14, y); y += 10;
+    } else {
+      doc.autoTable({
+        startY: y,
+        head: [["Name","Dept","Total (days)","Last 14d","Streak","Last Active","Reason"]],
+        body: riskList.map(r => [
+          r.name, r.dept, totalLabel(r), r.r14,
+          r.streak > 0 ? `${r.streak}d` : "-", fmtDate(r.last),
+          G.atRisk.has(r.name) ? "Manually flagged" : `Only ${r.r14} activities`,
+        ]),
+        theme: "plain",
+        styles: { fontSize: 8.5, cellPadding: 2.8, textColor: DARK },
+        headStyles: { fillColor: RRED, textColor: [255,255,255], fontStyle: "bold" },
+        alternateRowStyles: { fillColor: RBGR },
+        margin: { left: 14, right: 14 },
+      });
+      y = doc.lastAutoTable.finalY + 12;
+    }
+  }
+
+  /* 5. STREAKS */
+  if ($("ps5").checked) {
+    chk(20); hdr("5. Attendance & Streak Tracking"); rule();
+    const streakRows = [...rows].sort((a, b) => b.streak - a.streak).map(r => [
+      r.name, r.dept,
+      r.streak > 0 ? `${r.streak}d` : "-",
+      r.r14,
+      r.last ? fmtDate(r.last) : "Never",
+      r.risk ? "At Risk" : "Active",
+    ]);
+    doc.autoTable({
+      startY: y,
+      head: [["Name","Dept","Current Streak","Last 14 Days","Last Active","Status"]],
+      body: streakRows,
+      theme: "plain",
+      styles: { fontSize: 8.5, cellPadding: 2.8, textColor: DARK },
+      headStyles: { fillColor: GOLD, textColor: [255,255,255], fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [250,248,244] },
+      didParseCell(d) {
+        if (d.section === "body" && d.column.index === 5) {
+          d.cell.styles.textColor = d.cell.raw === "At Risk" ? RRED : OK;
+          d.cell.styles.fontStyle = "bold";
+        }
+      },
+      margin: { left: 14, right: 14 },
+    });
+    y = doc.lastAutoTable.finalY + 12;
+  }
+
+  /* FOOTER */
+  const pages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8); doc.setTextColor(...DIM);
+    doc.text(`Class Activity Console  |  ${now}  |  ${scopeLabel}  |  Page ${i} of ${pages}`,
+      W / 2, 289, { align: "center" });
+  }
+
+  doc.save(`activity-report-${G.dept}-${dkey(new Date())}.pdf`);
+  closePDF();
+  notify("PDF downloaded");
+}
+
+/* ── NOTIFY ── */
+function notify(msg, err = false) {
+  const n = document.createElement("div");
+  n.className = "notif" + (err ? " err" : "");
+  n.setAttribute("role", "status");
+  n.textContent = msg;
+  document.body.appendChild(n);
+  setTimeout(() => { n.style.opacity = "0"; setTimeout(() => n.remove(), 400); }, 2800);
+}
+
+/* ── EVENT WIRING ── */
+let searchTimer;
+$("searchBox").addEventListener("input", e => {
+  clearTimeout(searchTimer);
+  const v = e.target.value.trim().toLowerCase();
+  searchTimer = setTimeout(() => { G.search = v; render(); }, 180);
+});
+$("deptSel").addEventListener("change", e => { G.dept = e.target.value; render(); });
+$("dfrom").addEventListener("change", e => { G.dateFrom = e.target.value ? parseLocal(e.target.value) : null; render(); });
+$("dto").addEventListener("change", e => { G.dateTo = e.target.value ? parseLocal(e.target.value) : null; render(); });
+$("clearDatesBtn").addEventListener("click", () => {
+  $("dfrom").value = ""; $("dto").value = "";
+  G.dateFrom = null; G.dateTo = null; render();
+});
+$("thrSlider").addEventListener("input", e => {
+  G.threshold = +e.target.value;
+  $("thrDisplay").textContent = e.target.value;
+  render();
+});
+$("csvBtn").addEventListener("click", exportCSV);
+$("pdfBtn").addEventListener("click", openPDF);
+$("pdfCancel").addEventListener("click", closePDF);
+$("pdfGo").addEventListener("click", generatePDF);
+$("pdfOverlay").addEventListener("click", e => { if (e.target === $("pdfOverlay")) closePDF(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closePDF(); });
+$("retryBtn").addEventListener("click", load);
+
+document.querySelector(".tabs").addEventListener("click", e => {
+  const t = e.target.closest("[data-tab]"); if (t) switchTab(t.dataset.tab);
+});
+$("calWrap").addEventListener("click", e => {
+  const d = e.target.closest("[data-day]"); if (d) showDay(d.dataset.day);
+});
+$("breakdown").addEventListener("click", e => {
+  if (e.target.closest("[data-close-day]")) closeDay();
+});
+$("lbBody").addEventListener("click", e => {
+  const b = e.target.closest("[data-flag]"); if (b) toggleFlag(b.dataset.flag);
+});
+const lbHead = document.querySelector("#lbTable thead");
+lbHead.addEventListener("click", e => {
+  const th = e.target.closest("[data-sort]"); if (th) sortBy(th.dataset.sort);
+});
+lbHead.addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const th = e.target.closest("[data-sort]");
+  if (th) { e.preventDefault(); sortBy(th.dataset.sort); }
+});
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"14ed74a8395a4caaabc04f8e17f83022","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
