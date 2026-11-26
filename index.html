@@ -886,7 +886,7 @@ const ENTRIES = [
       
       const ignoreKeys = [
         'cachedUserData', 'userIdentityMode', 'userIdentityIndex', 'userDept', 
-        'vfv_dept', 'userName', 'guest_mode', 'logged_in', 'auth_provider', 
+        'vfv_dept', 'guest_mode', 'logged_in', 'auth_provider', 
         'github_username', 'github_id', 'github_profile',
         'chess_username', 'chess_id', 'chess_profile', 'avatar'
       ];
@@ -1174,29 +1174,43 @@ const ALIAS_KEY = 'verve_known_aliases';
     await fetchUserData(name);
   }
 
-  async function fetchUserData(name) {
-    try {
-      // 1. Aggressively scrape all stored aliases to merge quests & metrics
-      const aliases = extractAllNamesFromStorage(name);
-      
+    const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  async function fetchAllReportCards() {
+    const pageSize = 1000;
+    let all = [];
+    let from = 0;
+
+    while (true) {
       const { data, error } = await supabase
         .from("report_card_view")
-        .select("*");
+        .select("*")
+        .order("name", { ascending: true })
+        .range(from, from + pageSize - 1);
 
       if (error) throw error;
+      if (!data || data.length === 0) break;
 
-      // 2. Filter Supabase results against the entire set of local aliases
-      const matches = (data || []).filter(u =>
-        u.name && aliases.includes(u.name.trim().toLowerCase())
-      );
+      all = all.concat(data);
+      from += data.length;
+    }
+    return all;
+  }
+
+  async function fetchUserData(name) {
+    try {
+      const aliases = extractAllNamesFromStorage(name);
+      [window.GH?.username, window.GH?.name].forEach(n => n && aliases.push(n));
+      const aliasSet = new Set(aliases.map(norm).filter(Boolean));
+
+      const data = await fetchAllReportCards();
+      console.log("fetched rows:", data.length);
+      const matches = data.filter(u => u.name && aliasSet.has(norm(u.name)));
 
       let mergedUser = null;
-      if (matches.length > 0) {
-        mergedUser = mergeUserRecords(matches);
-      }
+      if (matches.length > 0) mergedUser = mergeUserRecords(matches);
 
       if (mergedUser) {
-        // 3. Update top statistics strip with merged numbers
         document.getElementById("statQuests").textContent = mergedUser.quests_completed ?? 0;
         document.getElementById("statVideos").textContent = mergedUser.videos_completed ?? 0;
         document.getElementById("statScore").textContent = mergedUser.total_score ?? 0;
@@ -1205,8 +1219,7 @@ const ALIAS_KEY = 'verve_known_aliases';
         const h = Math.floor(sec / 3600);
         const m = Math.floor((sec % 3600) / 60);
         document.getElementById("statTime").textContent = `${h}h ${m}m`;
-        
-        // 4. Pass merged quest_list to Calendar State and Trigger Render for Fire Emojis
+
         userDataForCal = mergedUser;
         renderCalendar(currentMonth, currentYear);
       }
