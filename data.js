@@ -11,6 +11,67 @@ window.PUZZLE_DIRECTORY = {
         "ref": "Marcus Aurelius"
       },
       "puzzles": [
+
+        {
+  "id": "quote-228",
+  "num": 228,
+  "title": "Puzzle 228",
+  "sub": "There is no peak, keep evolving…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "There is no peak, keep evolving till your last breath.",
+    "author": "Unknown",
+    "contributor": "KM",
+    "dept": "CSE-2",
+    "meaning": "Success is not a finish line. I should keep learning and improving every day."
+  }
+},
+{
+  "id": "quote-227",
+  "num": 227,
+  "title": "Puzzle 227",
+  "sub": "Sometimes the greatest action of love…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "Sometimes the greatest action of love is no action at all.",
+    "author": "Malcolm Merlyn",
+    "contributor": "Megam (The Glorious)",
+    "dept": "CSE-2",
+    "meaning": "True love sometimes requires the restraint to step back, letting go or giving space instead of trying to fix or control. It means prioritising someone else's peace and freedom over your own impulse to act."
+  }
+},
+{
+  "id": "quote-226",
+  "num": 226,
+  "title": "Puzzle 226",
+  "sub": "Those who run looking sideways…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "Those who run looking sideways will never win. Those who look ahead will.",
+    "author": "Trivikram Srinivas",
+    "contributor": "Barry (Pacman)",
+    "dept": "Cyber Security",
+    "meaning": "Progress comes from keeping your focus ahead and continuing towards your goal rather than comparing yourself with or overlooking others."
+  }
+},
+{
+  "id": "quote-225",
+  "num": 225,
+  "title": "Puzzle 225",
+  "sub": "No one is born into this world…",
+  "cols": 4,
+  "rows": 5,
+  "quoteData": {
+    "quote": "No one is born into this world to be alone.",
+    "author": "Jaguar D. Saul",
+    "contributor": "Kavitha",
+    "dept": "CSE-2",
+    "meaning": "Everyone deserves love, friendship, and a place where they feel accepted. No one should feel that they have to face the world alone."
+  }
+},
 {
   "id": "quote-224",
   "num": 224,
